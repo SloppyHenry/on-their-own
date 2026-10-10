@@ -4,8 +4,8 @@ Werden vor dem jeweiligen Paket geklärt. Antworten werden hier mit Datum einget
 
 | Nr. | Paket | Frage | Vorschlag | Antwort |
 |---|---|---|---|---|
-| 1 | AP00 | Muss die App lokal unter Python 3.14 laufen, oder ist eine 3.12-Umgebung per `uv` auf dem Mac in Ordnung? | 3.12 per `uv`, gleich wie im Container | |
-| 2 | AP00 | Wenn sich das Denken der Modelle per Anfrage nicht abschalten lässt: darf ich auf maintux einen zusätzlichen Preset-Eintrag (gleiches Modell, ohne Denken) anlegen? | ja, als eigener Eintrag, bestehende bleiben unverändert | |
+| 1 | AP00 | Muss die App lokal unter Python 3.14 laufen, oder ist eine 3.12-Umgebung per `uv` auf dem Mac in Ordnung? | 3.12 per `uv`, gleich wie im Container | **Erledigt (10.10.2026):** Alle Pakete laufen unter 3.14 (Tests grün). Dieselben Versionen lösen auch für 3.12/Linux auf (`uv pip compile`), ein echter Lauf unter 3.12 steht bis AP10 aus. Lokal bleibt 3.14, `requires-python >= 3.12`. |
+| 2 | AP00 | Wenn sich das Denken der Modelle per Anfrage nicht abschalten lässt: darf ich auf maintux einen zusätzlichen Preset-Eintrag (gleiches Modell, ohne Denken) anlegen? | ja, als eigener Eintrag, bestehende bleiben unverändert | **Erledigt (10.10.2026):** Nicht nötig. `chat_template_kwargs: {"enable_thinking": false}` schaltet das Denken bei Qwen 9B pro Anfrage ab. Siehe `llm-anbindung.md`. |
 | 3 | AP04 | Grafik: freie CC0-Pakete (z. B. Kenney) herunterladen oder eigene einfache Sprites? | CC0-Paket, Lizenz in `docs/assets.md` | |
 | 4 | AP07 | Soll der Router auf maintux später mehr als einen Slot bekommen (`parallel = 2`), damit Alex und Mira gleichzeitig denken? Kostet Kontext je Slot und VRAM. | erst nach den Messungen aus AP02 entscheiden | |
 | 5 | AP08 | Nebenfiguren („Ein Fremder zieht ein“) zunächst vereinfacht ohne eigenes Gedächtnis – einverstanden? | ja, vollwertige dritte Agenten später | |
@@ -13,3 +13,4 @@ Werden vor dem jeweiligen Paket geklärt. Antworten werden hier mit Datum einget
 | 7 | AP10 | Zugangsschutz per Token im Heimnetz? | optional, standardmäßig aus | |
 | 8 | AP10 | Docker auf dem Mac nachinstallieren, um den Container vorab lokal zu testen? | nein, direkt auf maintux nach Freigabe | |
 | 9 | alle | Sprache der Agenten untereinander: Deutsch? | Deutsch, Oberfläche ebenfalls Deutsch | |
+| 10 | AP02, AP07, AP09 | Modellwahl: Wann und wie wird das Modell festgelegt? | – | **10.10.2026 (Henry):** Das Modell wird beim Anlegen einer neuen Simulation gewählt (Dropdown aus der Modellliste des Routers) und gilt, bis die Simulation beendet wird. Kein Wechsel im laufenden Betrieb. Wer ein anderes Modell will, legt eine neue Simulation an. Der Spielstand speichert das Modell; Laden verwendet immer das gespeicherte Modell. |

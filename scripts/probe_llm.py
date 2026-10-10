@@ -136,6 +136,7 @@ def call(client: httpx.Client, base: str, headers: dict, model: str, messages: l
     t0 = time.perf_counter()
     first_any = first_content = None
     content, reasoning, usage, timings, err = "", "", {}, {}, None
+    degenerate = False
     try:
         with client.stream("POST", f"{base}/chat/completions", json=body, headers=headers) as r:
             if r.status_code != 200:
@@ -144,6 +145,9 @@ def call(client: httpx.Client, base: str, headers: dict, model: str, messages: l
                 if not line.startswith("data: ") or line == "data: [DONE]":
                     continue
                 chunk = json.loads(line[6:])
+                if "error" in chunk:
+                    err = f"Stream-Fehler: {chunk['error'].get('message', chunk['error'])}"[:200]
+                    break
                 usage = chunk.get("usage") or usage
                 timings = chunk.get("timings") or timings
                 for ch in chunk.get("choices", []):
@@ -155,10 +159,15 @@ def call(client: httpx.Client, base: str, headers: dict, model: str, messages: l
                         first_any = first_any or time.perf_counter() - t0
                         first_content = first_content or time.perf_counter() - t0
                         content += d["content"]
+                        if len(content) > 60 and len(set(content[-40:])) <= 2:
+                            degenerate = True  # z. B. '//////': früh abbrechen, spart Minuten
+                            break
+                if degenerate:
+                    break
     except httpx.HTTPError as exc:
         err = f"{type(exc).__name__}: {exc}"
     return {"error": err, "total_s": time.perf_counter() - t0, "first_any_s": first_any, "first_content_s": first_content,
-            "content": content, "reasoning_chars": len(reasoning), "prompt_tokens": usage.get("prompt_tokens"),
+            "content": content, "degeneriert": degenerate, "reasoning_chars": len(reasoning), "prompt_tokens": usage.get("prompt_tokens"),
             "completion_tokens": usage.get("completion_tokens"), "cache_n": timings.get("cache_n"),
             "prompt_n": timings.get("prompt_n"), "prompt_ms": timings.get("prompt_ms"),
             "tps": timings.get("predicted_per_second")}
@@ -177,7 +186,7 @@ def p95(xs):
 def summarize(rows: list[dict]) -> dict:
     ok = [r for r in rows if not r.get("error")]
     chosen = [r["obj"]["option_id"] for r in ok if r.get("obj") and r["valid"]]
-    return {"n": len(rows), "fehler": len(rows) - len(ok),
+    return {"n": len(rows), "fehler": len(rows) - len(ok), "degeneriert": sum(bool(r.get("degeneriert")) for r in ok),
             "json_strikt_pct": 100 * sum(r["strict"] for r in ok) / max(1, len(rows)),
             "gueltig_pct": 100 * sum(r["valid"] for r in ok) / max(1, len(rows)),
             "gesamt_s_mittel": mean(r["total_s"] for r in ok), "gesamt_s_p95": p95(r["total_s"] for r in ok),
@@ -211,11 +220,12 @@ def run_model(client, base, headers, model, args) -> dict:
             sc = SCENARIOS[(i // 2) % len(SCENARIOS)]
             opt_ids = [o[0] for o in sc["opt"]]
             res = call(client, base, headers, model, build_messages(persona, sc),
-                       {**THINK[think], **response_format(mode, opt_ids)})
+                       {**THINK[think], **response_format(mode, opt_ids)},
+                       max_tokens=600 if think == "off" else 3000)
             if not res.get("error"):
                 res["strict"], res["valid"], res["obj"] = validate(res["content"], opt_ids)
             rows.append(res)
-            print(f"  {name} {mode}/{think} {i + 1}/{n}: {res.get('error') or ('ok' if res['valid'] else 'UNGÜLTIG')} "
+            print(f"  {name} {mode}/{think} {i + 1}/{n}: {res.get('error') or ('ok' if res['valid'] else 'DEGENERIERT' if res.get('degeneriert') else 'UNGÜLTIG')} "
                   f"{res['total_s']:.1f}s", flush=True)
         result["varianten"][name] = {"modus": mode, "denken": think, "summary": summarize(rows), "rows": rows}
     result["cache"] = cache_test(client, base, headers, model, args.cache_rounds)
@@ -244,12 +254,12 @@ def cache_test(client, base, headers, model, rounds) -> dict:
 def print_tables(results: dict) -> None:
     for model, res in results.items():
         print(f"\n### {model} – Modellwechsel: {res['wechsel']}")
-        print("| Var | Format | Denken | n | gültig % | strikt % | Fehler | Gesamt s (Ø/p95) | 1. Inhalt s | Prompt-Tok | Ausgabe-Tok | Tok/s | Optionen |")
-        print("|---|---|---|---|---|---|---|---|---|---|---|---|---|")
+        print("| Var | Format | Denken | n | gültig % | strikt % | Fehler | degen. | Gesamt s (Ø/p95) | 1. Inhalt s | Prompt-Tok | Ausgabe-Tok | Tok/s | Optionen |")
+        print("|---|---|---|---|---|---|---|---|---|---|---|---|---|---|")
         f = lambda x, d=1: "–" if x is None else f"{x:.{d}f}"  # noqa: E731
         for name, v in res["varianten"].items():
             s = v["summary"]
-            print(f"| {name} | {v['modus']} | {v['denken']} | {s['n']} | {f(s['gueltig_pct'], 0)} | {f(s['json_strikt_pct'], 0)} | {s['fehler']} "
+            print(f"| {name} | {v['modus']} | {v['denken']} | {s['n']} | {f(s['gueltig_pct'], 0)} | {f(s['json_strikt_pct'], 0)} | {s['fehler']} | {s['degeneriert']} "
                   f"| {f(s['gesamt_s_mittel'])}/{f(s['gesamt_s_p95'])} | {f(s['erster_inhalt_s'])} | {f(s['prompt_tok'], 0)} "
                   f"| {f(s['ausgabe_tok'], 0)} | {f(s['tps'])} | {s['verschiedene_optionen']} |")
         for label, c in res["cache"].items():

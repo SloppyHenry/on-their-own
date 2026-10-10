@@ -18,3 +18,7 @@ Der API-Key wird nie geloggt, erscheint nicht in `repr()` oder `model_dump_json(
 | `SIM_PORT` | `8090` | Port des Backends | Neustart |
 
 Laufzeit-Parameter (Slider, Autonomie, Gedächtnis, Welt) kommen mit AP07 in eine eigene Registry und werden hier ergänzt.
+
+## Festlegungen
+
+- **Modell je Simulation:** Das Modell (`SIM_LLM_MODEL` als Vorbelegung) wird beim Anlegen einer Simulation gewählt, im Spielstand gespeichert und danach nicht mehr geändert. Es ist kein Laufzeit-Parameter. Temperatur, Top-p, Token-Limits, Timeout und Wiederholungen bleiben ab AP07 zur Laufzeit einstellbar.
