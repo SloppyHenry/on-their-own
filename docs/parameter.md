@@ -18,6 +18,7 @@ Wirkung: *sofort* = gilt in der laufenden Welt; *ab der nächsten Entscheidung* 
 | `goal_persistence` | Zielpersistenz | Wie lange und wie stark ein Agent bei einem Ziel bleibt. 50 = unverändert; wirkt als Aufschlag auf den jeweiligen Wert jedes Agenten. | 0 bis 100, Schritt 1 % | 50 | ab der nächsten Entscheidung | `test_effects_agents.py::test_global_shifts_move_scores` |
 | `exploration` | Erkunden | Neugier auf Unbekanntes. 50 = unverändert; wirkt als Aufschlag auf den jeweiligen Wert jedes Agenten. | 0 bis 100, Schritt 1 % | 50 | ab der nächsten Entscheidung | `test_effects_agents.py::test_global_shifts_move_scores` |
 | `top_k_options` | Optionen je Entscheidung | So viele bewertete Optionen sieht das Modell. | 3 bis 10, Schritt 1 | 6 | ab der nächsten Entscheidung | `test_effects_agents.py::test_top_k_limits_the_offered_options` |
+| `rank_hint` | Rangfolge nennen | An: der Prompt sagt dem Modell, dass die Optionen nach Passung zu Neigungen, Zielen und Bedürfnissen geordnet sind (o1 am besten). Aus: das Modell sieht dieselbe Reihenfolge ohne Hinweis und folgt ihr weniger. Macht die Persönlichkeitsregler im Verhalten deutlicher. | an / aus | aus | ab der nächsten Entscheidung | `test_effects_agents.py::test_rank_hint_reaches_the_prompt` |
 
 ## Persönlichkeit
 

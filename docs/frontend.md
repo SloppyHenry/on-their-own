@@ -39,3 +39,14 @@ npm test               # Vitest
 npm run test:e2e       # Playwright: startet Backend mit Fake-LLM (scripts/e2e_server.py) und Vite selbst
 npm run typecheck
 ```
+
+## Einstellungen (AP07)
+Die Schublade „Einstellungen“ (Header-Knopf) liegt rechts über der Welt, damit man Wirkungen sofort sieht. Sie baut sich aus `GET /api/params/schema` (`settings/ParameterPanel.tsx`): Bereiche Autonomie, Agenten, Gedächtnis, Welt, Modell, Tempo, Modus, Presets, Status; Suche über alle Einstellungen; Esc schließt.
+
+- **Regler** (`ParamControl.tsx`): Schieber mit Zahl und Einheit, Schalter, Auswahl, Text (gesendet nach 0,7 s Ruhe oder beim Verlassen). Daneben die **Statusmarke** der letzten Änderung: *übernommen*, *ab nächster Entscheidung*, *Neustart nötig*, *abgelehnt* (mit Grund); „Standard“ setzt den Regler zurück. Gesperrte Regler (Modell) sind ausgegraut und nennen den Grund.
+- **Schieber werden gedrosselt** (`paramStore.ts`): höchstens eine Anfrage je Regler und 250 ms, der letzte Wert gewinnt. Angezeigt wird nach der Antwort der Wert **vom Verbraucher** (`GET /api/params`), nicht der gesendete.
+- **Agenten** (`ParamGroup.tsx`): Persönlichkeit (12 Werte) und Charaktertexte stehen für Alex und Mira nebeneinander.
+- **Presets** (`PresetManager.tsx`): Vorschau mit altem und neuem Wert vor dem Laden, speichern (optional nur ausgewählte Gruppen), duplizieren, umbenennen, löschen mit Bestätigung.
+- **Status** (`StatusPanels.tsx`): Modell und Last, alle 3 s aufgefrischt; im Header erscheinen wartende Anfragen und Fehler der letzten 15 Minuten, sobald es welche gibt.
+- Tempo: Knöpfe 0,5×, 1×, 2×, 4×, Max. Zurücksetzen fragt nach dem Modell der neuen Simulation.
+- Protokollsatz für jede Änderung: „Einstellung „Knappheit“: 0 → 40.“

@@ -77,6 +77,7 @@ class Planner:
         self.memory = memory
         self.autonomy = autonomy
         self.mode = ModeState()
+        self.rank_hint = False                          # Prompt nennt die Rangfolge der Optionen (Parameter `rank_hint`)
         self.context_budget = 6000                      # Tokens je Prompt (Schätzung); darüber werden Erinnerungen und ältere Beobachtungen gekürzt
 
     def prepare(self, agent_id: str) -> Prepared:
@@ -99,10 +100,10 @@ class Planner:
             p.recalled, p.extra["retrieval_id"] = rec.lines, rec.retrieval_id
         opts = options_mod.build_options(self.engine, self.store, p, self.tuning)
         system = prompts.system_prompt(p.agent, self.mode.prompt_extra())
-        user = prompts.user_prompt(p, opts)
+        user = prompts.user_prompt(p, opts, self.rank_hint)
         while (len(system) + len(user)) / 3.2 > self.context_budget and (p.recalled or len(p.memory) > 1):    # Kontextbudget: erst Langzeit-, dann ältere Kurzzeiterinnerungen
             (p.recalled.pop() if p.recalled else p.memory.pop(0))
-            user = prompts.user_prompt(p, opts)
+            user = prompts.user_prompt(p, opts, self.rank_hint)
         messages = [{"role": "system", "content": system}, {"role": "user", "content": user}]
         return Prepared(p, opts, messages, prompts.decision_schema([o.id for o in opts]))
 

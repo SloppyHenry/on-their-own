@@ -216,3 +216,31 @@ Alle nur lesend; unbekannter Agent 404, ungültige Filter 422. Ein Agent kann ni
 
 ### Ereignisse
 `agent.goal_changed` (Ziel-ID, Art, Text, alt/neu, Grund, Fortschritt, ersetztes Ziel; Kategorie *planning*), `agent.relation_changed` (Gegenüber, Änderungen, neue Werte, Grund, Quelle `rule`/`reflection`; Sichtbarkeit `system`), `agent.guard_triggered` (Schutz, Einzelheit, gesperrter Schlüssel, bis). `agent.decision` trägt zusätzlich `why`, `rank`, `goal`, `retrieval_id`. Siehe [autonomie.md](autonomie.md).
+
+## Parameter, Presets und Status (AP07)
+
+Alle Regler stehen in der **Parameter-Registry** (`backend/simulacra/params/`, 73 Einträge, beschrieben in [parameter.md](parameter.md)). Jeder Eintrag kennt Bereich, Schritt, Standard, Wirkungsart (`immediate` | `next_decision` | `restart_model`), den **Verbraucher** (`read` liest den Wert dort, wo er wirkt) und seinen **Wirkungstest**. Werte außerhalb des Bereichs werden mit Grund **abgelehnt**, nie begrenzt. Abweichungen vom Standard liegen in SQLite (Tabelle `params`), werden beim Start wieder angewendet und überstehen das Zurücksetzen der Welt.
+
+### REST
+| Methode und Pfad | Zweck |
+|---|---|
+| `GET /api/params/schema` | Gruppen und alle Reglerbeschreibungen (die Oberfläche baut sich daraus) |
+| `GET /api/params` | aktuelle Werte **vom Verbraucher gelesen** (global: Wert, je Agent: `{agent: Wert}`), Standardwerte, abweichende Schlüssel |
+| `PATCH /api/params` | `{changes: [{key, value, agent?}]}`; Antwort je Änderung `status` (`applied` / `pending_next_decision` / `requires_model_restart` / `rejected` + `reason`), alter und neuer Wert; abgelehnte stören die übrigen nicht |
+| `POST /api/params/reset` | `{keys?, group?, agent?}` zurück auf Standard (einzeln, je Gruppe, alles) |
+| `GET /api/presets`, `GET /api/presets/{id}` | mitgelieferte (6, schreibgeschützt) und eigene Presets |
+| `GET /api/presets/{id}/preview` | was sich beim Laden ändern würde: Einstellung, alter und neuer Wert |
+| `POST /api/presets/{id}/load` | `{confirm: true}` lädt über denselben Weg wie `PATCH` |
+| `POST /api/presets` | `{name, description, groups?}` speichert den aktuellen Stand (Adresse und Modell nie) |
+| `POST /api/presets/{id}/duplicate`, `PATCH /api/presets/{id}`, `DELETE /api/presets/{id}?confirm=true` | duplizieren, umbenennen, löschen (Namen eindeutig, mitgelieferte unveränderlich) |
+| `GET /api/status` | Modell (erreichbar, Ø Antwortzeit, Token/s, Fehler 15 Min., Warteschlange) und Last (Entscheidungen/Min., Simulationsminuten/Min., Aktionen gelungen/gescheitert) |
+| `POST /api/sim/speed` | Stufen `0.5x`, `1x`, `2x`, `4x`, `max` (Pause 2,0 / 1,0 / 0,5 / 0,25 / 0 s) oder `tick_delay_s` |
+| `POST /api/sim/reset` | zusätzlich `model` für die neue Simulation (das Modell ist je Lauf fest) |
+
+Verändernde Aufrufe brauchen den `Idempotency-Key`. Ereignis `simulation.parameter_changed` mit `key`, `agent`, `old`, `new`, `status` (und `group`); beim Tempo zusätzlich `simulation.speed_changed`.
+
+### Tabellen (`007_params.sql`)
+`params(key, agent_id, value JSON, updated)` und `presets(id, name UNIQUE, description, data JSON, created, updated)`.
+
+### Beobachtungsmodi (`agents/modes.py`)
+`observer` (Standard: die Agenten erfahren nichts), `creator` (editierbarer Abschnitt über eine äußere Instanz am Ende des Systemprompts), `intervention` (vorerst wie Beobachter; direkte Nachrichten kommen mit AP08). Ein Wechsel gilt ab der nächsten Entscheidung und ändert keine Erinnerungen.

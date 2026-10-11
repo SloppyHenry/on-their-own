@@ -49,3 +49,6 @@ Jede Methode von `MemoryStore` und `KnowledgeStore` verlangt `agent_id` und filt
 
 ## Einstellungen
 Siehe [konfiguration.md](konfiguration.md) (`SIM_MEM_*`). In AP07 werden sie als Parameter in der Oberfläche einstellbar.
+
+## Abruf: Korrektur in AP07
+Der Wirkungstest für `memory.max_in_context` deckte einen Fehler im Abruf auf: nach der ersten gewählten Erinnerung einer Art wurden alle weiteren derselben Art übersprungen, wenn sie nicht Einsicht oder Vorhaben war (nur eine Episode je Abruf). Begrenzt sind jetzt nur Einsichten (`max_reflections`) und Vorhaben (eines); Erlebtes ist nur durch `max_items`, Schwelle und Token-Budget begrenzt.

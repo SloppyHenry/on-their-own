@@ -60,3 +60,6 @@ Jede Entscheidung speichert strukturiert (`decisions.trace`): aktives Ziel und P
 
 ## Schnittstellen
 `GET /api/overview` (Ziele, Stimmung, Bedürfnisse aller Agenten), `/api/agents/{id}/goals`, `/needs`, `/relations`, `/failures`, `/decisions`, `GET /api/decisions/{id}`, `GET /api/factors`; Ereignisse `agent.goal_changed`, `agent.relation_changed`, `agent.guard_triggered`, `agent.decision` (zusätzlich `why`, `rank`, `goal`, `retrieval_id`). Siehe [schnittstellen.md](schnittstellen.md).
+
+## Globale Regler (AP07)
+Fünf Regler (Autonomie, Initiative, Spontaneität, Zielpersistenz, Erkunden) verschieben als **Aufschlag** (−50 bis +50, 50 % = unverändert) den Persönlichkeitswert jedes Agenten, begrenzt auf 0–100 (`Autonomy.effective`). Sie wirken auf die Bewertung (Faktoren `Eigeninitiative`, `Gesprächsinitiative`, `Planbindung`, `Neugier`) und auf die Schwellen für festgefahrene Ziele und Zielwechsel. Die Persönlichkeit selbst (je Agent, 12 Werte) bleibt gespeichert und ändert sich nur über ihren eigenen Regler. Die Wirkungsnachweise stehen in `backend/tests/params/test_effects_agents.py`.

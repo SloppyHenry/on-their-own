@@ -111,3 +111,27 @@ async def test_profile_text_reaches_the_prompt(sim):
     assert "Schach" not in (await sim.engine.db.run(lambda: sim.planner.prepare("alex"))).messages[0]["content"]
     texts = [g.text for g in sim.autonomy.goals.long_goals("alex")]
     assert texts == ["Eine Bibliothek bauen"]                                  # die alten persönlichen Ziele sind aufgegeben
+
+
+async def test_interests_and_goals_text_also_move_the_scores(sim):
+    await patch(sim, "top_k_options", 10)
+    await patch(sim, "profile.interests", "Pflanzen", "alex")
+    base = await sim.engine.db.run(lambda: sim.planner.prepare("alex"))
+    word = next(w for o in base.options for w in o.label.replace("(", " ").split() if len(w) > 5 and w[0].isupper() and w not in ("Richtung", "Ein", "Sich"))
+    await patch(sim, "profile.interests", word, "alex")                                   # ein Wort, das in einer Option vorkommt
+    prep = await sim.engine.db.run(lambda: sim.planner.prepare("alex"))
+    hit = [o for o in prep.options if word.lower() in o.label.lower()]
+    assert hit and all(sum(v for n, v in o.factors if n == "Interessen") >= 5 for o in hit)
+    before = {o.label: sum(v for n, v in o.factors if n == "Interessen") for o in base.options}
+    assert all(before[o.label] < 5 for o in hit if o.label in before)                      # vorher hat dasselbe Wort nichts bewirkt
+
+
+async def test_rank_hint_reaches_the_prompt(sim):
+    user = lambda: sim.engine.db.run(lambda: sim.planner.prepare("alex").messages[1]["content"])          # noqa: E731
+    plain = await user()
+    assert "\nOptionen:\n" in plain and "o1 passt am besten" not in plain
+    await patch(sim, "rank_hint", True)
+    hinted = await user()
+    assert "o1 passt am besten" in hinted and "\nOptionen:\n" not in hinted
+    await patch(sim, "rank_hint", False)
+    assert await user() == plain

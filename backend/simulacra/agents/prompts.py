@@ -44,7 +44,7 @@ def _objects_line(p: Perception) -> str:
     return "; ".join(f"{o['name']} [{o['id']}]" + (f" ({o['note']})" if o["note"] else "") for o in p.objects)
 
 
-def user_prompt(p: Perception, options: list[Option]) -> str:
+def user_prompt(p: Perception, options: list[Option], rank_hint: bool = False) -> str:
     w = p.words
     out = [f"Jetzt: {p.time_text}. Wetter: {p.weather}.",
            f"Ort: {p.location_name}. Du fühlst dich {', '.join(w[k] for k in ('energy', 'hunger', 'thirst', 'mood') if k in w)}.",
@@ -70,7 +70,7 @@ def user_prompt(p: Perception, options: list[Option]) -> str:
         out.append("Woran du dich erinnerst:")
         out += [f"- {m}" for m in p.recalled]
     out.append("")
-    out.append("Optionen:")
+    out.append("Optionen (nach Passung zu deinen Neigungen, Zielen und Bedürfnissen geordnet: o1 passt am besten):" if rank_hint else "Optionen:")
     out += [f"{o.id}: {o.label}" + (" [du sagst/schreibst etwas]" if o.utterance_key else "") for o in options]
     out.append(f"other: Etwas anderes tun (nur wenn keine Option passt). Dann other_action und other_params angeben. Möglich: {OTHER_ACTIONS}")
     out.append("")

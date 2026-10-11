@@ -35,6 +35,14 @@ def _top_k() -> ParamSpec:
                      read=lambda sim, a: sim.planner.tuning.top_k, consumers=("simulacra.agents.scoring:top_k",), effect_test=T + "test_top_k_limits_the_offered_options")
 
 
+def _rank_hint() -> ParamSpec:
+    return ParamSpec(key="rank_hint", group="autonomy", scope="global", type="bool", label="Rangfolge nennen", default=False, effect="next_decision",
+                     help="An: der Prompt sagt dem Modell, dass die Optionen nach Passung zu Neigungen, Zielen und Bedürfnissen geordnet sind (o1 am besten). "
+                          "Aus: das Modell sieht dieselbe Reihenfolge ohne Hinweis und folgt ihr weniger. Macht die Persönlichkeitsregler im Verhalten deutlicher.",
+                     apply=lambda sim, v, a: setattr(sim.planner, "rank_hint", bool(v)), read=lambda sim, a: sim.planner.rank_hint,
+                     consumers=("simulacra.agents.prompts:rank_hint",), effect_test=T + "test_rank_hint_reaches_the_prompt")
+
+
 GLOBAL = [
     _shift("autonomy", "Autonomie", "Eigene Vorhaben statt Reaktion auf Ereignisse.", "autonomy", "test_global_shifts_move_scores"),
     _planning_horizon(),
@@ -44,6 +52,7 @@ GLOBAL = [
     _shift("goal_persistence", "Zielpersistenz", "Wie lange und wie stark ein Agent bei einem Ziel bleibt.", "persistence", "test_global_shifts_move_scores"),
     _shift("exploration", "Erkunden", "Neugier auf Unbekanntes.", "curiosity", "test_global_shifts_move_scores"),
     _top_k(),
+    _rank_hint(),
 ]
 
 TRAIT_HELP = {
