@@ -4,6 +4,8 @@ import asyncio
 
 from simulacra.llm.providers import FakeProvider
 
+from saves.conftest import file_sim
+
 from .conftest import patch, wait_one_minute
 from .test_effects_memory import fill
 
@@ -90,3 +92,28 @@ async def test_modes_change_the_prompt_but_not_the_memories(sim):
     await patch(sim, "mode", "observer")
     assert await sim.engine.db.run(system) == base
     assert sim.memory.store.count("alex") == count                                                   # kein Moduswechsel verändert Erinnerungen
+
+
+async def test_autosave_follows_the_interval_and_keeps_a_ring(tmp_path, monkeypatch):
+    sim = file_sim(tmp_path / "live.db")
+    manual = await sim.engine.db.run(lambda: sim.saves.create("Handarbeit"))
+    await sim.params.patch([{"key": "sim.autosave_sim_hours", "value": 1}, {"key": "sim.autosave_real_minutes", "value": 0}, {"key": "sim.autosave_keep", "value": 3}])
+    await sim.runner.step(59)
+    assert [e for e in sim.saves.list() if e["kind"] == "auto"] == []                                            # noch keine Stunde
+    await sim.runner.step(1 + 60 * 5)
+    autos = [e for e in sim.saves.list() if e["kind"] == "auto"]
+    assert len(autos) == 3 and [a["sim_minute"] for a in autos] == sorted((a["sim_minute"] for a in autos), reverse=True)
+    assert sim.saves.get(manual["id"])["name"] == "Handarbeit"                                                    # manuelle Stände bleiben unberührt
+    assert len(list(sim.saves.dir.glob("sav_*.db"))) == 4                                                          # nur 3 Autosaves + 1 manueller liegen noch auf der Platte
+    await sim.params.patch([{"key": "sim.autosave_sim_hours", "value": 0}, {"key": "sim.autosave_real_minutes", "value": 5}])
+    n = len([e for e in sim.saves.list() if e["kind"] == "auto"])
+    await sim.runner.step(130)
+    assert len([e for e in sim.saves.list() if e["kind"] == "auto"]) == n                                          # beides aus bzw. Echtzeit nicht erreicht
+    import simulacra.saves.service as svc
+    real = svc.time.monotonic()
+    monkeypatch.setattr(svc.time, "monotonic", lambda: real + 301)
+    await sim.runner.step(1)
+    assert sim.saves.list()[0]["kind"] == "auto" and sim.saves.list()[0]["name"].startswith("Autosave")
+    await sim.params.patch([{"key": "sim.autosave_real_minutes", "value": 0}])
+    assert sim.autosave.real_minutes == 0
+    sim.close()

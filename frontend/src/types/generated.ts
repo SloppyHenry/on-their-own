@@ -84,10 +84,15 @@ export interface SimulacraApi {
   ResourceChanged?: ResourceChanged;
   Rested?: Rested;
   RetrievalOut?: RetrievalOut;
+  SaveCreate?: SaveCreate;
+  SaveLoadRequest?: SaveLoadRequest;
+  SaveOut?: SaveOut;
   ScheduledOut?: ScheduledOut;
   SimCommandResult?: SimCommandResult;
   SimControl?: SimControl;
+  SimLoaded?: SimLoaded;
   SimReset?: SimReset;
+  SimSaved?: SimSaved;
   SimStepped?: SimStepped;
   SimTime?: SimTime;
   Slept?: Slept;
@@ -95,6 +100,7 @@ export interface SimulacraApi {
   SpeedRequest?: SpeedRequest;
   StartRequest?: StartRequest;
   StateSnapshot?: StateSnapshot;
+  StatsOut?: StatsOut;
   StatusChanged?: StatusChanged;
   StatusOut?: StatusOut;
   StepRequest?: StepRequest;
@@ -1381,6 +1387,7 @@ export interface RelationLogItem {
  */
 export interface ResetRequest {
   confirm?: boolean;
+  keep_profiles?: boolean;
   model?: string | null;
 }
 /**
@@ -1438,6 +1445,40 @@ export interface RetrievedMemory {
 }
 /**
  * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "SaveCreate".
+ */
+export interface SaveCreate {
+  description?: string;
+  name: string;
+  overwrite?: boolean;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "SaveLoadRequest".
+ */
+export interface SaveLoadRequest {
+  confirm?: boolean;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "SaveOut".
+ */
+export interface SaveOut {
+  app_version: string;
+  available: boolean;
+  created: string;
+  description: string;
+  id: string;
+  kind: string;
+  model: string;
+  name: string;
+  schema_version: number;
+  sim_label: string;
+  sim_minute: number;
+  size: number;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
  * via the `definition` "ScheduledOut".
  */
 export interface ScheduledOut {
@@ -1467,10 +1508,30 @@ export interface SimControl {
 }
 /**
  * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "SimLoaded".
+ */
+export interface SimLoaded {
+  backup?: string | null;
+  minute: number;
+  name: string;
+  save_id?: string | null;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
  * via the `definition` "SimReset".
  */
 export interface SimReset {
   backup?: string | null;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "SimSaved".
+ */
+export interface SimSaved {
+  kind: string;
+  minute: number;
+  name: string;
+  save_id: string;
 }
 /**
  * This interface was referenced by `SimulacraApi`'s JSON-Schema
@@ -1618,6 +1679,135 @@ export interface WeatherInfo {
   kind: string;
   since: number;
   until: number;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "StatsOut".
+ */
+export interface StatsOut {
+  agents: AgentStats[];
+  from_minute: number | null;
+  minute: number;
+  to_minute: number | null;
+  total: AgentStats | null;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "AgentStats".
+ */
+export interface AgentStats {
+  actions: ActionsOut;
+  agent: string | null;
+  conversations: ConversationsOut;
+  llm: LlmStats;
+  memories_per_day: DayCount[];
+  name: string;
+  places: PlacesOut;
+  series: SeriesOut;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "ActionsOut".
+ */
+export interface ActionsOut {
+  by_action: ActionStat[];
+  completed: number;
+  failed: number;
+  success_rate: number | null;
+  top_rejections: Rejection[];
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "ActionStat".
+ */
+export interface ActionStat {
+  action: string;
+  completed: number;
+  failed: number;
+  started: number;
+  success_rate: number | null;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "Rejection".
+ */
+export interface Rejection {
+  code: string;
+  count: number;
+  text: string;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "ConversationsOut".
+ */
+export interface ConversationsOut {
+  avg_turns: number | null;
+  count: number;
+  keywords: Keyword[];
+  proposals_accepted: number;
+  proposals_declined: number;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "Keyword".
+ */
+export interface Keyword {
+  count: number;
+  word: string;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "LlmStats".
+ */
+export interface LlmStats {
+  avg_latency_ms: number | null;
+  completion_tokens: number;
+  corrections: number;
+  decisions: number;
+  fallback: number;
+  prompt_tokens: number;
+  valid: number;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "DayCount".
+ */
+export interface DayCount {
+  day: number;
+  memories: number;
+  reflections: number;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "PlacesOut".
+ */
+export interface PlacesOut {
+  discovered_locations: number;
+  discovered_objects: number;
+  time_by_location: PlaceTime[];
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "PlaceTime".
+ */
+export interface PlaceTime {
+  location: string;
+  minutes: number;
+  name: string;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "SeriesOut".
+ */
+export interface SeriesOut {
+  needs_mood: {
+    [k: string]: number | null;
+  }[];
+  relations: {
+    [k: string]: {
+      [k: string]: number;
+    }[];
+  };
 }
 /**
  * This interface was referenced by `SimulacraApi`'s JSON-Schema
@@ -1863,6 +2053,8 @@ export interface EventDataMap {
   "simulation.event_fired": EventFired;
   "simulation.effect_ended": EffectEnded;
   "agent.informed": Informed;
+  "simulation.saved": SimSaved;
+  "simulation.loaded": SimLoaded;
   "world.npc_acted": NpcAction;
 }
 
@@ -1937,6 +2129,8 @@ export const EVENT_CATEGORY: Record<EventType, EventCategory> = {
   "simulation.event_fired": "system",
   "simulation.effect_ended": "system",
   "agent.informed": "dialogue",
+  "simulation.saved": "system",
+  "simulation.loaded": "system",
   "world.npc_acted": "world",
 };
 

@@ -16,6 +16,7 @@ from ..agents.conversation import ConversationManager
 from ..agents.observations import ObservationCollector
 from ..agents.planner import Decision, Planner
 from ..memory.system import MemorySystem
+from ..stats.sampler import sample_stats
 from ..agents.store import AgentStore
 from ..world.engine import WorldEngine
 from ..world.models import Event, ProposeResult
@@ -73,6 +74,7 @@ class SimulationRunner:
         self.decision_interval = 1                      # Mindestabstand zwischen Entscheidungen eines Agenten in Simulationsminuten
         self.power_save = False                         # Energiesparen: Pause ohne verbundenen Browser, begrenzte Entscheidungen, keine Reflexion am Tag
         self._bg: asyncio.Task | None = None
+        self.owner = None                               # die Simulation, zu der dieser Läufer gehört (für Autosave und Statistik)
         self.inject = None                              # Ereignis-Controller (AP08): geplante Ereignisse, Rücknahmen, Nebenfiguren
 
     # --- Steuerbefehle ----------------------------------------------------------------------------
@@ -311,6 +313,10 @@ class SimulationRunner:
             extra += self.inject.on_tick(self.engine.minute)
         self._remember(events + extra)
         self.autonomy.after_tick(events + extra, self.engine.minute)
+        if self.owner is not None:
+            sample_stats(self.owner, self.engine.minute)
+            if self.owner.saves is not None:
+                self.owner.saves.maybe_autosave(self.engine.minute)
         for aid in self.store.ai_agent_ids():
             self._set_status(aid, self._status_of(aid))
         return extra

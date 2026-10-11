@@ -220,7 +220,8 @@ async def test_reset_keeps_the_old_world_as_backup(tmp_path):
     await sim.runner.step(5)
     old_minute = sim.engine.minute
     saved = await sim.reset()
-    assert saved is not None and saved.exists() and saved.parent.name == "backups"
+    assert saved is not None and saved.exists() and saved.parent.name == "saves"                  # seit AP09 als Spielstand „Vor dem Zurücksetzen“
+    assert [e["name"] for e in sim.saves.list() if e["kind"] == "backup"][0].startswith("Vor dem Zurücksetzen")
     assert sim.engine.minute < old_minute and sim.runner.state == SimState.STOPPED
     from simulacra.db.connection import Database
     check = Database(saved)

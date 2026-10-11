@@ -48,3 +48,17 @@ class Informed(D):
 class NpcAction(D):
     npc: str
     what: str
+
+
+class SimSaved(D):
+    save_id: str
+    name: str
+    kind: str                            # manual | auto | backup | import
+    minute: int
+
+
+class SimLoaded(D):
+    save_id: str | None = None
+    name: str
+    minute: int
+    backup: str | None = None            # Sicherung des vorherigen Stands („Vor dem Laden“)

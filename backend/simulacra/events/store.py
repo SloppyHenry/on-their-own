@@ -21,8 +21,14 @@ class EventStore:
 
     def fetch(self, after_seq: int = 0, before_seq: int | None = None, type: str | None = None, type_prefix: str | None = None,
               agent: str | None = None, category: str | None = None, location: str | None = None, limit: int = 200,
-              order: Literal["asc", "desc"] = "asc") -> list[Event]:
+              order: Literal["asc", "desc"] = "asc", min_minute: int | None = None, max_minute: int | None = None, q: str | None = None) -> list[Event]:
         where, args = ["e.seq > ?"], [after_seq]
+        if min_minute is not None:
+            where.append("e.sim_minute >= ?"); args.append(min_minute)
+        if max_minute is not None:
+            where.append("e.sim_minute <= ?"); args.append(max_minute)
+        if q:
+            where.append("(e.data LIKE ? ESCAPE '\\' OR e.type LIKE ? ESCAPE '\\')"); like = "%" + q.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_") + "%"; args += [like, like]
         if before_seq is not None:
             where.append("e.seq < ?"); args.append(before_seq)
         if type:

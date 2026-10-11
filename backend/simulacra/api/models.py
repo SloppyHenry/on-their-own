@@ -200,6 +200,7 @@ class StepRequest(BaseModel):
 class ResetRequest(BaseModel):
     confirm: bool = False
     model: str | None = None             # Modell der neuen Simulation (gilt für den ganzen Lauf)
+    keep_profiles: bool = False          # Profile und Persönlichkeitswerte der Agenten behalten (sonst komplett Standard)
 
 
 class SpeedRequest(BaseModel):

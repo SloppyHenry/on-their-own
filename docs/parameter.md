@@ -111,6 +111,9 @@ Wirkung: *sofort* = gilt in der laufenden Welt; *ab der nächsten Entscheidung* 
 | `sim.max_decisions_per_min` | Höchstzahl Entscheidungen je Minute | Begrenzt die Last auf das Modell (0 = unbegrenzt). | 0 bis 60, Schritt 1 /min | 0 | sofort | `test_effects_sim.py::test_decision_limit_throttles_real_time` |
 | `sim.time_waits_for_decisions` | Zeit wartet auf Entscheidungen | An: die Simulationszeit steht, bis alle freien Agenten entschieden haben. Aus: die Zeit läuft weiter, Entscheidungen kommen, wenn das Modell fertig ist. | an / aus | an | sofort | `test_effects_sim.py::test_time_can_run_without_waiting_for_decisions` |
 | `sim.power_save` | Energiesparen | An: höchstens 4 Entscheidungen je Minute, tagsüber keine Reflexion, Pause, solange kein Browser verbunden ist. | an / aus | aus | sofort | `test_effects_sim.py::test_power_save` |
+| `sim.autosave_sim_hours` | Autosave alle … Simulationsstunden | So oft wird automatisch gesichert (0 = aus). Autosaves überschreiben nie manuelle Stände. | 0 bis 48, Schritt 1 Sim-Std. | 6 | sofort | `test_effects_sim.py::test_autosave_follows_the_interval_and_keeps_a_ring` |
+| `sim.autosave_real_minutes` | Autosave alle … Echtzeitminuten | Zusätzlich nach so vielen Minuten Echtzeit (0 = aus). | 0 bis 240, Schritt 5 Min. | 30 | sofort | `test_effects_sim.py::test_autosave_follows_the_interval_and_keeps_a_ring` |
+| `sim.autosave_keep` | Autosaves behalten | Ringpuffer: so viele Autosaves bleiben, ältere werden gelöscht. | 1 bis 20, Schritt 1 | 5 | sofort | `test_effects_sim.py::test_autosave_follows_the_interval_and_keeps_a_ring` |
 
 ## Beobachtungsmodus
 

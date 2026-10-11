@@ -58,11 +58,13 @@ class ParamService:
         return (spec, normalized, None) if ok else (spec, None, str(normalized))
 
     # --- Anwenden ----------------------------------------------------------------------------------------
-    def _apply(self, spec: ParamSpec, agent: str | None, value: Any, *, emit: bool = True) -> dict[str, Any]:
+    def _apply(self, spec: ParamSpec, agent: str | None, value: Any, *, emit: bool = True, persist: bool = True) -> dict[str, Any]:
         """Läuft auf dem DB-Thread: setzt den Wert beim Verbraucher, speichert die Abweichung und meldet das Ereignis."""
         old = self.current(spec, agent)
         default = spec.default_value(self.sim, agent)
-        if value == default:
+        if not persist:
+            pass
+        elif value == default:
             self.store.delete(spec.key, agent)
         else:
             self.store.set(spec.key, agent, value, self.sim.engine.minute)
@@ -110,12 +112,13 @@ class ParamService:
     def export(self) -> list[tuple[str, str | None, Any]]:
         return self.store.all()
 
-    def restore(self, items: list[tuple[str, str | None, Any]]) -> None:
-        """Gespeicherte Abweichungen wieder anwenden (nach einem Neustart oder dem Zurücksetzen der Welt), ohne Ereignisse."""
+    def restore(self, items: list[tuple[str, str | None, Any]], persist: bool = False) -> None:
+        """Gespeicherte Abweichungen wieder anwenden (nach einem Neustart, Laden oder Zurücksetzen der Welt), ohne Ereignisse. `persist=False`: sie stehen schon in der Datenbank
+        und bleiben dort unverändert (ein geladener Spielstand bleibt Bit für Bit gleich); `True` für eine frische Datenbank."""
         for key, agent, value in sorted(items, key=lambda t: ORDER.get(t[0], 10**6)):
             spec = REGISTRY.get(key)
-            if spec is None or spec.locked or (spec.scope == "agent" and agent not in self.agents()):
-                continue
+            if spec is None or spec.locked or (spec.scope == "agent" and (agent not in self.agents() or not persist)):
+                continue                                                  # Werte je Agent stehen schon in dessen Profil (nur nach einem Zurücksetzen nötig)
             ok, normalized = validate(spec, value)
             if ok:
-                self._apply(spec, agent, normalized, emit=False)
+                self._apply(spec, agent, normalized, emit=False, persist=persist)

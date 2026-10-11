@@ -67,7 +67,7 @@ async def _live(ws: WebSocket, sim, sub: Subscription, sent: int, ping_s: float,
                     await ws.send_text(WsResyncRequired().model_dump_json())
                 elif not awaiting_resync:
                     for e in item:
-                        if e.type == "simulation.reset":                # neue Welt: alle bekommen einen frischen Snapshot
+                        if e.type in ("simulation.reset", "simulation.loaded"):   # neue Welt oder geladener Stand: alle bekommen einen frischen Snapshot
                             sent = await _sync(ws, sim, None, max_gap)
                         elif e.seq > sent:
                             await ws.send_text(WsEvent(event=to_out(e)).model_dump_json())

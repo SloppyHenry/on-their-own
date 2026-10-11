@@ -126,6 +126,86 @@
    "title": "ActionStarted",
    "type": "object"
   },
+  "ActionStat": {
+   "additionalProperties": false,
+   "properties": {
+    "action": {
+     "type": "string"
+    },
+    "completed": {
+     "type": "integer"
+    },
+    "failed": {
+     "type": "integer"
+    },
+    "started": {
+     "type": "integer"
+    },
+    "success_rate": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    }
+   },
+   "required": [
+    "action",
+    "started",
+    "completed",
+    "failed",
+    "success_rate"
+   ],
+   "title": "ActionStat",
+   "type": "object"
+  },
+  "ActionsOut": {
+   "additionalProperties": false,
+   "properties": {
+    "by_action": {
+     "items": {
+      "$ref": "#/$defs/ActionStat"
+     },
+     "type": "array"
+    },
+    "completed": {
+     "type": "integer"
+    },
+    "failed": {
+     "type": "integer"
+    },
+    "success_rate": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "top_rejections": {
+     "items": {
+      "$ref": "#/$defs/Rejection"
+     },
+     "type": "array"
+    }
+   },
+   "required": [
+    "by_action",
+    "completed",
+    "failed",
+    "success_rate",
+    "top_rejections"
+   ],
+   "title": "ActionsOut",
+   "type": "object"
+  },
   "AgentAdded": {
    "additionalProperties": false,
    "properties": {
@@ -493,6 +573,58 @@
    "title": "AgentOverview",
    "type": "object"
   },
+  "AgentStats": {
+   "additionalProperties": false,
+   "properties": {
+    "actions": {
+     "$ref": "#/$defs/ActionsOut"
+    },
+    "agent": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "conversations": {
+     "$ref": "#/$defs/ConversationsOut"
+    },
+    "llm": {
+     "$ref": "#/$defs/LlmStats"
+    },
+    "memories_per_day": {
+     "items": {
+      "$ref": "#/$defs/DayCount"
+     },
+     "type": "array"
+    },
+    "name": {
+     "type": "string"
+    },
+    "places": {
+     "$ref": "#/$defs/PlacesOut"
+    },
+    "series": {
+     "$ref": "#/$defs/SeriesOut"
+    }
+   },
+   "required": [
+    "agent",
+    "name",
+    "actions",
+    "conversations",
+    "places",
+    "memories_per_day",
+    "llm",
+    "series"
+   ],
+   "title": "AgentStats",
+   "type": "object"
+  },
   "Arrived": {
    "additionalProperties": false,
    "properties": {
@@ -684,6 +816,67 @@
     "by"
    ],
    "title": "ConversationStarted",
+   "type": "object"
+  },
+  "ConversationsOut": {
+   "additionalProperties": false,
+   "properties": {
+    "avg_turns": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "count": {
+     "type": "integer"
+    },
+    "keywords": {
+     "items": {
+      "$ref": "#/$defs/Keyword"
+     },
+     "type": "array"
+    },
+    "proposals_accepted": {
+     "type": "integer"
+    },
+    "proposals_declined": {
+     "type": "integer"
+    }
+   },
+   "required": [
+    "count",
+    "avg_turns",
+    "proposals_accepted",
+    "proposals_declined",
+    "keywords"
+   ],
+   "title": "ConversationsOut",
+   "type": "object"
+  },
+  "DayCount": {
+   "additionalProperties": false,
+   "properties": {
+    "day": {
+     "type": "integer"
+    },
+    "memories": {
+     "type": "integer"
+    },
+    "reflections": {
+     "type": "integer"
+    }
+   },
+   "required": [
+    "day",
+    "memories",
+    "reflections"
+   ],
+   "title": "DayCount",
    "type": "object"
   },
   "DayStarted": {
@@ -2137,6 +2330,23 @@
    "title": "ItemMoved",
    "type": "object"
   },
+  "Keyword": {
+   "additionalProperties": false,
+   "properties": {
+    "count": {
+     "type": "integer"
+    },
+    "word": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "word",
+    "count"
+   ],
+   "title": "Keyword",
+   "type": "object"
+  },
   "Knowledge": {
    "additionalProperties": false,
    "properties": {
@@ -2295,6 +2505,51 @@
     "memories"
    ],
    "title": "KnownPerson",
+   "type": "object"
+  },
+  "LlmStats": {
+   "additionalProperties": false,
+   "properties": {
+    "avg_latency_ms": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "completion_tokens": {
+     "type": "integer"
+    },
+    "corrections": {
+     "type": "integer"
+    },
+    "decisions": {
+     "type": "integer"
+    },
+    "fallback": {
+     "type": "integer"
+    },
+    "prompt_tokens": {
+     "type": "integer"
+    },
+    "valid": {
+     "type": "integer"
+    }
+   },
+   "required": [
+    "decisions",
+    "valid",
+    "fallback",
+    "avg_latency_ms",
+    "prompt_tokens",
+    "completion_tokens",
+    "corrections"
+   ],
+   "title": "LlmStats",
    "type": "object"
   },
   "LocationChanged": {
@@ -3943,6 +4198,51 @@
    "title": "PhaseChanged",
    "type": "object"
   },
+  "PlaceTime": {
+   "additionalProperties": false,
+   "properties": {
+    "location": {
+     "type": "string"
+    },
+    "minutes": {
+     "type": "integer"
+    },
+    "name": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "location",
+    "name",
+    "minutes"
+   ],
+   "title": "PlaceTime",
+   "type": "object"
+  },
+  "PlacesOut": {
+   "additionalProperties": false,
+   "properties": {
+    "discovered_locations": {
+     "type": "integer"
+    },
+    "discovered_objects": {
+     "type": "integer"
+    },
+    "time_by_location": {
+     "items": {
+      "$ref": "#/$defs/PlaceTime"
+     },
+     "type": "array"
+    }
+   },
+   "required": [
+    "time_by_location",
+    "discovered_locations",
+    "discovered_objects"
+   ],
+   "title": "PlacesOut",
+   "type": "object"
+  },
   "PresetBrief": {
    "additionalProperties": false,
    "properties": {
@@ -4245,6 +4545,27 @@
    "title": "Read",
    "type": "object"
   },
+  "Rejection": {
+   "additionalProperties": false,
+   "properties": {
+    "code": {
+     "type": "string"
+    },
+    "count": {
+     "type": "integer"
+    },
+    "text": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "code",
+    "text",
+    "count"
+   ],
+   "title": "Rejection",
+   "type": "object"
+  },
   "RelationChanged": {
    "additionalProperties": false,
    "properties": {
@@ -4372,6 +4693,10 @@
    "additionalProperties": false,
    "properties": {
     "confirm": {
+     "default": false,
+     "type": "boolean"
+    },
+    "keep_profiles": {
      "default": false,
      "type": "boolean"
     },
@@ -4654,6 +4979,100 @@
    "title": "RetrievedMemory",
    "type": "object"
   },
+  "SaveCreate": {
+   "additionalProperties": false,
+   "properties": {
+    "description": {
+     "default": "",
+     "maxLength": 300,
+     "type": "string"
+    },
+    "name": {
+     "maxLength": 120,
+     "type": "string"
+    },
+    "overwrite": {
+     "default": false,
+     "type": "boolean"
+    }
+   },
+   "required": [
+    "name"
+   ],
+   "title": "SaveCreate",
+   "type": "object"
+  },
+  "SaveLoadRequest": {
+   "additionalProperties": false,
+   "properties": {
+    "confirm": {
+     "default": false,
+     "type": "boolean"
+    }
+   },
+   "title": "SaveLoadRequest",
+   "type": "object"
+  },
+  "SaveOut": {
+   "additionalProperties": false,
+   "properties": {
+    "app_version": {
+     "type": "string"
+    },
+    "available": {
+     "default": true,
+     "type": "boolean"
+    },
+    "created": {
+     "type": "string"
+    },
+    "description": {
+     "default": "",
+     "type": "string"
+    },
+    "id": {
+     "type": "string"
+    },
+    "kind": {
+     "type": "string"
+    },
+    "model": {
+     "default": "",
+     "type": "string"
+    },
+    "name": {
+     "type": "string"
+    },
+    "schema_version": {
+     "type": "integer"
+    },
+    "sim_label": {
+     "type": "string"
+    },
+    "sim_minute": {
+     "type": "integer"
+    },
+    "size": {
+     "type": "integer"
+    }
+   },
+   "required": [
+    "id",
+    "kind",
+    "name",
+    "description",
+    "sim_minute",
+    "sim_label",
+    "created",
+    "app_version",
+    "schema_version",
+    "size",
+    "model",
+    "available"
+   ],
+   "title": "SaveOut",
+   "type": "object"
+  },
   "ScheduledOut": {
    "additionalProperties": false,
    "properties": {
@@ -4685,6 +5104,55 @@
     "inject_id"
    ],
    "title": "ScheduledOut",
+   "type": "object"
+  },
+  "SeriesOut": {
+   "additionalProperties": false,
+   "properties": {
+    "needs_mood": {
+     "items": {
+      "additionalProperties": {
+       "anyOf": [
+        {
+         "type": "number"
+        },
+        {
+         "type": "integer"
+        },
+        {
+         "type": "null"
+        }
+       ]
+      },
+      "type": "object"
+     },
+     "type": "array"
+    },
+    "relations": {
+     "additionalProperties": {
+      "items": {
+       "additionalProperties": {
+        "anyOf": [
+         {
+          "type": "number"
+         },
+         {
+          "type": "integer"
+         }
+        ]
+       },
+       "type": "object"
+      },
+      "type": "array"
+     },
+     "type": "object"
+    }
+   },
+   "required": [
+    "needs_mood",
+    "relations"
+   ],
+   "title": "SeriesOut",
    "type": "object"
   },
   "SimCommandResult": {
@@ -4765,6 +5233,45 @@
    "title": "SimControl",
    "type": "object"
   },
+  "SimLoaded": {
+   "additionalProperties": false,
+   "properties": {
+    "backup": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "minute": {
+     "type": "integer"
+    },
+    "name": {
+     "type": "string"
+    },
+    "save_id": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    }
+   },
+   "required": [
+    "name",
+    "minute"
+   ],
+   "title": "SimLoaded",
+   "type": "object"
+  },
   "SimReset": {
    "additionalProperties": false,
    "properties": {
@@ -4781,6 +5288,31 @@
     }
    },
    "title": "SimReset",
+   "type": "object"
+  },
+  "SimSaved": {
+   "additionalProperties": false,
+   "properties": {
+    "kind": {
+     "type": "string"
+    },
+    "minute": {
+     "type": "integer"
+    },
+    "name": {
+     "type": "string"
+    },
+    "save_id": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "save_id",
+    "name",
+    "kind",
+    "minute"
+   ],
+   "title": "SimSaved",
    "type": "object"
   },
   "SimStatus": {
@@ -5024,6 +5556,62 @@
     "rules"
    ],
    "title": "StateSnapshot",
+   "type": "object"
+  },
+  "StatsOut": {
+   "additionalProperties": false,
+   "properties": {
+    "agents": {
+     "items": {
+      "$ref": "#/$defs/AgentStats"
+     },
+     "type": "array"
+    },
+    "from_minute": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "minute": {
+     "type": "integer"
+    },
+    "to_minute": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "total": {
+     "anyOf": [
+      {
+       "$ref": "#/$defs/AgentStats"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    }
+   },
+   "required": [
+    "minute",
+    "agents",
+    "total",
+    "from_minute",
+    "to_minute"
+   ],
+   "title": "StatsOut",
    "type": "object"
   },
   "StatusChanged": {
@@ -5766,6 +6354,15 @@
   "RetrievalOut": {
    "$ref": "#/$defs/RetrievalOut"
   },
+  "SaveCreate": {
+   "$ref": "#/$defs/SaveCreate"
+  },
+  "SaveLoadRequest": {
+   "$ref": "#/$defs/SaveLoadRequest"
+  },
+  "SaveOut": {
+   "$ref": "#/$defs/SaveOut"
+  },
   "ScheduledOut": {
    "$ref": "#/$defs/ScheduledOut"
   },
@@ -5775,8 +6372,14 @@
   "SimControl": {
    "$ref": "#/$defs/SimControl"
   },
+  "SimLoaded": {
+   "$ref": "#/$defs/SimLoaded"
+  },
   "SimReset": {
    "$ref": "#/$defs/SimReset"
+  },
+  "SimSaved": {
+   "$ref": "#/$defs/SimSaved"
   },
   "SimStepped": {
    "$ref": "#/$defs/SimStepped"
@@ -5798,6 +6401,9 @@
   },
   "StateSnapshot": {
    "$ref": "#/$defs/StateSnapshot"
+  },
+  "StatsOut": {
+   "$ref": "#/$defs/StatsOut"
   },
   "StatusChanged": {
    "$ref": "#/$defs/StatusChanged"
