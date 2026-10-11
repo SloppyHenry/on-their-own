@@ -28,7 +28,7 @@ export function SimulationControls() {
   const stopped = sim.state === "stopped";
 
   return (
-    <div className="flex items-center gap-4">
+    <div className="flex items-center gap-2.5">
       <div className="flex gap-1" role="group" aria-label="Steuerung">
         {running ? (
           <button className="btn on" disabled={busy} onClick={() => run(api.pause)} title="Pause" aria-label="Pause">❚❚</button>

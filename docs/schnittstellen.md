@@ -257,3 +257,20 @@ Ausführlich in [ereignisse.md](ereignisse.md). Verändernde Aufrufe brauchen de
 
 Fehler: 422 (leer, zu lang), 429 (mehr als 10 je Minute), 404/409 (unbekannte oder schon ausgeführte Eingabe).
 Neue Ereignistypen: `simulation.event_injected` (Text, Quelle, Modus, `directive`, Zusammenfassung), `simulation.event_scheduled`, `simulation.event_fired`, `simulation.effect_ended`, `agent.informed` (nur für den Empfänger sichtbar), `world.npc_acted`. Tabellen (`008_user_events.sql`): `inject_log`, `scheduled_events`, `npcs`.
+
+## Spielstände, Statistik und Verlauf (AP09)
+Ausführlich in [spielstaende.md](spielstaende.md). Verändernde Aufrufe brauchen den `Idempotency-Key`.
+
+| Methode und Pfad | Zweck |
+|---|---|
+| `GET /api/saves` | alle Stände (manuell, auto, Sicherung, Import) mit Sim-Zeit, Größe, Modell |
+| `POST /api/saves` | `{name, description, overwrite}` speichern; gleicher Name ohne `overwrite`: 409 |
+| `POST /api/saves/{id}/load` | `{confirm: true}`; sichert vorher „Vor dem Laden“, alle Browser bekommen einen Snapshot |
+| `DELETE /api/saves/{id}?confirm=true` | löschen |
+| `GET /api/saves/{id}/export` | ZIP (`state.db`, `manifest.json`) |
+| `POST /api/saves/import` | ZIP als Anfragekörper (`Content-Type: application/zip`), legt einen neuen Stand an; Fehler 422 mit Grund |
+| `POST /api/sim/reset` | `{confirm, model?, keep_profiles?}`; sichert vorher „Vor dem Zurücksetzen“ |
+| `GET /api/stats?agent=&from_minute=&to_minute=` | Statistiken je Agent und gesamt |
+| `GET /api/events/export?format=csv\|json&…` | Verlauf mit den Filtern der Liste (`type_prefix`, `agent`, `category`, `location`, `from_minute`, `to_minute`, `q`) |
+
+Neue Ereignistypen: `simulation.saved`, `simulation.loaded`. Tabellen: `stats_samples` (`009_stats.sql`); die Stände selbst liegen in `data/saves/`.

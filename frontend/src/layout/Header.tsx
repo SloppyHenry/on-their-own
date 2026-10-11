@@ -32,7 +32,7 @@ export function Header() {
   const night = clock ? clock.daylight < 0.4 : false;
 
   return (
-    <header className="flex items-center gap-5 border-b border-line bg-panel px-4">
+    <header className="flex items-center gap-3 border-b border-line bg-panel px-3">
       <span className="text-[13px] font-semibold tracking-[0.18em]">SIMULACRA</span>
       {clock && world && (
         <span data-testid="clock" className="whitespace-nowrap">
@@ -47,8 +47,8 @@ export function Header() {
       <button className={`btn ${view === "history" ? "on" : ""}`} onClick={() => setView(view === "history" ? "world" : "history")} aria-pressed={view === "history"} data-testid="open-history-view">Verlauf</button>
       <button className={`btn ${view === "stats" ? "on" : ""}`} onClick={() => setView(view === "stats" ? "world" : "stats")} aria-pressed={view === "stats"} data-testid="open-stats">Statistik</button>
       <button className={`btn ${view === "memory" ? "on" : ""}`} onClick={() => (view === "memory" ? setView("world") : openMemory(useUiStore.getState().lastAgent))} aria-pressed={view === "memory"}>{view === "memory" ? "← Zur Welt" : "Gedächtnis"}</button>
-      <span className="text-dim" data-testid="conn"><span className={`mr-1.5 inline-block size-2 rounded-full ${dot}`} />{connText}</span>
-      <span className="text-dim" title={health?.llm.error ?? ""}>
+      <span className="whitespace-nowrap text-dim" data-testid="conn"><span className={`mr-1.5 inline-block size-2 rounded-full ${dot}`} />{connText}</span>
+      <span className="max-w-[15rem] truncate whitespace-nowrap text-dim" title={health?.llm.error ?? ""}>
         <span className={`mr-1.5 inline-block size-2 rounded-full ${health?.llm.reachable ? "bg-ok" : "bg-warn"}`} />
         {health ? health.llm.configured_model : "Modell unbekannt"}
         {avg != null && avg > 0 && <span className="ml-1 font-mono text-xs"> Ø {avg.toFixed(1)} s</span>}
