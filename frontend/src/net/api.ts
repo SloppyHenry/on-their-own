@@ -1,5 +1,5 @@
 // REST-Zugriff. Verändernde Aufrufe tragen einen Idempotency-Key, damit Wiederholungen nichts doppelt tun.
-import type { AgentDetail, AgentNeeds, AgentOverview, DecisionOut, FactorRegistry, FailureOut, GoalOut, RelationOut, EventDetail, EventsPage, Knowledge, LocationDetail, MemoriesPage, MemoryDetail, MemoryStats, RetrievalOut, SimCommandResult, StateSnapshot } from "../types/generated";
+import type { AgentDetail, AgentNeeds, AgentOverview, DecisionOut, FactorRegistry, FailureOut, GoalOut, RelationOut, EventDetail, EventsPage, Knowledge, LocationDetail, MemoriesPage, MemoryDetail, MemoryStats, RetrievalOut, SimCommandResult, StateSnapshot, ParamPatchOut, ParamSchema, ParamValues, PresetBrief, PresetLoadOut, PresetOut, PresetPreview, StatusOut } from "../types/generated";
 
 export class ApiError extends Error {
   constructor(readonly status: number, readonly detail: string) {
@@ -9,9 +9,9 @@ export class ApiError extends Error {
 
 const key = () => (typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : `k-${Date.now()}-${Math.random().toString(36).slice(2, 12)}`);
 
-async function request<T>(method: "GET" | "POST", path: string, body?: unknown): Promise<T> {
+async function request<T>(method: "GET" | "POST" | "PATCH" | "DELETE", path: string, body?: unknown): Promise<T> {
   const headers: Record<string, string> = {};
-  if (method === "POST") {
+  if (method !== "GET") {
     headers["Idempotency-Key"] = key();
     headers["Content-Type"] = "application/json";
   }
@@ -86,6 +86,18 @@ export const api = {
   pause: () => request<SimCommandResult>("POST", "/api/sim/pause"),
   resume: () => request<SimCommandResult>("POST", "/api/sim/resume"),
   step: (n = 1) => request<SimCommandResult>("POST", "/api/sim/step", { n }),
-  reset: () => request<SimCommandResult>("POST", "/api/sim/reset", { confirm: true }),
+  reset: (model?: string) => request<SimCommandResult>("POST", "/api/sim/reset", { confirm: true, ...(model ? { model } : {}) }),
   speed: (level: string) => request<SimCommandResult>("POST", "/api/sim/speed", { level }),
+  paramSchema: () => request<ParamSchema>("GET", "/api/params/schema"),
+  params: () => request<ParamValues>("GET", "/api/params"),
+  patchParams: (changes: { key: string; value: unknown; agent?: string | null }[]) => request<ParamPatchOut>("PATCH", "/api/params", { changes }),
+  resetParams: (body: { keys?: string[]; group?: string; agent?: string } = {}) => request<ParamPatchOut>("POST", "/api/params/reset", body),
+  presets: () => request<PresetBrief[]>("GET", "/api/presets"),
+  presetPreview: (id: string) => request<PresetPreview>("GET", `/api/presets/${id}/preview`),
+  loadPreset: (id: string) => request<PresetLoadOut>("POST", `/api/presets/${id}/load`, { confirm: true }),
+  savePreset: (name: string, description: string, groups: string[] | null) => request<PresetOut>("POST", "/api/presets", { name, description, groups }),
+  duplicatePreset: (id: string) => request<PresetOut>("POST", `/api/presets/${id}/duplicate`, {}),
+  renamePreset: (id: string, name: string) => request<PresetOut>("PATCH", `/api/presets/${id}`, { name }),
+  deletePreset: (id: string) => request<PresetBrief>("DELETE", `/api/presets/${id}?confirm=true`),
+  status: () => request<StatusOut>("GET", "/api/status"),
 };

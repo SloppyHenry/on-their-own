@@ -30,6 +30,8 @@ interface SimStore {
   memoryVersion: number;
   /** Zähler für Ziele, Beziehungen und Schutzmechanismen: Ansichten laden bei Änderung neu. */
   autonomyVersion: number;
+  /** Zähler für `simulation.parameter_changed`: die Einstellungen laden bei Änderung (auch von anderen Browsern) neu. */
+  paramVersion: number;
   conn: Conn;
   setSnapshot: (s: StateSnapshot) => void;
   pushEvents: (items: EventOut[], live: boolean) => void;
@@ -52,6 +54,7 @@ export const useSimStore = create<SimStore>((set) => ({
   newMemories: {},
   memoryVersion: 0,
   autonomyVersion: 0,
+  paramVersion: 0,
   conn: "connecting",
   setSnapshot: (s) => set({ world: applySnapshot(s), events: [], bubbles: {}, pulses: {}, newMemories: {}, memoryVersion: 0, autonomyVersion: 0 }),
   pushEvents: (items, live) =>
@@ -59,9 +62,10 @@ export const useSimStore = create<SimStore>((set) => ({
       if (!st.world) return st;
       const bubbles = { ...st.bubbles };
       const pulses = { ...st.pulses }, fresh = { ...st.newMemories };
-      let touched = false, auto = false;
+      let touched = false, auto = false, param = false;
       for (const ev of items) {
         if (ev.type === "agent.memory_created" || ev.type === "agent.memory_retrieved") touched = true;
+        if (ev.type === "simulation.parameter_changed") param = true;
         if (ev.type === "agent.goal_changed" || ev.type === "agent.relation_changed" || ev.type === "agent.guard_triggered") auto = true;
         if (!live) continue;
         const b = bubbleOf(ev);
@@ -69,7 +73,7 @@ export const useSimStore = create<SimStore>((set) => ({
         if (ev.type === "agent.memory_created") { pulses[ev.agents[0]] = { kind: "saved", at: Date.now() }; fresh[(ev.data as { memory_id: string }).memory_id] = Date.now(); }
         if (ev.type === "agent.memory_retrieved") pulses[ev.agents[0]] = { kind: "recalled", at: Date.now() };
       }
-      return { world: applyEvents(st.world, items), events: mergeEvents(st.events, items), bubbles, pulses, newMemories: fresh, memoryVersion: touched ? st.memoryVersion + 1 : st.memoryVersion, autonomyVersion: auto ? st.autonomyVersion + 1 : st.autonomyVersion };
+      return { world: applyEvents(st.world, items), events: mergeEvents(st.events, items), bubbles, pulses, newMemories: fresh, memoryVersion: touched ? st.memoryVersion + 1 : st.memoryVersion, autonomyVersion: auto ? st.autonomyVersion + 1 : st.autonomyVersion, paramVersion: param ? st.paramVersion + 1 : st.paramVersion };
     }),
   setHistory: (items) => set((st) => ({ events: mergeEvents(items, st.events) })),
   setConn: (conn) => set({ conn }),

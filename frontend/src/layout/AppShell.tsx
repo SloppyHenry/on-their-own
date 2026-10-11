@@ -9,6 +9,7 @@ import { useSimStore } from "../store/simStore";
 import { useUiStore } from "../store/uiStore";
 import { MemoryInspector } from "../memory/MemoryInspector";
 import { WorldCanvas } from "../world/WorldCanvas";
+import { ParameterPanel } from "../settings/ParameterPanel";
 import { Header } from "./Header";
 
 export function AppShell() {
@@ -23,6 +24,7 @@ export function AppShell() {
       <main className={`grid min-h-0 ${view === "memory" ? "grid-cols-[1fr_0px]" : "grid-cols-[1fr_380px]"}`}>
         <div className="relative min-w-0 overflow-hidden bg-[#0e1115]">
           {!ready ? <p className="p-6 text-dim">Verbinde mit der Simulation …</p> : view === "memory" ? <MemoryInspector /> : <WorldCanvas />}
+          <ParameterPanel />
         </div>
         <aside className={`relative grid min-h-0 grid-rows-[auto_1fr] border-l border-line bg-panel ${view === "memory" ? "hidden" : ""}`}>
           {ready && <><AgentPanel /><EventTimeline /></>}

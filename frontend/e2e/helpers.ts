@@ -12,7 +12,8 @@ export const state = async (req: APIRequestContext) => (await req.get("/api/stat
 /** Jeder Test beginnt mit derselben frischen Welt (Mira und Alex im selben Zimmer), angehalten. */
 export async function freshWorld(req: APIRequestContext) {
   await post(req, "/api/sim/reset", { confirm: true });
-  await post(req, "/api/sim/speed", { level: "fast" });
+  await post(req, "/api/params/reset");                   // Einstellungen überleben das Zurücksetzen der Welt: Tests starten mit den Standardwerten
+  await post(req, "/api/sim/speed", { level: "4x" });
 }
 
 export async function openApp(page: Page) {

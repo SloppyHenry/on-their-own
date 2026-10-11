@@ -1,15 +1,28 @@
 import { useState } from "react";
+import { useHealth } from "../net/useHealth";
 
 export const RESET_WORD = "zurücksetzen";
 
-export function ResetDialog({ onConfirm, onCancel }: { onConfirm: () => void; onCancel: () => void }) {
+export function ResetDialog({ onConfirm, onCancel }: { onConfirm: (model?: string) => void; onCancel: () => void }) {
   const [text, setText] = useState("");
+  const health = useHealth();
+  const models = health?.llm.models ?? [];
+  const [model, setModel] = useState<string>("");
   const ok = text.trim().toLowerCase() === RESET_WORD;
   return (
     <div className="fixed inset-0 z-50 grid place-items-center bg-black/60" role="dialog" aria-modal="true" aria-label="Zurücksetzen bestätigen">
-      <form className="w-96 rounded-lg border border-line bg-panel p-5" onSubmit={(e) => { e.preventDefault(); if (ok) onConfirm(); }}>
+      <form className="w-96 rounded-lg border border-line bg-panel p-5" onSubmit={(e) => { e.preventDefault(); if (ok) onConfirm(model || undefined); }}>
         <h3 className="text-lg font-semibold">Simulation zurücksetzen?</h3>
         <p className="mt-2 text-sm text-dim">Die Welt beginnt von vorn. Der bisherige Stand wird vorher unter <span className="font-mono text-xs">data/backups/</span> gesichert.</p>
+        {models.length > 0 && (
+          <label className="mt-4 block text-sm">Modell der neuen Simulation
+            <select className="mt-1 w-full rounded-md border border-line bg-bg px-2 py-1.5" value={model} onChange={(e) => setModel(e.target.value)} aria-label="Modell">
+              <option value="">{health?.llm.configured_model} (bisheriges)</option>
+              {models.filter((m) => m !== health?.llm.configured_model).map((m) => <option key={m} value={m}>{m}</option>)}
+            </select>
+            <span className="mt-1 block text-[11px] text-faint">Das Modell gilt für den ganzen Lauf und lässt sich danach nicht wechseln.</span>
+          </label>
+        )}
         <label className="mt-4 block text-sm">Zur Bestätigung „{RESET_WORD}“ eingeben
           <input autoFocus className="mt-1 w-full rounded-md border border-line bg-bg px-2 py-1.5" value={text} onChange={(e) => setText(e.target.value)} />
         </label>

@@ -20,7 +20,7 @@ export function makeSnapshot(over: Partial<StateSnapshot> = {}): StateSnapshot {
     ],
     clock: clockOf(420),
     weather: { kind: "clear", since: 0, until: 600 },
-    simulation: { state: "paused", tick_delay_s: 1, speed_level: "normal", stats: {}, llm: {} },
+    simulation: { state: "paused", tick_delay_s: 1, speed_level: "1x", stats: {}, llm: {} },
     rules: {} as StateSnapshot["rules"],
     ...over,
   };

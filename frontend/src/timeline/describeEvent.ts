@@ -1,6 +1,7 @@
 // Lesbare Sätze aus Ereignistyp und Daten. Entsteht im Frontend, nicht im Modell. Jeder Typ hat einen Eintrag (vom Compiler erzwungen).
 import { formatTime } from "../lib/clock";
 import { ACTIVITIES, resourceName, statusName, weatherName } from "../lib/names";
+import { labelOf, shown } from "../settings/labels";
 import type { EventDataMap, EventOut, EventType } from "../types/generated";
 
 export interface Names {
@@ -80,8 +81,8 @@ const TEXT: Table = {
   "simulation.stopped": () => "Simulation angehalten.",
   "simulation.stepped": (d) => `${d.n} Schritt${d.n === 1 ? "" : "e"} ausgeführt (${formatTime(d.minute)}).`,
   "simulation.reset": () => "Simulation zurückgesetzt.",
-  "simulation.parameter_changed": (d) => `Parameter geändert: ${d.group}.`,
-  "simulation.speed_changed": (d) => `Tempo: ${d.level}.`,
+  "simulation.parameter_changed": (d) => (d.key ? `Einstellung „${labelOf(d.key)}“${d.agent ? ` (${d.agent})` : ""}: ${shown(d.old)} → ${shown(d.new)}.` : `Parameter geändert: ${d.group}.`),
+  "simulation.speed_changed": (d) => `Tempo: ${d.level === "custom" ? `${d.tick_delay_s} s Pause` : d.level}.`,
   "simulation.event_injected": () => "Ereignis eingegeben.",
 };
 

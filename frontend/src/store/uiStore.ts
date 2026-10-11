@@ -28,6 +28,11 @@ interface UiStore {
   /** Agent, dessen Gedächtnis der Inspektor zeigt. */
   memoryAgent: string | null;
   setView: (v: View) => void;
+  /** Einstellungen (Parameter, Presets, Status) als Schublade über der Welt. */
+  settingsOpen: boolean;
+  settingsTab: string;
+  openSettings: (tab?: string) => void;
+  closeSettings: () => void;
   openMemory: (agent: string | null) => void;
   selection: Selection;
   /** Zuletzt gewählter Agent: Taste F folgt ihm auch nach dem Schließen des Details. */
@@ -43,6 +48,10 @@ export const useUiStore = create<UiStore>((set) => ({
   view: "world",
   memoryAgent: null,
   setView: (view) => set({ view }),
+  settingsOpen: false,
+  settingsTab: "autonomy",
+  openSettings: (tab) => set((s) => ({ settingsOpen: true, settingsTab: tab ?? s.settingsTab })),
+  closeSettings: () => set({ settingsOpen: false }),
   openMemory: (memoryAgent) => set({ view: "memory", memoryAgent, selection: null }),
   selection: null,
   lastAgent: null,

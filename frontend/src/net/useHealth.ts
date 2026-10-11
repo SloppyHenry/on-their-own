@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 export interface Health {
-  llm: { reachable: boolean; configured_model: string; model_available: boolean; error: string | null };
+  llm: { reachable: boolean; models: string[]; configured_model: string; model_available: boolean; error: string | null };
 }
 
 export function useHealth(everyMs = 10000): Health | null {

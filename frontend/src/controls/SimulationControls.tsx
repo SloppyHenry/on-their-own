@@ -3,7 +3,7 @@ import { ApiError, api } from "../net/api";
 import { useSimStore } from "../store/simStore";
 import { ResetDialog } from "./ResetDialog";
 
-const SPEEDS: [string, string][] = [["slow", "Langsam"], ["normal", "Normal"], ["fast", "Schnell"], ["max", "Max"]];
+const SPEEDS: [string, string][] = [["0.5x", "0,5×"], ["1x", "1×"], ["2x", "2×"], ["4x", "4×"], ["max", "Max"]];
 
 /** Jeder Knopf ruft die API; angezeigt wird, was das Backend meldet (Ereignisse), nicht was wir hoffen. */
 export function SimulationControls() {
@@ -44,7 +44,7 @@ export function SimulationControls() {
       </div>
       <button className="btn" disabled={busy} onClick={() => setResetting(true)}>⟲ Zurücksetzen</button>
       {error && <span className="max-w-60 truncate text-xs text-warn" role="alert" title={error}>{error}</span>}
-      {resetting && <ResetDialog onCancel={() => setResetting(false)} onConfirm={() => { setResetting(false); void run(api.reset); }} />}
+      {resetting && <ResetDialog onCancel={() => setResetting(false)} onConfirm={(model) => { setResetting(false); void run(() => api.reset(model)); }} />}
     </div>
   );
 }
