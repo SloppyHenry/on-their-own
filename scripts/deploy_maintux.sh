@@ -32,10 +32,7 @@ if (( ! dry && ! yes )); then
 fi
 
 echo "2. Quellcode übertragen"
-run rsync -az --delete \
-  --exclude .git --exclude data --exclude node_modules --exclude .venv --exclude dist --exclude test-results \
-  --exclude __pycache__ --exclude .pytest_cache --exclude '.env' --exclude '*.db*' --exclude '*.log' --exclude .DS_Store \
-  "$ROOT/" "$HOST:$DIR/"
+run rsync -az --delete --exclude-from="$ROOT/scripts/rsync-excludes.txt" "$ROOT/" "$HOST:$DIR/"
 echo "3. Backup, Bauen, Starten und Prüfen auf $HOST (bei Fehler zurück auf die vorherige Version)"
 run ssh "$HOST" "cd '$DIR' && SIM_KEY_SOURCE='${SIM_KEY_SOURCE:-}' bash scripts/_remote_up.sh"
 echo "Fertig: http://$HOST:8090"

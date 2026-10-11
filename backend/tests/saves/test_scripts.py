@@ -139,7 +139,7 @@ def test_deploy_dry_run_touches_neither_tests_nor_ssh_nor_rsync(env):
     e, data, tmp = env
     r = sh(e, ROOT / "scripts/deploy_maintux.sh", "--dry-run")
     assert r.returncode == 0 and "[dry-run] rsync" in r.stdout and "[dry-run] ssh maintux" in r.stdout and "_remote_up.sh" in r.stdout
-    assert "--exclude data" in r.stdout and "--exclude .env" in r.stdout
+    assert "--exclude-from=" in r.stdout and "rsync-excludes.txt" in r.stdout
     assert not [c for c in calls(tmp) if c.startswith(("ssh", "rsync"))]
 
 
@@ -152,3 +152,26 @@ def test_key_file_default_lies_in_a_private_folder_of_the_user(env):
     e, data, tmp = env
     r = subprocess.run(["bash", "-c", f"source {ROOT}/scripts/_compose.sh; echo $SIM_KEY_FILE"], env=e, capture_output=True, text=True)
     assert r.stdout.strip() == f"{tmp}/simulacra-secrets/llm_api_key"
+
+
+def test_rsync_to_maintux_copies_every_tracked_file_and_no_data(tmp_path):
+    """Gegen den Fehler vom ersten Ausrollen: ein zu grober Ausschluss (`data`) ließ backend/simulacra/data/ mit den Weltdaten weg."""
+    target = tmp_path / "ziel"
+    (tmp_path / "quelle").mkdir()
+    subprocess.run(["rsync", "-a", "--exclude-from", str(ROOT / "scripts/rsync-excludes.txt"), f"{ROOT}/", f"{target}/"], check=True)
+    tracked = subprocess.run(["git", "ls-files"], cwd=ROOT, capture_output=True, text=True, check=True).stdout.split()
+    missing = [f for f in tracked if (ROOT / f).exists() and not (target / f).exists()]
+    assert not missing, missing
+    assert (target / "backend/simulacra/data/blueprints.json").is_file()
+    assert not (target / "data").exists() and not (target / ".git").exists() and not list(target.rglob("node_modules"))
+
+
+def test_every_file_the_app_needs_at_runtime_survives_the_docker_context_rules():
+    """Die Muster aus .dockerignore dürfen nichts unter backend/simulacra oder backend/requirements.lock treffen."""
+    patterns = [l.strip() for l in (ROOT / ".dockerignore").read_text().splitlines() if l.strip() and not l.startswith(("#", "!"))]
+    needed = [str(p.relative_to(ROOT)) for p in (ROOT / "backend/simulacra").rglob("*") if p.is_file() and "__pycache__" not in p.parts] + ["backend/requirements.lock"]
+    import fnmatch
+    hit = [f for f in needed for pat in patterns
+           if (pat.startswith("**/") and any(fnmatch.fnmatch(part, pat[3:]) for part in f.split("/")))
+           or (not pat.startswith("**/") and (fnmatch.fnmatch(f, pat.lstrip("/")) or f.startswith(pat.lstrip("/").rstrip("/") + "/")))]
+    assert not hit, hit

@@ -1,0 +1,21 @@
+# Was deploy_maintux.sh NICHT nach maintux kopiert. Mit „/“ am Anfang gilt ein Muster nur im Projektstamm;
+# ohne „/“ trifft es jeden Ordner gleichen Namens (backend/simulacra/data/ mit den Weltdaten muss mit!).
+/.git
+/data
+.env
+/frontend/node_modules
+/frontend/dist
+/frontend/test-results
+/frontend/playwright-report
+/backend/.venv
+.venv
+node_modules
+__pycache__
+.pytest_cache
+.ruff_cache
+*.db
+*.db-wal
+*.db-shm
+*.log
+*.tsbuildinfo
+.DS_Store

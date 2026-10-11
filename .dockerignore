@@ -1,6 +1,6 @@
 # Nichts davon gehört ins Image (Daten, Geheimnisse, lokale Umgebungen, Build-Reste)
 .git
-data/
+/data
 **/.env
 **/.env.*
 !**/.env.example
