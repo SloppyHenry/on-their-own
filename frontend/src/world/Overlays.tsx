@@ -32,7 +32,8 @@ export function Overlays({ bridge }: { bridge: WorldBridge }) {
           bub.textContent = b.text.length > MAX_CHARS ? `${b.text.slice(0, MAX_CHARS - 1)}…` : b.text;
           bub.title = b.text.length > MAX_CHARS ? "Klicken für den ganzen Text im Protokoll" : "";
         }
-        bub.style.transform = `translate(${a.x}px, ${a.y - 24 * f.zoom}px) translate(-25%, -100%)`;
+        const left = Math.max(4, Math.min(a.x - bub.offsetWidth * 0.25, el.clientWidth - bub.offsetWidth - 4));   // nie über den Rand hinaus
+        bub.style.transform = `translate(${left}px, ${a.y - 24 * f.zoom}px) translateY(-100%)`;
       }
     });
     return () => bridge.onFrame(null);

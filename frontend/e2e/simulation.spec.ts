@@ -18,6 +18,9 @@ test("Dialog erscheint als Sprechblase und als Protokolleintrag (§17 Nr. 5)", a
   const bubble = page.locator("[data-testid^=bubble-]:visible").first();
   await expect(bubble).toBeVisible({ timeout: 30_000 });
   await expect(bubble).not.toHaveText("");
+  const box = (await bubble.boundingBox())!, view = (await page.getByTestId("world-canvas").boundingBox())!;
+  expect(box.x).toBeGreaterThanOrEqual(view.x);
+  expect(box.x + box.width).toBeLessThanOrEqual(view.x + view.width);
   await expect(page.locator('[data-testid=timeline] [data-type="agent.dialogue"]').first()).toBeVisible();
   await post(request, "/api/sim/pause");
 });

@@ -40,7 +40,7 @@ function AgentCard({ id }: { id: string }) {
         <b style={{ color: c }}>{a.name}</b>
         <span className="text-dim"> · {w.locations[a.location_id]?.name ?? "unterwegs"}</span>
         <span className="block truncate text-xs text-dim"><Icon name={icon} size={14} /> {text}</span>
-        {res && <span className="block truncate text-xs text-dim"><Icon name={res.ok ? "ok" : "no"} size={14} className={res.ok ? "text-ok" : "text-warn"} /> {res.text}</span>}
+        {res && <span className="block truncate text-xs text-dim"><Icon name={res.ok ? "ok" : "no"} size={14} className={res.ok ? "text-ok" : "text-warn"} /> {res.ok ? `fertig: ${ACTIVITIES[res.text]?.[0] ?? res.text}` : res.text}</span>}
       </span>
     </button>
   );

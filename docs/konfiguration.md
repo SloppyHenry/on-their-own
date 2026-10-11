@@ -72,3 +72,12 @@ Werden in der Datenbank gespeichert und über `WorldEngine.set_rules()` **sofort
 | `SIM_WS_PING_S` | 15 | Heartbeat der WebSocket-Verbindung in Sekunden |
 | `SIM_WS_MAX_GAP` | 5000 | Rückstand eines Clients, ab dem er einen Snapshot statt der Nachlieferung bekommt |
 | `SIM_WS_MAX_BACKLOG` | 2000 | Ereignisse, die je Verbindung zwischengespeichert werden, bevor ein Resync verlangt wird |
+
+## Frontend und Tests (AP04)
+
+| Variable | Standard | Bedeutung |
+|---|---|---|
+| `SIM_BACKEND` | `http://127.0.0.1:8090` | Ziel des Vite-Proxys (`/api`, `/ws`) |
+| `SIM_FRONTEND_PORT` | 5173 | Port des Vite-Servers |
+
+`scripts/e2e_server.py --port N --data-dir DIR` startet das Backend mit einem deterministischen Fake-LLM für Browser-Tests; Playwright (`frontend/playwright.config.ts`) startet es mit Port 8192 und Vite mit 5175 selbst.
