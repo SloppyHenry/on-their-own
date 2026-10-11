@@ -9,6 +9,8 @@ export interface Filters {
   agent: string | null;
   text: string;
   moves: boolean;
+  /** Nur Fehlschläge: abgelehnte oder gescheiterte Aktionen, unbrauchbare Antworten, Schutzmechanismen. */
+  failures: boolean;
 }
 
 export const DEFAULT_FILTERS: Filters = {
@@ -16,6 +18,7 @@ export const DEFAULT_FILTERS: Filters = {
   agent: null,
   text: "",
   moves: false,
+  failures: false,
 };
 
 export type View = "world" | "memory";

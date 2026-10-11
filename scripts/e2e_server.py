@@ -27,6 +27,11 @@ def make_fn():
     talk = itertools.count()
 
     def fn(messages, schema, params):
+        if "condition" in (schema or {}).get("properties", {}):                      # Zielsetzung
+            n = next(talk)
+            places = [("garden", "Zum Garten gehen"), ("square", "Zum Platz gehen"), ("lake", "Zum See gehen")]
+            loc, text = places[n % 3]
+            return json.dumps({"text": f"{text} und sich umsehen", "condition": {"type": "location_visited", "location": loc}, "plan": [{"step": text, "kind": "move", "target": loc}]}, ensure_ascii=False)
         if "reflections" in (schema or {}).get("properties", {}):                     # Reflexionsaufruf
             return json.dumps({"reflections": [{"text": f"Ich merke, dass ich oft unterwegs bin (Muster {next(turn)}).", "importance": 6, "sources": [1, 2]}]}, ensure_ascii=False)
         opts = dict(re.findall(r"^(o\d+): (.*)$", messages[1]["content"], re.M))

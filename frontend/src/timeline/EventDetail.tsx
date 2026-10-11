@@ -6,6 +6,7 @@ import { Drawer } from "../panels/Drawer";
 import { useDetail } from "../panels/useDetail";
 import { useUiStore } from "../store/uiStore";
 import type { Decision, EventOut } from "../types/generated";
+import { DecisionDetail } from "./DecisionDetail";
 import { describeEvent, type Names } from "./describeEvent";
 
 function Linked({ items, names }: { items: EventOut[]; names: Names }) {
@@ -16,14 +17,6 @@ function Linked({ items, names }: { items: EventOut[]; names: Names }) {
       <span className="font-mono text-faint">#{e.seq}</span> <Icon name="link" size={12} /> {describeEvent(e, names).text}
     </button>
   ))}</>;
-}
-
-function Options({ d }: { d: Decision }) {
-  if (!d.options?.length) return null;
-  return (<><div className="sub">Optionen (Punkte)</div>
-    <table className="w-full border-collapse text-xs"><thead><tr className="text-left text-dim"><th className="py-1">Option</th><th>Punkte</th></tr></thead><tbody>
-      {d.options.map((o) => <tr key={o.id} className={`border-b border-line ${o.id === d.chosen ? "font-semibold text-alex" : ""}`}><td className="py-1">{o.id === d.chosen ? "▶ " : ""}{o.label}</td><td className="font-mono">{o.score.toFixed(2)}</td></tr>)}
-    </tbody></table></>);
 }
 
 export function EventDetail({ refId }: { refId: string }) {
@@ -42,7 +35,7 @@ export function EventDetail({ refId }: { refId: string }) {
         <dt className="text-dim">Kennung</dt><dd className="break-all font-mono text-xs">{ev.id}</dd>
         <dt className="text-dim">Sichtbarkeit</dt><dd>{ev.visibility}</dd>
       </dl>
-      {ev.type === "agent.decision" && <Options d={ev.data as unknown as Decision} />}
+      {ev.type === "agent.decision" && <DecisionDetail id={(ev.data as unknown as Decision).decision_id} />}
       <div className="sub">Verursacht durch</div><Linked items={data.chain} names={names} />
       <div className="sub">Folgen</div><Linked items={data.consequences} names={names} />
       <div className="sub">Alle Felder</div>

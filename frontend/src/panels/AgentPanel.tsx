@@ -4,6 +4,9 @@ import { ACTIVITIES, resourceName, statusName } from "../lib/names";
 import { accentOf } from "../world/draw/characters";
 import { useSimStore } from "../store/simStore";
 import { useUiStore } from "../store/uiStore";
+import { useOverview } from "../net/useOverview";
+import { NeedsBars } from "./NeedsBars";
+import { GoalProgress } from "./GoalView";
 import type { AgentInfo, World } from "../store/types";
 
 const TARGET_KEYS = ["label", "target", "object_id", "seedbed_id", "plant", "site", "node", "to"];
@@ -30,6 +33,7 @@ function AgentCard({ id }: { id: string }) {
   const select = useUiStore((s) => s.select);
   const a = w.agents[id];
   const res = w.activity[id]?.lastResult;
+  const ov = useOverview()[id];
   const { text, icon } = activityOf(a, w);
   const c = accentOf(id);
   return (
@@ -40,6 +44,9 @@ function AgentCard({ id }: { id: string }) {
         <b style={{ color: c }}>{a.name}</b>
         <span className="text-dim"> · {w.locations[a.location_id]?.name ?? "unterwegs"}</span>
         <span className="block truncate text-xs text-dim"><Icon name={icon} size={14} /> {text}</span>
+        {ov?.goal && <span className="mt-0.5 block text-xs" data-testid={`goal-line-${id}`}><span className="text-dim">Ziel:</span> {ov.goal.text}<GoalProgress g={ov.goal} /></span>}
+        {ov && <span className="mt-0.5 block text-[11px] text-dim" data-testid={`mood-${id}`}>Stimmung: {ov.mood.word}{ov.resting ? " · Ruhemodus" : ""}</span>}
+        {ov && <NeedsBars needs={ov.needs} compact />}
         {res && <span className="block truncate text-xs text-dim"><Icon name={res.ok ? "ok" : "no"} size={14} className={res.ok ? "text-ok" : "text-warn"} /> {res.ok ? `fertig: ${ACTIVITIES[res.text]?.[0] ?? res.text}` : res.text}</span>}
       </span>
     </button>

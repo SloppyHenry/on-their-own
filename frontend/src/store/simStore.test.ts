@@ -68,6 +68,12 @@ describe("Protokollfilter", () => {
     expect(matchesFilters(m, "x", f)).toBe(false);
     expect(matchesFilters(m, "x", { ...f, categories: { ...f.categories, memory: true } })).toBe(true);
   });
+  it("„Fehlschläge“ zeigt nur Fehlschläge und Schutzmechanismen", () => {
+    const only = { ...f, failures: true };
+    expect(matchesFilters(ev("agent.action_failed", {}, { agents: ["alex"] }), "x", only)).toBe(true);
+    expect(matchesFilters(ev("agent.guard_triggered", {}, { agents: ["alex"] }), "x", only)).toBe(true);
+    expect(matchesFilters(ev("agent.dialogue", {}, { agents: ["alex"], category: "dialogue" }), "x", only)).toBe(false);
+  });
   it("blendet Einzelschritte standardmäßig aus", () => {
     expect(matchesFilters(ev("agent.moved", {}, { agents: ["alex"] }), "x", f)).toBe(false);
     expect(matchesFilters(ev("agent.moved", {}, { agents: ["alex"] }), "x", { ...f, moves: true })).toBe(true);
@@ -78,5 +84,15 @@ describe("Protokollfilter", () => {
     expect(matchesFilters(d, "Alex sagt Hallo", { ...f, agent: "mira" })).toBe(false);
     expect(matchesFilters(d, "Alex sagt Hallo", { ...f, agent: "alex", text: "hallo" })).toBe(true);
     expect(matchesFilters(d, "Alex sagt Hallo", { ...f, text: "tschüss" })).toBe(false);
+  });
+});
+
+describe("Autonomie-Signale", () => {
+  it("Ziel-, Beziehungs- und Schutzereignisse erhöhen den Zähler, andere nicht", () => {
+    const before = useSimStore.getState().autonomyVersion;
+    useSimStore.getState().pushEvents([ev("agent.goal_changed", { goal_id: "g", kind: "short", text: "x", new: "active", reason: "r" }, { agents: ["alex"] })], false);
+    expect(useSimStore.getState().autonomyVersion).toBe(before + 1);
+    useSimStore.getState().pushEvents([ev("agent.moved", { from: [1, 1], to: [2, 1], facing: "right" }, { agents: ["alex"] })], false);
+    expect(useSimStore.getState().autonomyVersion).toBe(before + 1);
   });
 });

@@ -25,7 +25,7 @@ export function WorldCanvas() {
     // Phaser merkt sich die Lage des Canvas; ändert sich das Layout (Seitenleiste, Fenstergröße), wäre der Zeiger verschoben. Darum vor jedem Zeigerereignis neu messen.
     const el = host.current!;
     const remeasure = () => game.scale.updateBounds();
-    const ro = new ResizeObserver(() => game.scale.refresh());
+    const ro = new ResizeObserver(() => requestAnimationFrame(() => game.scale.refresh()));
     ro.observe(el);
     for (const ev of ["pointerdown", "pointermove", "wheel"]) el.addEventListener(ev, remeasure, { capture: true, passive: true });
     const onKey = (e: KeyboardEvent) => {

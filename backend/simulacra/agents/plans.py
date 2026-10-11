@@ -104,7 +104,9 @@ class GoalPlanner:
                   "Du kannst bauen: " + "; ".join(f"{bp['name']} (Art {bp['kind']})" for bp in f["blueprints"].values()) + ".",
                   "Personen: " + (", ".join(f"{a.name} [{a.id}]" for a in f["others"]) or "niemand") + ".", "",
                   "Setze dir EIN neues, konkretes Ziel für die nächsten Stunden, das zu deinen langfristigen Zielen, deiner Lage und deinen Erinnerungen passt. "
-                  "Das Ziel muss in der Welt prüfbar sein. Wähle genau eine Bedingung:",
+                  "Das Ziel beschreibt, was DU selbst tun willst (nicht, was andere für dich tun), und muss in der Welt prüfbar sein. Beispiele: "
+                  "«Eine Bank im Garten bauen» (object_count, kind bench, location garden), «Den Wald erkunden» (location_visited, location forest), "
+                  "«Genug Holz für ein Regal sammeln» (has_resource, wood, 5). Ein Gespräch (talked_with) nur dann, wenn das Gespräch selbst das Ziel ist. Wähle genau eine Bedingung:",
                   "- object_count: ein Gegenstand einer Art soll entstehen (kind = Art, optional location = Ortskennung)",
                   "- location_visited: ein Ort soll (erneut) besucht werden (location = Ortskennung)",
                   f"- has_resource: du trägst genug von etwas (resource: {', '.join(RES_DE)}; amount)",

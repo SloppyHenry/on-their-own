@@ -8,10 +8,16 @@ import { useUiStore } from "../store/uiStore";
 import { accentOf } from "../world/draw/characters";
 import { KIND_LABEL } from "../memory/labels";
 import { activityOf } from "./AgentPanel";
-import { Bar, Drawer } from "./Drawer";
+import { Drawer } from "./Drawer";
+import { FailureList } from "./FailureList";
+import { GoalView } from "./GoalView";
+import { NeedsBars } from "./NeedsBars";
+import { RelationView } from "./RelationView";
+import { DecisionDetail } from "../timeline/DecisionDetail";
+import { useOverview } from "../net/useOverview";
+import { useState } from "react";
 import { useDetail } from "./useDetail";
 
-const NEED_LABEL: Record<string, string> = { energy: "Energie", hunger: "Hunger", thirst: "Durst" };
 
 export function AgentDetail({ id }: { id: string }) {
   const w = useSimStore((s) => s.world!);
@@ -20,6 +26,8 @@ export function AgentDetail({ id }: { id: string }) {
   const setFollow = useUiStore((s) => s.setFollow);
   const { data } = useDetail(() => api.agent(id), id);
   const openMemory = useUiStore((s) => s.openMemory);
+  const ov = useOverview()[id];
+  const [openDec, setOpenDec] = useState<number | null>(null);
   const memVersion = useSimStore((s) => s.memoryVersion);
   const { data: mem } = useDetail(() => api.memories(id, { limit: 5, sort: "time", status: "active" }), `${id}/mem/${memVersion}`, 0);
   const a = w.agents[id];
@@ -39,16 +47,22 @@ export function AgentDetail({ id }: { id: string }) {
         {data?.mood && (<><dt className="text-dim">Stimmung</dt><dd>{data.mood}</dd></>)}
       </dl>
       <button className={`btn ${follow === id ? "on" : ""}`} onClick={() => setFollow(follow === id ? null : id)}>Kamera folgt</button>
-      {prof && prof.goals.length > 0 && (<><div className="sub">Ziele</div><ul className="list-disc pl-5 text-dim">{prof.goals.map((g) => <li key={g}>{g}</li>)}</ul></>)}
-      <div className="sub">Bedürfnisse</div>
-      {Object.entries(a.needs).map(([k, v]) => <Bar key={k} label={NEED_LABEL[k] ?? k} value={k === "energy" ? v : v} color={c} />)}
+      {ov && (<><div className="sub">Bedürfnisse und Stimmung</div>
+        <div className="mb-1 text-[13px]" data-testid="mood-detail">Stimmung: <b>{ov.mood.word}</b> <span className="font-mono text-xs text-dim">({ov.mood.value > 0 ? "+" : ""}{ov.mood.value})</span>{ov.resting && <span className="text-warn"> · Ruhemodus</span>}</div>
+        <div className="mb-1.5 flex flex-wrap gap-x-2 text-[11px] text-dim">{ov.mood.reasons.map(([n, v]) => <span key={String(n)}>{String(n)} {Number(v) > 0 ? "+" : ""}{String(v)}</span>)}</div>
+        <NeedsBars needs={ov.needs} /></>)}
+      <GoalView agent={id} />
+      <RelationView agent={id} />
+      <FailureList agent={id} />
       <div className="sub">Letzte Entscheidungen</div>
-      <table className="my-1.5 w-full border-collapse text-xs"><tbody>
-        {(data?.decisions ?? []).slice(0, 8).map((d) => (
-          <tr key={d.id} className="cursor-default border-b border-line align-top"><td className="py-1 pr-2 font-mono text-faint">{formatTime(d.sim_minute)}</td><td className="py-1 pr-2">{d.intent || d.chosen || d.action}</td>
-            <td className={`py-1 ${d.outcome === "ok" ? "text-ok" : d.outcome ? "text-warn" : "text-dim"}`}>{d.outcome_text ?? d.status}</td></tr>
-        ))}
-      </tbody></table>
+      {(data?.decisions ?? []).slice(0, 8).map((d) => (
+        <div key={d.id} className="border-b border-line py-1 text-xs">
+          <button className="flex w-full cursor-pointer gap-2 text-left" onClick={() => setOpenDec(openDec === d.id ? null : d.id)} aria-expanded={openDec === d.id}>
+            <span className="font-mono text-faint">{formatTime(d.sim_minute)}</span><span className="flex-1">{d.intent || d.chosen || d.action}</span>
+            <span className={d.outcome === "accepted" ? "text-ok" : d.outcome ? "text-warn" : "text-dim"}>{d.outcome_text ?? d.status}</span><span className="text-plan underline">Warum?</span></button>
+          {openDec === d.id && <div className="mt-1 rounded-md bg-panel2 p-2"><DecisionDetail id={d.id} /></div>}
+        </div>
+      ))}
       <div className="sub">Erinnerungen{mem ? ` (${mem.total})` : ""}</div>
       {mem?.items.map((m) => <div key={m.id} className="border-b border-line py-1 text-xs"><span className="text-dim">{KIND_LABEL[m.kind]} · ★ {m.importance} ·</span> {m.text}</div>)}
       {mem && !mem.items.length && <div className="text-dim">Noch nichts gemerkt.</div>}

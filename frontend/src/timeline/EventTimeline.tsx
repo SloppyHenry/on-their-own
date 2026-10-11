@@ -8,6 +8,7 @@ import { useUiStore } from "../store/uiStore";
 import type { EventCategory, EventOut } from "../types/generated";
 import { accentOf } from "../world/draw/characters";
 import { describeEvent } from "./describeEvent";
+import { FactorBars } from "./FactorBars";
 import { matchesFilters } from "./filter";
 
 const CAT_LABEL: [EventCategory, string, string][] = [["world", "Welt", "var(--color-world)"], ["dialogue", "Dialog", "var(--color-dialog)"], ["planning", "Planung", "var(--color-plan)"], ["memory", "Gedächtnis", "var(--color-ok)"], ["system", "System", "var(--color-sys)"]];
@@ -22,6 +23,7 @@ export function EventTimeline() {
   const select = useUiStore((s) => s.select);
   const scroller = useRef<HTMLDivElement>(null);
   const [pinned, setPinned] = useState(true);
+  const [why, setWhy] = useState<Record<number, boolean>>({});
 
   const rows = useMemo<Row[]>(() => {
     const out: Row[] = [];
@@ -56,6 +58,8 @@ export function EventTimeline() {
           <button key={id} onClick={() => setFilters({ agent: filters.agent === id ? null : id })} aria-pressed={filters.agent === id} className="cursor-pointer rounded-full border px-2.5 py-0.5 text-xs"
             style={filters.agent === id ? { borderColor: accentOf(id), color: "var(--color-text)" } : { borderColor: "var(--color-line)", color: "var(--color-dim)" }}>{names.agent(id)}</button>
         ))}
+        <button onClick={() => setFilters({ failures: !filters.failures })} aria-pressed={filters.failures} data-testid="filter-failures" className="cursor-pointer rounded-full border px-2.5 py-0.5 text-xs"
+          style={filters.failures ? { borderColor: "var(--color-warn)", color: "var(--color-text)" } : { borderColor: "var(--color-line)", color: "var(--color-dim)" }}>Fehlschläge</button>
         <button onClick={() => setFilters({ moves: !filters.moves })} aria-pressed={filters.moves} className="cursor-pointer rounded-full border border-line px-2.5 py-0.5 text-xs text-dim" title="Einzelne Schritte anzeigen">{filters.moves ? "Schritte an" : "Schritte aus"}</button>
       </div>
       <input className="mx-3 mb-2 rounded-md border border-line bg-bg px-2 py-1 text-xs" placeholder="Suchen …" value={filters.text} onChange={(e) => setFilters({ text: e.target.value })} aria-label="Protokoll durchsuchen" />
@@ -70,7 +74,12 @@ export function EventTimeline() {
                     <span className="font-mono text-xs text-faint">{formatTime(r.ev.sim_time.total)}</span>
                     <Icon name={r.icon} className={{ world: "text-world", dialogue: "text-dialog", planning: "text-plan", memory: "text-plan", system: "text-sys" }[r.ev.category]} />
                     <span>{r.text}</span>
-                  </button>
+                  </button>)}
+                {r.kind === "ev" && r.ev.type === "agent.decision" && (
+                  <div className="px-2 pb-1 pl-[68px]">
+                    <button className="cursor-pointer text-[11px] text-plan underline" onClick={() => setWhy((w) => ({ ...w, [r.ev.seq]: !w[r.ev.seq] }))} aria-expanded={!!why[r.ev.seq]}>Warum?</button>
+                    {why[r.ev.seq] && <div className="mt-1 rounded-md bg-panel2 p-2" data-testid="why-box"><p className="mb-1.5 text-xs leading-snug">{String((r.ev.data as { why?: string }).why ?? "")}</p><FactorBars factors={(r.ev.data as { factors?: unknown[][] }).factors ?? []} /></div>}
+                  </div>
                 )}
               </div>
             );

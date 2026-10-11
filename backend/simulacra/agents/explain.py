@@ -7,18 +7,18 @@ from typing import Any
 from .factors import FACTOR_KEYS, KEY_LABELS
 
 PHRASE = {
-    "Ziel": "es sein Ziel voranbringt", "Planbindung": "es zu seinem Plan passt", "Hunger": "er Hunger hat", "Durst": "er Durst hat", "Müdigkeit": "er müde ist",
-    "Erschöpfung": "er erschöpft ist", "Bedürfnis Geselligkeit": "er Gesellschaft braucht", "Bedürfnis Ruhe": "er Ruhe braucht", "Wärme": "ihm kalt ist",
-    "Neugier": "er neugierig ist", "Geselligkeit": "er gesellig ist", "Gesprächsinitiative": "er gern das Gespräch beginnt", "Hilfsbereitschaft": "er gern hilft",
-    "Kooperation": "er gern zusammenarbeitet", "Annahmebereitschaft": "er Vorschlägen gegenüber offen ist", "Konfliktbereitschaft": "er Konflikten nicht ausweicht",
-    "Ruhebedürfnis": "er Ruhe mag", "Beziehung": "er die andere Person mag", "Vertrauen": "er ihr vertraut", "Spannung": "zwischen ihnen Spannung liegt",
-    "Persönliche Ziele": "es zu seinen persönlichen Zielen passt", "Interessen": "es ihn interessiert", "Vorhaben": "es sein Vorhaben ist",
-    "Passt zu Zielen und Interessen des Ortes": "der Ort zu seinen Zielen und Interessen passt", "Eigeninitiative": "er lieber selbst etwas anstößt",
-    "Interessantes Objekt": "das Objekt interessant ist", "Risikobereitschaft": "er Risiken eingeht",
+    "Ziel": "es das Ziel voranbringt", "Planbindung": "es zum Plan passt", "Hunger": "Hunger drängt", "Durst": "Durst drängt", "Müdigkeit": "Müdigkeit spricht dafür",
+    "Erschöpfung": "Erschöpfung mitspielt", "Bedürfnis Geselligkeit": "das Bedürfnis nach Gesellschaft mitspielt", "Bedürfnis Ruhe": "das Bedürfnis nach Ruhe mitspielt",
+    "Wärme": "Kälte mitspielt", "Neugier": "Neugier mitspielt", "Geselligkeit": "Geselligkeit mitspielt", "Gesprächsinitiative": "die Lust, ein Gespräch zu beginnen, mitspielt",
+    "Hilfsbereitschaft": "Hilfsbereitschaft mitspielt", "Kooperation": "Zusammenarbeit mitspielt", "Annahmebereitschaft": "Offenheit für Vorschläge mitspielt",
+    "Konfliktbereitschaft": "Konfliktbereitschaft mitspielt", "Ruhebedürfnis": "das Ruhebedürfnis mitspielt", "Beziehung": "die Beziehung zum Gegenüber mitspielt",
+    "Vertrauen": "Vertrauen mitspielt", "Spannung": "die Spannung zum Gegenüber mitspielt", "Persönliche Ziele": "es zu den persönlichen Zielen passt",
+    "Interessen": "es zu den Interessen passt", "Vorhaben": "es zum Vorhaben passt", "Passt zu Zielen und Interessen des Ortes": "der Ort zu Zielen und Interessen passt",
+    "Eigeninitiative": "Eigeninitiative mitspielt", "Interessantes Objekt": "das Objekt interessant ist", "Risikobereitschaft": "Risikobereitschaft mitspielt",
 }
-NEG = {"Nacht": "es dunkel ist", "Wetter": "das Wetter schlecht ist", "Wiederholung": "er das zuletzt oft getan hat", "Gleiche Art wie zuletzt": "es dasselbe wie zuletzt wäre",
-       "Zuletzt gescheitert": "es zuletzt gescheitert ist", "Weg": "der Weg weit ist", "Gesperrt": "es gesperrt ist", "Zu oft gewartet": "er schon oft gewartet hat",
-       "Schon genug dabei": "er schon genug dabei hat", "Erschöpfung": "er erschöpft ist", "Spannung": "zwischen ihnen Spannung liegt"}
+NEG = {"Nacht": "es dunkel ist", "Wetter": "das Wetter schlecht ist", "Wiederholung": "es zuletzt oft getan wurde", "Gleiche Art wie zuletzt": "es dasselbe wie zuletzt wäre",
+       "Zuletzt gescheitert": "es zuletzt gescheitert ist", "Weg": "der Weg weit ist", "Gesperrt": "es gesperrt ist", "Zu oft gewartet": "schon oft gewartet wurde",
+       "Schon genug dabei": "schon genug dabei ist", "Erschöpfung": "Erschöpfung dagegen spricht", "Spannung": "Spannung dagegen spricht"}
 
 
 def _num(v: float) -> str:
@@ -41,7 +41,7 @@ def explain(name: str, chosen: dict[str, Any] | None, options: list[dict[str, An
     for n, v in pos:
         base = PHRASE.get(n, n)
         if n == "Ziel" and goal:
-            base = f"es sein Ziel «{goal['text']}» voranbringt" + (f" ({goal_why})" if goal_why else "")
+            base = f"es das Ziel «{goal['text']}» voranbringt" + (f" ({goal_why})" if goal_why else "")
         parts.append(f"{base} ({_num(v)})")
     text = f"{name} entscheidet sich für «{clean_label(chosen['label'])}»"
     text += (", weil " + _join(parts)) if parts else ", weil nichts Besseres anlag"

@@ -2,7 +2,7 @@ import json
 import re
 
 from agents.conftest import make_sim, put
-from simulacra.agents.explain import PHRASE, clean_label, explain, group_factors
+from simulacra.agents.explain import NEG, PHRASE, clean_label, explain, group_factors
 
 
 def opts():
@@ -15,7 +15,7 @@ def opts():
 def test_explanation_uses_only_logged_factors_with_their_values():
     text = explain("Alex", opts()[0], opts(), {"text": "Wald und See erkunden"}, "Planschritt: Zum See gehen", "will zum Wasser")
     assert text.startswith("Alex entscheidet sich für «Zum See gehen»")
-    assert "sein Ziel «Wald und See erkunden» voranbringt (Planschritt: Zum See gehen) (+26,0)" in text and "(+14,0)" in text and "obwohl es dunkel ist (-9,0)" in text
+    assert "es das Ziel «Wald und See erkunden» voranbringt (Planschritt: Zum See gehen) (+26,0)" in text and "(+14,0)" in text and "obwohl es dunkel ist (-9,0)" in text
     assert "Vom Agenten genannter Zweck: „will zum Wasser“." in text
     assert "Grundneigung" not in text and "Müdigkeit" not in text and "+24" not in text         # nur das Gewählte und Tatsächliche
 
@@ -32,6 +32,11 @@ def test_a_fallback_is_described_honestly():
 def test_group_sums_follow_the_specification_keys():
     g = group_factors([["Grundneigung", 24.0], ["Ziel", 26.0], ["Persönliche Ziele", 5.0], ["Hunger", 12.0], ["Nacht", -9.0], ["Wiederholung", -14.0]])
     assert g == {"base": 24.0, "goal_progress": 31.0, "need_relief": 12.0, "risk": -9.0, "repetition_penalty": -14.0}
+
+
+def test_phrases_never_assume_a_gender():
+    for phrase in list(PHRASE.values()) + list(NEG.values()):
+        assert not re.search(r"\b(er|sie|ihm|ihr|ihn|sein|seine|seinen|seinem|ihre)\b", phrase), phrase
 
 
 def test_every_label_has_a_phrase_or_is_neutral():

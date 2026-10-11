@@ -1,5 +1,5 @@
 // REST-Zugriff. Verändernde Aufrufe tragen einen Idempotency-Key, damit Wiederholungen nichts doppelt tun.
-import type { AgentDetail, EventDetail, EventsPage, Knowledge, LocationDetail, MemoriesPage, MemoryDetail, MemoryStats, RetrievalOut, SimCommandResult, StateSnapshot } from "../types/generated";
+import type { AgentDetail, AgentNeeds, AgentOverview, DecisionOut, FactorRegistry, FailureOut, GoalOut, RelationOut, EventDetail, EventsPage, Knowledge, LocationDetail, MemoriesPage, MemoryDetail, MemoryStats, RetrievalOut, SimCommandResult, StateSnapshot } from "../types/generated";
 
 export class ApiError extends Error {
   constructor(readonly status: number, readonly detail: string) {
@@ -74,6 +74,14 @@ export const api = {
   knowledge: (agent: string) => request<Knowledge>("GET", `/api/agents/${agent}/knowledge`),
   retrievals: (agent: string, limit = 30) => request<RetrievalOut[]>("GET", `/api/agents/${agent}/retrievals?limit=${limit}`),
   memoryStats: (agent: string) => request<MemoryStats>("GET", `/api/agents/${agent}/memory-stats`),
+  overview: () => request<AgentOverview[]>("GET", "/api/overview"),
+  needs: (agent: string) => request<AgentNeeds>("GET", `/api/agents/${agent}/needs`),
+  goals: (agent: string, limit = 20) => request<GoalOut[]>("GET", `/api/agents/${agent}/goals?limit=${limit}`),
+  relations: (agent: string) => request<RelationOut[]>("GET", `/api/agents/${agent}/relations`),
+  failures: (agent: string, limit = 20) => request<FailureOut[]>("GET", `/api/agents/${agent}/failures?limit=${limit}`),
+  decisions: (agent: string, limit = 10) => request<DecisionOut[]>("GET", `/api/agents/${agent}/decisions?limit=${limit}`),
+  decision: (id: number) => request<DecisionOut>("GET", `/api/decisions/${id}`),
+  factors: () => request<FactorRegistry>("GET", "/api/factors"),
   start: () => request<SimCommandResult>("POST", "/api/sim/start", {}),
   pause: () => request<SimCommandResult>("POST", "/api/sim/pause"),
   resume: () => request<SimCommandResult>("POST", "/api/sim/resume"),
