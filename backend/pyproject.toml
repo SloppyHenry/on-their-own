@@ -27,5 +27,5 @@ packages = ["simulacra"]
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["tests"]
-addopts = "-m 'not integration'"
-markers = ["integration: braucht das echte Modell auf maintux (Aufruf: pytest -m integration)"]
+addopts = "-m 'not integration and not slow'"
+markers = ["integration: braucht das echte Modell auf maintux (Aufruf: pytest -m integration)", "slow: Langlauf über sieben Simulationstage (Aufruf: pytest -m slow)"]

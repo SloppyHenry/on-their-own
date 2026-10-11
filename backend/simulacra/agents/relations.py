@@ -13,7 +13,7 @@ from ..world.models import Event
 
 METRICS = ("trust", "sympathy", "tension", "familiarity")
 LABELS = {"trust": "Vertrauen", "sympathy": "Sympathie", "tension": "Spannung", "familiarity": "Vertrautheit"}
-DAILY_CAP = 12.0          # so viel kann eine Kennzahl pro Simulationstag durch Regeln höchstens steigen (verhindert „Hochzüchten“)
+DAILY_CAP = 8.0          # so viel kann eine Kennzahl pro Simulationstag durch Regeln höchstens steigen (verhindert „Hochzüchten“)
 REFLECTION_STEP = 2.0     # größter Schritt je Kennzahl durch eine Reflexion
 DEFAULTS = {"trust": 50.0, "sympathy": 50.0, "tension": 10.0, "familiarity": 30.0}
 
