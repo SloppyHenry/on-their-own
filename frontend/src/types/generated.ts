@@ -24,15 +24,19 @@ export interface SimulacraApi {
   InventoryChanged?: InventoryChanged;
   ItemGiven?: ItemGiven;
   ItemMoved?: ItemMoved;
+  Knowledge?: Knowledge;
   LocationChanged?: LocationChanged;
   LocationDetail?: LocationDetail;
   LocationDiscovered?: LocationDiscovered;
   LocationEvent?: LocationEvent;
   MapExtended?: MapExtended;
+  MemoriesPage?: MemoriesPage;
   MemoryArchived?: MemoryArchived;
   MemoryCreated?: MemoryCreated;
+  MemoryDetail?: MemoryDetail;
   MemoryRetrieved?: MemoryRetrieved;
   MemorySkipped?: MemorySkipped;
+  MemoryStats?: MemoryStats;
   Moved?: Moved;
   ObjectChanged?: ObjectChanged;
   ObjectCreated?: ObjectCreated;
@@ -47,6 +51,7 @@ export interface SimulacraApi {
   ResourceAdded?: ResourceAdded;
   ResourceChanged?: ResourceChanged;
   Rested?: Rested;
+  RetrievalOut?: RetrievalOut;
   SimCommandResult?: SimCommandResult;
   SimControl?: SimControl;
   SimReset?: SimReset;
@@ -423,6 +428,50 @@ export interface ItemMoved {
 }
 /**
  * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "Knowledge".
+ */
+export interface Knowledge {
+  locations: KnownLocation[];
+  objects: KnownObject[];
+  persons: KnownPerson[];
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "KnownLocation".
+ */
+export interface KnownLocation {
+  discovered_at: number;
+  last_visit: number | null;
+  location_id: string;
+  name: string;
+  visits: number;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "KnownObject".
+ */
+export interface KnownObject {
+  kind: string;
+  location_id: string | null;
+  location_name: string;
+  name: string;
+  note: string;
+  object_id: string;
+  seen_at: number;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "KnownPerson".
+ */
+export interface KnownPerson {
+  id: string;
+  last_seen_location: string | null;
+  last_seen_minute: number | null;
+  memories: number;
+  name: string;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
  * via the `definition` "LocationChanged".
  */
 export interface LocationChanged {
@@ -521,6 +570,38 @@ export interface MapExtended {
 }
 /**
  * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "MemoriesPage".
+ */
+export interface MemoriesPage {
+  items: MemoryOut[];
+  next_cursor: string | null;
+  total: number;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "MemoryOut".
+ */
+export interface MemoryOut {
+  access_count: number;
+  agent_id: string;
+  id: string;
+  importance: number;
+  intention_due: number | null;
+  intention_state: string | null;
+  keywords: string[];
+  kind: string;
+  location_id: string | null;
+  persons: string[];
+  shared: boolean;
+  sim_created: number;
+  sim_last_access: number | null;
+  source_event_id: string | null;
+  source_memory_ids: string[];
+  status: string;
+  text: string;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
  * via the `definition` "MemoryArchived".
  */
 export interface MemoryArchived {
@@ -542,6 +623,27 @@ export interface MemoryCreated {
   source_event_id?: string | null;
   source_memory_ids?: string[];
   text: string;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "MemoryDetail".
+ */
+export interface MemoryDetail {
+  derived: MemoryOut[];
+  memory: MemoryOut;
+  retrievals: RetrievalRef[];
+  source_event: EventOut | null;
+  sources: MemoryOut[];
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "RetrievalRef".
+ */
+export interface RetrievalRef {
+  decision_id: number | null;
+  id: number;
+  score: number | null;
+  sim_minute: number;
 }
 /**
  * This interface was referenced by `SimulacraApi`'s JSON-Schema
@@ -571,6 +673,19 @@ export interface MemorySkipped {
   importance: number;
   reason: string;
   text: string;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "MemoryStats".
+ */
+export interface MemoryStats {
+  active: number;
+  archived: number;
+  by_kind: {
+    [k: string]: number;
+  };
+  importance_since_reflection: number;
+  last_reflection_minute: number | null;
 }
 /**
  * This interface was referenced by `SimulacraApi`'s JSON-Schema
@@ -704,6 +819,31 @@ export interface ResourceChanged {
  */
 export interface Rested {
   energy: number;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "RetrievalOut".
+ */
+export interface RetrievalOut {
+  decision_id: number | null;
+  id: number;
+  items: RetrievedMemory[];
+  query: string;
+  sim_minute: number;
+  tokens: number;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "RetrievedMemory".
+ */
+export interface RetrievedMemory {
+  id: string;
+  kind: string;
+  parts: {
+    [k: string]: number;
+  };
+  score: number;
+  text: string;
 }
 /**
  * This interface was referenced by `SimulacraApi`'s JSON-Schema

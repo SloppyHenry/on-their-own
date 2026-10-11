@@ -1078,6 +1078,166 @@
    "title": "ItemMoved",
    "type": "object"
   },
+  "Knowledge": {
+   "additionalProperties": false,
+   "properties": {
+    "locations": {
+     "items": {
+      "$ref": "#/$defs/KnownLocation"
+     },
+     "type": "array"
+    },
+    "objects": {
+     "items": {
+      "$ref": "#/$defs/KnownObject"
+     },
+     "type": "array"
+    },
+    "persons": {
+     "items": {
+      "$ref": "#/$defs/KnownPerson"
+     },
+     "type": "array"
+    }
+   },
+   "required": [
+    "locations",
+    "objects",
+    "persons"
+   ],
+   "title": "Knowledge",
+   "type": "object"
+  },
+  "KnownLocation": {
+   "additionalProperties": false,
+   "properties": {
+    "discovered_at": {
+     "type": "integer"
+    },
+    "last_visit": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "location_id": {
+     "type": "string"
+    },
+    "name": {
+     "type": "string"
+    },
+    "visits": {
+     "type": "integer"
+    }
+   },
+   "required": [
+    "location_id",
+    "name",
+    "discovered_at",
+    "visits",
+    "last_visit"
+   ],
+   "title": "KnownLocation",
+   "type": "object"
+  },
+  "KnownObject": {
+   "additionalProperties": false,
+   "properties": {
+    "kind": {
+     "type": "string"
+    },
+    "location_id": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "location_name": {
+     "default": "",
+     "type": "string"
+    },
+    "name": {
+     "type": "string"
+    },
+    "note": {
+     "default": "",
+     "type": "string"
+    },
+    "object_id": {
+     "type": "string"
+    },
+    "seen_at": {
+     "type": "integer"
+    }
+   },
+   "required": [
+    "object_id",
+    "name",
+    "kind",
+    "note",
+    "location_id",
+    "location_name",
+    "seen_at"
+   ],
+   "title": "KnownObject",
+   "type": "object"
+  },
+  "KnownPerson": {
+   "additionalProperties": false,
+   "properties": {
+    "id": {
+     "type": "string"
+    },
+    "last_seen_location": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "last_seen_minute": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "memories": {
+     "default": 0,
+     "type": "integer"
+    },
+    "name": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "id",
+    "name",
+    "last_seen_location",
+    "last_seen_minute",
+    "memories"
+   ],
+   "title": "KnownPerson",
+   "type": "object"
+  },
   "LocationChanged": {
    "additionalProperties": false,
    "properties": {
@@ -1296,6 +1456,38 @@
    "title": "MapExtended",
    "type": "object"
   },
+  "MemoriesPage": {
+   "additionalProperties": false,
+   "properties": {
+    "items": {
+     "items": {
+      "$ref": "#/$defs/MemoryOut"
+     },
+     "type": "array"
+    },
+    "next_cursor": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "total": {
+     "type": "integer"
+    }
+   },
+   "required": [
+    "items",
+    "total",
+    "next_cursor"
+   ],
+   "title": "MemoriesPage",
+   "type": "object"
+  },
   "MemoryArchived": {
    "additionalProperties": false,
    "properties": {
@@ -1385,6 +1577,187 @@
    "title": "MemoryCreated",
    "type": "object"
   },
+  "MemoryDetail": {
+   "additionalProperties": false,
+   "properties": {
+    "derived": {
+     "default": [],
+     "items": {
+      "$ref": "#/$defs/MemoryOut"
+     },
+     "type": "array"
+    },
+    "memory": {
+     "$ref": "#/$defs/MemoryOut"
+    },
+    "retrievals": {
+     "default": [],
+     "items": {
+      "$ref": "#/$defs/RetrievalRef"
+     },
+     "type": "array"
+    },
+    "source_event": {
+     "anyOf": [
+      {
+       "$ref": "#/$defs/EventOut"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "sources": {
+     "default": [],
+     "items": {
+      "$ref": "#/$defs/MemoryOut"
+     },
+     "type": "array"
+    }
+   },
+   "required": [
+    "memory",
+    "sources",
+    "derived",
+    "source_event",
+    "retrievals"
+   ],
+   "title": "MemoryDetail",
+   "type": "object"
+  },
+  "MemoryOut": {
+   "additionalProperties": false,
+   "properties": {
+    "access_count": {
+     "default": 0,
+     "type": "integer"
+    },
+    "agent_id": {
+     "type": "string"
+    },
+    "id": {
+     "type": "string"
+    },
+    "importance": {
+     "type": "integer"
+    },
+    "intention_due": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "intention_state": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "keywords": {
+     "default": [],
+     "items": {
+      "type": "string"
+     },
+     "type": "array"
+    },
+    "kind": {
+     "type": "string"
+    },
+    "location_id": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "persons": {
+     "default": [],
+     "items": {
+      "type": "string"
+     },
+     "type": "array"
+    },
+    "shared": {
+     "default": false,
+     "type": "boolean"
+    },
+    "sim_created": {
+     "type": "integer"
+    },
+    "sim_last_access": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "source_event_id": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "source_memory_ids": {
+     "default": [],
+     "items": {
+      "type": "string"
+     },
+     "type": "array"
+    },
+    "status": {
+     "default": "active",
+     "type": "string"
+    },
+    "text": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "id",
+    "agent_id",
+    "kind",
+    "text",
+    "keywords",
+    "persons",
+    "location_id",
+    "importance",
+    "shared",
+    "sim_created",
+    "sim_last_access",
+    "access_count",
+    "source_event_id",
+    "source_memory_ids",
+    "status",
+    "intention_state",
+    "intention_due"
+   ],
+   "title": "MemoryOut",
+   "type": "object"
+  },
   "MemoryRetrieved": {
    "additionalProperties": false,
    "properties": {
@@ -1435,6 +1808,48 @@
     "reason"
    ],
    "title": "MemorySkipped",
+   "type": "object"
+  },
+  "MemoryStats": {
+   "additionalProperties": false,
+   "properties": {
+    "active": {
+     "type": "integer"
+    },
+    "archived": {
+     "type": "integer"
+    },
+    "by_kind": {
+     "additionalProperties": {
+      "type": "integer"
+     },
+     "default": {},
+     "type": "object"
+    },
+    "importance_since_reflection": {
+     "default": 0,
+     "type": "integer"
+    },
+    "last_reflection_minute": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    }
+   },
+   "required": [
+    "active",
+    "archived",
+    "by_kind",
+    "importance_since_reflection",
+    "last_reflection_minute"
+   ],
+   "title": "MemoryStats",
    "type": "object"
   },
   "Moved": {
@@ -2079,6 +2494,91 @@
    "title": "Rested",
    "type": "object"
   },
+  "RetrievalOut": {
+   "additionalProperties": false,
+   "properties": {
+    "decision_id": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "id": {
+     "type": "integer"
+    },
+    "items": {
+     "items": {
+      "$ref": "#/$defs/RetrievedMemory"
+     },
+     "type": "array"
+    },
+    "query": {
+     "type": "string"
+    },
+    "sim_minute": {
+     "type": "integer"
+    },
+    "tokens": {
+     "type": "integer"
+    }
+   },
+   "required": [
+    "id",
+    "sim_minute",
+    "decision_id",
+    "query",
+    "tokens",
+    "items"
+   ],
+   "title": "RetrievalOut",
+   "type": "object"
+  },
+  "RetrievalRef": {
+   "additionalProperties": false,
+   "properties": {
+    "decision_id": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "id": {
+     "type": "integer"
+    },
+    "score": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "sim_minute": {
+     "type": "integer"
+    }
+   },
+   "required": [
+    "id",
+    "sim_minute",
+    "decision_id",
+    "score"
+   ],
+   "title": "RetrievalRef",
+   "type": "object"
+  },
   "RetrievedItem": {
    "additionalProperties": false,
    "properties": {
@@ -2102,6 +2602,41 @@
     "text"
    ],
    "title": "RetrievedItem",
+   "type": "object"
+  },
+  "RetrievedMemory": {
+   "additionalProperties": false,
+   "properties": {
+    "id": {
+     "type": "string"
+    },
+    "kind": {
+     "default": "",
+     "type": "string"
+    },
+    "parts": {
+     "additionalProperties": {
+      "type": "number"
+     },
+     "default": {},
+     "type": "object"
+    },
+    "score": {
+     "type": "number"
+    },
+    "text": {
+     "default": "",
+     "type": "string"
+    }
+   },
+   "required": [
+    "id",
+    "score",
+    "parts",
+    "kind",
+    "text"
+   ],
+   "title": "RetrievedMemory",
    "type": "object"
   },
   "SimCommandResult": {
@@ -2944,6 +3479,9 @@
   "ItemMoved": {
    "$ref": "#/$defs/ItemMoved"
   },
+  "Knowledge": {
+   "$ref": "#/$defs/Knowledge"
+  },
   "LocationChanged": {
    "$ref": "#/$defs/LocationChanged"
   },
@@ -2959,17 +3497,26 @@
   "MapExtended": {
    "$ref": "#/$defs/MapExtended"
   },
+  "MemoriesPage": {
+   "$ref": "#/$defs/MemoriesPage"
+  },
   "MemoryArchived": {
    "$ref": "#/$defs/MemoryArchived"
   },
   "MemoryCreated": {
    "$ref": "#/$defs/MemoryCreated"
   },
+  "MemoryDetail": {
+   "$ref": "#/$defs/MemoryDetail"
+  },
   "MemoryRetrieved": {
    "$ref": "#/$defs/MemoryRetrieved"
   },
   "MemorySkipped": {
    "$ref": "#/$defs/MemorySkipped"
+  },
+  "MemoryStats": {
+   "$ref": "#/$defs/MemoryStats"
   },
   "Moved": {
    "$ref": "#/$defs/Moved"
@@ -3012,6 +3559,9 @@
   },
   "Rested": {
    "$ref": "#/$defs/Rested"
+  },
+  "RetrievalOut": {
+   "$ref": "#/$defs/RetrievalOut"
   },
   "SimCommandResult": {
    "$ref": "#/$defs/SimCommandResult"
