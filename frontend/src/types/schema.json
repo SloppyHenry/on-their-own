@@ -544,6 +544,66 @@
    "title": "Ate",
    "type": "object"
   },
+  "Clarification": {
+   "additionalProperties": false,
+   "properties": {
+    "field": {
+     "default": "",
+     "type": "string"
+    },
+    "free_text": {
+     "default": false,
+     "type": "boolean"
+    },
+    "op": {
+     "default": 0,
+     "type": "integer"
+    },
+    "options": {
+     "default": [],
+     "items": {
+      "$ref": "#/$defs/ClarifyOption"
+     },
+     "type": "array"
+    },
+    "question": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "question",
+    "options",
+    "op",
+    "field",
+    "free_text"
+   ],
+   "title": "Clarification",
+   "type": "object"
+  },
+  "ClarifyOption": {
+   "additionalProperties": false,
+   "properties": {
+    "label": {
+     "type": "string"
+    },
+    "value": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "integer"
+      }
+     ]
+    }
+   },
+   "required": [
+    "label",
+    "value"
+   ],
+   "title": "ClarifyOption",
+   "type": "object"
+  },
   "ClockInfo": {
    "additionalProperties": false,
    "properties": {
@@ -1152,6 +1212,23 @@
    "title": "Drank",
    "type": "object"
   },
+  "EffectEnded": {
+   "additionalProperties": false,
+   "properties": {
+    "text": {
+     "type": "string"
+    },
+    "what": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "what",
+    "text"
+   ],
+   "title": "EffectEnded",
+   "type": "object"
+  },
   "EventDetail": {
    "additionalProperties": false,
    "properties": {
@@ -1177,6 +1254,71 @@
     "consequences"
    ],
    "title": "EventDetail",
+   "type": "object"
+  },
+  "EventFired": {
+   "additionalProperties": false,
+   "properties": {
+    "kind": {
+     "type": "string"
+    },
+    "scheduled_id": {
+     "type": "string"
+    },
+    "text": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "scheduled_id",
+    "kind",
+    "text"
+   ],
+   "title": "EventFired",
+   "type": "object"
+  },
+  "EventInjected": {
+   "additionalProperties": false,
+   "properties": {
+    "directive": {
+     "default": false,
+     "type": "boolean"
+    },
+    "inject_id": {
+     "type": "string"
+    },
+    "mode": {
+     "type": "string"
+    },
+    "ops": {
+     "default": [],
+     "items": {
+      "additionalProperties": true,
+      "type": "object"
+     },
+     "type": "array"
+    },
+    "source": {
+     "type": "string"
+    },
+    "summary": {
+     "default": [],
+     "items": {
+      "type": "string"
+     },
+     "type": "array"
+    },
+    "text": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "inject_id",
+    "text",
+    "source",
+    "mode"
+   ],
+   "title": "EventInjected",
    "type": "object"
   },
   "EventOut": {
@@ -1260,6 +1402,38 @@
     "visibility"
    ],
    "title": "EventOut",
+   "type": "object"
+  },
+  "EventScheduled": {
+   "additionalProperties": false,
+   "properties": {
+    "at": {
+     "type": "integer"
+    },
+    "inject_id": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "scheduled_id": {
+     "type": "string"
+    },
+    "text": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "scheduled_id",
+    "at",
+    "text"
+   ],
+   "title": "EventScheduled",
    "type": "object"
   },
   "EventsPage": {
@@ -1564,6 +1738,256 @@
     "detail"
    ],
    "title": "GuardTriggered",
+   "type": "object"
+  },
+  "Informed": {
+   "additionalProperties": false,
+   "description": "Eine Information, Nachricht, Einladung oder Situation erreicht genau die Empfänger in `agents`.",
+   "properties": {
+    "about": {
+     "default": [],
+     "items": {
+      "type": "string"
+     },
+     "type": "array"
+    },
+    "content": {
+     "type": "string"
+    },
+    "inject_id": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "kind": {
+     "type": "string"
+    },
+    "sender": {
+     "default": "",
+     "type": "string"
+    },
+    "truth": {
+     "default": "true",
+     "type": "string"
+    },
+    "when": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "where": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    }
+   },
+   "required": [
+    "kind",
+    "content"
+   ],
+   "title": "Informed",
+   "type": "object"
+  },
+  "InjectConfirmRequest": {
+   "additionalProperties": false,
+   "properties": {
+    "proposal_id": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "proposal_id"
+   ],
+   "title": "InjectConfirmRequest",
+   "type": "object"
+  },
+  "InjectParseRequest": {
+   "additionalProperties": false,
+   "properties": {
+    "agents": {
+     "anyOf": [
+      {
+       "items": {
+        "type": "string"
+       },
+       "type": "array"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "answer": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "answer_to": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "at": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "text": {
+     "default": "",
+     "maxLength": 1200,
+     "type": "string"
+    }
+   },
+   "title": "InjectParseRequest",
+   "type": "object"
+  },
+  "InjectProposal": {
+   "additionalProperties": false,
+   "properties": {
+    "at_minute": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "clarification": {
+     "anyOf": [
+      {
+       "$ref": "#/$defs/Clarification"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "created": {
+     "type": "integer"
+    },
+    "directive": {
+     "default": false,
+     "type": "boolean"
+    },
+    "event_seqs": {
+     "default": [],
+     "items": {
+      "type": "integer"
+     },
+     "type": "array"
+    },
+    "executed": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "id": {
+     "type": "string"
+    },
+    "mode": {
+     "type": "string"
+    },
+    "needs_confirmation": {
+     "default": false,
+     "type": "boolean"
+    },
+    "ops": {
+     "default": [],
+     "items": {
+      "additionalProperties": true,
+      "type": "object"
+     },
+     "type": "array"
+    },
+    "preview": {
+     "default": [],
+     "items": {
+      "type": "string"
+     },
+     "type": "array"
+    },
+    "reason": {
+     "default": "",
+     "type": "string"
+    },
+    "source": {
+     "type": "string"
+    },
+    "status": {
+     "type": "string"
+    },
+    "text": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "id",
+    "text",
+    "status",
+    "source",
+    "ops",
+    "preview",
+    "clarification",
+    "reason",
+    "mode",
+    "needs_confirmation",
+    "directive",
+    "at_minute",
+    "created",
+    "executed",
+    "event_seqs"
+   ],
+   "title": "InjectProposal",
    "type": "object"
   },
   "Inspected": {
@@ -2636,6 +3060,23 @@
     "critical"
    ],
    "title": "NeedOut",
+   "type": "object"
+  },
+  "NpcAction": {
+   "additionalProperties": false,
+   "properties": {
+    "npc": {
+     "type": "string"
+    },
+    "what": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "npc",
+    "what"
+   ],
+   "title": "NpcAction",
    "type": "object"
   },
   "ObjectChanged": {
@@ -4213,6 +4654,39 @@
    "title": "RetrievedMemory",
    "type": "object"
   },
+  "ScheduledOut": {
+   "additionalProperties": false,
+   "properties": {
+    "id": {
+     "type": "string"
+    },
+    "inject_id": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "minute": {
+     "type": "integer"
+    },
+    "text": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "id",
+    "minute",
+    "text",
+    "inject_id"
+   ],
+   "title": "ScheduledOut",
+   "type": "object"
+  },
   "SimCommandResult": {
    "additionalProperties": false,
    "properties": {
@@ -5097,11 +5571,23 @@
   "Drank": {
    "$ref": "#/$defs/Drank"
   },
+  "EffectEnded": {
+   "$ref": "#/$defs/EffectEnded"
+  },
   "EventDetail": {
    "$ref": "#/$defs/EventDetail"
   },
+  "EventFired": {
+   "$ref": "#/$defs/EventFired"
+  },
+  "EventInjected": {
+   "$ref": "#/$defs/EventInjected"
+  },
   "EventOut": {
    "$ref": "#/$defs/EventOut"
+  },
+  "EventScheduled": {
+   "$ref": "#/$defs/EventScheduled"
   },
   "EventsPage": {
    "$ref": "#/$defs/EventsPage"
@@ -5123,6 +5609,18 @@
   },
   "GuardTriggered": {
    "$ref": "#/$defs/GuardTriggered"
+  },
+  "Informed": {
+   "$ref": "#/$defs/Informed"
+  },
+  "InjectConfirmRequest": {
+   "$ref": "#/$defs/InjectConfirmRequest"
+  },
+  "InjectParseRequest": {
+   "$ref": "#/$defs/InjectParseRequest"
+  },
+  "InjectProposal": {
+   "$ref": "#/$defs/InjectProposal"
   },
   "Inspected": {
    "$ref": "#/$defs/Inspected"
@@ -5177,6 +5675,9 @@
   },
   "Moved": {
    "$ref": "#/$defs/Moved"
+  },
+  "NpcAction": {
+   "$ref": "#/$defs/NpcAction"
   },
   "ObjectChanged": {
    "$ref": "#/$defs/ObjectChanged"
@@ -5264,6 +5765,9 @@
   },
   "RetrievalOut": {
    "$ref": "#/$defs/RetrievalOut"
+  },
+  "ScheduledOut": {
+   "$ref": "#/$defs/ScheduledOut"
   },
   "SimCommandResult": {
    "$ref": "#/$defs/SimCommandResult"

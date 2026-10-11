@@ -10,6 +10,7 @@ from typing import Any
 from pydantic import BaseModel
 
 from . import models as m
+from . import models_user as mu
 
 CATEGORIES = ("world", "dialogue", "planning", "memory", "system")
 STRICT = False
@@ -95,7 +96,12 @@ _ALL = [
     _t("simulation.reset", "system", m.SimReset, "Simulation zurückgesetzt"),
     _t("simulation.parameter_changed", "system", m.ParameterChanged, "Parameter geändert"),
     _t("simulation.speed_changed", "system", m.SpeedChanged, "Geschwindigkeit geändert"),
-    _t("simulation.event_injected", "system", m.Loose, "Ereignis vom Benutzer ausgelöst (ab AP08)", True),
+    _t("simulation.event_injected", "system", mu.EventInjected, "Ereignis vom Benutzer ausgelöst"),
+    _t("simulation.event_scheduled", "system", mu.EventScheduled, "Ereignis für später eingeplant"),
+    _t("simulation.event_fired", "system", mu.EventFired, "Geplantes Ereignis ausgelöst oder befristete Wirkung zurückgenommen"),
+    _t("simulation.effect_ended", "system", mu.EffectEnded, "Eine befristete Wirkung ist abgelaufen"),
+    _t("agent.informed", "dialogue", mu.Informed, "Information, Nachricht, Einladung oder Situation erreicht bestimmte Agenten"),
+    _t("world.npc_acted", "world", mu.NpcAction, "Eine Nebenfigur hat sich bewegt oder etwas gesagt"),
 ]
 REGISTRY: dict[str, EventType] = {t.name: t for t in _ALL}
 assert len(REGISTRY) == len(_ALL), "doppelter Ereignistyp"

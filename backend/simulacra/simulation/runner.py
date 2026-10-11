@@ -73,6 +73,7 @@ class SimulationRunner:
         self.decision_interval = 1                      # Mindestabstand zwischen Entscheidungen eines Agenten in Simulationsminuten
         self.power_save = False                         # Energiesparen: Pause ohne verbundenen Browser, begrenzte Entscheidungen, keine Reflexion am Tag
         self._bg: asyncio.Task | None = None
+        self.inject = None                              # Ereignis-Controller (AP08): geplante Ereignisse, Rücknahmen, Nebenfiguren
 
     # --- Steuerbefehle ----------------------------------------------------------------------------
     async def start(self, ticks: int | None = None) -> None:
@@ -165,6 +166,8 @@ class SimulationRunner:
                 return 0                                 # Pause mitten im Schritt: kein Tick, der Schritt wird später vollständig wiederholt
         elif self._bg is None or self._bg.done():
             self._bg = asyncio.create_task(self._decisions(True))     # Zeit läuft weiter, Entscheidungen kommen, wenn das Modell fertig ist
+        if self.inject is not None and self.inject.npcs.present:
+            await self.inject.npcs.respond()                 # Nebenfiguren antworten, wenn sie angesprochen wurden
         events: list[Event] = []
         for _ in range(self.minutes_per_tick):
             tick = await self.engine.tick_async()
@@ -304,6 +307,8 @@ class SimulationRunner:
             if ev.type == "agent.dialogue":
                 extra += self.convs.on_dialogue(ev)
         extra += self.convs.expire(self.engine.minute)
+        if self.inject is not None:
+            extra += self.inject.on_tick(self.engine.minute)
         self._remember(events + extra)
         self.autonomy.after_tick(events + extra, self.engine.minute)
         for aid in self.store.ai_agent_ids():

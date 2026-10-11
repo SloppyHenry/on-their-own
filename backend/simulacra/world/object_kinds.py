@@ -26,7 +26,7 @@ KINDS: dict[str, ObjectKind] = {k.kind: k for k in [
     _k("axe", "Axt", portable=True),
     _k("pickaxe", "Spitzhacke", portable=True),
     _k("key", "Schlüssel", portable=True),
-    _k("stove", "Herd", blocks=True, modes=("cook",)),
+    _k("stove", "Herd", blocks=True, modes=("cook",), schema={"powered": (bool, True)}),
     _k("tap", "Wasserhahn", blocks=True),
     _k("sofa", "Sofa", modes=("sit",)),
     _k("table", "Tisch", blocks=True),

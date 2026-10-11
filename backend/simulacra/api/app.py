@@ -8,7 +8,7 @@ from fastapi import Depends, FastAPI
 from .. import __version__
 from ..config import Settings, get_settings
 from ..simulation.builder import Simulation
-from . import routes_autonomy, routes_events, routes_memory, routes_params, routes_sim, routes_state, ws
+from . import routes_autonomy, routes_events, routes_inject, routes_memory, routes_params, routes_sim, routes_state, ws
 from .idempotency import Idempotency
 
 LLM_PROBE_TIMEOUT_S = 3.0
@@ -70,6 +70,7 @@ def create_app(sim: Simulation | None = None, settings: Settings | None = None) 
     app.include_router(routes_events.router)
     app.include_router(routes_memory.router)
     app.include_router(routes_autonomy.router)
+    app.include_router(routes_inject.router)
     app.include_router(routes_params.router)
     app.include_router(routes_sim.router)
     app.include_router(ws.router)

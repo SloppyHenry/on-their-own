@@ -83,12 +83,29 @@ const TEXT: Table = {
   "simulation.reset": () => "Simulation zurückgesetzt.",
   "simulation.parameter_changed": (d) => (d.key ? `Einstellung „${labelOf(d.key)}“${d.agent ? ` (${d.agent})` : ""}: ${shown(d.old)} → ${shown(d.new)}.` : `Parameter geändert: ${d.group}.`),
   "simulation.speed_changed": (d) => `Tempo: ${d.level === "custom" ? `${d.tick_delay_s} s Pause` : d.level}.`,
-  "simulation.event_injected": () => "Ereignis eingegeben.",
+  "simulation.event_injected": (d) => `${d.directive ? "Eingriff" : "Ereignis"} eingegeben: „${d.text}“${d.summary?.length ? ` – ${d.summary[0]}` : ""}`,
+  "simulation.event_scheduled": (d) => `Geplant für Tag ${Math.floor(d.at / 1440) + 1}, ${formatTime(d.at)}: ${d.text}.`,
+  "simulation.event_fired": (d) => (d.kind === "revert" ? `Zurückgenommen: ${d.text}.` : `Geplantes Ereignis: ${d.text}.`),
+  "simulation.effect_ended": (d) => `Zu Ende: ${d.text}.`,
+  "agent.informed": (d, n, ev) => informed(d, n.agent(ev.agents[0] ?? "")),
+  "world.npc_acted": (d) => d.what || "Eine Nebenfigur hat etwas getan.",
 };
+
+/** Auslieferungen aus der freien Eingabe: nur die Empfänger erfahren es (das Protokoll zeigt es dem Beobachter). */
+function informed(d: EventDataMap["agent.informed"], who: string): string {
+  const from = d.sender ? ` ${d.sender}` : "";
+  const text = d.content.replace(/[.\s]+$/, "");
+  if (d.kind === "inform") return `${who} ${d.truth === "rumor" ? "hört ein Gerücht" : "erfährt"}${from}, dass ${text}. (nur ${who})`;
+  if (d.kind === "invite") return `${who} wird${from} eingeladen: ${text}${d.when != null ? ` (Tag ${Math.floor(d.when / 1440) + 1}, ${formatTime(d.when)})` : ""}.`;
+  if (d.kind === "message") return `${who} erhält${from} eine Nachricht: „${text}“.`;
+  if (d.kind === "suggestion") return `${who} bekommt${from} den Gedanken: ${text}.`;
+  return `${who}: ${text}.`;
+}
 
 const ICON_BY_TYPE: Partial<Record<EventType, string>> = {
   "agent.dialogue": "chat", "agent.conversation_started": "chat", "agent.conversation_ended": "chat", "agent.proposal_accepted": "chat",
   "agent.proposal_declined": "chat", "agent.decision": "plan", "agent.status_changed": "plan",
+  "agent.informed": "chat", "simulation.event_injected": "hammer", "simulation.event_scheduled": "plan", "simulation.event_fired": "hammer", "simulation.effect_ended": "ok", "world.npc_acted": "go",
   "agent.decision_failed": "warn", "agent.guard_triggered": "warn", "agent.goal_changed": "plan", "agent.relation_changed": "chat", "agent.action_failed": "no", "agent.action_rejected": "no", "agent.action_interrupted": "warn",
   "agent.action_completed": "ok", "world.weather_changed": "rain", "world.day_started": "sun", "world.phase_changed": "sun",
   "agent.slept": "zzz", "agent.rested": "zzz", "agent.memory_created": "think", "agent.memory_retrieved": "think", "agent.memory_skipped": "think", "agent.memory_archived": "think",

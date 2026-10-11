@@ -8,6 +8,7 @@ from ..memory.models import Observed
 from ..memory.importance import SHARED_KINDS
 from ..world.models import AgentBody, Event
 from ..world.state import WorldState
+from ..events_user.knowledge import informed_text
 from .phrases import PHASE_DE, RES_DE, WEATHER_DE, loc_at, third_person
 from .store import AgentStore
 
@@ -33,7 +34,8 @@ class ObservationCollector:
             for agent_id, kind, text, imp in self._observe(ev, bodies, set(agent_ids)):
                 if agent_id in agent_ids:
                     self.store.add_observation(agent_id, ev.sim_minute, kind, text, imp, ev.seq)
-                    persons = [p for p in dict.fromkeys([*ev.agents, *([ev.data["to"], ev.data["speaker"]] if ev.type == "agent.dialogue" else [])]) if p != agent_id and p in bodies]
+                    persons = [p for p in dict.fromkeys([*ev.agents, *([ev.data["to"], ev.data["speaker"]] if ev.type == "agent.dialogue" else []),
+                                                         *(ev.data.get("about", []) if ev.type == "agent.informed" else [])]) if p != agent_id and p in bodies]
                     out.append(Observed(agent_id=agent_id, kind=kind, text=text, importance=imp, minute=ev.sim_minute, event_seq=ev.seq,
                                         event_id=ev.event_id, location_id=ev.location_id, persons=persons, shared=bool(persons) and kind in SHARED_KINDS))
         return out
@@ -128,6 +130,11 @@ class ObservationCollector:
             out += [(a, "world", f"Es ist jetzt {PHASE_DE[d['phase']]}.", 2) for a in bodies]
         elif t == "world.day_started":
             out += [(a, "world", f"Ein neuer Tag beginnt ({d['weekday']}).", 3) for a in bodies]
+        elif t == "agent.informed" and who:
+            loc_name = st.locations[d["where"]].name if d.get("where") in st.locations else ""
+            out.append((who, "told", informed_text(d, loc_name), 7 if d["kind"] in ("invite", "suggestion") else 6))
+        elif t == "world.agent_added":
+            out += [(w, "seen", f"{d['name']} ist {loc_at(st, loc)} aufgetaucht.", 5) for w in self._at(bodies, loc, {d["id"]})]
         elif t == "agent.conversation_ended":
             for p in d["participants"]:
                 other = next((bodies[x].name for x in d["participants"] if x != p and x in bodies), "")

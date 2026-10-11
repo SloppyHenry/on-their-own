@@ -51,6 +51,8 @@ class Sit(Mode):
 
 class Cook(Mode):
     def validate(self, ctx, actor, o, params):
+        if not o.state.get("powered", True):
+            return rej(RejectCode.FORBIDDEN_BY_RULES, "Der Herd hat keinen Strom.")
         if actor.inventory.get("food", 0) < 1 or actor.inventory.get("wood", 0) < 1:
             return rej(RejectCode.MISSING_RESOURCE, "Zum Kochen braucht es 1 Nahrung und 1 Holz.")
         return Accepted(duration=20)

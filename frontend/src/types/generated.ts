@@ -19,8 +19,12 @@ export interface SimulacraApi {
   DecisionOut?: DecisionOut;
   Dialogue?: Dialogue;
   Drank?: Drank;
+  EffectEnded?: EffectEnded;
   EventDetail?: EventDetail;
+  EventFired?: EventFired;
+  EventInjected?: EventInjected;
   EventOut?: EventOut;
+  EventScheduled?: EventScheduled;
   EventsPage?: EventsPage;
   FactorRegistry?: FactorRegistry;
   FailureOut?: FailureOut;
@@ -28,6 +32,10 @@ export interface SimulacraApi {
   GoalChanged?: GoalChanged;
   GoalOut?: GoalOut;
   GuardTriggered?: GuardTriggered;
+  Informed?: Informed;
+  InjectConfirmRequest?: InjectConfirmRequest;
+  InjectParseRequest?: InjectParseRequest;
+  InjectProposal?: InjectProposal;
   Inspected?: Inspected;
   InventoryChanged?: InventoryChanged;
   ItemGiven?: ItemGiven;
@@ -46,6 +54,7 @@ export interface SimulacraApi {
   MemorySkipped?: MemorySkipped;
   MemoryStats?: MemoryStats;
   Moved?: Moved;
+  NpcAction?: NpcAction;
   ObjectChanged?: ObjectChanged;
   ObjectCreated?: ObjectCreated;
   ObjectDiscovered?: ObjectDiscovered;
@@ -75,6 +84,7 @@ export interface SimulacraApi {
   ResourceChanged?: ResourceChanged;
   Rested?: Rested;
   RetrievalOut?: RetrievalOut;
+  ScheduledOut?: ScheduledOut;
   SimCommandResult?: SimCommandResult;
   SimControl?: SimControl;
   SimReset?: SimReset;
@@ -466,6 +476,14 @@ export interface Drank {
 }
 /**
  * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "EffectEnded".
+ */
+export interface EffectEnded {
+  text: string;
+  what: string;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
  * via the `definition` "EventDetail".
  */
 export interface EventDetail {
@@ -500,6 +518,40 @@ export interface SimTime {
   day: number;
   minute: number;
   total: number;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "EventFired".
+ */
+export interface EventFired {
+  kind: string;
+  scheduled_id: string;
+  text: string;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "EventInjected".
+ */
+export interface EventInjected {
+  directive?: boolean;
+  inject_id: string;
+  mode: string;
+  ops?: {
+    [k: string]: unknown;
+  }[];
+  source: string;
+  summary?: string[];
+  text: string;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "EventScheduled".
+ */
+export interface EventScheduled {
+  at: number;
+  inject_id?: string | null;
+  scheduled_id: string;
+  text: string;
 }
 /**
  * This interface was referenced by `SimulacraApi`'s JSON-Schema
@@ -575,6 +627,82 @@ export interface GuardTriggered {
   guard: string;
   key?: string | null;
   until?: number | null;
+}
+/**
+ * Eine Information, Nachricht, Einladung oder Situation erreicht genau die Empfänger in `agents`.
+ *
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "Informed".
+ */
+export interface Informed {
+  about?: string[];
+  content: string;
+  inject_id?: string | null;
+  kind: string;
+  sender?: string;
+  truth?: string;
+  when?: number | null;
+  where?: string | null;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "InjectConfirmRequest".
+ */
+export interface InjectConfirmRequest {
+  proposal_id: string;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "InjectParseRequest".
+ */
+export interface InjectParseRequest {
+  agents?: string[] | null;
+  answer?: string | number | null;
+  answer_to?: string | null;
+  at?: number | null;
+  text?: string;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "InjectProposal".
+ */
+export interface InjectProposal {
+  at_minute: number | null;
+  clarification: Clarification | null;
+  created: number;
+  directive: boolean;
+  event_seqs: number[];
+  executed: number | null;
+  id: string;
+  mode: string;
+  needs_confirmation: boolean;
+  ops: {
+    [k: string]: unknown;
+  }[];
+  preview: string[];
+  reason: string;
+  source: string;
+  status: string;
+  text: string;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "Clarification".
+ */
+export interface Clarification {
+  field: string;
+  free_text: boolean;
+  op: number;
+  options: ClarifyOption[];
+  question: string;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "ClarifyOption".
+ */
+export interface ClarifyOption {
+  label: string;
+  value: string | number;
 }
 /**
  * This interface was referenced by `SimulacraApi`'s JSON-Schema
@@ -902,6 +1030,14 @@ export interface Moved {
   from: number[];
   remaining?: number;
   to: number[];
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "NpcAction".
+ */
+export interface NpcAction {
+  npc: string;
+  what: string;
 }
 /**
  * This interface was referenced by `SimulacraApi`'s JSON-Schema
@@ -1298,6 +1434,16 @@ export interface RetrievedMemory {
     [k: string]: number;
   };
   score: number;
+  text: string;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "ScheduledOut".
+ */
+export interface ScheduledOut {
+  id: string;
+  inject_id: string | null;
+  minute: number;
   text: string;
 }
 /**
@@ -1712,7 +1858,12 @@ export interface EventDataMap {
   "simulation.reset": SimReset;
   "simulation.parameter_changed": ParameterChanged;
   "simulation.speed_changed": SpeedChanged;
-  "simulation.event_injected": Record<string, unknown>;
+  "simulation.event_injected": EventInjected;
+  "simulation.event_scheduled": EventScheduled;
+  "simulation.event_fired": EventFired;
+  "simulation.effect_ended": EffectEnded;
+  "agent.informed": Informed;
+  "world.npc_acted": NpcAction;
 }
 
 export type EventType = keyof EventDataMap;
@@ -1782,7 +1933,12 @@ export const EVENT_CATEGORY: Record<EventType, EventCategory> = {
   "simulation.parameter_changed": "system",
   "simulation.speed_changed": "system",
   "simulation.event_injected": "system",
+  "simulation.event_scheduled": "system",
+  "simulation.event_fired": "system",
+  "simulation.effect_ended": "system",
+  "agent.informed": "dialogue",
+  "world.npc_acted": "world",
 };
 
 /** Noch nicht erzeugte, für spätere Pakete vorgesehene Typen. */
-export const PLANNED_EVENT_TYPES: EventType[] = ["simulation.event_injected"];
+export const PLANNED_EVENT_TYPES: EventType[] = [];

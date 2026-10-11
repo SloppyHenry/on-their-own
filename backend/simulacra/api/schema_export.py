@@ -17,6 +17,7 @@ from ..events.types import REGISTRY
 from . import models as api
 from . import models_memory as mm
 from . import models_autonomy as ma
+from . import models_inject as mi
 from . import models_params as mp
 
 API_MODELS: list[type[BaseModel]] = [
@@ -27,6 +28,7 @@ API_MODELS: list[type[BaseModel]] = [
     ma.GoalOut, ma.AgentNeeds, ma.AgentOverview, ma.RelationOut, ma.FailureOut, ma.DecisionOut, ma.FactorRegistry,
     mp.ParamSchema, mp.ParamValues, mp.ParamPatch, mp.ParamPatchOut, mp.ParamResetRequest, mp.PresetBrief, mp.PresetOut, mp.PresetSave, mp.PresetRename,
     mp.PresetDuplicate, mp.PresetPreview, mp.PresetLoadRequest, mp.PresetLoadOut, mp.StatusOut,
+    mi.InjectParseRequest, mi.InjectConfirmRequest, mi.InjectProposal, mi.ScheduledOut,
     EventOut, SimTime,
 ]
 
@@ -55,7 +57,7 @@ def _clean(node, top: bool = False):
     return node
 
 
-REQUESTS = {api.StartRequest, api.StepRequest, api.ResetRequest, api.SpeedRequest, mp.ParamPatch, mp.ParamResetRequest, mp.PresetSave, mp.PresetRename,
+REQUESTS = {mi.InjectParseRequest, mi.InjectConfirmRequest, api.StartRequest, api.StepRequest, api.ResetRequest, api.SpeedRequest, mp.ParamPatch, mp.ParamResetRequest, mp.PresetSave, mp.PresetRename,
             mp.PresetDuplicate, mp.PresetLoadRequest, api.WsHello, api.WsResync, api.WsPong}
 
 

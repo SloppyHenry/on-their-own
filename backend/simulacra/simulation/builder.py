@@ -1,6 +1,7 @@
 """Verdrahtet alle Teile zu einer lauffähigen Simulation (Engine, Agenten, Modell, Schleife)."""
 
 import shutil
+from typing import Any
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
@@ -15,6 +16,7 @@ from ..config import Settings
 from ..db.connection import Database
 from ..llm.client import LLMClient
 from ..llm.providers import LLMProvider
+from ..events_user.service import InjectService
 from ..memory.params import MemoryParams
 from ..memory.system import MemorySystem
 from ..params.apply import ParamService
@@ -41,6 +43,8 @@ class Simulation:
     runner: SimulationRunner
     params: ParamService
     presets: PresetManager
+    inject: InjectService
+    npcs: Any
 
     @classmethod
     def create(cls, settings: Settings, db_path: str | Path = ":memory:", provider: LLMProvider | None = None, seed: int = 1) -> "Simulation":
@@ -56,8 +60,10 @@ class Simulation:
         collector = ObservationCollector(engine.state, store)
         runner = SimulationRunner(engine, store, convs, collector, planner, memory, autonomy,
                                   DecisionLimiter(settings.sim_min_decision_gap_s, settings.sim_max_decisions_per_minute), settings.sim_tick_delay_s)
-        sim = cls(settings, str(db_path), provider, db, engine, store, convs, client, planner, collector, memory, autonomy, runner, None, None)  # type: ignore[arg-type]
+        sim = cls(settings, str(db_path), provider, db, engine, store, convs, client, planner, collector, memory, autonomy, runner, None, None, None, None)  # type: ignore[arg-type]
         sim.params, sim.presets = ParamService(sim), PresetManager(sim)
+        sim.inject = InjectService(sim)
+        runner.inject = sim.inject
         sim.params.restore(sim.params.export())            # gespeicherte Abweichungen (Neustart) wieder anwenden
         return sim
 
@@ -84,7 +90,8 @@ class Simulation:
         await fresh.db.run(lambda: fresh.params.restore(kept))
         self.__dict__.pop("movement_custom", None)
         self.__dict__.update(fresh.__dict__)
-        self.params.sim = self.presets.sim = self
+        self.params.sim = self.presets.sim = self.inject.sim = self.npcs.sim = self
+        self.runner.inject = self.inject
         self.engine.emit_event("simulation.reset", data={"backup": str(saved) if saved else None})
         return saved
 
