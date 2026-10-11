@@ -65,6 +65,9 @@ test("Unklare Eingabe: das Modell fragt nach, nichts ändert sich; Antwort führ
   expect((await state(request)).objects.length).toBe(before);
   await page.getByLabel("Antwort auf die Rückfrage").fill("Im Garten liegt ein rostiger Eimer");
   await page.getByRole("button", { name: "Antworten" }).click();
+  await expect(page.getByTestId("preview-card")).toContainText("Rostiger Eimer");                         // was das Modell deutet, wird erst gezeigt
+  expect((await state(request)).objects.some((o: { name: string }) => o.name === "Rostiger Eimer")).toBe(false);
+  await page.getByTestId("confirm-event").click();
   await expect(status(page)).toContainText("ausgeführt ✓");
   expect((await state(request)).objects.some((o: { name: string }) => o.name === "Rostiger Eimer")).toBe(true);
 });
@@ -97,4 +100,16 @@ test("Vorschläge erscheinen beim Fokussieren und lassen sich übernehmen", asyn
   await page.getByTestId("composer-input").fill("");
   await page.getByTestId("composer-input").press("Shift+Enter");                                      // neue Zeile statt Senden
   await expect(status(page)).not.toContainText("gelesen");
+});
+
+test("„Er findet etwas“: das Pronomen wird erfragt, nicht geraten", async ({ page, request }) => {
+  await openApp(page);
+  const before = (await state(request)).objects.length;
+  await send(page, "Er findet einen Schlüssel im Garten.");
+  await expect(page.getByTestId("clarify-question")).toContainText("Wer ist mit");
+  expect((await state(request)).objects.length).toBe(before);
+  await page.getByTestId("clarify-card").getByRole("button", { name: "Mira" }).click();
+  await expect(status(page)).toContainText("ausgeführt ✓");
+  const key = (await state(request)).objects.find((o: { name: string }) => o.name === "Schlüssel" && o.known_by?.includes("mira"));
+  expect(key).toMatchObject({ kind: "key", location_id: "garden" });
 });

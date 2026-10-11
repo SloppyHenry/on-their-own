@@ -255,7 +255,15 @@ def r_location(text: str, c: Ctx) -> Parsed | None:
     return Parsed("location", [op], ask)
 
 
-RULES: list[Rule] = [r_move, r_suggest, r_temp, r_event, r_message, r_inform, r_situation, r_find, r_appear, r_npc, r_power, r_resources, r_location, r_weather]
+def r_pronoun(text: str, c: Ctx) -> Parsed | None:
+    """„Er findet etwas.“ – wer ist gemeint? Ein Pronomen am Satzanfang wird nie geraten, sondern erfragt."""
+    m = re.match(r"^(er|sie)\s+\w+", text, re.I)
+    if not m or len(c.lex.ai) < 2:
+        return None
+    return Parsed("pronoun", [], Clarify(f"Wer ist mit „{m.group(1).capitalize()}“ gemeint?", [{"label": c.lex.name_of(i), "value": c.lex.name_of(i)} for i in c.lex.ai], 0, "subject"))
+
+
+RULES: list[Rule] = [r_pronoun, r_move, r_suggest, r_temp, r_event, r_message, r_inform, r_situation, r_find, r_appear, r_npc, r_power, r_resources, r_location, r_weather]
 
 
 def parse(text: str, ctx: Ctx) -> Parsed | None:

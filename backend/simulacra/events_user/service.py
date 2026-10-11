@@ -1,6 +1,7 @@
 """Ereignis-Controller (§10.1): Text → Regelparser → (Sprachmodell) → Prüfung → Rückfrage/Vorschau → Ausführung. Jede Eingabe steht mit Status in `inject_log`."""
 
 import json
+import re
 import time
 import uuid
 from collections import deque
@@ -91,7 +92,7 @@ class InjectService:
             if got is None:
                 return await db.run(lambda: self._record(text, "rejected", source, [], reason="Das habe ich nicht verstanden, und das Sprachmodell hat nicht geantwortet.", agents=agents, at=at))
             raw, question, conf = got
-            if not raw or conf < 0.4:
+            if not raw or conf < 0.5:
                 q = question or "Das ist mir zu unklar. Was genau soll passieren, wo und für wen?"
                 return await db.run(lambda: self._record(text, "needs_clarification", source, raw, clarify=Clarify(q, [], 0, "", True), agents=agents, at=at))
         if at is not None and raw:
@@ -108,6 +109,9 @@ class InjectService:
             raise InjectError(409, "Diese Eingabe wartet auf keine Antwort.")
         cl = json.loads(row["clarification"] or "null")
         raw = json.loads(row["ops"])
+        if cl["field"] == "subject":                                           # „Er findet etwas“ + Antwort „Alex“ → „Alex findet etwas“
+            self.conn.execute("UPDATE inject_log SET status='cancelled' WHERE id=?", (pid,))
+            return re.sub(r"^(er|sie)\b", str(value), row["text"], count=1, flags=re.I)
         if not raw or cl is None or not cl.get("field"):
             # freie Rückfrage des Modells: die Antwort ergänzt den Text, die Eingabe wird neu verstanden
             self.conn.execute("UPDATE inject_log SET status='cancelled' WHERE id=?", (pid,))
@@ -135,6 +139,8 @@ class InjectService:
         pid = row["id"]
         if clarify is not None:
             return self._set_clarify(pid, raw, clarify)
+        if not raw:
+            return self._finish(pid, "rejected", raw, reason="Daraus konnte ich kein Ereignis machen.")
         try:
             checked = validate.check(self._env(self._lex()), raw)
         except validate.NeedsAnswer as e:
@@ -142,7 +148,8 @@ class InjectService:
         except validate.Reject as e:
             return self._finish(pid, "rejected", raw, reason=e.text)
         ops = [o.model_dump(mode="json", exclude_none=True) for o in checked.ops]
-        status = "needs_confirmation" if checked.needs_confirmation else "ready"
+        # Was das Sprachmodell gedeutet hat, wird nie ungesehen ausgeführt: immer erst die Vorschau
+        status = "needs_confirmation" if checked.needs_confirmation or row["source"] == "llm" else "ready"
         self.conn.execute("UPDATE inject_log SET status=?, ops=?, preview=?, clarification=NULL, reason='' WHERE id=?", (status, json.dumps(ops, ensure_ascii=False), json.dumps(checked.preview, ensure_ascii=False), pid))
         return self.get(pid)
 

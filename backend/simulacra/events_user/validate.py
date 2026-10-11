@@ -139,7 +139,7 @@ def _c_spawn_object(env, r, i):
     r["location"] = loc
     if loc is None and not r.get("tile"):
         raise Reject("Wo soll das Objekt entstehen? Ein Ort fehlt.")
-    r["known_by"] = [agent(env, a) for a in r.get("known_by") or []]
+    r["known_by"] = [agent(env, a, ai_only=True) for a in r.get("known_by") or []]
     env.extra_objects += 1
     if env.st.object_count() + env.extra_objects > env.st.rules.max_objects:
         raise Reject(f"Die Welt kann höchstens {env.st.rules.max_objects} Objekte aufnehmen.")

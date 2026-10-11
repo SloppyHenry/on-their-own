@@ -38,7 +38,8 @@ def test_the_rule_parser_recognizes_every_example_sentence(sim, text):
 
 
 def test_unclear_inputs_are_not_guessed(sim):
-    assert parsed(sim, "Er findet etwas.") is None
+    pronoun = parsed(sim, "Er findet etwas.")
+    assert pronoun.ops == [] and pronoun.clarify.field == "subject" and [o["value"] for o in pronoun.clarify.options] == ["Alex", "Mira"]
     assert parsed(sim, "Mach irgendwas Spannendes") is None
 
 

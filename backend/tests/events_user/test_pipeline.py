@@ -28,6 +28,9 @@ async def test_a_sure_rule_never_asks_the_model(sim):
 async def test_an_unknown_phrase_goes_to_the_model_and_is_validated_like_any_input(sim):
     prov = llm_says(sim, ops=[{"op": "spawn_object", "name": "Rostiger Eimer", "kind": "item", "location": "garden", "description": "Ein alter Eimer"}])
     p, done = await say(sim, "Der Dorfrat schenkt dem Garten einen rostigen Eimer")
+    assert p["status"] == "needs_confirmation" and p["source"] == "llm" and done is None                         # was das Modell deutet, wird erst gezeigt
+    assert objects(sim, "Rostiger Eimer") == []
+    done = await sim.engine.db.run(lambda: sim.inject.confirm(p["id"]))
     assert prov.calls and done["status"] == "executed" and done["source"] == "llm"
     [o] = objects(sim, "Rostiger Eimer")
     assert o.location_id == "garden" and o.state["description"] == "Ein alter Eimer"
@@ -65,14 +68,14 @@ async def test_object_limit_is_respected(sim):
 async def test_unclear_input_asks_instead_of_guessing(sim):
     before = fingerprint(sim)
     llm_says(sim, ops=[], clarification="Wer findet etwas, und wo?", confidence=0.2)
-    p = await sim.inject.parse("Er findet etwas.")
+    p = await sim.inject.parse("Irgendjemand findet irgendwo etwas Merkwürdiges")
     assert p["status"] == "needs_clarification" and p["clarification"]["question"] == "Wer findet etwas, und wo?" and p["clarification"]["free_text"]
     assert fingerprint(sim) == before
     with pytest.raises(InjectError):
         await sim.engine.db.run(lambda: sim.inject.confirm(p["id"]))
     llm_says(sim, ops=[{"op": "spawn_object", "name": "Etwas", "kind": "item", "location": "forest", "hidden": True, "known_by": ["alex"]}])
     p2 = await sim.inject.parse("", answer_to=p["id"], answer="Alex im Wald, ein kleiner Stein")                    # Antwort ergänzt die Eingabe
-    assert p2["status"] == "ready" and "Alex im Wald" in p2["text"]
+    assert p2["status"] == "needs_confirmation" and "Alex im Wald" in p2["text"]
     assert (await sim.engine.db.run(lambda: sim.inject.get(p["id"])))["status"] == "cancelled"
 
 
@@ -130,7 +133,7 @@ async def test_at_most_three_figures_and_fifty_planned_events(sim):
 async def test_a_time_in_the_past_or_too_far_ahead_is_not_planned(sim):
     llm_says(sim, ops=[{"op": "message", "recipients": ["mira"], "content": "Fest", "invite": True, "when_text": "morgen um 18 Uhr"}])
     p = await sim.inject.parse("Der Dorfrat lädt Mira ein")
-    assert p["status"] == "ready"
+    assert p["status"] == "needs_confirmation"
     from simulacra.events_user.validate import Reject
     sim.engine.advance(3000)
     p = await sim.engine.db.run(lambda: sim.inject.confirm(p["id"]))
@@ -269,3 +272,21 @@ async def test_a_stranger_answers_when_spoken_to_and_leaves_after_his_stay(sim):
     sim.inject.on_tick(sim.engine.minute)
     assert sim.engine.state.agent(nid) is None and sim.inject.npcs.active() == []
     assert any(e.type == "world.npc_acted" for e in sim.engine.events_since(0, 100000))
+
+
+async def test_a_pronoun_is_asked_not_guessed_and_the_answer_is_substituted(sim):
+    prov = llm_says(sim, ops=[{"op": "spawn_object", "name": "Stein", "location": "garden", "known_by": ["alex"]}])
+    before = fingerprint(sim)
+    p = await sim.inject.parse("Er findet etwas im Garten.")
+    assert p["status"] == "needs_clarification" and "Wer" in p["clarification"]["question"] and prov.calls == []             # weder geraten noch das Modell gefragt
+    assert [o["value"] for o in p["clarification"]["options"]] == ["Alex", "Mira"] and fingerprint(sim) == before
+    p2 = await sim.inject.parse("", answer_to=p["id"], answer="Mira")
+    assert p2["text"] == "Mira findet etwas im Garten." and p2["status"] in ("ready", "needs_confirmation", "needs_clarification")
+
+
+async def test_a_found_object_can_only_be_known_to_real_agents_not_figures(sim):
+    p = await sim.inject.parse("Ein Fremder zieht in das Dorf.")
+    await sim.engine.db.run(lambda: sim.inject.confirm(p["id"]))
+    llm_says(sim, ops=[{"op": "spawn_object", "name": "Stein", "location": "square", "known_by": ["fremder"]}])
+    p = await sim.inject.parse("Da liegt etwas auf dem Platz, das nur der Fremde sehen kann")
+    assert p["status"] == "rejected" and "Nebenfigur" in p["reason"]
