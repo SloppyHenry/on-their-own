@@ -77,7 +77,7 @@ class Planner:
         self.memory = memory
         self.autonomy = autonomy
         self.mode = ModeState()
-        self.rank_hint = False                          # Prompt nennt die Rangfolge der Optionen (Parameter `rank_hint`)
+        self.rank_hint = True                           # Prompt nennt die Rangfolge der Optionen (Parameter `rank_hint`)
         self.context_budget = 6000                      # Tokens je Prompt (Schätzung); darüber werden Erinnerungen und ältere Beobachtungen gekürzt
 
     def prepare(self, agent_id: str) -> Prepared:

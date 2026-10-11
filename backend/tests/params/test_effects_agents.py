@@ -128,10 +128,10 @@ async def test_interests_and_goals_text_also_move_the_scores(sim):
 
 async def test_rank_hint_reaches_the_prompt(sim):
     user = lambda: sim.engine.db.run(lambda: sim.planner.prepare("alex").messages[1]["content"])          # noqa: E731
+    hinted = await user()                                                                                  # Standard: an
+    assert "o1 passt am besten" in hinted and "\nOptionen:\n" not in hinted
+    await patch(sim, "rank_hint", False)
     plain = await user()
     assert "\nOptionen:\n" in plain and "o1 passt am besten" not in plain
     await patch(sim, "rank_hint", True)
-    hinted = await user()
-    assert "o1 passt am besten" in hinted and "\nOptionen:\n" not in hinted
-    await patch(sim, "rank_hint", False)
-    assert await user() == plain
+    assert await user() == hinted

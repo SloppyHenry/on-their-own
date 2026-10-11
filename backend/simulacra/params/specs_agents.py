@@ -36,9 +36,9 @@ def _top_k() -> ParamSpec:
 
 
 def _rank_hint() -> ParamSpec:
-    return ParamSpec(key="rank_hint", group="autonomy", scope="global", type="bool", label="Rangfolge nennen", default=False, effect="next_decision",
+    return ParamSpec(key="rank_hint", group="autonomy", scope="global", type="bool", label="Rangfolge nennen", default=True, effect="next_decision",
                      help="An: der Prompt sagt dem Modell, dass die Optionen nach Passung zu Neigungen, Zielen und Bedürfnissen geordnet sind (o1 am besten). "
-                          "Aus: das Modell sieht dieselbe Reihenfolge ohne Hinweis und folgt ihr weniger. Macht die Persönlichkeitsregler im Verhalten deutlicher.",
+                          "Aus: das Modell sieht dieselbe Reihenfolge ohne Hinweis und folgt ihr deutlich weniger. Macht die Persönlichkeitsregler im Verhalten deutlicher.",
                      apply=lambda sim, v, a: setattr(sim.planner, "rank_hint", bool(v)), read=lambda sim, a: sim.planner.rank_hint,
                      consumers=("simulacra.agents.prompts:rank_hint",), effect_test=T + "test_rank_hint_reaches_the_prompt")
 

@@ -66,7 +66,7 @@ def test_prompt_structure_stable_prefix_then_variable_part(sim):
     assert a.messages[0] == b.messages[0]                             # System-Teil identisch -> Prompt-Cache
     assert a.messages[1] != b.messages[1]
     assert a.messages[0]["content"].startswith("Du bist Alex")
-    assert "Optionen:" in a.messages[1]["content"] and "other:" in a.messages[1]["content"]
+    assert "Optionen" in a.messages[1]["content"] and "other:" in a.messages[1]["content"]
 
 
 def test_agents_have_separate_contexts(sim):
