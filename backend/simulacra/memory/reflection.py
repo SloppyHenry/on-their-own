@@ -110,6 +110,7 @@ class Reflector:
         """Quellenverweise im Text („(Quelle: 3)“, „Quellen: 2, 5“) gehören ins Feld sources, nicht in die Einsicht."""
         text = re.sub(r"\s*[\(\[]\s*(?:Quellen?|Erinnerung(?:en)?|Nr\.?)\b[^)\]]*[)\]]", "", text)
         text = re.sub(r"\s*(?:Quellen?|Erinnerung(?:en)?)\s*:\s*[\d,\s und]+\.?\s*$", "", text)
+        text = re.sub(r"\s*[\(\[]\s*\d+(?:\s*[-–,]\s*\d+)*\s*[\)\]]", "", text)      # „(11–12)“, „(17, 19, 20)“
         return " ".join(text.split())
 
     def _reject(self, job: Job, why: str, text: str, loc: str | None) -> None:

@@ -163,6 +163,7 @@ def test_source_citations_are_removed_from_reflection_text():
     assert Reflector._clean("Ich merke, dass ich gern plane (Quelle: 3, 5).") == "Ich merke, dass ich gern plane."
     assert Reflector._clean("Alex ist geduldig. Quellen: 2, 4.") == "Alex ist geduldig."
     assert Reflector._clean("Ich mag den See [Erinnerung 2].") == "Ich mag den See."
+    assert Reflector._clean("Ich vergesse Alex. (11–12) Sehr sogar (17, 19, 20)") == "Ich vergesse Alex. Sehr sogar"
 
 
 async def test_repeating_an_earlier_reflection_is_discarded(sim):
