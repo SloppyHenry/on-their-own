@@ -22,6 +22,7 @@ class Ctx:
         self.state = engine.state
         self.minute = minute
         self.events: list[Event] = []
+        self.default_parent: int | None = None      # Standard-Ursache für Ereignisse dieser Operation
         self.blueprints = engine.blueprints
 
     @property
@@ -34,7 +35,7 @@ class Ctx:
     def emit(self, type_: str, agents: list[str] | None = None, location_id: str | None = None,
              data: dict | None = None, parent: Event | int | None = None) -> Event:
         from ..events import insert_event
-        parent_seq = parent.seq if isinstance(parent, Event) else parent
+        parent_seq = parent.seq if isinstance(parent, Event) else (parent if parent is not None else self.default_parent)
         ev = insert_event(self.state.conn, self.minute, type_, agents, location_id, data, parent_seq)
         self.events.append(ev)
         return ev

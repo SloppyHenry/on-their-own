@@ -63,3 +63,12 @@ Werden in der Datenbank gespeichert und über `WorldEngine.set_rules()` **sofort
 | `hunger_rise_per_hour` / `thirst_rise_per_hour` | 3.0 / 4.0 | 0–20 | Anstieg (im Schlaf halbiert) |
 | `energy_per_tile` | 0.05 | 0–1 | Energiekosten je Schritt |
 | `plant_hours_per_stage` | 8 | 1–48 | Wachstumsdauer je Stufe (4 Stufen, nur bei Bewässerung der letzten 12 h) |
+
+## API (AP03)
+
+| Variable | Standard | Bedeutung |
+|---|---|---|
+| `SIM_SIM_AUTOSTART` | `false` | Simulation beim Start des Servers sofort laufen lassen (sonst über `POST /api/sim/start`) |
+| `SIM_WS_PING_S` | 15 | Heartbeat der WebSocket-Verbindung in Sekunden |
+| `SIM_WS_MAX_GAP` | 5000 | Rückstand eines Clients, ab dem er einen Snapshot statt der Nachlieferung bekommt |
+| `SIM_WS_MAX_BACKLOG` | 2000 | Ereignisse, die je Verbindung zwischengespeichert werden, bevor ein Resync verlangt wird |

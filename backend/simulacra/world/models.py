@@ -101,6 +101,10 @@ class Event(BaseModel):
     location_id: str | None = None
     data: dict[str, Any] = {}
     parent_seq: int | None = None
+    event_id: str | None = None          # ULID mit Präfix evt_ (ältere Ereignisse: None)
+    category: str = "system"
+    visibility: str = "public"
+    caused_by: str | None = None         # event_id des auslösenden Ereignisses
 
 
 class Rejected(BaseModel):

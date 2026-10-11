@@ -9,7 +9,7 @@ import time
 from collections import Counter
 from dataclasses import dataclass, field
 from enum import StrEnum
-from typing import Any, Callable
+from typing import Any
 
 from ..agents.conversation import ConversationManager
 from ..agents.observations import ObservationCollector
@@ -52,7 +52,6 @@ class SimulationRunner:
         self.tick_delay_s = tick_delay_s
         self.state = SimState.STOPPED
         self.stats = RunStats()
-        self.event_listeners: list[Callable[[list[Event]], Any]] = []
         self.decision_listeners: list[Callable[[Decision, ProposeResult], Any]] = []
         self._gate, self._idle = asyncio.Event(), asyncio.Event()
         self._idle.set()
@@ -101,6 +100,7 @@ class SimulationRunner:
                     done += await self._step(force=True)
             finally:
                 self.state = previous
+            await self.engine.db.run(lambda: self.engine.emit_event("simulation.stepped", data={"n": done, "minute": self.engine.minute}))
         return done
 
     async def stop(self) -> None:
@@ -146,7 +146,6 @@ class SimulationRunner:
         events = await self.engine.tick_async()
         extra = await self.engine.db.run(lambda: self._after_tick(events))
         self.stats.ticks += 1
-        self._publish(events + extra)
         return 1
 
     async def _decisions(self, force: bool) -> bool:
@@ -174,46 +173,48 @@ class SimulationRunner:
         db = self.engine.db
         prep = await db.run(lambda: self._prepare(aid))
         dec = await self.planner.ask(prep)
-        events, res = await db.run(lambda: self._apply(dec))
+        res = await db.run(lambda: self._apply(dec))
         self.stats.decisions += 1
         self.stats.valid += dec.status == "valid"
         self.stats.fallback += dec.status == "fallback"
         self.stats.rejected += not res.ok
         self.stats.by_action[dec.action] += 1
-        self._publish(events)
         for cb in self.decision_listeners:
             cb(dec, res)
 
     # --- Arbeit auf dem DB-Thread -----------------------------------------------------------------------
     def _prepare(self, aid: str):
-        self.store.set_status(aid, "deciding")
+        self._set_status(aid, "deciding")
         return self.planner.prepare(aid)
 
-    def _apply(self, dec: Decision) -> tuple[list[Event], ProposeResult]:
+    def _apply(self, dec: Decision) -> ProposeResult:
         eng, aid = self.engine, dec.agent_id
-        events: list[Event] = []
+        loc = eng.state.agent(aid).location_id
         if dec.status == "fallback":
-            events.append(eng.emit_event("agent.decision_failed", [aid], eng.state.agent(aid).location_id,
-                                         {"reason": dec.error, "attempts": dec.attempts}))
+            eng.emit_event("agent.decision_failed", [aid], loc, {"reason": dec.error, "attempts": dec.attempts})
         opt = dec.chosen
         if dec.action == "speak" and dec.params.get("to"):
             self.convs.note_intent(aid, dec.params["to"], end=bool(opt and opt.meta.get("end")), proposal=dec.proposal if dec.status == "valid" else "",
                                    respond=(opt.meta.get("respond", "") if opt else ""))
         if dec.plan_next:
             self.store.set_plan(aid, dec.plan_next)
-        res = eng.propose(aid, dec.action, dec.params)
-        events += res.events
-        seq = next((e.seq for e in res.events if e.type in ("agent.action_started", "agent.action_rejected")), None)
-        self.store.log_decision({
+        decision_id = self.store.log_decision({
             "sim_minute": dec.minute, "agent_id": aid, "status": dec.status, "options": [o.to_dict() for o in dec.options], "chosen": dec.chosen_id,
             "action": dec.action, "params": dec.params, "intent": dec.intent, "importance": dec.importance, "utterance": dec.utterance,
             "plan_next": dec.plan_next, "attempts": dec.attempts, "latency_ms": dec.latency_ms, "prompt_tokens": dec.prompt_tokens,
-            "completion_tokens": dec.completion_tokens, "error": dec.error, "outcome": "accepted" if res.ok else "rejected",
-            "outcome_text": res.rejected.text if res.rejected else None, "event_seq": seq})
+            "completion_tokens": dec.completion_tokens, "error": dec.error})
+        shown = {"decision_id": decision_id, "status": dec.status, "chosen": dec.chosen_id, "action": dec.action, "params": dec.params,
+                 "intent": dec.intent, "importance": dec.importance, "attempts": dec.attempts, "latency_ms": dec.latency_ms,
+                 "options": [{"id": o.id, "kind": o.kind, "label": o.label, "score": o.score} for o in dec.options],
+                 "factors": [[n, v] for n, v in (dec.chosen.factors if dec.chosen else [])]}
+        decision_event = eng.emit_event("agent.decision", [aid], loc, shown)
+        res = eng.propose(aid, dec.action, dec.params, parent_seq=decision_event.seq)
+        seq = next((e.seq for e in res.events if e.type in ("agent.action_started", "agent.action_rejected")), None)
+        self.store.set_decision_outcome(decision_id, "accepted" if res.ok else "rejected", res.rejected.text if res.rejected else None, seq)
         self.store.mark_decided(aid)
-        self._sync_status(aid)
-        self.collector.ingest(events, self.store.ai_agent_ids())
-        return events, res
+        self._set_status(aid, self._status_of(aid))
+        self.collector.ingest(res.events, self.store.ai_agent_ids())
+        return res
 
     def _after_tick(self, events: list[Event]) -> list[Event]:
         extra: list[Event] = []
@@ -223,22 +224,21 @@ class SimulationRunner:
         extra += self.convs.expire(self.engine.minute)
         self.collector.ingest(events + extra, self.store.ai_agent_ids())
         for aid in self.store.ai_agent_ids():
-            self._sync_status(aid)
+            self._set_status(aid, self._status_of(aid))
         return extra
 
-    def _sync_status(self, aid: str) -> None:
+    def _status_of(self, aid: str) -> str:
         body = self.engine.state.agent(aid)
         a = body.action if body else None
-        status = ("idle" if a is None else "sleeping" if a.type == "sleep" or a.data.get("mode") == "sleep" else "talking" if a.type == "speak"
-                  else "resting_mode" if a.type == "recover" else "acting")
-        self.store.set_status(aid, status)
+        return ("idle" if a is None else "sleeping" if a.type == "sleep" or a.data.get("mode") == "sleep" else "talking" if a.type == "speak"
+                else "resting_mode" if a.type == "recover" else "acting")
+
+    def _set_status(self, aid: str, new: str) -> None:
+        old = self.store.get(aid).status
+        if old != new:
+            self.store.set_status(aid, new)
+            self.engine.emit_event("agent.status_changed", [aid], self.engine.state.agent(aid).location_id, {"old": old, "new": new})
 
     # --- Veröffentlichen ----------------------------------------------------------------------------------
     async def _announce(self, type_: str) -> None:
-        ev = await self.engine.db.run(lambda: self.engine.emit_event(type_, data={"minute": self.engine.minute}))
-        self._publish([ev])
-
-    def _publish(self, events: list[Event]) -> None:
-        if events:
-            for cb in self.event_listeners:
-                cb(events)
+        await self.engine.db.run(lambda: self.engine.emit_event(type_, data={"minute": self.engine.minute}))

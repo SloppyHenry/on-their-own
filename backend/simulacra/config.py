@@ -33,6 +33,10 @@ class Settings(BaseSettings):
     sim_tick_delay_s: float = 0.0         # Pause zwischen Ticks (Echtzeit)
     sim_min_decision_gap_s: float = 0.0   # Mindestabstand zwischen Entscheidungen desselben Agenten (Echtzeit)
     sim_max_decisions_per_minute: int = 0 # 0 = unbegrenzt
+    sim_autostart: bool = False           # Simulation beim Start des Servers sofort laufen lassen
+    ws_ping_s: float = 15.0               # Heartbeat der WebSocket-Verbindung
+    ws_max_backlog: int = 2000            # Rückstand je Verbindung, danach Resync statt unbegrenztem Speicher
+    ws_max_gap: int = 5000                # größerer Rückstand eines Clients -> neuer Snapshot statt Nachlieferung
 
     data_dir: Path = Path("./data")
     host: str = "127.0.0.1"

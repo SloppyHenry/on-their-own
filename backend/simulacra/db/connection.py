@@ -34,6 +34,7 @@ class Database:
         self._lock = threading.RLock()
         self._executor = ThreadPoolExecutor(max_workers=1, thread_name_prefix="sim-db-write")
         self._depth = 0
+        self._after_commit: list[Callable[[], None]] = []
         self._writer = _connect(self.path)
         if not self._memory:
             self._writer.execute("PRAGMA journal_mode = WAL")
@@ -58,12 +59,21 @@ class Database:
         return self.schema_version()
 
     # --- Schreiben ---------------------------------------------------------------------
+    def on_commit(self, fn: Callable[[], None]) -> None:
+        """Führt `fn` aus, sobald die äußerste Transaktion committet hat; bei Rollback verfällt es. Ohne Transaktion sofort."""
+        with self._lock:
+            if self._depth == 0:
+                fn()
+            else:
+                self._after_commit.append(fn)
+
     @contextmanager
     def transaction(self) -> Iterator[sqlite3.Connection]:
         with self._lock:
             outer = self._depth == 0
             if outer:
                 self._writer.execute("BEGIN IMMEDIATE")
+                self._after_commit = []
             self._depth += 1
             try:
                 yield self._writer
@@ -71,11 +81,15 @@ class Database:
                 self._depth -= 1
                 if outer:
                     self._writer.execute("ROLLBACK")
+                    self._after_commit = []
                 raise
             else:
                 self._depth -= 1
                 if outer:
                     self._writer.execute("COMMIT")
+                    callbacks, self._after_commit = self._after_commit, []
+                    for fn in callbacks:
+                        fn()
 
     async def write(self, fn: Callable[[sqlite3.Connection], T]) -> T:
         """Führt `fn` in einer Transaktion auf dem einzigen Schreib-Thread aus (asyncio-Warteschlange)."""

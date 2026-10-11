@@ -12,7 +12,7 @@ from .simulation.builder import Simulation
 from .world import clock
 from .world.models import Event, ProposeResult
 
-SHOWN = {"agent.dialogue", "conversation.started", "conversation.ended", "conversation.proposal_accepted", "conversation.proposal_declined",
+SHOWN = {"agent.dialogue", "agent.conversation_started", "agent.conversation_ended", "agent.proposal_accepted", "agent.proposal_declined",
          "agent.decision_failed", "agent.action_failed", "agent.action_rejected", "agent.location_discovered", "world.weather_changed",
          "world.object_created", "simulation.started", "simulation.paused", "simulation.resumed", "simulation.stopped"}
 
@@ -42,9 +42,9 @@ def attach_printer(sim: Simulation, quiet: bool = False) -> None:
                 continue
             if e.type == "agent.dialogue":
                 print(f"{hm(e.sim_minute)}  💬 {names[e.data['speaker']]} → {names[e.data['to']]}: «{e.data['text']}»")
-            elif e.type == "conversation.ended":
+            elif e.type == "agent.conversation_ended":
                 print(f"{hm(e.sim_minute)}  ·  Gespräch beendet ({e.data['reason_text']}, {e.data['turns']} Beiträge)")
-            elif e.type.startswith("conversation.proposal"):
+            elif e.type.startswith("agent.proposal"):
                 print(f"{hm(e.sim_minute)}  ·  Vorschlag {'angenommen' if e.type.endswith('accepted') else 'abgelehnt'}: «{e.data['proposal']}»")
             elif e.type == "world.weather_changed":
                 print(f"{hm(e.sim_minute)}  ☁  Wetter: {e.data['to']}")
@@ -63,7 +63,7 @@ def attach_printer(sim: Simulation, quiet: bool = False) -> None:
         denied = "" if res.ok else f"  ✗ Welt: {res.rejected.text}"
         print(f"{hm(d.minute)}  {names[d.agent_id]:<5} → {label}  [{d.intent}]  ({d.latency_ms / 1000:.1f}s){flag}{denied}")
 
-    sim.runner.event_listeners.append(on_events)
+    sim.engine.bus.listeners.append(on_events)
     sim.runner.decision_listeners.append(on_decision)
 
 

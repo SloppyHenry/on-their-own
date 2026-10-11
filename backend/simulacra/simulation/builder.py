@@ -56,8 +56,11 @@ class Simulation:
             target_dir.mkdir(parents=True, exist_ok=True)
             saved = target_dir / f"live-{datetime.now():%Y%m%d-%H%M%S}.db"
             shutil.move(self.db_path, saved)
+        bus = self.engine.bus                      # Abonnenten (Browser) bleiben über das Zurücksetzen hinweg verbunden
         fresh = Simulation.create(self.settings, self.db_path, self.provider)
+        fresh.engine.bus = bus
         self.__dict__.update(fresh.__dict__)
+        self.engine.emit_event("simulation.reset", data={"backup": str(saved) if saved else None})
         return saved
 
     def close(self) -> None:

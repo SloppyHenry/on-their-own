@@ -117,7 +117,7 @@ def test_conversation_opens_with_first_turn_and_offers_reply_to_the_partner():
     sim.convs.note_intent("alex", "mira")
     assert sim.convs.active_for("mira").status == "opening"
     evs = dialogue(sim, "alex", "mira", "Wie war deine Nacht?")
-    assert "conversation.started" in [e.type for e in evs]
+    assert "agent.conversation_started" in [e.type for e in evs]
     v = sim.convs.view_for("mira")
     assert v["awaiting_reply"] and v["partner_name"] == "Alex" and v["lines"] == ["Alex: Wie war deine Nacht?"]
     assert not sim.convs.view_for("alex")["awaiting_reply"]
@@ -130,7 +130,7 @@ def test_conversation_ends_after_max_turns():
     sim = make_sim(sim_conversation_max_turns=4); together(sim)
     ended = []
     for i, (a, b) in enumerate([("alex", "mira"), ("mira", "alex")] * 2):
-        ended += [e for e in dialogue(sim, a, b, f"Beitrag Nummer {i} mit ganz eigenem Inhalt {i * 7}") if e.type == "conversation.ended"]
+        ended += [e for e in dialogue(sim, a, b, f"Beitrag Nummer {i} mit ganz eigenem Inhalt {i * 7}") if e.type == "agent.conversation_ended"]
     assert ended and ended[0].data["reason"] == "max_turns" and ended[0].data["turns"] == 4
     assert sim.convs.active_for("alex") is None
 
@@ -140,7 +140,7 @@ def test_repetition_ends_conversation():
     dialogue(sim, "alex", "mira", "Das Wetter ist heute wirklich sehr schön.")
     dialogue(sim, "mira", "alex", "Ja, finde ich auch.")
     evs = dialogue(sim, "alex", "mira", "Das Wetter ist heute wirklich sehr schön!")
-    end = [e for e in evs if e.type == "conversation.ended"]
+    end = [e for e in evs if e.type == "agent.conversation_ended"]
     assert end and end[0].data["reason"] == "repetition"
 
 
@@ -149,7 +149,7 @@ def test_farewell_ends_conversation_and_observation_is_stored():
     dialogue(sim, "alex", "mira", "Hallo.")
     sim.convs.note_intent("mira", "alex", end=True)
     evs = dialogue(sim, "mira", "alex", "Ich muss weiter, bis später.")
-    assert [e.data["reason"] for e in evs if e.type == "conversation.ended"] == ["farewell"]
+    assert [e.data["reason"] for e in evs if e.type == "agent.conversation_ended"] == ["farewell"]
     assert any("Das Gespräch mit Alex ist zu Ende" in t for t in memory(sim, "mira"))
 
 
@@ -182,7 +182,7 @@ def test_proposal_acceptance_sets_a_shared_plan():
     assert {"accept", "decline"} <= kinds
     sim.convs.note_intent("mira", "alex", respond="accept")
     evs = dialogue(sim, "mira", "alex", "Gern, lass uns gehen.")
-    assert "conversation.proposal_accepted" in [e.type for e in evs]
+    assert "agent.proposal_accepted" in [e.type for e in evs]
     assert sim.store.get("alex").plan_next == sim.store.get("mira").plan_next == "Lass uns zusammen zum See gehen."
     assert "Vorhaben: Lass uns zusammen" in sim.planner.prepare("alex").messages[1]["content"]
 
@@ -193,7 +193,7 @@ def test_proposal_decline_keeps_plans_untouched():
     dialogue(sim, "alex", "mira", "Ich hätte eine Idee.")
     sim.convs.note_intent("mira", "alex", respond="decline")
     evs = dialogue(sim, "mira", "alex", "Heute lieber nicht.")
-    assert "conversation.proposal_declined" in [e.type for e in evs]
+    assert "agent.proposal_declined" in [e.type for e in evs]
     assert sim.store.get("alex").plan_next == "" and sim.store.get("mira").plan_next == ""
 
 

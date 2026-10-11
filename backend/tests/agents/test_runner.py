@@ -66,7 +66,7 @@ async def test_pause_lets_inflight_request_finish_then_halts_and_resume_continue
     sim = make_sim(fn=waiter())
     sim.client.provider.delay_s = 0.1
     seen = []
-    sim.runner.event_listeners.append(lambda evs: seen.extend(e.type for e in evs))
+    sim.engine.bus.listeners.append(lambda evs: seen.extend(e.type for e in evs))
     await sim.runner.start()
     await asyncio.sleep(0.03)                                           # erste Anfrage läuft gerade
     assert sim.client.provider.active == 1
@@ -178,10 +178,10 @@ async def test_agents_talk_and_see_each_other_live():
     put(sim, "alex", 20, 13)
     put(sim, "mira", 21, 13)
     lines = []
-    sim.runner.event_listeners.append(lambda evs: lines.extend(e for e in evs if e.type == "agent.dialogue"))
+    sim.engine.bus.listeners.append(lambda evs: lines.extend(e for e in evs if e.type == "agent.dialogue"))
     await sim.runner.step(12)
     assert {e.data["speaker"] for e in lines} == {"alex", "mira"}
-    assert sim.convs.active_for("alex") is not None or any(e.type == "conversation.ended" for e in sim.engine.events_since(0))
+    assert sim.convs.active_for("alex") is not None or any(e.type == "agent.conversation_ended" for e in sim.engine.events_since(0))
     last_prompt = sim.client.provider.calls[-1]["messages"][1]["content"]
     assert "Gespräch mit" in last_prompt and "Schön, dich zu sehen." in last_prompt
 

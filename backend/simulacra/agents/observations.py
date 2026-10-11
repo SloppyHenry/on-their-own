@@ -124,7 +124,7 @@ class ObservationCollector:
             out += [(a, "world", f"Es ist jetzt {PHASE_DE[d['phase']]}.", 2) for a in bodies]
         elif t == "world.day_started":
             out += [(a, "world", f"Ein neuer Tag beginnt ({d['weekday']}).", 3) for a in bodies]
-        elif t == "conversation.ended":
+        elif t == "agent.conversation_ended":
             for p in d["participants"]:
                 other = next((bodies[x].name for x in d["participants"] if x != p and x in bodies), "")
                 out.append((p, "talk", f"Das Gespräch mit {other} ist zu Ende ({d['reason_text']}).", 3))

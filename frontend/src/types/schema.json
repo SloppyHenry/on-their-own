@@ -1,0 +1,2916 @@
+{
+ "$defs": {
+  "ActionCompleted": {
+   "additionalProperties": false,
+   "properties": {
+    "action": {
+     "type": "string"
+    },
+    "params": {
+     "additionalProperties": true,
+     "default": {},
+     "type": "object"
+    }
+   },
+   "required": [
+    "action"
+   ],
+   "title": "ActionCompleted",
+   "type": "object"
+  },
+  "ActionInfo": {
+   "additionalProperties": false,
+   "properties": {
+    "ends_at": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "params": {
+     "additionalProperties": true,
+     "default": {},
+     "type": "object"
+    },
+    "started_at": {
+     "type": "integer"
+    },
+    "type": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "type",
+    "params",
+    "started_at",
+    "ends_at"
+   ],
+   "title": "ActionInfo",
+   "type": "object"
+  },
+  "ActionInterrupted": {
+   "additionalProperties": false,
+   "properties": {
+    "action": {
+     "type": "string"
+    },
+    "reason": {
+     "default": "",
+     "type": "string"
+    }
+   },
+   "required": [
+    "action"
+   ],
+   "title": "ActionInterrupted",
+   "type": "object"
+  },
+  "ActionProblem": {
+   "additionalProperties": false,
+   "description": "action_failed und action_rejected.",
+   "properties": {
+    "action": {
+     "type": "string"
+    },
+    "code": {
+     "type": "string"
+    },
+    "params": {
+     "additionalProperties": true,
+     "default": {},
+     "type": "object"
+    },
+    "text": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "action",
+    "code",
+    "text"
+   ],
+   "title": "ActionProblem",
+   "type": "object"
+  },
+  "ActionStarted": {
+   "additionalProperties": false,
+   "properties": {
+    "action": {
+     "type": "string"
+    },
+    "ends_at": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "params": {
+     "additionalProperties": true,
+     "default": {},
+     "type": "object"
+    }
+   },
+   "required": [
+    "action"
+   ],
+   "title": "ActionStarted",
+   "type": "object"
+  },
+  "AgentAdded": {
+   "additionalProperties": false,
+   "properties": {
+    "capacity": {
+     "type": "integer"
+    },
+    "id": {
+     "type": "string"
+    },
+    "name": {
+     "type": "string"
+    },
+    "tile": {
+     "items": {
+      "type": "integer"
+     },
+     "type": "array"
+    }
+   },
+   "required": [
+    "id",
+    "name",
+    "tile",
+    "capacity"
+   ],
+   "title": "AgentAdded",
+   "type": "object"
+  },
+  "AgentDetail": {
+   "additionalProperties": false,
+   "properties": {
+    "action": {
+     "anyOf": [
+      {
+       "$ref": "#/$defs/ActionInfo"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "capacity": {
+     "type": "integer"
+    },
+    "conversation": {
+     "anyOf": [
+      {
+       "additionalProperties": true,
+       "type": "object"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "decisions": {
+     "default": [],
+     "items": {
+      "$ref": "#/$defs/DecisionBrief"
+     },
+     "type": "array"
+    },
+    "facing": {
+     "type": "string"
+    },
+    "held": {
+     "default": [],
+     "items": {
+      "type": "string"
+     },
+     "type": "array"
+    },
+    "id": {
+     "type": "string"
+    },
+    "inventory": {
+     "additionalProperties": {
+      "type": "integer"
+     },
+     "default": {},
+     "type": "object"
+    },
+    "last_seen": {
+     "additionalProperties": true,
+     "default": {},
+     "type": "object"
+    },
+    "location_id": {
+     "type": "string"
+    },
+    "mood": {
+     "default": "",
+     "type": "string"
+    },
+    "name": {
+     "type": "string"
+    },
+    "needs": {
+     "additionalProperties": {
+      "type": "number"
+     },
+     "type": "object"
+    },
+    "observations": {
+     "default": [],
+     "items": {
+      "$ref": "#/$defs/ObservationBrief"
+     },
+     "type": "array"
+    },
+    "personality": {
+     "anyOf": [
+      {
+       "additionalProperties": {
+        "type": "integer"
+       },
+       "type": "object"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "plan_next": {
+     "default": "",
+     "type": "string"
+    },
+    "profile": {
+     "anyOf": [
+      {
+       "$ref": "#/$defs/ProfileBrief"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "profile_full": {
+     "anyOf": [
+      {
+       "additionalProperties": true,
+       "type": "object"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "status": {
+     "default": "idle",
+     "type": "string"
+    },
+    "words": {
+     "additionalProperties": {
+      "type": "string"
+     },
+     "type": "object"
+    },
+    "x": {
+     "type": "integer"
+    },
+    "y": {
+     "type": "integer"
+    }
+   },
+   "required": [
+    "id",
+    "name",
+    "x",
+    "y",
+    "location_id",
+    "facing",
+    "capacity",
+    "action",
+    "status",
+    "needs",
+    "words",
+    "inventory",
+    "held",
+    "profile",
+    "plan_next",
+    "profile_full",
+    "personality",
+    "mood",
+    "decisions",
+    "observations",
+    "conversation",
+    "last_seen"
+   ],
+   "title": "AgentDetail",
+   "type": "object"
+  },
+  "AgentInfo": {
+   "additionalProperties": false,
+   "properties": {
+    "action": {
+     "anyOf": [
+      {
+       "$ref": "#/$defs/ActionInfo"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "capacity": {
+     "type": "integer"
+    },
+    "facing": {
+     "type": "string"
+    },
+    "held": {
+     "default": [],
+     "items": {
+      "type": "string"
+     },
+     "type": "array"
+    },
+    "id": {
+     "type": "string"
+    },
+    "inventory": {
+     "additionalProperties": {
+      "type": "integer"
+     },
+     "default": {},
+     "type": "object"
+    },
+    "location_id": {
+     "type": "string"
+    },
+    "name": {
+     "type": "string"
+    },
+    "needs": {
+     "additionalProperties": {
+      "type": "number"
+     },
+     "type": "object"
+    },
+    "plan_next": {
+     "default": "",
+     "type": "string"
+    },
+    "profile": {
+     "anyOf": [
+      {
+       "$ref": "#/$defs/ProfileBrief"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "status": {
+     "default": "idle",
+     "type": "string"
+    },
+    "words": {
+     "additionalProperties": {
+      "type": "string"
+     },
+     "type": "object"
+    },
+    "x": {
+     "type": "integer"
+    },
+    "y": {
+     "type": "integer"
+    }
+   },
+   "required": [
+    "id",
+    "name",
+    "x",
+    "y",
+    "location_id",
+    "facing",
+    "capacity",
+    "action",
+    "status",
+    "needs",
+    "words",
+    "inventory",
+    "held",
+    "profile",
+    "plan_next"
+   ],
+   "title": "AgentInfo",
+   "type": "object"
+  },
+  "Arrived": {
+   "additionalProperties": false,
+   "properties": {
+    "at": {
+     "items": {
+      "type": "integer"
+     },
+     "type": "array"
+    },
+    "label": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "target": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    }
+   },
+   "required": [
+    "at"
+   ],
+   "title": "Arrived",
+   "type": "object"
+  },
+  "Ate": {
+   "additionalProperties": false,
+   "properties": {
+    "hunger": {
+     "type": "number"
+    }
+   },
+   "required": [
+    "hunger"
+   ],
+   "title": "Ate",
+   "type": "object"
+  },
+  "ClockInfo": {
+   "additionalProperties": false,
+   "properties": {
+    "day": {
+     "type": "integer"
+    },
+    "daylight": {
+     "type": "number"
+    },
+    "minute": {
+     "type": "integer"
+    },
+    "phase": {
+     "type": "string"
+    },
+    "time": {
+     "type": "string"
+    },
+    "weekday": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "minute",
+    "day",
+    "time",
+    "weekday",
+    "phase",
+    "daylight"
+   ],
+   "title": "ClockInfo",
+   "type": "object"
+  },
+  "ConversationEnded": {
+   "additionalProperties": false,
+   "properties": {
+    "conversation": {
+     "type": "integer"
+    },
+    "participants": {
+     "items": {
+      "type": "string"
+     },
+     "type": "array"
+    },
+    "reason": {
+     "type": "string"
+    },
+    "reason_text": {
+     "type": "string"
+    },
+    "turns": {
+     "type": "integer"
+    }
+   },
+   "required": [
+    "conversation",
+    "reason",
+    "reason_text",
+    "turns",
+    "participants"
+   ],
+   "title": "ConversationEnded",
+   "type": "object"
+  },
+  "ConversationStarted": {
+   "additionalProperties": false,
+   "properties": {
+    "by": {
+     "type": "string"
+    },
+    "conversation": {
+     "type": "integer"
+    }
+   },
+   "required": [
+    "conversation",
+    "by"
+   ],
+   "title": "ConversationStarted",
+   "type": "object"
+  },
+  "DayStarted": {
+   "additionalProperties": false,
+   "properties": {
+    "day": {
+     "type": "integer"
+    },
+    "weekday": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "day",
+    "weekday"
+   ],
+   "title": "DayStarted",
+   "type": "object"
+  },
+  "Decision": {
+   "additionalProperties": false,
+   "properties": {
+    "action": {
+     "type": "string"
+    },
+    "attempts": {
+     "default": 1,
+     "type": "integer"
+    },
+    "chosen": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "decision_id": {
+     "type": "integer"
+    },
+    "factors": {
+     "default": [],
+     "items": {
+      "items": {},
+      "type": "array"
+     },
+     "type": "array"
+    },
+    "importance": {
+     "default": 3,
+     "type": "integer"
+    },
+    "intent": {
+     "default": "",
+     "type": "string"
+    },
+    "latency_ms": {
+     "default": 0,
+     "type": "integer"
+    },
+    "options": {
+     "default": [],
+     "items": {
+      "$ref": "#/$defs/OptionSummary"
+     },
+     "type": "array"
+    },
+    "params": {
+     "additionalProperties": true,
+     "default": {},
+     "type": "object"
+    },
+    "status": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "decision_id",
+    "status",
+    "action"
+   ],
+   "title": "Decision",
+   "type": "object"
+  },
+  "DecisionBrief": {
+   "additionalProperties": false,
+   "properties": {
+    "action": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "chosen": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "id": {
+     "type": "integer"
+    },
+    "intent": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "options": {
+     "default": [],
+     "items": {
+      "additionalProperties": true,
+      "type": "object"
+     },
+     "type": "array"
+    },
+    "outcome": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "outcome_text": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "sim_minute": {
+     "type": "integer"
+    },
+    "status": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "id",
+    "sim_minute",
+    "status",
+    "chosen",
+    "action",
+    "intent",
+    "outcome",
+    "outcome_text",
+    "options"
+   ],
+   "title": "DecisionBrief",
+   "type": "object"
+  },
+  "DecisionFailed": {
+   "additionalProperties": false,
+   "properties": {
+    "attempts": {
+     "default": 0,
+     "type": "integer"
+    },
+    "reason": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    }
+   },
+   "title": "DecisionFailed",
+   "type": "object"
+  },
+  "Dialogue": {
+   "additionalProperties": false,
+   "properties": {
+    "speaker": {
+     "type": "string"
+    },
+    "text": {
+     "type": "string"
+    },
+    "to": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "speaker",
+    "to",
+    "text"
+   ],
+   "title": "Dialogue",
+   "type": "object"
+  },
+  "Drank": {
+   "additionalProperties": false,
+   "properties": {
+    "thirst": {
+     "type": "number"
+    }
+   },
+   "required": [
+    "thirst"
+   ],
+   "title": "Drank",
+   "type": "object"
+  },
+  "EventDetail": {
+   "additionalProperties": false,
+   "properties": {
+    "chain": {
+     "items": {
+      "$ref": "#/$defs/EventOut"
+     },
+     "type": "array"
+    },
+    "consequences": {
+     "items": {
+      "$ref": "#/$defs/EventOut"
+     },
+     "type": "array"
+    },
+    "event": {
+     "$ref": "#/$defs/EventOut"
+    }
+   },
+   "required": [
+    "event",
+    "chain",
+    "consequences"
+   ],
+   "title": "EventDetail",
+   "type": "object"
+  },
+  "EventOut": {
+   "additionalProperties": false,
+   "properties": {
+    "agents": {
+     "default": [],
+     "items": {
+      "type": "string"
+     },
+     "type": "array"
+    },
+    "category": {
+     "enum": [
+      "world",
+      "dialogue",
+      "planning",
+      "memory",
+      "system"
+     ],
+     "type": "string"
+    },
+    "caused_by": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "data": {
+     "additionalProperties": true,
+     "default": {},
+     "type": "object"
+    },
+    "id": {
+     "type": "string"
+    },
+    "location": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "seq": {
+     "type": "integer"
+    },
+    "sim_time": {
+     "$ref": "#/$defs/SimTime"
+    },
+    "ts": {
+     "type": "string"
+    },
+    "type": {
+     "type": "string"
+    },
+    "visibility": {
+     "default": "public",
+     "type": "string"
+    }
+   },
+   "required": [
+    "id",
+    "seq",
+    "ts",
+    "sim_time",
+    "type",
+    "category",
+    "agents",
+    "location",
+    "data",
+    "caused_by",
+    "visibility"
+   ],
+   "title": "EventOut",
+   "type": "object"
+  },
+  "EventsPage": {
+   "additionalProperties": false,
+   "properties": {
+    "items": {
+     "items": {
+      "$ref": "#/$defs/EventOut"
+     },
+     "type": "array"
+    },
+    "last_seq": {
+     "type": "integer"
+    }
+   },
+   "required": [
+    "items",
+    "last_seq"
+   ],
+   "title": "EventsPage",
+   "type": "object"
+  },
+  "Fished": {
+   "additionalProperties": false,
+   "properties": {
+    "caught": {
+     "type": "boolean"
+    }
+   },
+   "required": [
+    "caught"
+   ],
+   "title": "Fished",
+   "type": "object"
+  },
+  "Inspected": {
+   "additionalProperties": false,
+   "properties": {
+    "amount": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "node": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "object": {
+     "anyOf": [
+      {
+       "$ref": "#/$defs/ObjectData"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "requires_tool": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "resource": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    }
+   },
+   "title": "Inspected",
+   "type": "object"
+  },
+  "InventoryChanged": {
+   "additionalProperties": false,
+   "properties": {
+    "delta": {
+     "type": "integer"
+    },
+    "qty": {
+     "type": "integer"
+    },
+    "resource": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "resource",
+    "delta",
+    "qty"
+   ],
+   "title": "InventoryChanged",
+   "type": "object"
+  },
+  "ItemGiven": {
+   "additionalProperties": false,
+   "properties": {
+    "amount": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "from": {
+     "type": "string"
+    },
+    "object": {
+     "anyOf": [
+      {
+       "$ref": "#/$defs/ObjectData"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "resource": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "to": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "from",
+    "to"
+   ],
+   "title": "ItemGiven",
+   "type": "object"
+  },
+  "ItemMoved": {
+   "additionalProperties": false,
+   "description": "item_taken und item_dropped.",
+   "properties": {
+    "object": {
+     "$ref": "#/$defs/ObjectData"
+    }
+   },
+   "required": [
+    "object"
+   ],
+   "title": "ItemMoved",
+   "type": "object"
+  },
+  "LocationChanged": {
+   "additionalProperties": false,
+   "properties": {
+    "from_location": {
+     "type": "string"
+    },
+    "to_location": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "from_location",
+    "to_location"
+   ],
+   "title": "LocationChanged",
+   "type": "object"
+  },
+  "LocationDetail": {
+   "additionalProperties": false,
+   "properties": {
+    "agents": {
+     "items": {
+      "type": "string"
+     },
+     "type": "array"
+    },
+    "location": {
+     "$ref": "#/$defs/LocationInfo"
+    },
+    "objects": {
+     "items": {
+      "$ref": "#/$defs/ObjectInfo"
+     },
+     "type": "array"
+    },
+    "recent_events": {
+     "items": {
+      "$ref": "#/$defs/EventOut"
+     },
+     "type": "array"
+    },
+    "resources": {
+     "items": {
+      "$ref": "#/$defs/ResourceInfo"
+     },
+     "type": "array"
+    }
+   },
+   "required": [
+    "location",
+    "objects",
+    "resources",
+    "agents",
+    "recent_events"
+   ],
+   "title": "LocationDetail",
+   "type": "object"
+  },
+  "LocationDiscovered": {
+   "additionalProperties": false,
+   "properties": {
+    "location": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "location"
+   ],
+   "title": "LocationDiscovered",
+   "type": "object"
+  },
+  "LocationEvent": {
+   "additionalProperties": false,
+   "description": "location_added und location_updated.",
+   "properties": {
+    "claim": {
+     "anyOf": [
+      {
+       "type": "boolean"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "location": {
+     "additionalProperties": true,
+     "type": "object"
+    },
+    "reassigned": {
+     "anyOf": [
+      {
+       "additionalProperties": {
+        "type": "integer"
+       },
+       "type": "object"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    }
+   },
+   "required": [
+    "location"
+   ],
+   "title": "LocationEvent",
+   "type": "object"
+  },
+  "LocationInfo": {
+   "additionalProperties": false,
+   "properties": {
+    "discovered_by": {
+     "default": [],
+     "items": {
+      "type": "string"
+     },
+     "type": "array"
+    },
+    "entrances": {
+     "default": [],
+     "items": {
+      "items": {
+       "type": "integer"
+      },
+      "type": "array"
+     },
+     "type": "array"
+    },
+    "id": {
+     "type": "string"
+    },
+    "name": {
+     "type": "string"
+    },
+    "props": {
+     "additionalProperties": true,
+     "default": {},
+     "type": "object"
+    },
+    "rect": {
+     "items": {
+      "type": "integer"
+     },
+     "type": "array"
+    }
+   },
+   "required": [
+    "id",
+    "name",
+    "rect",
+    "entrances",
+    "props",
+    "discovered_by"
+   ],
+   "title": "LocationInfo",
+   "type": "object"
+  },
+  "MapData": {
+   "additionalProperties": false,
+   "properties": {
+    "height": {
+     "type": "integer"
+    },
+    "legend": {
+     "additionalProperties": {
+      "type": "string"
+     },
+     "type": "object"
+    },
+    "rows": {
+     "items": {
+      "type": "string"
+     },
+     "type": "array"
+    },
+    "width": {
+     "type": "integer"
+    }
+   },
+   "required": [
+    "width",
+    "height",
+    "rows",
+    "legend"
+   ],
+   "title": "MapData",
+   "type": "object"
+  },
+  "MapExtended": {
+   "additionalProperties": false,
+   "properties": {
+    "fill": {
+     "type": "string"
+    },
+    "from": {
+     "items": {
+      "type": "integer"
+     },
+     "type": "array"
+    },
+    "to": {
+     "items": {
+      "type": "integer"
+     },
+     "type": "array"
+    }
+   },
+   "required": [
+    "from",
+    "to",
+    "fill"
+   ],
+   "title": "MapExtended",
+   "type": "object"
+  },
+  "Moved": {
+   "additionalProperties": false,
+   "properties": {
+    "facing": {
+     "type": "string"
+    },
+    "from": {
+     "items": {
+      "type": "integer"
+     },
+     "type": "array"
+    },
+    "remaining": {
+     "default": 0,
+     "type": "integer"
+    },
+    "to": {
+     "items": {
+      "type": "integer"
+     },
+     "type": "array"
+    }
+   },
+   "required": [
+    "from",
+    "to",
+    "facing"
+   ],
+   "title": "Moved",
+   "type": "object"
+  },
+  "ObjectChanged": {
+   "additionalProperties": false,
+   "properties": {
+    "change": {
+     "default": "",
+     "type": "string"
+    },
+    "holder": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "id": {
+     "type": "string"
+    },
+    "kind": {
+     "type": "string"
+    },
+    "location_id": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "name": {
+     "type": "string"
+    },
+    "state": {
+     "additionalProperties": true,
+     "default": {},
+     "type": "object"
+    },
+    "x": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "y": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    }
+   },
+   "required": [
+    "id",
+    "kind",
+    "name"
+   ],
+   "title": "ObjectChanged",
+   "type": "object"
+  },
+  "ObjectCreated": {
+   "additionalProperties": false,
+   "properties": {
+    "cause": {
+     "default": "",
+     "type": "string"
+    },
+    "object": {
+     "$ref": "#/$defs/ObjectData"
+    }
+   },
+   "required": [
+    "object"
+   ],
+   "title": "ObjectCreated",
+   "type": "object"
+  },
+  "ObjectData": {
+   "additionalProperties": false,
+   "properties": {
+    "holder": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "id": {
+     "type": "string"
+    },
+    "kind": {
+     "type": "string"
+    },
+    "location_id": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "name": {
+     "type": "string"
+    },
+    "state": {
+     "additionalProperties": true,
+     "default": {},
+     "type": "object"
+    },
+    "x": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "y": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    }
+   },
+   "required": [
+    "id",
+    "kind",
+    "name"
+   ],
+   "title": "ObjectData",
+   "type": "object"
+  },
+  "ObjectDiscovered": {
+   "additionalProperties": false,
+   "properties": {
+    "object": {
+     "$ref": "#/$defs/ObjectData"
+    }
+   },
+   "required": [
+    "object"
+   ],
+   "title": "ObjectDiscovered",
+   "type": "object"
+  },
+  "ObjectInfo": {
+   "additionalProperties": false,
+   "properties": {
+    "hidden": {
+     "default": false,
+     "type": "boolean"
+    },
+    "holder": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "id": {
+     "type": "string"
+    },
+    "kind": {
+     "type": "string"
+    },
+    "known_by": {
+     "default": [],
+     "items": {
+      "type": "string"
+     },
+     "type": "array"
+    },
+    "location_id": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "name": {
+     "type": "string"
+    },
+    "owner": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "portable": {
+     "default": false,
+     "type": "boolean"
+    },
+    "state": {
+     "additionalProperties": true,
+     "default": {},
+     "type": "object"
+    },
+    "x": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "y": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    }
+   },
+   "required": [
+    "id",
+    "kind",
+    "name",
+    "x",
+    "y",
+    "location_id",
+    "holder",
+    "state",
+    "portable",
+    "owner",
+    "hidden",
+    "known_by"
+   ],
+   "title": "ObjectInfo",
+   "type": "object"
+  },
+  "ObjectRemoved": {
+   "additionalProperties": false,
+   "properties": {
+    "cause": {
+     "default": "",
+     "type": "string"
+    },
+    "object": {
+     "$ref": "#/$defs/ObjectData"
+    }
+   },
+   "required": [
+    "object"
+   ],
+   "title": "ObjectRemoved",
+   "type": "object"
+  },
+  "ObservationBrief": {
+   "additionalProperties": false,
+   "properties": {
+    "importance": {
+     "type": "integer"
+    },
+    "kind": {
+     "type": "string"
+    },
+    "sim_minute": {
+     "type": "integer"
+    },
+    "text": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "sim_minute",
+    "kind",
+    "text",
+    "importance"
+   ],
+   "title": "ObservationBrief",
+   "type": "object"
+  },
+  "OptionSummary": {
+   "additionalProperties": false,
+   "properties": {
+    "id": {
+     "type": "string"
+    },
+    "kind": {
+     "type": "string"
+    },
+    "label": {
+     "type": "string"
+    },
+    "score": {
+     "type": "number"
+    }
+   },
+   "required": [
+    "id",
+    "kind",
+    "label",
+    "score"
+   ],
+   "title": "OptionSummary",
+   "type": "object"
+  },
+  "ParameterChanged": {
+   "additionalProperties": false,
+   "properties": {
+    "group": {
+     "type": "string"
+    },
+    "rules": {
+     "additionalProperties": true,
+     "type": "object"
+    }
+   },
+   "required": [
+    "group",
+    "rules"
+   ],
+   "title": "ParameterChanged",
+   "type": "object"
+  },
+  "PatchApplied": {
+   "additionalProperties": false,
+   "properties": {
+    "counts": {
+     "additionalProperties": {
+      "type": "integer"
+     },
+     "type": "object"
+    },
+    "description": {
+     "default": "",
+     "type": "string"
+    },
+    "id": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "id",
+    "counts"
+   ],
+   "title": "PatchApplied",
+   "type": "object"
+  },
+  "PhaseChanged": {
+   "additionalProperties": false,
+   "properties": {
+    "phase": {
+     "type": "string"
+    },
+    "time": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "phase",
+    "time"
+   ],
+   "title": "PhaseChanged",
+   "type": "object"
+  },
+  "ProfileBrief": {
+   "additionalProperties": false,
+   "properties": {
+    "age": {
+     "type": "integer"
+    },
+    "gender": {
+     "type": "string"
+    },
+    "goals": {
+     "default": [],
+     "items": {
+      "type": "string"
+     },
+     "type": "array"
+    },
+    "name": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "name",
+    "gender",
+    "age",
+    "goals"
+   ],
+   "title": "ProfileBrief",
+   "type": "object"
+  },
+  "ProposalAnswered": {
+   "additionalProperties": false,
+   "properties": {
+    "answered_by": {
+     "type": "string"
+    },
+    "by": {
+     "type": "string"
+    },
+    "conversation": {
+     "type": "integer"
+    },
+    "proposal": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "conversation",
+    "proposal",
+    "by",
+    "answered_by"
+   ],
+   "title": "ProposalAnswered",
+   "type": "object"
+  },
+  "Read": {
+   "additionalProperties": false,
+   "properties": {
+    "content": {
+     "default": [],
+     "items": {},
+     "type": "array"
+    },
+    "name": {
+     "type": "string"
+    },
+    "object": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "object",
+    "name"
+   ],
+   "title": "Read",
+   "type": "object"
+  },
+  "ResetRequest": {
+   "additionalProperties": false,
+   "properties": {
+    "confirm": {
+     "default": false,
+     "type": "boolean"
+    }
+   },
+   "title": "ResetRequest",
+   "type": "object"
+  },
+  "ResourceAdded": {
+   "additionalProperties": false,
+   "properties": {
+    "amount": {
+     "type": "number"
+    },
+    "cap": {
+     "type": "number"
+    },
+    "node": {
+     "type": "string"
+    },
+    "resource": {
+     "type": "string"
+    },
+    "tile": {
+     "items": {
+      "type": "integer"
+     },
+     "type": "array"
+    }
+   },
+   "required": [
+    "node",
+    "resource",
+    "amount",
+    "cap",
+    "tile"
+   ],
+   "title": "ResourceAdded",
+   "type": "object"
+  },
+  "ResourceChanged": {
+   "additionalProperties": false,
+   "properties": {
+    "amount": {
+     "type": "number"
+    },
+    "cause": {
+     "default": "",
+     "type": "string"
+    },
+    "node": {
+     "type": "string"
+    },
+    "resource": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "node",
+    "resource",
+    "amount"
+   ],
+   "title": "ResourceChanged",
+   "type": "object"
+  },
+  "ResourceInfo": {
+   "additionalProperties": false,
+   "properties": {
+    "amount": {
+     "type": "number"
+    },
+    "cap": {
+     "type": "number"
+    },
+    "id": {
+     "type": "string"
+    },
+    "location_id": {
+     "type": "string"
+    },
+    "requires_tool": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "resource": {
+     "type": "string"
+    },
+    "x": {
+     "type": "integer"
+    },
+    "y": {
+     "type": "integer"
+    }
+   },
+   "required": [
+    "id",
+    "location_id",
+    "x",
+    "y",
+    "resource",
+    "amount",
+    "cap",
+    "requires_tool"
+   ],
+   "title": "ResourceInfo",
+   "type": "object"
+  },
+  "Rested": {
+   "additionalProperties": false,
+   "properties": {
+    "energy": {
+     "type": "number"
+    }
+   },
+   "required": [
+    "energy"
+   ],
+   "title": "Rested",
+   "type": "object"
+  },
+  "SimCommandResult": {
+   "additionalProperties": false,
+   "properties": {
+    "backup": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "minute": {
+     "type": "integer"
+    },
+    "speed_level": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "state": {
+     "type": "string"
+    },
+    "steps": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "tick_delay_s": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    }
+   },
+   "required": [
+    "state",
+    "minute",
+    "steps",
+    "tick_delay_s",
+    "speed_level",
+    "backup"
+   ],
+   "title": "SimCommandResult",
+   "type": "object"
+  },
+  "SimControl": {
+   "additionalProperties": false,
+   "properties": {
+    "minute": {
+     "type": "integer"
+    }
+   },
+   "required": [
+    "minute"
+   ],
+   "title": "SimControl",
+   "type": "object"
+  },
+  "SimReset": {
+   "additionalProperties": false,
+   "properties": {
+    "backup": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    }
+   },
+   "title": "SimReset",
+   "type": "object"
+  },
+  "SimStatus": {
+   "additionalProperties": false,
+   "properties": {
+    "llm": {
+     "additionalProperties": true,
+     "default": {},
+     "type": "object"
+    },
+    "speed_level": {
+     "type": "string"
+    },
+    "state": {
+     "enum": [
+      "stopped",
+      "running",
+      "paused",
+      "stepping"
+     ],
+     "type": "string"
+    },
+    "stats": {
+     "additionalProperties": true,
+     "default": {},
+     "type": "object"
+    },
+    "tick_delay_s": {
+     "type": "number"
+    }
+   },
+   "required": [
+    "state",
+    "tick_delay_s",
+    "speed_level",
+    "stats",
+    "llm"
+   ],
+   "title": "SimStatus",
+   "type": "object"
+  },
+  "SimStepped": {
+   "additionalProperties": false,
+   "properties": {
+    "minute": {
+     "type": "integer"
+    },
+    "n": {
+     "type": "integer"
+    }
+   },
+   "required": [
+    "n",
+    "minute"
+   ],
+   "title": "SimStepped",
+   "type": "object"
+  },
+  "SimTime": {
+   "additionalProperties": false,
+   "properties": {
+    "day": {
+     "type": "integer"
+    },
+    "minute": {
+     "type": "integer"
+    },
+    "total": {
+     "type": "integer"
+    }
+   },
+   "required": [
+    "day",
+    "minute",
+    "total"
+   ],
+   "title": "SimTime",
+   "type": "object"
+  },
+  "Slept": {
+   "additionalProperties": false,
+   "properties": {
+    "energy": {
+     "type": "number"
+    },
+    "minutes": {
+     "type": "integer"
+    }
+   },
+   "required": [
+    "energy",
+    "minutes"
+   ],
+   "title": "Slept",
+   "type": "object"
+  },
+  "SpeedChanged": {
+   "additionalProperties": false,
+   "properties": {
+    "level": {
+     "type": "string"
+    },
+    "tick_delay_s": {
+     "type": "number"
+    }
+   },
+   "required": [
+    "tick_delay_s",
+    "level"
+   ],
+   "title": "SpeedChanged",
+   "type": "object"
+  },
+  "SpeedRequest": {
+   "additionalProperties": false,
+   "properties": {
+    "level": {
+     "anyOf": [
+      {
+       "enum": [
+        "slow",
+        "normal",
+        "fast",
+        "max"
+       ],
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "tick_delay_s": {
+     "anyOf": [
+      {
+       "maximum": 60,
+       "minimum": 0,
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    }
+   },
+   "title": "SpeedRequest",
+   "type": "object"
+  },
+  "StartRequest": {
+   "additionalProperties": false,
+   "properties": {
+    "ticks": {
+     "anyOf": [
+      {
+       "maximum": 100000,
+       "minimum": 1,
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    }
+   },
+   "title": "StartRequest",
+   "type": "object"
+  },
+  "StateSnapshot": {
+   "additionalProperties": false,
+   "properties": {
+    "agents": {
+     "items": {
+      "$ref": "#/$defs/AgentInfo"
+     },
+     "type": "array"
+    },
+    "clock": {
+     "$ref": "#/$defs/ClockInfo"
+    },
+    "locations": {
+     "items": {
+      "$ref": "#/$defs/LocationInfo"
+     },
+     "type": "array"
+    },
+    "map": {
+     "$ref": "#/$defs/MapData"
+    },
+    "objects": {
+     "items": {
+      "$ref": "#/$defs/ObjectInfo"
+     },
+     "type": "array"
+    },
+    "resources": {
+     "items": {
+      "$ref": "#/$defs/ResourceInfo"
+     },
+     "type": "array"
+    },
+    "rules": {
+     "additionalProperties": true,
+     "default": {},
+     "type": "object"
+    },
+    "seq": {
+     "type": "integer"
+    },
+    "simulation": {
+     "$ref": "#/$defs/SimStatus"
+    },
+    "tile_types": {
+     "additionalProperties": {
+      "$ref": "#/$defs/TileTypeInfo"
+     },
+     "type": "object"
+    },
+    "weather": {
+     "$ref": "#/$defs/WeatherInfo"
+    },
+    "world_name": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "seq",
+    "world_name",
+    "map",
+    "tile_types",
+    "locations",
+    "objects",
+    "resources",
+    "agents",
+    "clock",
+    "weather",
+    "simulation",
+    "rules"
+   ],
+   "title": "StateSnapshot",
+   "type": "object"
+  },
+  "StatusChanged": {
+   "additionalProperties": false,
+   "properties": {
+    "new": {
+     "type": "string"
+    },
+    "old": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "old",
+    "new"
+   ],
+   "title": "StatusChanged",
+   "type": "object"
+  },
+  "StepRequest": {
+   "additionalProperties": false,
+   "properties": {
+    "n": {
+     "default": 1,
+     "maximum": 50,
+     "minimum": 1,
+     "type": "integer"
+    }
+   },
+   "title": "StepRequest",
+   "type": "object"
+  },
+  "TileChange": {
+   "additionalProperties": false,
+   "properties": {
+    "from": {
+     "type": "string"
+    },
+    "type": {
+     "type": "string"
+    },
+    "x": {
+     "type": "integer"
+    },
+    "y": {
+     "type": "integer"
+    }
+   },
+   "required": [
+    "x",
+    "y",
+    "type",
+    "from"
+   ],
+   "title": "TileChange",
+   "type": "object"
+  },
+  "TileChanged": {
+   "additionalProperties": false,
+   "properties": {
+    "type": {
+     "type": "string"
+    },
+    "x": {
+     "type": "integer"
+    },
+    "y": {
+     "type": "integer"
+    }
+   },
+   "required": [
+    "x",
+    "y",
+    "type"
+   ],
+   "title": "TileChanged",
+   "type": "object"
+  },
+  "TileTypeAdded": {
+   "additionalProperties": false,
+   "properties": {
+    "char": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "color": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "cost": {
+     "type": "integer"
+    },
+    "id": {
+     "type": "string"
+    },
+    "label": {
+     "type": "string"
+    },
+    "walkable": {
+     "type": "boolean"
+    }
+   },
+   "required": [
+    "id",
+    "walkable",
+    "cost",
+    "label"
+   ],
+   "title": "TileTypeAdded",
+   "type": "object"
+  },
+  "TileTypeInfo": {
+   "additionalProperties": false,
+   "properties": {
+    "char": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "color": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "cost": {
+     "type": "integer"
+    },
+    "label": {
+     "type": "string"
+    },
+    "walkable": {
+     "type": "boolean"
+    }
+   },
+   "required": [
+    "char",
+    "walkable",
+    "cost",
+    "color",
+    "label"
+   ],
+   "title": "TileTypeInfo",
+   "type": "object"
+  },
+  "TilesChanged": {
+   "additionalProperties": false,
+   "properties": {
+    "cause": {
+     "default": "",
+     "type": "string"
+    },
+    "changes": {
+     "items": {
+      "$ref": "#/$defs/TileChange"
+     },
+     "type": "array"
+    },
+    "count": {
+     "type": "integer"
+    },
+    "truncated": {
+     "default": false,
+     "type": "boolean"
+    }
+   },
+   "required": [
+    "count",
+    "changes"
+   ],
+   "title": "TilesChanged",
+   "type": "object"
+  },
+  "WeatherChanged": {
+   "additionalProperties": false,
+   "properties": {
+    "cause": {
+     "default": "",
+     "type": "string"
+    },
+    "from": {
+     "type": "string"
+    },
+    "to": {
+     "type": "string"
+    },
+    "until": {
+     "type": "integer"
+    }
+   },
+   "required": [
+    "from",
+    "to",
+    "until"
+   ],
+   "title": "WeatherChanged",
+   "type": "object"
+  },
+  "WeatherInfo": {
+   "additionalProperties": false,
+   "properties": {
+    "kind": {
+     "type": "string"
+    },
+    "since": {
+     "type": "integer"
+    },
+    "until": {
+     "type": "integer"
+    }
+   },
+   "required": [
+    "kind",
+    "since",
+    "until"
+   ],
+   "title": "WeatherInfo",
+   "type": "object"
+  },
+  "WorldTime": {
+   "additionalProperties": false,
+   "properties": {
+    "day": {
+     "type": "integer"
+    },
+    "daylight": {
+     "type": "number"
+    },
+    "phase": {
+     "type": "string"
+    },
+    "time": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "day",
+    "time",
+    "phase",
+    "daylight"
+   ],
+   "title": "WorldTime",
+   "type": "object"
+  },
+  "WsEvent": {
+   "additionalProperties": false,
+   "properties": {
+    "event": {
+     "$ref": "#/$defs/EventOut"
+    },
+    "type": {
+     "const": "event",
+     "default": "event",
+     "type": "string"
+    }
+   },
+   "required": [
+    "type",
+    "event"
+   ],
+   "title": "WsEvent",
+   "type": "object"
+  },
+  "WsEvents": {
+   "additionalProperties": false,
+   "properties": {
+    "items": {
+     "items": {
+      "$ref": "#/$defs/EventOut"
+     },
+     "type": "array"
+    },
+    "type": {
+     "const": "events",
+     "default": "events",
+     "type": "string"
+    }
+   },
+   "required": [
+    "type",
+    "items"
+   ],
+   "title": "WsEvents",
+   "type": "object"
+  },
+  "WsHello": {
+   "additionalProperties": false,
+   "properties": {
+    "last_seq": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "type": {
+     "const": "hello",
+     "type": "string"
+    }
+   },
+   "required": [
+    "type"
+   ],
+   "title": "WsHello",
+   "type": "object"
+  },
+  "WsPing": {
+   "additionalProperties": false,
+   "properties": {
+    "type": {
+     "const": "ping",
+     "default": "ping",
+     "type": "string"
+    }
+   },
+   "required": [
+    "type"
+   ],
+   "title": "WsPing",
+   "type": "object"
+  },
+  "WsPong": {
+   "additionalProperties": false,
+   "properties": {
+    "type": {
+     "const": "pong",
+     "type": "string"
+    }
+   },
+   "required": [
+    "type"
+   ],
+   "title": "WsPong",
+   "type": "object"
+  },
+  "WsResync": {
+   "additionalProperties": false,
+   "properties": {
+    "last_seq": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "type": {
+     "const": "resync",
+     "type": "string"
+    }
+   },
+   "required": [
+    "type"
+   ],
+   "title": "WsResync",
+   "type": "object"
+  },
+  "WsResyncRequired": {
+   "additionalProperties": false,
+   "properties": {
+    "reason": {
+     "default": "backlog",
+     "type": "string"
+    },
+    "type": {
+     "const": "resync_required",
+     "default": "resync_required",
+     "type": "string"
+    }
+   },
+   "required": [
+    "type",
+    "reason"
+   ],
+   "title": "WsResyncRequired",
+   "type": "object"
+  },
+  "WsSnapshot": {
+   "additionalProperties": false,
+   "properties": {
+    "seq": {
+     "type": "integer"
+    },
+    "state": {
+     "$ref": "#/$defs/StateSnapshot"
+    },
+    "type": {
+     "const": "snapshot",
+     "default": "snapshot",
+     "type": "string"
+    }
+   },
+   "required": [
+    "type",
+    "seq",
+    "state"
+   ],
+   "title": "WsSnapshot",
+   "type": "object"
+  }
+ },
+ "additionalProperties": false,
+ "properties": {
+  "ActionCompleted": {
+   "$ref": "#/$defs/ActionCompleted"
+  },
+  "ActionInterrupted": {
+   "$ref": "#/$defs/ActionInterrupted"
+  },
+  "ActionProblem": {
+   "$ref": "#/$defs/ActionProblem"
+  },
+  "ActionStarted": {
+   "$ref": "#/$defs/ActionStarted"
+  },
+  "AgentAdded": {
+   "$ref": "#/$defs/AgentAdded"
+  },
+  "AgentDetail": {
+   "$ref": "#/$defs/AgentDetail"
+  },
+  "Arrived": {
+   "$ref": "#/$defs/Arrived"
+  },
+  "Ate": {
+   "$ref": "#/$defs/Ate"
+  },
+  "ConversationEnded": {
+   "$ref": "#/$defs/ConversationEnded"
+  },
+  "ConversationStarted": {
+   "$ref": "#/$defs/ConversationStarted"
+  },
+  "DayStarted": {
+   "$ref": "#/$defs/DayStarted"
+  },
+  "Decision": {
+   "$ref": "#/$defs/Decision"
+  },
+  "DecisionFailed": {
+   "$ref": "#/$defs/DecisionFailed"
+  },
+  "Dialogue": {
+   "$ref": "#/$defs/Dialogue"
+  },
+  "Drank": {
+   "$ref": "#/$defs/Drank"
+  },
+  "EventDetail": {
+   "$ref": "#/$defs/EventDetail"
+  },
+  "EventOut": {
+   "$ref": "#/$defs/EventOut"
+  },
+  "EventsPage": {
+   "$ref": "#/$defs/EventsPage"
+  },
+  "Fished": {
+   "$ref": "#/$defs/Fished"
+  },
+  "Inspected": {
+   "$ref": "#/$defs/Inspected"
+  },
+  "InventoryChanged": {
+   "$ref": "#/$defs/InventoryChanged"
+  },
+  "ItemGiven": {
+   "$ref": "#/$defs/ItemGiven"
+  },
+  "ItemMoved": {
+   "$ref": "#/$defs/ItemMoved"
+  },
+  "LocationChanged": {
+   "$ref": "#/$defs/LocationChanged"
+  },
+  "LocationDetail": {
+   "$ref": "#/$defs/LocationDetail"
+  },
+  "LocationDiscovered": {
+   "$ref": "#/$defs/LocationDiscovered"
+  },
+  "LocationEvent": {
+   "$ref": "#/$defs/LocationEvent"
+  },
+  "MapExtended": {
+   "$ref": "#/$defs/MapExtended"
+  },
+  "Moved": {
+   "$ref": "#/$defs/Moved"
+  },
+  "ObjectChanged": {
+   "$ref": "#/$defs/ObjectChanged"
+  },
+  "ObjectCreated": {
+   "$ref": "#/$defs/ObjectCreated"
+  },
+  "ObjectDiscovered": {
+   "$ref": "#/$defs/ObjectDiscovered"
+  },
+  "ObjectRemoved": {
+   "$ref": "#/$defs/ObjectRemoved"
+  },
+  "ParameterChanged": {
+   "$ref": "#/$defs/ParameterChanged"
+  },
+  "PatchApplied": {
+   "$ref": "#/$defs/PatchApplied"
+  },
+  "PhaseChanged": {
+   "$ref": "#/$defs/PhaseChanged"
+  },
+  "ProposalAnswered": {
+   "$ref": "#/$defs/ProposalAnswered"
+  },
+  "Read": {
+   "$ref": "#/$defs/Read"
+  },
+  "ResetRequest": {
+   "$ref": "#/$defs/ResetRequest"
+  },
+  "ResourceAdded": {
+   "$ref": "#/$defs/ResourceAdded"
+  },
+  "ResourceChanged": {
+   "$ref": "#/$defs/ResourceChanged"
+  },
+  "Rested": {
+   "$ref": "#/$defs/Rested"
+  },
+  "SimCommandResult": {
+   "$ref": "#/$defs/SimCommandResult"
+  },
+  "SimControl": {
+   "$ref": "#/$defs/SimControl"
+  },
+  "SimReset": {
+   "$ref": "#/$defs/SimReset"
+  },
+  "SimStepped": {
+   "$ref": "#/$defs/SimStepped"
+  },
+  "SimTime": {
+   "$ref": "#/$defs/SimTime"
+  },
+  "Slept": {
+   "$ref": "#/$defs/Slept"
+  },
+  "SpeedChanged": {
+   "$ref": "#/$defs/SpeedChanged"
+  },
+  "SpeedRequest": {
+   "$ref": "#/$defs/SpeedRequest"
+  },
+  "StartRequest": {
+   "$ref": "#/$defs/StartRequest"
+  },
+  "StateSnapshot": {
+   "$ref": "#/$defs/StateSnapshot"
+  },
+  "StatusChanged": {
+   "$ref": "#/$defs/StatusChanged"
+  },
+  "StepRequest": {
+   "$ref": "#/$defs/StepRequest"
+  },
+  "TileChanged": {
+   "$ref": "#/$defs/TileChanged"
+  },
+  "TileTypeAdded": {
+   "$ref": "#/$defs/TileTypeAdded"
+  },
+  "TilesChanged": {
+   "$ref": "#/$defs/TilesChanged"
+  },
+  "WeatherChanged": {
+   "$ref": "#/$defs/WeatherChanged"
+  },
+  "WorldTime": {
+   "$ref": "#/$defs/WorldTime"
+  },
+  "WsEvent": {
+   "$ref": "#/$defs/WsEvent"
+  },
+  "WsEvents": {
+   "$ref": "#/$defs/WsEvents"
+  },
+  "WsHello": {
+   "$ref": "#/$defs/WsHello"
+  },
+  "WsPing": {
+   "$ref": "#/$defs/WsPing"
+  },
+  "WsPong": {
+   "$ref": "#/$defs/WsPong"
+  },
+  "WsResync": {
+   "$ref": "#/$defs/WsResync"
+  },
+  "WsResyncRequired": {
+   "$ref": "#/$defs/WsResyncRequired"
+  },
+  "WsSnapshot": {
+   "$ref": "#/$defs/WsSnapshot"
+  }
+ },
+ "title": "SimulacraApi",
+ "type": "object"
+}

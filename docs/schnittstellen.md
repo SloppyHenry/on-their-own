@@ -104,7 +104,7 @@ Ausführlich: [agenten.md](agenten.md). Python-Schnittstelle:
 
 ```python
 sim = Simulation.create(settings, "data/live.db")          # Engine, Agenten, Modell, Schleife; Datenbank wird angelegt oder geladen
-sim.runner.event_listeners.append(lambda events: ...)      # alle Ereignisse (Welt, Agenten, Gespräche, Steuerung) für Bus/WebSocket (AP03)
+sim.engine.bus.listeners.append(lambda events: ...)        # alle Ereignisse, erst nach dem Commit (siehe Event-Bus unten)
 sim.runner.decision_listeners.append(lambda decision, result: ...)
 await sim.runner.start(ticks=None) / pause() / resume() / step(n) / stop() / wait_finished()
 sim.runner.set_speed(tick_delay_s);  sim.runner.limiter.configure(min_gap_s=..., max_per_minute=...)
@@ -119,8 +119,8 @@ Zustände der Schleife: `stopped`, `running`, `paused`, `stepping`. Agenten mit 
 | Typ | Wann |
 |---|---|
 | `agent.decision_failed` | Antwort des Modells unbrauchbar oder Modell nicht erreichbar: Rückfall auf `wait 10` (`reason`, `attempts`) |
-| `conversation.started` / `conversation.ended` | Gespräch beginnt mit dem ersten Beitrag / endet (`reason`: max_turns, timeout, left, repetition, farewell) |
-| `conversation.proposal_accepted` / `conversation.proposal_declined` | Antwort auf einen Vorschlag |
+| `agent.conversation_started` / `agent.conversation_ended` | Gespräch beginnt mit dem ersten Beitrag / endet (`reason`: max_turns, timeout, left, repetition, farewell) |
+| `agent.proposal_accepted` / `agent.proposal_declined` | Antwort auf einen Vorschlag |
 | `simulation.started` / `paused` / `resumed` / `stopped` | Steuerbefehle |
 
 ### Neue Tabellen (`003_agents.sql`)
@@ -128,3 +128,56 @@ Zustände der Schleife: `stopped`, `running`, `paused`, `stepping`. Agenten mit 
 
 ### Entscheidungsschema (Modellantwort)
 `{"option_id": "o3" | "other", "intent": "…", "utterance": "…", "importance": 1-10, "plan_next": "…", "proposal": "…", "other_action": "move_to|wait|…", "other_params": {…}}`. Pflicht sind `option_id`, `intent`, `utterance`, `importance`; die Engine prüft jede Handlung.
+
+## Ereignisse, REST und WebSocket (AP03)
+
+### Ereignisschema (`events/schema.py`, `GET /api/events`)
+```json
+{"id": "evt_01M4MR58SE0ZX51JD1XHJ9E51X", "seq": 1842, "ts": "2026-10-11T05:49:49.741+00:00",
+ "sim_time": {"day": 1, "minute": 522, "total": 522}, "type": "agent.moved", "category": "world",
+ "agents": ["alex"], "location": "garden", "data": {"from": [30, 7], "to": [31, 7], "facing": "right", "remaining": 4},
+ "caused_by": "evt_01M4…", "visibility": "public"}
+```
+- `id`: ULID mit Präfix, weltweit eindeutig. `seq`: fortlaufend und **lückenlos** je Datenbank (ein Zurückrollen vergibt keine Nummer).
+- `sim_time.minute` ist die Minute des Tages, `total` die Zeit seit Beginn.
+- `category`: `world` (Weltaktionen), `dialogue`, `planning` (interne Entscheidungen), `memory` (ab AP05), `system`.
+- `visibility`: `public`, `agents:alex,mira` oder `system`. Beschreibt, wer es *in der Simulation* wahrnimmt (Grundlage für Wissensgrenzen); der Beobachter im Browser sieht alles.
+- `caused_by`: auslösendes Ereignis. Kette: `agent.decision` → `agent.action_started` → alle Folgeereignisse (Schritte, Ergebnisse, `agent.action_completed`).
+- Jeder Typ hat ein Pydantic-Datenmodell (`events/models.py`) und einen Eintrag in der Registry (`events/types.py`); in den Tests wird **jedes** erzeugte Ereignis gegen sein Modell geprüft. Typen in `PLANNED_EVENT_TYPES` werden noch nicht erzeugt.
+
+Abweichungen von der ersten Fassung im Arbeitspaket: `agent.dialogue` trägt (noch) keine Gespräch-ID, die steht in `agent.conversation_started/_ended`; `simulation.stepped` entsteht je `step`-Aufruf (nicht je Tick); `agent.moved` entsteht je Kachel (`remaining` zeigt den Restweg; Verdichtung entscheidet AP04).
+
+### Event-Bus (`events/bus.py`)
+Ein Ereignis wird in derselben Transaktion gespeichert wie die Änderung. Verteilt wird erst **nach dem Commit** (`Database.on_commit`); bei Rollback weder gespeichert noch verteilt. Synchrone Rückrufe über `engine.bus.listeners`; Verbindungen über `engine.bus.subscribe(max_backlog)` (eine Warteschlange je Verbindung; läuft sie über, wird sie geleert und meldet `OVERFLOW` statt unbegrenzt Speicher zu belegen).
+
+### REST (`/api`)
+| Methode | Pfad | Zweck |
+|---|---|---|
+| GET | `/api/state` | Snapshot: Karte (Zeichenzeilen + Legende), Kachelarten, Orte, Objekte, Quellen, Agenten (Körper, Bedürfnisse in Zahlen und Worten, Aktion, Status, Inventar), Uhr, Wetter, Simulationsstatus mit Messwerten, Regeln, `seq` |
+| GET | `/api/events?after_seq=&before_seq=&type=&type_prefix=&agent=&category=&location=&limit=&order=` | Verlauf mit Filtern (Standard 200, höchstens 1000) |
+| GET | `/api/events/{id}` | Einzelereignis per `evt_…` oder Sequenznummer mit `chain` (Ursachen) und `consequences` |
+| GET | `/api/agents/{id}` | Detail: Profil, Persönlichkeit, Stimmung, letzte Entscheidungen mit Optionen, Beobachtungen, Gespräch |
+| GET | `/api/locations/{id}` | Ort mit Objekten, Quellen, Anwesenden und jüngsten Ereignissen |
+| POST | `/api/sim/start` (`{"ticks"?}`) · `/pause` · `/resume` · `/step` (`{"n": 1-50}`) | Steuerung; `step` nur pausiert oder gestoppt (sonst 409) |
+| POST | `/api/sim/reset` (`{"confirm": true}`) | Zurücksetzen; ohne Bestätigung 400; die alte Welt wird unter `data/backups/` gesichert |
+| POST | `/api/sim/speed` (`{"level": "slow|normal|fast|max"}` oder `{"tick_delay_s"}`) | Geschwindigkeit: 3 s / 1 s / 0,2 s / 0 pro Tick |
+| GET | `/api/health` | wie AP00, zusätzlich Simulationsstatus |
+
+Eingaben sind durch Pydantic und Längen-/Wertgrenzen geprüft (422 bei Verstoß).
+
+### Idempotenz
+Alle verändernden Anfragen brauchen den Header `Idempotency-Key` (8–128 Zeichen, z. B. UUID); sonst 400. Derselbe Schlüssel mit demselben Inhalt liefert die gespeicherte Antwort (Header `Idempotent-Replay: true`) ohne zweite Ausführung, auch bei gleichzeitigem Eintreffen. Anderer Inhalt oder Pfad: 409. Antworten werden 24 Stunden gehalten (Tabelle `idempotency`). Fehler werden nicht gespeichert, ein Wiederholen mit demselben Schlüssel ist dann möglich.
+
+### WebSocket `/ws`
+1. Client → `{"type":"hello","last_seq": 1840 | null}`.
+2. Server → `{"type":"snapshot","seq":…,"state":…}`, wenn `last_seq` fehlt, größer als der Stand ist (andere Welt) oder mehr als `SIM_WS_MAX_GAP` (5000) zurückliegt; sonst `{"type":"events","items":[…]}` mit genau den verpassten Ereignissen.
+3. Danach `{"type":"event","event":{…}}` je Ereignis. Der Server abonniert **vor** dem Lesen des Rückstands und verwirft Doppeltes, daher geht nichts verloren und nichts kommt zweimal.
+4. Heartbeat: alle `SIM_WS_PING_S` (15 s) `{"type":"ping"}`; der Client antwortet `{"type":"pong"}`; nach zwei ausgebliebenen Antworten Schließen mit Code 4008.
+5. Lücke bemerkt oder `{"type":"resync_required"}` empfangen → Client sendet `{"type":"resync","last_seq":…}` und bekommt Nachlieferung oder Snapshot.
+6. Nach `simulation.reset` bekommen alle Verbindungen automatisch einen frischen Snapshot.
+Erste Nachricht ungleich `hello` oder ungültiges JSON: Schließen mit Code 4400. Die Simulation läuft unabhängig von Verbindungen weiter.
+
+Testclient: `backend/.venv/bin/python scripts/ws_tail.py --reconnect` (liest mit, prüft die Lückenlosigkeit, verbindet nach Abbruch mit der letzten `seq` neu).
+
+### Typen für das Frontend
+`scripts/gen_types.sh` erzeugt `frontend/src/types/schema.json` und `generated.ts` aus den Pydantic-Modellen (`api/schema_export.py`, `json-schema-to-typescript`); `--check` schlägt bei veralteten Dateien fehl. `generated.ts` enthält auch `EventDataMap` (Ereignistyp → Datentyp) und `EVENT_CATEGORY`. Ein Test prüft Aktualität und dass jeder Ereignistyp ein Datenmodell und einen TypeScript-Typ hat.

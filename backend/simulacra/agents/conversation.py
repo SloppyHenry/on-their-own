@@ -101,7 +101,7 @@ class ConversationManager:
             c = self._begin(sp, to)
         if c.status == "opening":
             c.status = "active"
-            out.append(self.engine.emit_event("conversation.started", c.participants, c.location_id, {"conversation": c.id, "by": sp}))
+            out.append(self.engine.emit_event("agent.conversation_started", c.participants, c.location_id, {"conversation": c.id, "by": sp}))
         previous = [t["text"] for t in c.turns if t["speaker"] == sp][-2:]
         repeated = any(similar(text, p) >= SIMILARITY_END for p in previous)
         c.turns.append({"speaker": sp, "text": text, "minute": ev.sim_minute})
@@ -111,7 +111,7 @@ class ConversationManager:
             p["status"] = "open"
         elif p and p["status"] == "open" and p.get("response") and p["response"]["by"] == sp:
             p["status"] = "accepted" if p["response"]["value"] == "accept" else "declined"
-            out.append(self.engine.emit_event(f"conversation.proposal_{p['status']}", c.participants, c.location_id,
+            out.append(self.engine.emit_event(f"agent.proposal_{p['status']}", c.participants, c.location_id,
                                               {"conversation": c.id, "proposal": p["text"], "by": p["by"], "answered_by": sp}))
             if p["status"] == "accepted":
                 for a in c.participants:
@@ -126,7 +126,7 @@ class ConversationManager:
     def _end(self, c: Conversation, reason: str) -> Event:
         c.status, c.end_reason = "ended", reason
         self._save(c)
-        return self.engine.emit_event("conversation.ended", c.participants, c.location_id,
+        return self.engine.emit_event("agent.conversation_ended", c.participants, c.location_id,
                                       {"conversation": c.id, "reason": reason, "reason_text": REASONS[reason], "turns": len(c.turns),
                                        "participants": c.participants})
 

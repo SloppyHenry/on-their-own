@@ -120,7 +120,7 @@ class MoveTo(Action):
         path.pop(0)
         if ctx.rules.needs_enabled:
             actor.needs["energy"] = max(0.0, actor.needs["energy"] - ctx.rules.energy_per_tile)
-        ctx.emit("agent.moved", [actor.id], actor.location_id, {"from": list(old), "to": [nx, ny], "facing": actor.facing})
+        ctx.emit("agent.moved", [actor.id], actor.location_id, {"from": list(old), "to": [nx, ny], "facing": actor.facing, "remaining": len(path)})
         if actor.location_id != old_loc:
             ctx.emit("agent.location_changed", [actor.id], actor.location_id, {"from_location": old_loc, "to_location": actor.location_id})
             if not ctx.state.locations[actor.location_id].props.get("fallback") and ctx.state.mark_discovered(actor.location_id, actor.id):

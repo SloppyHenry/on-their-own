@@ -10,6 +10,8 @@ import logging
 from typing import Any
 
 from ..db.connection import Database
+from ..events.bus import EventBus
+from ..events.store import EventStore
 from . import clock, extend, patches, weather
 from .actions import REGISTRY
 from .actions.base import Ctx, rej
@@ -55,6 +57,7 @@ class WorldEngine:
         self.state = WorldState(db)
         self.blueprints = blueprints or load_blueprints()
         self.edit = WorldEditor(self)
+        self.bus = EventBus()
 
     # --- Aufbau ------------------------------------------------------------------------
     @classmethod
@@ -76,17 +79,21 @@ class WorldEngine:
             with self.db.transaction():
                 ctx = Ctx(self, self.state.minute)
                 result = fn(ctx)
+                if ctx.events:
+                    events = list(ctx.events)
+                    self.db.on_commit(lambda: self.bus.publish(events))    # verteilt wird erst nach dem Commit
                 return ctx.events if result is None else result
         except BaseException:
             self.state.reload_caches()
             raise
 
     # --- Vorschläge ----------------------------------------------------------------------
-    def propose(self, actor_id: str, action: str, params: dict[str, Any] | None = None) -> ProposeResult:
+    def propose(self, actor_id: str, action: str, params: dict[str, Any] | None = None, parent_seq: int | None = None) -> ProposeResult:
         params = dict(params or {})
         out: dict[str, Any] = {}
 
         def work(ctx: Ctx) -> None:
+            ctx.default_parent = parent_seq
             actor = self.state.agent(actor_id)
             if actor is None:
                 out["rejected"] = rej(RejectCode.INVALID_TARGET, f"Es gibt keinen Agenten '{actor_id}'.")
@@ -114,6 +121,7 @@ class WorldEngine:
             handler.start(ctx, actor, act)
             ev = ctx.emit("agent.action_started", [actor_id], actor.location_id,
                           {"action": action, "params": params, "ends_at": act.ends_at})
+            act.data["event_seq"] = ev.seq                      # Folgeereignisse dieser Aktion verweisen darauf (caused_by)
             self._log(ctx, actor_id, action, params, "accepted", None, None, ev.seq)
             self.state.save_agent(actor)
             out["ends_at"] = act.ends_at
@@ -163,6 +171,8 @@ class WorldEngine:
             ctx.minute = prev + 1
             self.state.set_minute(ctx.minute)
             self._time_events(ctx, prev)
+            if ctx.minute % 60 == 0:
+                ctx.emit("world.time", data={**{k: v for k, v in clock.snapshot(ctx.minute).items() if k in ("day", "phase", "daylight", "time")}})
             self._weather(ctx)
             for actor in self.state.agents():
                 self._step_agent(ctx, actor)
@@ -200,6 +210,7 @@ class WorldEngine:
     def _step_agent(self, ctx: Ctx, actor: AgentBody) -> None:
         sleeping = False
         act = actor.action
+        ctx.default_parent = act.data.get("event_seq") if act is not None else None
         if act is not None:
             sleeping = act.type == "sleep" or (act.type == "use" and act.data.get("mode") == "sleep")
             if act.type == RECOVER:
@@ -219,6 +230,7 @@ class WorldEngine:
                         actor.action = None
                         ev = ctx.emit("agent.action_completed", [actor.id], actor.location_id, {"action": act.type, "params": act.params})
                         self._log(ctx, actor.id, act.type, act.params, "completed", None, None, ev.seq)
+        ctx.default_parent = None
         self._decay_needs(ctx, actor, sleeping)
         self.state.save_agent(actor)
 
@@ -303,7 +315,5 @@ class WorldEngine:
         cur = self.state.conn.execute("SELECT * FROM action_log WHERE actor=? ORDER BY id DESC LIMIT ?", (actor_id, limit))
         return [dict(r) | {"params": json.loads(r["params"])} for r in cur]
 
-    def events_since(self, seq: int = 0, limit: int = 1000) -> list[Event]:
-        from .events import row_to_event
-        cur = self.state.conn.execute("SELECT * FROM events WHERE seq>? ORDER BY seq LIMIT ?", (seq, limit))
-        return [row_to_event(r) for r in cur]
+    def events_since(self, seq: int = 0, limit: int = 1000):
+        return EventStore(self.state.conn).fetch(after_seq=seq, limit=limit)

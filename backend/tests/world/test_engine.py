@@ -101,7 +101,7 @@ class Exploding(Action):
     def finish(self, ctx, actor, act):
         ctx.inv_add(actor, "wood", 5)                  # Änderung ...
         ctx.state.set_node_amount("woodpile", 0)
-        ctx.emit("agent.test", [actor.id])
+        ctx.emit("agent.rested", [actor.id], data={"energy": 1.0})
         raise RuntimeError("Fehler mitten in der Ausführung")   # ... dann Absturz
 
 

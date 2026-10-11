@@ -1,0 +1,175 @@
+import json
+import time
+
+import pytest
+from starlette.websockets import WebSocketDisconnect
+
+from simulacra.events.store import EventStore
+
+from .conftest import api, event_seqs, hello, post, recv_until
+
+
+def all_seqs(c):
+    return [e.seq for e in EventStore(c.sim.engine.state.conn).fetch(limit=100000)]
+
+
+def test_first_contact_gets_a_snapshot_then_live_events():
+    with api() as c:
+        post(c, "/api/sim/step", {"n": 2})
+        with c.websocket_connect("/ws") as ws:
+            snap = hello(ws)
+            assert snap["type"] == "snapshot" and snap["seq"] == snap["state"]["seq"] == all_seqs(c)[-1]
+            assert {a["id"] for a in snap["state"]["agents"]} == {"alex", "mira"} and snap["state"]["map"]["width"] == 64
+            post(c, "/api/sim/step", {"n": 1})
+            msgs = recv_until(ws, lambda m: m["type"] == "event" and m["event"]["type"] == "simulation.stepped")
+            seqs = event_seqs(msgs)
+            assert seqs == list(range(snap["seq"] + 1, seqs[-1] + 1))                        # lückenlos, in Reihenfolge, nichts doppelt
+            assert {m["event"]["type"] for m in msgs} >= {"agent.decision", "agent.action_started", "agent.status_changed"}
+
+
+def test_reconnect_with_last_seq_delivers_exactly_the_missed_events():
+    with api() as c:
+        with c.websocket_connect("/ws") as ws:
+            snap = hello(ws)
+            post(c, "/api/sim/step", {"n": 2})
+            msgs = recv_until(ws, lambda m: m["type"] == "event" and m["event"]["type"] == "simulation.stepped")
+            seen = event_seqs(msgs)
+            last = seen[-1]
+        post(c, "/api/sim/step", {"n": 3})                                                   # Verbindung ist weg, die Welt läuft weiter
+        missed = [s for s in all_seqs(c) if s > last]
+        assert len(missed) > 5
+        with c.websocket_connect("/ws") as ws:
+            ws.send_json({"type": "hello", "last_seq": last})
+            m = ws.receive_json()
+            assert m["type"] == "events" and event_seqs([m]) == missed
+            post(c, "/api/sim/step", {"n": 1})
+            more = event_seqs(recv_until(ws, lambda x: x["type"] == "event" and x["event"]["type"] == "simulation.stepped"))
+            assert more == list(range(missed[-1] + 1, more[-1] + 1))
+
+
+def test_up_to_date_client_gets_no_backlog():
+    with api() as c:
+        post(c, "/api/sim/step", {"n": 1})
+        head = all_seqs(c)[-1]
+        with c.websocket_connect("/ws") as ws:
+            ws.send_json({"type": "hello", "last_seq": head})
+            post(c, "/api/sim/step", {"n": 1})
+            first = ws.receive_json()
+            assert first["type"] == "event" and first["event"]["seq"] == head + 1
+
+
+def test_large_gap_or_unknown_future_seq_gets_a_snapshot():
+    with api(ws_max_gap=5) as c:
+        post(c, "/api/sim/step", {"n": 3})
+        with c.websocket_connect("/ws") as ws:
+            assert hello(ws, 1)["type"] == "snapshot"                                          # Rückstand > 5
+        with c.websocket_connect("/ws") as ws:
+            assert hello(ws, 999999)["type"] == "snapshot"                                     # Client kennt eine andere Welt
+
+
+def test_client_can_ask_for_a_resync_at_any_time():
+    with api() as c:
+        post(c, "/api/sim/step", {"n": 2})
+        with c.websocket_connect("/ws") as ws:
+            snap = hello(ws)
+            post(c, "/api/sim/step", {"n": 1})
+            recv_until(ws, lambda m: m["type"] == "event" and m["event"]["type"] == "simulation.stepped")
+            ws.send_json({"type": "resync", "last_seq": snap["seq"]})
+            m = ws.receive_json()
+            assert m["type"] == "events" and event_seqs([m])[0] == snap["seq"] + 1
+            ws.send_json({"type": "resync", "last_seq": None})
+            assert ws.receive_json()["type"] == "snapshot"
+
+
+def test_browser_refresh_restores_the_same_state():
+    with api() as c:
+        post(c, "/api/sim/step", {"n": 4})
+        with c.websocket_connect("/ws") as ws:
+            snap = hello(ws)["state"]
+        rest = c.get("/api/state").json()
+        for key in ("seq", "map", "agents", "objects", "resources", "clock", "weather", "locations"):
+            assert snap[key] == rest[key], key
+
+
+def test_disconnect_does_not_disturb_the_simulation():
+    with api() as c:
+        c.sim.runner.set_speed(0.02)
+        with c.websocket_connect("/ws") as ws:
+            hello(ws)
+            post(c, "/api/sim/start")
+            ws.receive_json()
+        m = c.sim.engine.minute
+        time.sleep(0.3)
+        assert c.sim.engine.minute > m and c.sim.runner.state.value == "running"       # läuft ohne Zuschauer weiter
+        post(c, "/api/sim/pause")
+
+
+def test_two_clients_receive_the_same_events():
+    with api() as c:
+        with c.websocket_connect("/ws") as a, c.websocket_connect("/ws") as b:
+            hello(a), hello(b)
+            post(c, "/api/sim/step", {"n": 1})
+            end = lambda m: m["type"] == "event" and m["event"]["type"] == "simulation.stepped"
+            assert event_seqs(recv_until(a, end)) == event_seqs(recv_until(b, end))
+
+
+def test_heartbeat_pings_and_closes_silent_clients():
+    with api(ws_ping_s=0.1) as c:
+        with c.websocket_connect("/ws") as ws:
+            hello(ws)
+            assert ws.receive_json() == {"type": "ping"}
+            ws.send_json({"type": "pong"})
+            assert ws.receive_json() == {"type": "ping"}
+            with pytest.raises(WebSocketDisconnect) as e:                                    # jetzt antworten wir nicht mehr
+                for _ in range(20):
+                    ws.receive_json()
+            assert e.value.code == 4008
+
+
+def test_first_message_must_be_hello_and_garbage_closes_quietly():
+    with api() as c:
+        with c.websocket_connect("/ws") as ws:
+            ws.send_json({"type": "events"})
+            with pytest.raises(WebSocketDisconnect) as e:
+                ws.receive_json()
+            assert e.value.code == 4400
+        with c.websocket_connect("/ws") as ws:
+            ws.send_text("kein json")
+            with pytest.raises(WebSocketDisconnect):
+                ws.receive_json()
+        assert c.get("/api/health").status_code == 200                                      # Server lebt weiter
+
+
+def test_reset_pushes_a_fresh_snapshot_to_connected_clients():
+    with api() as c:
+        post(c, "/api/sim/step", {"n": 3})
+        with c.websocket_connect("/ws") as ws:
+            hello(ws)
+            post(c, "/api/sim/reset", {"confirm": True})
+            msgs = recv_until(ws, lambda m: m["type"] == "snapshot")
+            snap = msgs[-1]
+            assert snap["state"]["clock"]["minute"] == 420 and snap["seq"] <= 2
+            post(c, "/api/sim/step", {"n": 1})
+            nxt = recv_until(ws, lambda m: m["type"] == "event" and m["event"]["type"] == "simulation.stepped")
+            assert event_seqs(nxt)[0] == snap["seq"] + 1
+
+
+def test_reconnect_after_reset_with_old_seq_gets_a_snapshot():
+    with api() as c:
+        post(c, "/api/sim/step", {"n": 4})
+        old_head = all_seqs(c)[-1]
+        post(c, "/api/sim/reset", {"confirm": True})
+        with c.websocket_connect("/ws") as ws:
+            assert hello(ws, old_head)["type"] == "snapshot"
+
+
+def test_messages_follow_the_documented_schema():
+    from simulacra.api.models import WsEvent, WsEvents, WsSnapshot
+    with api() as c:
+        post(c, "/api/sim/step", {"n": 1})
+        with c.websocket_connect("/ws") as ws:
+            WsSnapshot.model_validate(hello(ws))
+            ws.send_json({"type": "resync", "last_seq": 1})
+            WsEvents.model_validate(ws.receive_json())
+            post(c, "/api/sim/step", {"n": 1})
+            WsEvent.model_validate(ws.receive_json())
