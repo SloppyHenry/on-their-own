@@ -109,8 +109,10 @@ export interface SimulacraApi {
   TileChanged?: TileChanged;
   TileTypeAdded?: TileTypeAdded;
   TilesChanged?: TilesChanged;
+  Walking?: Walking;
   WeatherChanged?: WeatherChanged;
   WorldTime?: WorldTime;
+  WsClock?: WsClock;
   WsEvent?: WsEvent;
   WsEvents?: WsEvents;
   WsHello?: WsHello;
@@ -136,6 +138,7 @@ export interface ActionCompleted {
  */
 export interface ActionInterrupted {
   action: string;
+  at?: number[] | null;
   reason?: string;
 }
 /**
@@ -146,6 +149,7 @@ export interface ActionInterrupted {
  */
 export interface ActionProblem {
   action: string;
+  at?: number[] | null;
   code: string;
   params?: {
     [k: string]: unknown;
@@ -209,6 +213,7 @@ export interface AgentDetail {
     [k: string]: unknown;
   } | null;
   status: string;
+  walk: WalkInfo | null;
   words: {
     [k: string]: string;
   };
@@ -263,6 +268,16 @@ export interface ProfileBrief {
   gender: string;
   goals: string[];
   name: string;
+}
+/**
+ * Restlicher Weg mit Fahrplan (wie `agent.walking`), damit ein Refresh mitten im Weg weiterlaufen kann.
+ *
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "WalkInfo".
+ */
+export interface WalkInfo {
+  arrive: number[];
+  path: number[][];
 }
 /**
  * This interface was referenced by `SimulacraApi`'s JSON-Schema
@@ -825,6 +840,7 @@ export interface KnownPerson {
  * via the `definition` "LocationChanged".
  */
 export interface LocationChanged {
+  at?: number[] | null;
   from_location: string;
   to_location: string;
 }
@@ -1045,6 +1061,8 @@ export interface MemoryStats {
   last_reflection_minute: number | null;
 }
 /**
+ * Veraltet (bis AP10): ein Schritt je Ereignis. Steht nur noch in älteren Ereignisprotokollen.
+ *
  * This interface was referenced by `SimulacraApi`'s JSON-Schema
  * via the `definition` "Moved".
  */
@@ -1632,6 +1650,7 @@ export interface AgentInfo {
   plan_next: string;
   profile: ProfileBrief | null;
   status: string;
+  walk: WalkInfo | null;
   words: {
     [k: string]: string;
   };
@@ -1920,6 +1939,17 @@ export interface TileChange {
 }
 /**
  * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "Walking".
+ */
+export interface Walking {
+  arrive: number[];
+  from: number[];
+  label?: string | null;
+  path: number[][];
+  reason?: string;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
  * via the `definition` "WeatherChanged".
  */
 export interface WeatherChanged {
@@ -1937,6 +1967,16 @@ export interface WorldTime {
   daylight: number;
   phase: string;
   time: string;
+}
+/**
+ * Uhrtakt ohne Speicherung und ohne Nummer, gedrosselt: hält Uhr und laufende Wege in der Oberfläche synchron.
+ *
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "WsClock".
+ */
+export interface WsClock {
+  minute: number;
+  type: "clock";
 }
 /**
  * This interface was referenced by `SimulacraApi`'s JSON-Schema
@@ -2009,6 +2049,7 @@ export interface EventDataMap {
   "agent.action_failed": ActionProblem;
   "agent.action_rejected": ActionProblem;
   "agent.action_interrupted": ActionInterrupted;
+  "agent.walking": Walking;
   "agent.moved": Moved;
   "agent.arrived": Arrived;
   "agent.location_changed": LocationChanged;
@@ -2085,6 +2126,7 @@ export const EVENT_CATEGORY: Record<EventType, EventCategory> = {
   "agent.action_failed": "world",
   "agent.action_rejected": "world",
   "agent.action_interrupted": "world",
+  "agent.walking": "world",
   "agent.moved": "world",
   "agent.arrived": "world",
   "agent.location_changed": "world",

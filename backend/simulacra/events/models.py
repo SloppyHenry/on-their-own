@@ -26,7 +26,7 @@ class ObjectData(D):
     state: dict[str, Any] = {}
 
 
-# --- Aktionen und Bewegung -------------------------------------------------------------------------
+# --- Aktionen (Bewegung: models_move.py) -------------------------------------------------------------------------
 class ActionStarted(D):
     action: str
     params: dict[str, Any] = {}
@@ -44,33 +44,13 @@ class ActionProblem(D):
     params: dict[str, Any] = {}
     code: str
     text: str
+    at: list[int] | None = None              # Kachel des Agenten beim Scheitern (beendet einen laufenden Weg)
 
 
 class ActionInterrupted(D):
     action: str
     reason: str = ""
-
-
-class Moved(D):
-    from_: list[int] = Field(alias="from")
-    to: list[int]
-    facing: str
-    remaining: int = 0                       # Kacheln bis zum Ziel des Weges
-
-
-class Arrived(D):
-    target: str | None = None
-    label: str | None = None
-    at: list[int]
-
-
-class LocationChanged(D):
-    from_location: str
-    to_location: str
-
-
-class LocationDiscovered(D):
-    location: str
+    at: list[int] | None = None
 
 
 # --- Ergebnisse von Aktionen ---------------------------------------------------------------------------

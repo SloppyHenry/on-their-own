@@ -10,6 +10,7 @@ from typing import Any
 from pydantic import BaseModel
 
 from . import models as m
+from . import models_move as mm
 from . import models_user as mu
 
 CATEGORIES = ("world", "dialogue", "planning", "memory", "system")
@@ -36,10 +37,11 @@ _ALL = [
     _t("agent.action_failed", "world", m.ActionProblem, "Eine angenommene Aktion ist beim Abschluss gescheitert"),
     _t("agent.action_rejected", "world", m.ActionProblem, "Die Welt hat einen Vorschlag abgelehnt"),
     _t("agent.action_interrupted", "world", m.ActionInterrupted, "Eine laufende Aktion wurde abgebrochen"),
-    _t("agent.moved", "world", m.Moved, "Ein Schritt auf eine Nachbarkachel"),
-    _t("agent.arrived", "world", m.Arrived, "Ziel eines Weges erreicht"),
-    _t("agent.location_changed", "world", m.LocationChanged, "Ein Agent betritt einen anderen Ort"),
-    _t("agent.location_discovered", "world", m.LocationDiscovered, "Ein Agent lernt einen Ort zum ersten Mal kennen"),
+    _t("agent.walking", "world", mm.Walking, "Ein Weg beginnt oder sein Fahrplan ändert sich"),
+    _t("agent.moved", "world", mm.Moved, "Veraltet: ein Schritt je Ereignis (nur in Protokollen vor AP11)"),
+    _t("agent.arrived", "world", mm.Arrived, "Ziel eines Weges erreicht"),
+    _t("agent.location_changed", "world", mm.LocationChanged, "Ein Agent betritt einen anderen Ort"),
+    _t("agent.location_discovered", "world", mm.LocationDiscovered, "Ein Agent lernt einen Ort zum ersten Mal kennen"),
     # Ergebnisse von Aktionen
     _t("agent.inspected", "world", m.Inspected, "Ein Objekt oder eine Quelle wurde untersucht"),
     _t("agent.read", "world", m.Read, "Etwas wurde gelesen"),

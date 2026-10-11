@@ -175,6 +175,7 @@ class SimulationRunner:
             tick = await self.engine.tick_async()
             extra = await self.engine.db.run(lambda t=tick: self._after_tick(t))
             events += tick + extra
+        self.engine.bus.clock(self.engine.minute)
         await self._housekeeping(events, force)
         self.stats.ticks += 1
         return 1

@@ -16,6 +16,8 @@ export interface WsHandlers {
   onSnapshot(s: StateSnapshot): void;
   onEvents(items: EventOut[], live: boolean): void;
   onStatus(c: Conn): void;
+  /** Uhrtakt ohne Nummer; geht nicht in die Lückenprüfung ein. */
+  onClock?(minute: number): void;
 }
 
 export interface WsOptions {
@@ -145,6 +147,9 @@ export class WsClient {
         break;
       case "ping":
         this.send({ type: "pong" });
+        break;
+      case "clock":
+        this.h.onClock?.(msg.minute as number);
         break;
       case "resync_required":
         this.resync();

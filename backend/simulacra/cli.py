@@ -28,7 +28,7 @@ from .world import clock
 from .world.engine import WorldEngine
 from .world.models import Event
 
-QUIET = {"agent.moved"}  # nur mit -v ausgeben
+QUIET = {"agent.moved", "agent.walking"}  # nur mit -v ausgeben
 MAX_WAIT_TICKS = 3000
 
 

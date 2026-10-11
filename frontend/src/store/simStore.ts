@@ -1,7 +1,7 @@
 // Einzige Quelle der Wahrheit für alle Komponenten: Welt, Ereignisliste, Sprechblasen, Verbindungsstatus.
 import { create } from "zustand";
 import type { EventOut, StateSnapshot } from "../types/generated";
-import { applyEvents, applySnapshot } from "./reducers";
+import { applyClock, applyEvents, applySnapshot } from "./reducers";
 import type { Bubble, Conn, World } from "./types";
 
 export const MAX_EVENTS = 5000;
@@ -37,6 +37,8 @@ interface SimStore {
   pushEvents: (items: EventOut[], live: boolean) => void;
   setHistory: (items: EventOut[]) => void;
   setConn: (c: Conn) => void;
+  /** Uhrtakt des Servers: Uhr und laufende Wege vorstellen. */
+  setClock: (minute: number) => void;
   mergeSimulation: (s: StateSnapshot) => void;
 }
 
@@ -77,5 +79,6 @@ export const useSimStore = create<SimStore>((set) => ({
     }),
   setHistory: (items) => set((st) => ({ events: mergeEvents(items, st.events) })),
   setConn: (conn) => set({ conn }),
+  setClock: (minute) => set((st) => (st.world && minute > st.world.clock.minute ? { world: applyClock(st.world, minute) } : st)),
   mergeSimulation: (s) => set((st) => (st.world ? { world: { ...st.world, simulation: s.simulation } } : st)),
 }));

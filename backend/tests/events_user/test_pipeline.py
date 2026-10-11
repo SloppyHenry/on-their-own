@@ -154,6 +154,17 @@ async def test_directives_are_only_allowed_in_intervention_mode(sim):
     assert marked.data["directive"] is True and marked.data["mode"] == "intervention"                                  # im Protokoll als Benutzereingriff markiert
 
 
+async def test_moving_a_walking_agent_ends_the_walk_and_reports_the_new_tile(sim):
+    await sim.params.patch([{"key": "mode", "value": "intervention"}])
+    assert sim.engine.propose("alex", "move_to", {"target": "forest"}).ok
+    sim.engine.advance(3)
+    p = await sim.inject.parse("Bewege Alex zum See")
+    await sim.engine.db.run(lambda: sim.inject.confirm(p["id"]))
+    a = sim.engine.state.agent("alex")
+    evs = {e.type: e for e in sim.engine.events_since(0, 1000)}
+    assert a.action is None and evs["agent.action_interrupted"].data["at"] == [a.x, a.y] == evs["agent.location_changed"].data["at"]
+
+
 async def test_a_suggested_goal_becomes_an_open_intention_for_that_agent_only(sim):
     await sim.params.patch([{"key": "mode", "value": "intervention"}])
     p = await sim.inject.parse("Schlage Mira vor, den Garten zu gießen")

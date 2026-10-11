@@ -27,7 +27,7 @@ async def test_two_agents_act_for_n_ticks_with_the_real_model(tmp_path):
     sim = Simulation.create(settings, tmp_path / "live.db")
     dialogues, locations = [], {"alex": set(), "mira": set()}
     sim.engine.bus.listeners.append(lambda evs: dialogues.extend(e for e in evs if e.type == "agent.dialogue"))
-    sim.engine.bus.listeners.append(lambda evs: [locations[e.agents[0]].add(e.location_id) for e in evs if e.type == "agent.moved"])
+    sim.engine.bus.listeners.append(lambda evs: [locations[e.agents[0]].add(e.location_id) for e in evs if e.type == "agent.location_changed"])
     await sim.runner.start(ticks=ticks)
     await sim.runner.wait_finished()
     st = sim.runner.stats.summary()

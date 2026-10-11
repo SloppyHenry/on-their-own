@@ -143,7 +143,7 @@ def test_strict_mode_rejects_unknown_types_and_fields(eng):
 
 def test_category_and_visibility_rules():
     assert et.category_of("agent.dialogue") == "dialogue" and et.category_of("agent.decision") == "planning" and et.category_of("simulation.paused") == "system"
-    assert et.visibility_of("agent.moved", ["alex"]) == "public"
+    assert et.visibility_of("agent.walking", ["alex"]) == "public"
     assert et.visibility_of("agent.dialogue", ["mira", "alex"]) == "agents:alex,mira"
     assert et.visibility_of("agent.decision", ["alex"]) == "agents:alex"
     assert et.visibility_of("simulation.started", []) == "system"
@@ -169,12 +169,12 @@ def test_fetch_filters(eng):
     make_history(eng)
     s = EventStore(eng.state.conn)
     allv = s.fetch(limit=5000)
-    assert all(e.type == "agent.moved" for e in s.fetch(type="agent.moved"))
+    assert s.fetch(type="agent.walking") and all(e.type == "agent.walking" for e in s.fetch(type="agent.walking"))
     assert {e.type for e in s.fetch(type_prefix="world.")} <= {t for t in et.REGISTRY if t.startswith("world.")}
     assert all("alex" in e.agents for e in s.fetch(agent="alex")) and s.fetch(agent="alex")
     assert {e.category for e in s.fetch(category="system")} <= {"system"}
     assert all(e.location_id == "house.kitchen" for e in s.fetch(location="house.kitchen"))
-    assert [e.seq for e in s.fetch(after_seq=allv[10].seq, limit=3)] == [allv[11].seq, allv[12].seq, allv[13].seq]
+    assert [e.seq for e in s.fetch(after_seq=allv[2].seq, limit=3)] == [allv[3].seq, allv[4].seq, allv[5].seq]
     assert [e.seq for e in s.fetch(before_seq=allv[5].seq, order="desc", limit=2)] == [allv[4].seq, allv[3].seq]
     assert s.fetch(type_prefix="a%") == [] and s.fetch(type="agent.moved'; DROP TABLE events;--") == []     # Sonderzeichen sind harmlos
     assert len(s.fetch(limit=5)) == 5
@@ -198,8 +198,9 @@ def test_movement_effects_point_back_to_their_action(eng):
     res = eng.propose("alex", "move_to", {"target": "kitchen_tap"})
     started = res.events[0]
     eng.advance(30)
-    moved = EventStore(eng.state.conn).fetch(type="agent.moved", limit=3)
-    assert all(e.parent_seq == started.seq for e in moved) and moved[0].data["remaining"] > moved[-1].data["remaining"]
+    effects = EventStore(eng.state.conn).fetch(type_prefix="agent.", after_seq=started.seq)
+    walk = [e for e in effects if e.type in ("agent.walking", "agent.location_changed", "agent.arrived")]
+    assert {e.type for e in walk} >= {"agent.walking", "agent.arrived"} and all(e.parent_seq == started.seq for e in walk)
 
 
 def test_hourly_world_time_event(eng):

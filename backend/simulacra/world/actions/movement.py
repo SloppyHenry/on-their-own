@@ -56,6 +56,38 @@ def _around(ctx: Ctx, pos: Pos, location_id: str | None) -> list[Pos]:
     return cands
 
 
+def facing(old: Pos, new: Pos) -> str:
+    return "right" if new[0] > old[0] else "left" if new[0] < old[0] else "down" if new[1] > old[1] else "up"
+
+
+def _need(ctx: Ctx, x: int, y: int) -> float:
+    return ctx.state.grid.cost(x, y) * weather.MOVE_MULT[ctx.state.weather()["kind"]]
+
+
+def schedule(minute: int, budget: float, needs: list[float]) -> list[int]:
+    """Sim-Minute, zu der jede Kachel erreicht wird. Spiegelt `step`: je Minute +1 Budget, höchstens eine Kachel je Minute."""
+    out, t = [], minute
+    for need in needs:
+        while True:
+            budget += 1.0
+            if budget + 1e-9 >= need:
+                budget -= need
+                out.append(t)
+                t += 1
+                break
+            t += 1
+    return out
+
+
+def _announce(ctx: Ctx, actor: AgentBody, act: ActiveAction, reason: str) -> None:
+    """Fahrplan für den restlichen Weg berechnen und als ein Ereignis melden (ab der laufenden Minute)."""
+    path = act.data["path"]
+    needs = [_need(ctx, x, y) for x, y in path]
+    act.data["needs"], act.data["arrive"] = needs, schedule(ctx.minute, actor.move_budget, needs)
+    ctx.emit("agent.walking", [actor.id], actor.location_id,
+             {"from": list(actor.pos), "path": [list(p) for p in path], "arrive": list(act.data["arrive"]), "label": act.data.get("label"), "reason": reason})
+
+
 class MoveTo(Action):
     name = "move_to"
 
@@ -99,6 +131,7 @@ class MoveTo(Action):
             return
         nx, ny = path[0]
         grid = ctx.state.grid
+        reason = None if act.data.get("arrive") is not None else "start"
         if not grid.is_open(nx, ny):  # Weg wurde versperrt: einmal neu planen
             goal = tuple(act.data["goal"])
             new = ctx.state.pathfinder.find(actor.pos, goal)
@@ -107,22 +140,26 @@ class MoveTo(Action):
                 return
             act.data["path"] = path = [list(p) for p in new]
             nx, ny = path[0]
-        mult = weather.MOVE_MULT[ctx.state.weather()["kind"]]
-        need = grid.cost(nx, ny) * mult
+            reason = "replan"
+        need = _need(ctx, nx, ny)
+        if reason is None and abs(act.data["needs"][0] - need) > 1e-9:
+            reason = "tempo"                     # Wetter oder Kachelkosten haben sich geändert
+        if reason is not None:
+            _announce(ctx, actor, act, reason)
         actor.move_budget += 1.0
         if actor.move_budget + 1e-9 < need:
             return
         actor.move_budget -= need
         old, old_loc = actor.pos, actor.location_id
         actor.x, actor.y = nx, ny
-        actor.facing = "right" if nx > old[0] else "left" if nx < old[0] else "down" if ny > old[1] else "up"
+        actor.facing = facing(old, (nx, ny))
         actor.location_id = ctx.state.location_at(nx, ny)
-        path.pop(0)
+        for key in ("path", "arrive", "needs"):
+            act.data[key].pop(0)
         if ctx.rules.needs_enabled:
             actor.needs["energy"] = max(0.0, actor.needs["energy"] - ctx.rules.energy_per_tile)
-        ctx.emit("agent.moved", [actor.id], actor.location_id, {"from": list(old), "to": [nx, ny], "facing": actor.facing, "remaining": len(path)})
         if actor.location_id != old_loc:
-            ctx.emit("agent.location_changed", [actor.id], actor.location_id, {"from_location": old_loc, "to_location": actor.location_id})
+            ctx.emit("agent.location_changed", [actor.id], actor.location_id, {"from_location": old_loc, "to_location": actor.location_id, "at": [nx, ny]})
             if not ctx.state.locations[actor.location_id].props.get("fallback") and ctx.state.mark_discovered(actor.location_id, actor.id):
                 ctx.emit("agent.location_discovered", [actor.id], actor.location_id, {"location": actor.location_id})
         if not path:

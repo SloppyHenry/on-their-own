@@ -136,7 +136,7 @@ class WorldEngine:
             if actor is None or actor.action is None:
                 return
             act, actor.action = actor.action, None
-            ev = ctx.emit("agent.action_interrupted", [actor_id], actor.location_id, {"action": act.type, "reason": reason})
+            ev = ctx.emit("agent.action_interrupted", [actor_id], actor.location_id, {"action": act.type, "reason": reason, "at": list(actor.pos)})
             self._log(ctx, actor_id, act.type, act.params, "interrupted", None, reason, ev.seq)
             self.state.save_agent(actor)
         return self._run(work)
@@ -241,7 +241,7 @@ class WorldEngine:
 
     def _fail(self, ctx: Ctx, actor: AgentBody, act: ActiveAction, code: str, text: str) -> None:
         actor.action = None
-        ev = ctx.emit("agent.action_failed", [actor.id], actor.location_id, {"action": act.type, "params": act.params, "code": code, "text": text})
+        ev = ctx.emit("agent.action_failed", [actor.id], actor.location_id, {"action": act.type, "params": act.params, "code": code, "text": text, "at": list(actor.pos)})
         self._log(ctx, actor.id, act.type, act.params, "failed", code, text, ev.seq)
         self._penalize(ctx, actor)
 

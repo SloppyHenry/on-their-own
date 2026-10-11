@@ -59,6 +59,20 @@
     "action": {
      "type": "string"
     },
+    "at": {
+     "anyOf": [
+      {
+       "items": {
+        "type": "integer"
+       },
+       "type": "array"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
     "reason": {
      "default": "",
      "type": "string"
@@ -76,6 +90,20 @@
    "properties": {
     "action": {
      "type": "string"
+    },
+    "at": {
+     "anyOf": [
+      {
+       "items": {
+        "type": "integer"
+       },
+       "type": "array"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
     },
     "code": {
      "type": "string"
@@ -363,6 +391,17 @@
      "default": "idle",
      "type": "string"
     },
+    "walk": {
+     "anyOf": [
+      {
+       "$ref": "#/$defs/WalkInfo"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
     "words": {
      "additionalProperties": {
       "type": "string"
@@ -385,6 +424,7 @@
     "facing",
     "capacity",
     "action",
+    "walk",
     "status",
     "needs",
     "words",
@@ -471,6 +511,17 @@
      "default": "idle",
      "type": "string"
     },
+    "walk": {
+     "anyOf": [
+      {
+       "$ref": "#/$defs/WalkInfo"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
     "words": {
      "additionalProperties": {
       "type": "string"
@@ -493,6 +544,7 @@
     "facing",
     "capacity",
     "action",
+    "walk",
     "status",
     "needs",
     "words",
@@ -2572,6 +2624,20 @@
   "LocationChanged": {
    "additionalProperties": false,
    "properties": {
+    "at": {
+     "anyOf": [
+      {
+       "items": {
+        "type": "integer"
+       },
+       "type": "array"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
     "from_location": {
      "type": "string"
     },
@@ -3292,6 +3358,7 @@
   },
   "Moved": {
    "additionalProperties": false,
+   "description": "Veraltet (bis AP10): ein Schritt je Ereignis. Steht nur noch in älteren Ereignisprotokollen.",
    "properties": {
     "facing": {
      "type": "string"
@@ -5898,6 +5965,81 @@
    "title": "TilesChanged",
    "type": "object"
   },
+  "WalkInfo": {
+   "additionalProperties": false,
+   "description": "Restlicher Weg mit Fahrplan (wie `agent.walking`), damit ein Refresh mitten im Weg weiterlaufen kann.",
+   "properties": {
+    "arrive": {
+     "items": {
+      "type": "integer"
+     },
+     "type": "array"
+    },
+    "path": {
+     "items": {
+      "items": {
+       "type": "integer"
+      },
+      "type": "array"
+     },
+     "type": "array"
+    }
+   },
+   "required": [
+    "path",
+    "arrive"
+   ],
+   "title": "WalkInfo",
+   "type": "object"
+  },
+  "Walking": {
+   "additionalProperties": false,
+   "properties": {
+    "arrive": {
+     "items": {
+      "type": "integer"
+     },
+     "type": "array"
+    },
+    "from": {
+     "items": {
+      "type": "integer"
+     },
+     "type": "array"
+    },
+    "label": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "path": {
+     "items": {
+      "items": {
+       "type": "integer"
+      },
+      "type": "array"
+     },
+     "type": "array"
+    },
+    "reason": {
+     "default": "start",
+     "type": "string"
+    }
+   },
+   "required": [
+    "from",
+    "path",
+    "arrive"
+   ],
+   "title": "Walking",
+   "type": "object"
+  },
   "WeatherChanged": {
    "additionalProperties": false,
    "properties": {
@@ -5967,6 +6109,26 @@
     "daylight"
    ],
    "title": "WorldTime",
+   "type": "object"
+  },
+  "WsClock": {
+   "additionalProperties": false,
+   "description": "Uhrtakt ohne Speicherung und ohne Nummer, gedrosselt: hält Uhr und laufende Wege in der Oberfläche synchron.",
+   "properties": {
+    "minute": {
+     "type": "integer"
+    },
+    "type": {
+     "const": "clock",
+     "default": "clock",
+     "type": "string"
+    }
+   },
+   "required": [
+    "type",
+    "minute"
+   ],
+   "title": "WsClock",
    "type": "object"
   },
   "WsEvent": {
@@ -6459,11 +6621,17 @@
   "TilesChanged": {
    "$ref": "#/$defs/TilesChanged"
   },
+  "Walking": {
+   "$ref": "#/$defs/Walking"
+  },
   "WeatherChanged": {
    "$ref": "#/$defs/WeatherChanged"
   },
   "WorldTime": {
    "$ref": "#/$defs/WorldTime"
+  },
+  "WsClock": {
+   "$ref": "#/$defs/WsClock"
   },
   "WsEvent": {
    "$ref": "#/$defs/WsEvent"

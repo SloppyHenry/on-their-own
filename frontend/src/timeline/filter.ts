@@ -1,7 +1,7 @@
 import type { EventOut } from "../types/generated";
 import type { Filters } from "../store/uiStore";
 
-/** Einzelschritte und System-Takt sind standardmäßig ausgeblendet (Entscheidung Henry offen: Verdichtung, siehe offene-fragen.md Nr. 13). */
+/** Einzelschritte (nur ältere Protokolle) und System-Takt sind standardmäßig ausgeblendet; ein Weg (`agent.walking`) erscheint als eine Zeile. */
 const NOISE = new Set(["agent.moved", "agent.status_changed", "world.time"]);
 
 /** Eingaben des Benutzers und ihre Folgen gehören ins Protokoll, auch wenn „System“ ausgeblendet ist. */

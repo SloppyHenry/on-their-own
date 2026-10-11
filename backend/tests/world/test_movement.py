@@ -8,23 +8,19 @@ def test_move_to_location_changes_position_and_emits_events(eng):
     events = ok(eng, "alex", "move_to", target="lake")
     a = eng.state.agent("alex")
     assert a.location_id == "lake" and a.action is None
-    moved = [e for e in events if e.type == "agent.moved"]
-    assert len(moved) > 30
-    assert moved[-1].data["to"] == [a.x, a.y]
+    walks = [e for e in events if e.type == "agent.walking"]
+    assert len(walks) == 1 and len(walks[0].data["path"]) > 30            # ein Fahrplan statt eines Ereignisses je Kachel
+    assert walks[0].data["path"][-1] == [a.x, a.y] and "agent.moved" not in types(events)
     assert "agent.arrived" in types(events) and "agent.action_completed" in types(events)
     assert ("agent.location_changed", "lake") in [(e.type, e.data.get("to_location")) for e in events]
     assert "alex" in eng.state.locations["lake"].discovered_by
 
 
-def test_each_step_is_one_adjacent_tile(eng):
+def test_path_is_a_chain_of_adjacent_tiles(eng):
     events = ok(eng, "mira", "move_to", target="forest")
-    pos = None
-    for e in events:
-        if e.type == "agent.moved":
-            f, t = e.data["from"], e.data["to"]
-            assert abs(f[0] - t[0]) + abs(f[1] - t[1]) == 1
-            assert pos is None or pos == f
-            pos = t
+    w = next(e for e in events if e.type == "agent.walking")
+    chain = [w.data["from"]] + w.data["path"]
+    assert all(abs(f[0] - t[0]) + abs(f[1] - t[1]) == 1 for f, t in zip(chain, chain[1:]))
 
 
 def test_move_to_object_node_agent_and_tile(eng):

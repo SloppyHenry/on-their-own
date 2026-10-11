@@ -9,7 +9,7 @@ from ..events.store import EventStore
 from ..simulation.builder import Simulation
 from ..world import clock
 from .models import (ActionInfo, AgentDetail, AgentInfo, ClockInfo, DecisionBrief, LocationDetail, LocationInfo, MapData, ObjectInfo,
-                     ObservationBrief, ProfileBrief, ResourceInfo, SimStatus, StateSnapshot, TileTypeInfo, WeatherInfo)
+                     ObservationBrief, ProfileBrief, ResourceInfo, SimStatus, StateSnapshot, TileTypeInfo, WalkInfo, WeatherInfo)
 
 from ..params.specs_sim import SPEEDS as SPEED_LEVELS
 SPARE_CHARS = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!$%&*"
@@ -36,8 +36,10 @@ def agent_info(sim: Simulation, a) -> AgentInfo:
     model = store.get(a.id)
     held = [o.name for o in st.objects_held(a.id)]
     action = ActionInfo(type=a.action.type, params=a.action.params, started_at=a.action.started_at, ends_at=a.action.ends_at) if a.action else None
+    d = a.action.data if a.action else {}
+    walk = WalkInfo(path=d["path"], arrive=d["arrive"]) if d.get("path") and d.get("arrive") else None
     prof = ProfileBrief(name=model.profile.name, gender=model.profile.gender, age=model.profile.age, goals=model.profile.goals) if model else None
-    return AgentInfo(id=a.id, name=a.name, x=a.x, y=a.y, location_id=a.location_id, facing=a.facing, capacity=a.capacity, action=action,
+    return AgentInfo(id=a.id, name=a.name, x=a.x, y=a.y, location_id=a.location_id, facing=a.facing, capacity=a.capacity, action=action, walk=walk,
                      status=model.status if model else "idle", needs={k: round(v, 1) for k, v in a.needs.items()}, words=needs_words(a.needs),
                      inventory=a.inventory, held=held, profile=prof, plan_next=model.plan_next if model else "")
 

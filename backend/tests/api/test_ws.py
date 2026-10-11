@@ -24,7 +24,7 @@ def test_first_contact_gets_a_snapshot_then_live_events():
             msgs = recv_until(ws, lambda m: m["type"] == "event" and m["event"]["type"] == "simulation.stepped")
             seqs = event_seqs(msgs)
             assert seqs == list(range(snap["seq"] + 1, seqs[-1] + 1))                        # lückenlos, in Reihenfolge, nichts doppelt
-            assert {m["event"]["type"] for m in msgs} >= {"agent.decision", "agent.action_started", "agent.status_changed"}
+            assert {m["event"]["type"] for m in msgs if m["type"] == "event"} >= {"agent.decision", "agent.action_started", "agent.status_changed"}
 
 
 def test_reconnect_with_last_seq_delivers_exactly_the_missed_events():
@@ -173,3 +173,46 @@ def test_messages_follow_the_documented_schema():
             WsEvents.model_validate(ws.receive_json())
             post(c, "/api/sim/step", {"n": 1})
             WsEvent.model_validate(ws.receive_json())
+
+
+def test_clock_follows_steps_without_sequence_numbers():
+    with api() as c:
+        with c.websocket_connect("/ws") as ws:
+            snap = hello(ws)
+            post(c, "/api/sim/step", {"n": 3})
+            target = snap["state"]["clock"]["minute"] + 3
+            msgs = recv_until(ws, lambda m: m["type"] == "clock" and m["minute"] == target)
+            clocks = [m for m in msgs if m["type"] == "clock"]
+            assert all(set(m) == {"type", "minute"} for m in clocks)                       # nicht gespeichert, ohne Nummer
+            assert [m["minute"] for m in clocks] == sorted(m["minute"] for m in clocks)
+            assert event_seqs(msgs) == list(range(snap["seq"] + 1, event_seqs(msgs)[-1] + 1))  # Ereignisse bleiben lückenlos
+
+
+def test_clock_is_throttled_and_heartbeat_keeps_running_at_full_speed():
+    with api(ws_ping_s=0.3) as c:
+        with c.websocket_connect("/ws") as ws:
+            hello(ws)
+            post(c, "/api/sim/speed", {"level": "max"})
+            post(c, "/api/sim/start", {})
+            t0, clocks, pings = time.monotonic(), 0, 0
+            while time.monotonic() - t0 < 1.0:
+                m = ws.receive_json()
+                clocks += m["type"] == "clock"
+                if m["type"] == "ping":
+                    pings += 1
+                    ws.send_json({"type": "pong"})
+            post(c, "/api/sim/pause", {})
+            assert 1 <= clocks <= 14 and pings >= 2                                        # höchstens ~10 Takte/s; Heartbeat trotz Dauerverkehr
+
+
+def test_clock_after_reset_never_carries_the_old_minute():
+    with api() as c:
+        with c.websocket_connect("/ws") as ws:
+            hello(ws)
+            post(c, "/api/sim/step", {"n": 5})
+            post(c, "/api/sim/reset", {"confirm": True})
+            msgs = recv_until(ws, lambda m: m["type"] == "snapshot")
+            post(c, "/api/sim/step", {"n": 1})
+            after = recv_until(ws, lambda m: m["type"] == "clock" and m["minute"] == 421)
+            assert all(m["minute"] <= 421 for m in after if m["type"] == "clock")
+            assert msgs[-1]["state"]["clock"]["minute"] == 420

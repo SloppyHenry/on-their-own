@@ -17,6 +17,13 @@ export interface Activity {
   chosen?: string | null;
 }
 
+/** Laufender Weg: Startkachel, folgende Kacheln und die Sim-Minute, zu der jede erreicht wird. */
+export interface Walk {
+  from: [number, number];
+  path: [number, number][];
+  arrive: number[];
+}
+
 export interface World {
   seq: number;
   worldName: string;
@@ -28,6 +35,7 @@ export interface World {
   agents: Record<string, AgentInfo>;
   agentOrder: string[];
   activity: Record<string, Activity>;
+  walks: Record<string, Walk>;
   clock: ClockInfo;
   weather: WeatherInfo;
   simulation: SimStatus;

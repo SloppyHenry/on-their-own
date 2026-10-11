@@ -17,6 +17,20 @@ class Subscription:
         self._queue: asyncio.Queue = asyncio.Queue()
         self.pending = 0
         self.overflowed = False
+        self.minute: int | None = None                           # letzter Uhrtakt (nur der neueste zählt)
+        self._ticked = asyncio.Event()
+
+    def _clock(self, minute: int) -> None:                        # läuft im Thread der Schleife
+        self.minute = minute
+        self._ticked.set()
+
+    async def next_clock(self, delay: float = 0.0) -> int:
+        """Wartet `delay` Sekunden (Drosselung) und dann auf einen neuen Uhrtakt; liefert die neueste Minute."""
+        if delay:
+            await asyncio.sleep(delay)
+        await self._ticked.wait()
+        self._ticked.clear()
+        return self.minute  # type: ignore[return-value]
 
     def _push(self, events: list[Event]) -> None:                 # läuft im Thread der Schleife
         if self.overflowed:
@@ -42,6 +56,11 @@ class Subscription:
         while not self._queue.empty():
             self._queue.get_nowait()
         self.pending, self.overflowed = 0, False
+        self.drop_clock()
+
+    def drop_clock(self) -> None:
+        """Nach einem Snapshot: ein noch nicht gesendeter Takt stammt womöglich aus der alten Welt."""
+        self._ticked.clear()
 
     def close(self) -> None:
         self._bus._subs.discard(self)
@@ -66,3 +85,8 @@ class EventBus:
             cb(events)
         for sub in list(self._subs):
             sub._loop.call_soon_threadsafe(sub._push, events)
+
+    def clock(self, minute: int) -> None:
+        """Uhrtakt an alle Verbindungen, ohne Speicherung; ältere, noch nicht gesendete Takte werden überschrieben."""
+        for sub in list(self._subs):
+            sub._loop.call_soon_threadsafe(sub._clock, minute)

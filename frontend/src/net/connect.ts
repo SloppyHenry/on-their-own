@@ -11,6 +11,7 @@ export function startLive(url = defaultUrl()): () => void {
   const st = useSimStore.getState;
   let queue: { items: EventOut[]; live: boolean }[] = [];
   let timer: ReturnType<typeof setTimeout> | null = null;
+  let clock: number | null = null;
 
   const flush = () => {
     timer = null;
@@ -20,6 +21,8 @@ export function startLive(url = defaultUrl()): () => void {
       const items = q.filter((b) => b.live === live).flatMap((b) => b.items);
       if (items.length) st().pushEvents(items, live);
     }
+    if (clock !== null) st().setClock(clock);                // nach den Ereignissen derselben Runde
+    clock = null;
     if (st().world?.stale) void reload();
   };
 
@@ -44,11 +47,16 @@ export function startLive(url = defaultUrl()): () => void {
     {
       onSnapshot: (s) => {
         queue = [];
+        clock = null;
         st().setSnapshot(s);
         void loadHistory(s.seq);
       },
       onEvents: (items, live) => {
         queue.push({ items, live });
+        timer ??= setTimeout(flush, 40);
+      },
+      onClock: (minute) => {
+        clock = Math.max(clock ?? 0, minute);
         timer ??= setTimeout(flush, 40);
       },
       onStatus: (c) => st().setConn(c),

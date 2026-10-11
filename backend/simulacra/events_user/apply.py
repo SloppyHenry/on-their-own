@@ -198,13 +198,15 @@ def _op_spawn_npc(ctx, op, run):
 def _op_move_agent(ctx, op, run):
     st = ctx.state
     a = st.agent(op.agent)
-    old = a.location_id
+    old, act = a.location_id, a.action
     a.x, a.y = _free_tile_in(ctx, op.location)
     a.location_id, a.action = op.location, None
     st.save_agent(a)
+    if act is not None:                      # ein laufender Weg oder eine Tätigkeit endet mit dem Versetzen
+        ctx.emit("agent.action_interrupted", [op.agent], old, {"action": act.type, "reason": "versetzt", "at": [a.x, a.y]})
     if st.mark_discovered(op.location, op.agent):
         ctx.emit("agent.location_discovered", [op.agent], op.location, {"location": op.location})
-    ctx.emit("agent.location_changed", [op.agent], op.location, {"from_location": old, "to_location": op.location})
+    ctx.emit("agent.location_changed", [op.agent], op.location, {"from_location": old, "to_location": op.location, "at": [a.x, a.y]})
 
 
 def _op_suggest_goal(ctx, op, run):

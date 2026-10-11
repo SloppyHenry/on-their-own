@@ -27,6 +27,9 @@ const TEXT: Table = {
   "agent.action_failed": (d, n, ev) => `${who(ev, n)} scheitert: ${d.text}`,
   "agent.action_rejected": (d, n, ev) => `${who(ev, n)} darf nicht: ${d.text}`,
   "agent.action_interrupted": (d, n, ev) => `${who(ev, n)} wird unterbrochen${d.reason ? ` (${d.reason})` : ""}.`,
+  "agent.walking": (d, n, ev) =>
+    d.reason === "start" ? `${who(ev, n)} macht sich auf den Weg${d.label ? ` zu ${d.label}` : ""} (${d.path.length} Felder).`
+      : `${who(ev, n)} ${d.reason === "replan" ? "nimmt einen anderen Weg" : "geht in anderem Tempo weiter"}${d.label ? ` zu ${d.label}` : ""}.`,
   "agent.moved": (d, n, ev) => `${who(ev, n)} geht nach (${d.to[0]}, ${d.to[1]}).`,
   "agent.arrived": (d, n, ev) => `${who(ev, n)} kommt an${d.label ? `: ${d.label}` : ""}.`,
   "agent.location_changed": (d, n, ev) => `${who(ev, n)} verlässt ${n.location(d.from_location)} und betritt ${n.location(d.to_location)}.`,

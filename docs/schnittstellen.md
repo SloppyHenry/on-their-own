@@ -71,7 +71,7 @@ Schema (`Event`): `seq` (fortlaufende ID), `ts` (UTC), `sim_minute`, `type`, `ag
 | Typ | Wann |
 |---|---|
 | `agent.action_started` / `action_completed` / `action_failed` / `action_rejected` / `action_interrupted` | Lebenslauf einer Aktion |
-| `agent.moved` (je Kachel), `agent.location_changed`, `agent.location_discovered`, `agent.arrived` | Bewegung |
+| `agent.walking` (je Weg ein Fahrplan), `agent.location_changed` (mit `at`), `agent.location_discovered`, `agent.arrived`; veraltet: `agent.moved` (je Kachel, nur in Protokollen vor AP11) | Bewegung |
 | `agent.dialogue` | `speak` ist angekommen (`speaker`, `to`, `text`) |
 | `agent.inspected`, `agent.read`, `agent.fished`, `agent.ate`, `agent.drank`, `agent.slept`, `agent.rested` | Ergebnisse der Aktionen |
 | `agent.item_taken` / `item_dropped` / `item_given`, `agent.inventory_changed` | Gegenstände und Inventar |
@@ -134,8 +134,8 @@ Zustände der Schleife: `stopped`, `running`, `paused`, `stepping`. Agenten mit 
 ### Ereignisschema (`events/schema.py`, `GET /api/events`)
 ```json
 {"id": "evt_01M4MR58SE0ZX51JD1XHJ9E51X", "seq": 1842, "ts": "2026-10-11T05:49:49.741+00:00",
- "sim_time": {"day": 1, "minute": 522, "total": 522}, "type": "agent.moved", "category": "world",
- "agents": ["alex"], "location": "garden", "data": {"from": [30, 7], "to": [31, 7], "facing": "right", "remaining": 4},
+ "sim_time": {"day": 1, "minute": 522, "total": 522}, "type": "agent.walking", "category": "world",
+ "agents": ["alex"], "location": "garden", "data": {"from": [30, 7], "path": [[31, 7], [32, 7], [32, 8]], "arrive": [522, 523, 525], "label": "Teich", "reason": "start"},
  "caused_by": "evt_01M4…", "visibility": "public"}
 ```
 - `id`: ULID mit Präfix, weltweit eindeutig. `seq`: fortlaufend und **lückenlos** je Datenbank (ein Zurückrollen vergibt keine Nummer).
@@ -145,7 +145,9 @@ Zustände der Schleife: `stopped`, `running`, `paused`, `stepping`. Agenten mit 
 - `caused_by`: auslösendes Ereignis. Kette: `agent.decision` → `agent.action_started` → alle Folgeereignisse (Schritte, Ergebnisse, `agent.action_completed`).
 - Jeder Typ hat ein Pydantic-Datenmodell (`events/models.py`) und einen Eintrag in der Registry (`events/types.py`); in den Tests wird **jedes** erzeugte Ereignis gegen sein Modell geprüft. Typen in `PLANNED_EVENT_TYPES` werden noch nicht erzeugt.
 
-Abweichungen von der ersten Fassung im Arbeitspaket: `agent.dialogue` trägt (noch) keine Gespräch-ID, die steht in `agent.conversation_started/_ended`; `simulation.stepped` entsteht je `step`-Aufruf (nicht je Tick); `agent.moved` entsteht je Kachel (`remaining` zeigt den Restweg; Verdichtung entscheidet AP04).
+Abweichungen von der ersten Fassung im Arbeitspaket: `agent.dialogue` trägt (noch) keine Gespräch-ID, die steht in `agent.conversation_started/_ended`; `simulation.stepped` entsteht je `step`-Aufruf (nicht je Tick).
+
+**Bewegung als Fahrplan (AP11, offene Frage 13):** Ein Weg erzeugt ein `agent.walking` mit dem restlichen Pfad und der Sim-Minute, zu der jede Kachel erreicht wird (`arrive`). Die Engine bewegt den Körper weiter Kachel für Kachel und hält sich exakt an diesen Fahrplan (Test `tests/world/test_walking.py` prüft jede Minute). Ein neuer Fahrplan kommt nur, wenn sich etwas ändert: `reason` = `replan` (Weg versperrt, neue Route) oder `tempo` (Wetter oder Kachelkosten anders). Ende: `agent.arrived` (`at`), `agent.action_interrupted` oder `agent.action_failed` (beide mit `at`, der genauen Kachel). Der Snapshot enthält für laufende Wege `walk` (`path`, `arrive` ab der aktuellen Kachel). Die Ereignismenge wächst so mit der Zahl der Wege, nicht der Schritte (vorher je Kachel ein `agent.moved`, rund die Hälfte aller Ereignisse).
 
 ### Event-Bus (`events/bus.py`)
 Ein Ereignis wird in derselben Transaktion gespeichert wie die Änderung. Verteilt wird erst **nach dem Commit** (`Database.on_commit`); bei Rollback weder gespeichert noch verteilt. Synchrone Rückrufe über `engine.bus.listeners`; Verbindungen über `engine.bus.subscribe(max_backlog)` (eine Warteschlange je Verbindung; läuft sie über, wird sie geleert und meldet `OVERFLOW` statt unbegrenzt Speicher zu belegen).
@@ -172,9 +174,10 @@ Alle verändernden Anfragen brauchen den Header `Idempotency-Key` (8–128 Zeich
 1. Client → `{"type":"hello","last_seq": 1840 | null}`.
 2. Server → `{"type":"snapshot","seq":…,"state":…}`, wenn `last_seq` fehlt, größer als der Stand ist (andere Welt) oder mehr als `SIM_WS_MAX_GAP` (5000) zurückliegt; sonst `{"type":"events","items":[…]}` mit genau den verpassten Ereignissen.
 3. Danach `{"type":"event","event":{…}}` je Ereignis. Der Server abonniert **vor** dem Lesen des Rückstands und verwirft Doppeltes, daher geht nichts verloren und nichts kommt zweimal.
-4. Heartbeat: alle `SIM_WS_PING_S` (15 s) `{"type":"ping"}`; der Client antwortet `{"type":"pong"}`; nach zwei ausgebliebenen Antworten Schließen mit Code 4008.
-5. Lücke bemerkt oder `{"type":"resync_required"}` empfangen → Client sendet `{"type":"resync","last_seq":…}` und bekommt Nachlieferung oder Snapshot.
-6. Nach `simulation.reset` bekommen alle Verbindungen automatisch einen frischen Snapshot.
+4. Uhrtakt: `{"type":"clock","minute":…}` nach jedem Simulationsschritt, höchstens zehnmal je Sekunde und Verbindung (ältere, noch nicht gesendete Takte entfallen). Nicht gespeichert, ohne `seq`, nicht Teil der Lückenprüfung. Die Oberfläche stellt damit Uhr und laufende Wege vor. Nach einem Snapshot wird ein noch ausstehender Takt verworfen.
+5. Heartbeat: alle `SIM_WS_PING_S` (15 s) `{"type":"ping"}`, im festen Takt auch bei Dauerverkehr; der Client antwortet `{"type":"pong"}`; bleibt eine Antwort länger als zwei Takte aus, schließt der Server mit Code 4008.
+6. Lücke bemerkt oder `{"type":"resync_required"}` empfangen → Client sendet `{"type":"resync","last_seq":…}` und bekommt Nachlieferung oder Snapshot.
+7. Nach `simulation.reset` bekommen alle Verbindungen automatisch einen frischen Snapshot.
 Erste Nachricht ungleich `hello` oder ungültiges JSON: Schließen mit Code 4400. Die Simulation läuft unabhängig von Verbindungen weiter.
 
 Testclient: `backend/.venv/bin/python scripts/ws_tail.py --reconnect` (liest mit, prüft die Lückenlosigkeit, verbindet nach Abbruch mit der letzten `seq` neu).

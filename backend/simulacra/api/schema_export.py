@@ -25,7 +25,7 @@ from . import models_saves as ms
 API_MODELS: list[type[BaseModel]] = [
     api.StateSnapshot, api.AgentDetail, api.LocationDetail, api.EventsPage, api.EventDetail, api.SimCommandResult,
     api.StartRequest, api.StepRequest, api.ResetRequest, api.SpeedRequest,
-    api.WsHello, api.WsResync, api.WsPong, api.WsSnapshot, api.WsEvents, api.WsEvent, api.WsPing, api.WsResyncRequired,
+    api.WsHello, api.WsResync, api.WsPong, api.WsSnapshot, api.WsEvents, api.WsEvent, api.WsPing, api.WsClock, api.WsResyncRequired,
     mm.MemoriesPage, mm.MemoryDetail, mm.Knowledge, mm.RetrievalOut, mm.MemoryStats,
     ma.GoalOut, ma.AgentNeeds, ma.AgentOverview, ma.RelationOut, ma.FailureOut, ma.DecisionOut, ma.FactorRegistry,
     mp.ParamSchema, mp.ParamValues, mp.ParamPatch, mp.ParamPatchOut, mp.ParamResetRequest, mp.PresetBrief, mp.PresetOut, mp.PresetSave, mp.PresetRename,

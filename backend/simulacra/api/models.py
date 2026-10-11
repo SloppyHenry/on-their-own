@@ -69,6 +69,12 @@ class ActionInfo(Out):
     ends_at: int | None = None
 
 
+class WalkInfo(Out):
+    """Restlicher Weg mit Fahrplan (wie `agent.walking`), damit ein Refresh mitten im Weg weiterlaufen kann."""
+    path: list[list[int]]
+    arrive: list[int]
+
+
 class ProfileBrief(Out):
     name: str
     gender: str
@@ -85,6 +91,7 @@ class AgentInfo(Out):
     facing: str
     capacity: int
     action: ActionInfo | None = None
+    walk: WalkInfo | None = None
     status: str = "idle"
     needs: dict[str, float]
     words: dict[str, str]
@@ -241,6 +248,12 @@ class WsEvent(Out):
 
 class WsPing(Out):
     type: Literal["ping"] = "ping"
+
+
+class WsClock(Out):
+    """Uhrtakt ohne Speicherung und ohne Nummer, gedrosselt: hält Uhr und laufende Wege in der Oberfläche synchron."""
+    type: Literal["clock"] = "clock"
+    minute: int
 
 
 class WsResyncRequired(Out):

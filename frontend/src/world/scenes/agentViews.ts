@@ -1,6 +1,7 @@
 // Figuren in der Szene: weiche Bewegung zwischen Kacheln, Blickrichtung, Laufbild, Schlafen, Werkzeug bei Arbeit.
 import Phaser from "phaser";
-import type { AgentInfo, World } from "../../store/types";
+import { routeBetween } from "../../store/reducers/walks";
+import type { AgentInfo, Walk, World } from "../../store/types";
 import { charCanvas, type Dir } from "../draw/characters";
 import { TILE as T } from "../draw/pen";
 import { shadowCanvas, TOOL_FOR_ACTION, toolCanvas, zzzCanvas } from "../draw/tools";
@@ -20,6 +21,7 @@ interface View {
   dir: Dir;
   walked: number;
   moving: boolean;
+  route?: Walk;                                        // zuletzt gesehener Fahrplan; überdauert die Ankunft im selben Bild
 }
 
 export const tileFoot = (x: number, y: number) => ({ x: x * T + T / 2, y: y * T + FOOT });
@@ -66,10 +68,13 @@ export class AgentViews {
     const delay = w.simulation.tick_delay_s, base = delay > 0 ? 1 / delay : 12;
     for (const a of Object.values(w.agents)) {
       const v = this.views.get(a.id) ?? this.views.set(a.id, this.make(a)).get(a.id)!;
+      if (w.walks[a.id]) v.route = w.walks[a.id];
       if (!v.tile || v.tile[0] !== a.x || v.tile[1] !== a.y) {
-        const far = !v.tile || Math.abs(v.tile[0] - a.x) + Math.abs(v.tile[1] - a.y) > 2;
+        const between = v.tile ? routeBetween(v.route, v.tile, [a.x, a.y]) : null;
+        const far = !v.tile || (!between && Math.abs(v.tile[0] - a.x) + Math.abs(v.tile[1] - a.y) > 2);
         const f = tileFoot(a.x, a.y);
-        if (far) { v.px = f.x; v.py = f.y; v.queue = []; } else v.queue.push(f);
+        if (far) { v.px = f.x; v.py = f.y; v.queue = []; }
+        else v.queue.push(...(between ?? [[a.x, a.y]]).map(([x, y]) => tileFoot(x, y)));
         v.tile = [a.x, a.y];
       }
       this.step(v, dt, Phaser.Math.Clamp(base, 1.5, 12) * T * (1 + v.queue.length * 0.6));
