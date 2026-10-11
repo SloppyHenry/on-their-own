@@ -19,6 +19,26 @@ Der API-Key wird nie geloggt, erscheint nicht in `repr()` oder `model_dump_json(
 
 Laufzeit-Parameter (Slider, Autonomie, Gedächtnis, Welt) kommen mit AP07 in eine eigene Registry und werden hier ergänzt.
 
+## Modell und Agentenzyklus (AP02)
+
+| Variable | Standard | Bedeutung |
+|---|---|---|
+| `SIM_LLM_TEMPERATURE` / `SIM_LLM_TOP_P` | 1.0 / 0.95 | Sampling (die Werte der Messung in AP00) |
+| `SIM_LLM_MAX_TOKENS` | 400 | Obergrenze der Ausgabe je Entscheidung (gemessen Ø 90) |
+| `SIM_LLM_RETRIES` / `SIM_LLM_BACKOFF_S` | 2 / 1.0 | Wiederholungen nur bei Netzwerkfehler, 5xx und Timeout, mit verdoppeltem Abstand; nie bei 4xx |
+| `SIM_LLM_MAX_CONCURRENT` | 1 | gleichzeitige Anfragen (passend zu `parallel = 1` im Router) |
+| `SIM_LLM_RESPONSE_FORMAT` | `json_schema` | `json_schema` (Grammatikzwang), `json_object` oder `none` |
+| `SIM_LLM_THINKING` | `false` | Denkmodus; aus ist 3–7× schneller (Messung in `llm-anbindung.md`) |
+| `SIM_SIM_TOP_K` | 6 | Optionen je Entscheidung |
+| `SIM_SIM_CORRECTION_RETRIES` | 2 | Korrekturversuche bei unbrauchbarer Antwort, danach Rückfall auf `wait 10` |
+| `SIM_SIM_CONVERSATION_MAX_TURNS` | 8 | Beiträge, nach denen ein Gespräch endet |
+| `SIM_SIM_MEMORY_LINES` | 10 | letzte Beobachtungen im Prompt (Ringpuffer, ab AP05 Gedächtnisabruf) |
+| `SIM_SIM_TICK_DELAY_S` | 0 | Pause zwischen Ticks in Echtzeit (Geschwindigkeit) |
+| `SIM_SIM_MIN_DECISION_GAP_S` | 0 | Mindestabstand zwischen Entscheidungen desselben Agenten |
+| `SIM_SIM_MAX_DECISIONS_PER_MINUTE` | 0 | Höchstzahl Entscheidungen pro Echtzeit-Minute (0 = unbegrenzt) |
+
+Fest im Code (`agents/scoring.py`, ab AP07 als Parameter): Wiederholungsstrafe 14 je Wiederholung (höchstens 3), Zufallsstreuung ±2, höchstens 2 Optionen je Art.
+
 ## Festlegungen
 
 - **Modell je Simulation:** Das Modell (`SIM_LLM_MODEL` als Vorbelegung) wird beim Anlegen einer Simulation gewählt, im Spielstand gespeichert und danach nicht mehr geändert. Es ist kein Laufzeit-Parameter. Temperatur, Top-p, Token-Limits, Timeout und Wiederholungen bleiben ab AP07 zur Laufzeit einstellbar.

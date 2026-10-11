@@ -97,3 +97,34 @@ cd backend
 .venv/bin/python -m simulacra.cli world act alex move_to target=lake
 .venv/bin/python -m simulacra.cli world show | map | events --type agent.dialogue | log alex | tick 30
 ```
+
+## Agenten und Simulation (AP02)
+
+Ausführlich: [agenten.md](agenten.md). Python-Schnittstelle:
+
+```python
+sim = Simulation.create(settings, "data/live.db")          # Engine, Agenten, Modell, Schleife; Datenbank wird angelegt oder geladen
+sim.runner.event_listeners.append(lambda events: ...)      # alle Ereignisse (Welt, Agenten, Gespräche, Steuerung) für Bus/WebSocket (AP03)
+sim.runner.decision_listeners.append(lambda decision, result: ...)
+await sim.runner.start(ticks=None) / pause() / resume() / step(n) / stop() / wait_finished()
+sim.runner.set_speed(tick_delay_s);  sim.runner.limiter.configure(min_gap_s=..., max_per_minute=...)
+await sim.reset()                                          # alte Datenbank wird unter data/backups/ gesichert, nie gelöscht
+sim.runner.stats.summary();  sim.client.metrics.summary()  # Entscheidungen/min, Gültigkeitsquote; Antwortzeit, Tokens/s, Fehler
+sim.store.decisions("alex");  sim.store.recent_observations("alex", 10)
+```
+
+Zustände der Schleife: `stopped`, `running`, `paused`, `stepping`. Agenten mit einem Profil in `agent_profiles` werden von der KI gesteuert; alle anderen Körper bleiben unberührt (Grundlage für Mitspieler).
+
+### Neue Ereignistypen
+| Typ | Wann |
+|---|---|
+| `agent.decision_failed` | Antwort des Modells unbrauchbar oder Modell nicht erreichbar: Rückfall auf `wait 10` (`reason`, `attempts`) |
+| `conversation.started` / `conversation.ended` | Gespräch beginnt mit dem ersten Beitrag / endet (`reason`: max_turns, timeout, left, repetition, farewell) |
+| `conversation.proposal_accepted` / `conversation.proposal_declined` | Antwort auf einen Vorschlag |
+| `simulation.started` / `paused` / `resumed` / `stopped` | Steuerbefehle |
+
+### Neue Tabellen (`003_agents.sql`)
+`agent_profiles` (Profil und Persönlichkeit als JSON), `agent_runtime` (Status, Vorhaben, zuletzt gesehen), `observations` (Beobachtungen je Agent, nie gelöscht), `conversations` (Beiträge, Vorschlag, Beendigung), `decisions` (angebotene Optionen mit Punkten und Faktoren, Wahl, Ergebnis, Latenz, Tokens, Fehler).
+
+### Entscheidungsschema (Modellantwort)
+`{"option_id": "o3" | "other", "intent": "…", "utterance": "…", "importance": 1-10, "plan_next": "…", "proposal": "…", "other_action": "move_to|wait|…", "other_params": {…}}`. Pflicht sind `option_id`, `intent`, `utterance`, `importance`; die Engine prüft jede Handlung.

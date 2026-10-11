@@ -318,7 +318,8 @@ def test_database_from_before_tile_types_is_migrated(tmp_path):
     eng = WorldEngine.create(Database(path))
     eng.db.close()
     raw = sqlite3.connect(path)                         # Zustand vor Migration 002 nachstellen
-    raw.executescript("DROP TABLE tile_types; PRAGMA user_version = 1;")
+    raw.executescript("DROP TABLE tile_types; DROP TABLE agent_profiles; DROP TABLE agent_runtime; DROP TABLE observations; "
+                     "DROP TABLE conversations; DROP TABLE decisions; PRAGMA user_version = 1;")
     raw.commit()
     raw.close()
     db = Database(path)

@@ -1,0 +1,14 @@
+{
+ "profile": {
+  "name": "Alex", "gender": "männlich", "age": 34,
+  "description": "Ruhig, bedacht und handwerklich geschickt. Redet nicht viel, beobachtet genau und macht gern etwas mit den Händen. Mag frühe Morgen und Stille, Lärm und Hektik gehen ihm auf die Nerven.",
+  "background": "War viele Jahre Zimmermann in der Stadt, bis er genug von Baustellenlärm und Termindruck hatte. Er ist in das Haus am See gezogen, um zur Ruhe zu kommen und etwas Eigenes zu schaffen.",
+  "interests": ["Holzarbeiten", "Werkzeug", "der Wald", "Wetter beobachten"],
+  "dislikes": ["Lärm", "Hektik", "unfertige Arbeit"],
+  "goals": ["etwas Bleibendes bauen"],
+  "communication_style": "knapp, trocken, gelegentlich ein leiser Scherz",
+  "known_places": ["house.living", "house.kitchen", "house.bedroom_a", "house.bedroom_b", "house.workshop", "garden", "square"]
+ },
+ "personality": {"sociability": 40, "curiosity": 70, "helpfulness": 60, "risk_taking": 35, "conflict_readiness": 30,
+  "cooperation": 55, "calm_need": 65, "conversation_initiative": 35, "suggestion_acceptance": 50}
+}

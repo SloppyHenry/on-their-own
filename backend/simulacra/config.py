@@ -17,6 +17,22 @@ class Settings(BaseSettings):
     llm_api_key_value: SecretStr | None = Field(default=None, validation_alias="SIM_LLM_API_KEY")
     llm_model: str = "qwen3.8-9b-uncensored"
     llm_timeout_s: float = 90.0
+    llm_temperature: float = 1.0          # Router-Voreinstellung, so wurde in AP00 gemessen
+    llm_top_p: float = 0.95
+    llm_max_tokens: int = 400             # Entscheidungen brauchen im Mittel ca. 90 Tokens
+    llm_retries: int = 2                  # nur bei Netzwerkfehler, 5xx und Timeout
+    llm_backoff_s: float = 1.0
+    llm_max_concurrent: int = 1           # passend zu parallel = 1 im Router
+    llm_response_format: str = "json_schema"   # json_schema | json_object | none
+    llm_thinking: bool = False            # Denkmodus aus (Standardvariante C2)
+
+    sim_top_k: int = 6                    # Optionen je Entscheidung
+    sim_correction_retries: int = 2
+    sim_conversation_max_turns: int = 8
+    sim_memory_lines: int = 10            # letzte Beobachtungen im Prompt
+    sim_tick_delay_s: float = 0.0         # Pause zwischen Ticks (Echtzeit)
+    sim_min_decision_gap_s: float = 0.0   # Mindestabstand zwischen Entscheidungen desselben Agenten (Echtzeit)
+    sim_max_decisions_per_minute: int = 0 # 0 = unbegrenzt
 
     data_dir: Path = Path("./data")
     host: str = "127.0.0.1"

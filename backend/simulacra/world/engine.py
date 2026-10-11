@@ -282,6 +282,22 @@ class WorldEngine:
             "INSERT INTO action_log(sim_minute, actor, action, params, outcome, code, text, event_seq) VALUES (?,?,?,?,?,?,?,?)",
             (ctx.minute, actor, action, json.dumps(params, ensure_ascii=False), outcome, code, text, seq))
 
+    def check(self, actor_id: str, action: str, params: dict[str, Any] | None = None) -> Accepted | Rejected:
+        """Trockenprüfung: Wäre dieser Vorschlag jetzt gültig? Ändert nichts und schreibt kein Ereignis."""
+        actor, handler = self.state.agent(actor_id), REGISTRY.get(action)
+        if actor is None or handler is None:
+            return rej(RejectCode.INVALID_TARGET, "Unbekannter Agent oder unbekannte Aktion.")
+        if actor.action is not None:
+            return rej(RejectCode.BUSY, "Der Agent ist beschäftigt.")
+        return handler.validate(Ctx(self, self.state.minute), actor, dict(params or {}))
+
+    def emit_event(self, type_: str, agents: list[str] | None = None, location_id: str | None = None,
+                   data: dict[str, Any] | None = None, parent_seq: int | None = None) -> Event:
+        """Systemereignis außerhalb von Aktionen (z. B. Entscheidung gescheitert, Simulation pausiert)."""
+        def work(ctx: Ctx) -> None:
+            ctx.emit(type_, agents, location_id, data, parent_seq)
+        return self._run(work)[0]
+
     # --- Abfragen ------------------------------------------------------------------------------
     def action_history(self, actor_id: str, limit: int = 20) -> list[dict[str, Any]]:
         cur = self.state.conn.execute("SELECT * FROM action_log WHERE actor=? ORDER BY id DESC LIMIT ?", (actor_id, limit))

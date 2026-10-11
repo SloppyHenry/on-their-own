@@ -10,6 +10,11 @@
     python -m simulacra.cli world log alex
     python -m simulacra.cli world patches               # bereits angewendete Welt-Patches
     python -m simulacra.cli world patch datei.json      # Patch auf eine bestehende Welt anwenden (einmalig, atomar)
+
+Simulation (Details: python -m simulacra.cli run --help):
+    python -m simulacra.cli run --ticks 200             # Agenten handeln selbstständig, Live-Protokoll und Auswertung
+    python -m simulacra.cli sim                         # interaktiv: start, pause, resume, step, speed, status, quit
+    python -m simulacra.cli decisions alex              # Entscheidungsprotokoll mit Optionen, Bewertung und Ergebnis
 """
 
 import argparse
@@ -162,6 +167,10 @@ def cmd_patch(eng: WorldEngine, args) -> int:
 
 
 def main(argv: list[str] | None = None) -> int:
+    argv = sys.argv[1:] if argv is None else argv
+    if argv and argv[0] in ("run", "sim", "decisions"):          # Simulation mit Modell: eigener Einstieg (lädt erst bei Bedarf)
+        from .cli_sim import main as sim_main
+        return sim_main(argv)
     ap = argparse.ArgumentParser(prog="simulacra.cli", description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("group", choices=["world"])
     ap.add_argument("command", choices=["init", "show", "map", "act", "tick", "events", "log", "patch", "patches"])
