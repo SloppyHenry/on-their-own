@@ -1,10 +1,66 @@
 @import "tailwindcss";
 
+@theme {
+  --color-bg: #14171c;
+  --color-panel: #1b2028;
+  --color-panel2: #232a35;
+  --color-line: #2d3644;
+  --color-text: #e2e7ef;
+  --color-dim: #8f99aa;
+  --color-faint: #5d6778;
+  --color-alex: #e8ac5c;
+  --color-mira: #93c79f;
+  --color-sys: #8396b0;
+  --color-world: #74aadc;
+  --color-dialog: #e8ac5c;
+  --color-plan: #b99be6;
+  --color-warn: #e0806f;
+  --color-ok: #93c79f;
+  --font-sans: "Inter", "Helvetica Neue", Arial, system-ui, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, monospace;
+}
+
 :root {
   color-scheme: dark;
 }
 
+html,
+body,
+#root {
+  height: 100%;
+}
+
 body {
-  @apply bg-zinc-950 text-zinc-200 antialiased;
-  font-family: ui-sans-serif, system-ui, sans-serif;
+  @apply bg-bg text-text antialiased;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.45;
+  overflow: hidden;
+}
+
+.px-icon {
+  display: inline-block;
+  vertical-align: -3px;
+  background: currentColor;
+  -webkit-mask: var(--m) center / contain no-repeat;
+  mask: var(--m) center / contain no-repeat;
+}
+
+.btn {
+  @apply cursor-pointer rounded-md border border-line bg-panel2 px-2.5 py-1 text-[13px] text-text hover:border-faint disabled:cursor-not-allowed disabled:opacity-40;
+}
+.btn.on {
+  @apply border-alex text-alex;
+}
+
+.sub {
+  @apply mb-1 mt-4 text-[11px] font-semibold uppercase tracking-[0.1em] text-dim;
+}
+
+.bubble {
+  background: #fffaf0;
+  color: #33281e;
+  border: 2px solid #33281e;
+  border-radius: 4px;
+  box-shadow: 2px 2px 0 #0007;
 }
