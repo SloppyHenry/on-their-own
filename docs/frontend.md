@@ -25,6 +25,9 @@ Backend ──/ws──▶ wsClient ──▶ Bündelung (40 ms) ──▶ simSt
 ## Protokoll
 `timeline/describeEvent.ts` erzeugt die Sätze (für jeden Ereignistyp, vom Compiler erzwungen; unvollständige Daten fallen auf den Typnamen zurück). Einzelschritte (`agent.moved`), Statuswechsel und der Takt `world.time` sind standardmäßig ausgeblendet (Filter „Schritte“). Mitscrollen pausiert beim Hochscrollen. Klick öffnet das Ereignisdetail mit Ursachen, Folgen und bei Entscheidungen den Optionen mit Punkten.
 
+## Gedächtnis-Inspektor (AP05)
+Eigene Ansicht über die Schaltfläche „Gedächtnis“ in der Kopfleiste (oder „Gedächtnis öffnen“ im Agenten-Detail); die Simulation läuft im Hintergrund weiter, neue Erinnerungen erscheinen live mit der Markierung „neu“. Spalte links: Agent, Reiter (Erinnerungen, Was ich weiß, Abrufe), Filter nach Art, Status, Person, Ort, Freitext und Sortierung, Umschalter „Alle nebeneinander“. Detail rechts: Text, Metadaten, Stichwörter, Quellereignis (Sprung ins Protokoll), Quellerinnerungen bei Einsichten, abgeleitete Einsichten, Abrufe mit Punktzahl und Entscheidung. Am Agenten in der Welt leuchtet das Namensschild beim Speichern (grün, „＋ gemerkt“) und beim Abrufen (violett, „↺ erinnert sich“) auf. Gedächtnis-Ereignisse im Protokoll sind über den Filter „Gedächtnis“ zuschaltbar (standardmäßig aus, sie sind häufig).
+
 ## Befehle
 ```bash
 cd frontend

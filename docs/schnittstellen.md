@@ -181,3 +181,20 @@ Testclient: `backend/.venv/bin/python scripts/ws_tail.py --reconnect` (liest mit
 
 ### Typen für das Frontend
 `scripts/gen_types.sh` erzeugt `frontend/src/types/schema.json` und `generated.ts` aus den Pydantic-Modellen (`api/schema_export.py`, `json-schema-to-typescript`); `--check` schlägt bei veralteten Dateien fehl. `generated.ts` enthält auch `EventDataMap` (Ereignistyp → Datentyp) und `EVENT_CATEGORY`. Ein Test prüft Aktualität und dass jeder Ereignistyp ein Datenmodell und einen TypeScript-Typ hat.
+
+
+## Gedächtnis (AP05)
+
+### REST
+| Methode | Pfad | Zweck |
+|---|---|---|
+| GET | `/api/agents/{id}/memories?kind=&status=&q=&person=&location=&sort=&limit=&cursor=` | Liste (`sort`: `time`, `importance`, `access`; `limit` ≤ 200; `cursor` = Versatz, aus `next_cursor`) |
+| GET | `/api/agents/{id}/memories/{mid}` | Einzelerinnerung mit Quellerinnerungen, davon abgeleiteten Einsichten/Rückblicken, Quellereignis und Abrufhistorie |
+| GET | `/api/agents/{id}/knowledge` | Orte (Besuche), Gegenstände (zuletzt gesehener Zustand), Personen (zuletzt gesehen, Zahl der Erinnerungen) |
+| GET | `/api/agents/{id}/retrievals?limit=` | jüngste Abrufe mit Teilpunkten und Entscheidung |
+| GET | `/api/agents/{id}/memory-stats` | aktive und archivierte Zahlen, Wichtigkeitssumme seit der letzten Reflexion |
+
+Alle nur lesend; unbekannter Agent 404, ungültige Filter 422. Ein Agent kann nie die Erinnerungen eines anderen lesen (`GET …/mira/memories/{id-von-alex}` → 404).
+
+### Ereignisse (Kategorie `memory`, Sichtbarkeit `system`)
+`agent.memory_created` (Erinnerung, Art, Wichtigkeit, Quellen), `agent.memory_retrieved` (Abruf-ID, Erinnerungen mit Punkten und Text, Tokens, Suchbegriffe), `agent.memory_skipped` (nur Debug und verworfene Reflexionen), `agent.memory_archived`. Siehe [gedaechtnis.md](gedaechtnis.md).

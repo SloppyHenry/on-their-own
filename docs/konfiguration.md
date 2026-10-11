@@ -81,3 +81,19 @@ Werden in der Datenbank gespeichert und über `WorldEngine.set_rules()` **sofort
 | `SIM_FRONTEND_PORT` | 5173 | Port des Vite-Servers |
 
 `scripts/e2e_server.py --port N --data-dir DIR` startet das Backend mit einem deterministischen Fake-LLM für Browser-Tests; Playwright (`frontend/playwright.config.ts`) startet es mit Port 8192 und Vite mit 5175 selbst.
+
+## Gedächtnis (AP05)
+
+| Variable | Standard | Bedeutung |
+|---|---|---|
+| `SIM_MEM_STORE_THRESHOLD` | 4 | ab dieser Wichtigkeit (1–10) wird dauerhaft gespeichert |
+| `SIM_MEM_BUDGET_TOKENS` | 400 | Token-Budget abgerufener Erinnerungen je Prompt |
+| `SIM_MEM_MAX_ITEMS` | 6 | höchstens so viele Erinnerungen je Prompt (davon höchstens 2 Einsichten, 1 Vorhaben) |
+| `SIM_MEM_HALF_LIFE_H` | 36 | Halbwertszeit der Aktualität in Simulationsstunden |
+| `SIM_MEM_MIN_SCORE` | 0,35 | Schwelle der normierten Punktzahl (0–1) |
+| `SIM_MEM_W_REL` / `_REC` / `_IMP` / `_SHARED` | 1,0 / 0,6 / 0,6 / 0,2 | Gewichte: Relevanz, Aktualität, Wichtigkeit, gemeinsames Erlebnis |
+| `SIM_MEM_REFLECT_ENABLED` | `true` | Reflexionen ein/aus |
+| `SIM_MEM_REFLECT_THRESHOLD` | 80 | Wichtigkeitssumme neuer Erinnerungen, ab der reflektiert wird (sonst einmal am Abend) |
+| `SIM_MEM_MAX_ACTIVE` | 2000 | aktive Erinnerungen je Agent; darüber wird stärker archiviert |
+| `SIM_MEM_ARCHIVE_AFTER_DAYS` | 2 | Alter in Simulationstagen, ab dem zusammengefasste Erinnerungen archiviert werden |
+| `SIM_MEM_DEBUG_SKIPS` | `false` | Nicht Gemerktes als `agent.memory_skipped` melden |
