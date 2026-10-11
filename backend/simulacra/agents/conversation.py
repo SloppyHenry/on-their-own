@@ -83,6 +83,9 @@ class ConversationManager:
 
     # --- Entscheidungszeitpunkt: was der Sprecher mit seinem Beitrag vorhat ---------------------------
     def note_intent(self, speaker: str, partner: str, *, end: bool = False, proposal: str = "", respond: str = "") -> None:
+        if self.engine.state.agent(partner) is None:
+            return
+        partner = self.engine.state.agent(partner).id
         c = self.between(speaker, partner) or self._begin(speaker, partner)
         if end:
             c.pending_end = speaker
@@ -136,7 +139,9 @@ class ConversationManager:
         for r in self.conn.execute("SELECT * FROM conversations WHERE status IN ('opening','active')").fetchall():
             c = self._row(r)
             a, b = (self.engine.state.agent(x) for x in c.participants)
-            if a is None or b is None:
+            if a is None or b is None:                      # Gespräch mit unbekannter Figur (alte Daten): still verwerfen
+                c.status, c.end_reason = "ended", "timeout"
+                self._save(c)
                 continue
             apart = a.location_id != b.location_id and math.dist(a.pos, b.pos) > HEARING
             if apart and c.status == "active":
@@ -154,6 +159,8 @@ class ConversationManager:
         c = self.active_for(agent_id)
         if c is None:
             return None
+        if any(self.engine.state.agent(x) is None for x in c.participants):
+            return None                                             # Gespräch mit unbekannter Figur (alte Daten): nicht anzeigen, nicht abstürzen
         names = {x: self.engine.state.agent(x).name for x in c.participants}
         partner = c.partner_of(agent_id)
         p = c.proposal if c.proposal and c.proposal["status"] == "open" else None

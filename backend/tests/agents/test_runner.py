@@ -228,3 +228,19 @@ async def test_reset_keeps_the_old_world_as_backup(tmp_path):
     await sim.runner.step(1)                                                                  # die neue Welt läuft
     sim.close()
     check.close()
+
+
+async def test_a_partner_written_as_a_name_is_stored_as_the_agent_id():
+    """Das Modell schreibt gelegentlich „Alex“ statt „alex“; Gespräch, Protokoll und Anzeige müssen trotzdem stimmen (Fehler aus einem Lauf mit dem echten Modell)."""
+    def talk_to_name(messages, schema, params):
+        who_ = "Alex" if messages[0]["content"].startswith("Du bist Mira") else "Mira"
+        return json.dumps({"option_id": "other", "intent": "reden", "utterance": "", "importance": 3, "other_action": "speak", "other_params": {"to": who_, "text": "Hallo!"}})
+    sim = make_sim(fn=talk_to_name)
+    sim.autonomy.planner.params.enabled = False
+    put(sim, "alex", 7, 7)
+    put(sim, "mira", 8, 7)
+    await sim.runner.step(6)
+    rows = sim.engine.state.conn.execute("SELECT participants FROM conversations").fetchall()
+    assert rows and all(json.loads(r["participants"]) == ["alex", "mira"] for r in rows)
+    assert sim.convs.view_for("alex") is None or sim.convs.view_for("alex")["partner"] == "mira"
+    sim.close()

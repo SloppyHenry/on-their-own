@@ -116,7 +116,7 @@ class GoalPlanner:
                   "- talked_with: ein Gespräch mit einer Person (person = Kennung, optional topic = Stichwort)",
                   "- plant_stage: eine von dir gepflanzte Pflanze erreicht eine Wachstumsstufe (min_stage 1 bis 4)",
                   f"Dazu ein Plan aus 1 bis {self.params.horizon} Schritten (kind: {', '.join(PLAN_KINDS)}; optional target = Kennung von Ort, Gegenstand, Person oder Ressource). "
-                  "\"text\": das Ziel in einem Satz in deinen Worten. Antworte nur mit dem JSON-Objekt."]
+                  "\"text\": das Ziel in einem kurzen Satz (höchstens 15 Wörter) in deinen Worten. Nenne Arten und Kennungen genau so, wie sie oben stehen. Antworte nur mit dem JSON-Objekt."]
         return GoalJob(agent_id, reason, minute, [{"role": "system", "content": prompts.system_prompt(model)}, {"role": "user", "content": "\n".join(lines)}], previous, switch)
 
     # --- Prüfung -----------------------------------------------------------------------------------------------

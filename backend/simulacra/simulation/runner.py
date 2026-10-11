@@ -219,6 +219,11 @@ class SimulationRunner:
         if dec.status == "fallback":
             eng.emit_event("agent.decision_failed", [aid], loc, {"reason": dec.error, "attempts": dec.attempts})
         opt = dec.chosen
+        if dec.action == "speak" and isinstance(dec.params.get("to"), str):
+            ref = dec.params["to"].strip().lower()                 # das Modell schreibt gelegentlich „Alex“ statt „alex“: immer die Kennung verwenden
+            partner = next((a for a in eng.state.agents() if a.id.lower() == ref or a.name.lower() == ref), None)
+            if partner is not None:
+                dec.params["to"] = partner.id
         if dec.action == "speak" and dec.params.get("to"):
             self.convs.note_intent(aid, dec.params["to"], end=bool(opt and opt.meta.get("end")), proposal=dec.proposal if dec.status == "valid" else "",
                                    respond=(opt.meta.get("respond", "") if opt else ""))
