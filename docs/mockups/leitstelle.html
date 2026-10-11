@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SIMULACRA – Leitstelle (Mockup)</title>
+<style>
+:root{
+  --bg:#12151a; --panel:#1a1f27; --panel2:#212732; --line:#2b3340; --text:#dde3ec; --dim:#8b95a5; --faint:#5d6778;
+  --alex:#e0a458; --mira:#8fb996; --sys:#7d8ca3; --world:#6aa0d4; --dialog:#e0a458; --plan:#b79be0; --warn:#d9776b; --ok:#8fb996;
+  --ui:"Inter","Helvetica Neue",Arial,sans-serif; --mono:ui-monospace,"SF Mono",Menlo,monospace;
+}
+*{box-sizing:border-box;margin:0}
+body{background:var(--bg);color:var(--text);font:14px/1.45 var(--ui);height:100vh;display:grid;grid-template-rows:48px 1fr;overflow:hidden}
+.mono{font-family:var(--mono);font-size:12px}
+header{display:flex;align-items:center;gap:20px;padding:0 16px;background:var(--panel);border-bottom:1px solid var(--line)}
+header .brand{letter-spacing:.18em;font-weight:600;font-size:13px}
+header .clock{font-weight:500}
+.btns{display:flex;gap:4px}
+.btn{background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:6px;padding:4px 10px;cursor:pointer;font:inherit;font-size:13px}
+.btn:hover{border-color:var(--faint)} .btn.on{border-color:var(--alex);color:var(--alex)}
+.sp{flex:1}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--ok);margin-right:6px}
+.dim{color:var(--dim)}
+main{display:grid;grid-template-columns:1fr 380px;min-height:0}
+#world{position:relative;background:#0d1014;overflow:hidden;min-width:0}
+canvas{image-rendering:pixelated;width:100%;height:100%;object-fit:contain;display:block}
+.hud{position:absolute;left:12px;bottom:56px;display:flex;gap:6px;align-items:center;background:#12151acc;padding:6px 10px;border-radius:8px;border:1px solid var(--line)}
+.hud input{accent-color:var(--alex)}
+.hint{position:absolute;right:12px;bottom:56px;color:var(--dim);font-size:12px;background:#12151acc;padding:6px 10px;border-radius:8px}
+.bubble{position:absolute;background:#f4efe4;color:#2a2a2a;border-radius:10px;padding:6px 10px;font-size:12px;max-width:190px;box-shadow:0 2px 8px #0008}
+.bubble:after{content:"";position:absolute;left:18px;bottom:-6px;border:6px solid transparent;border-top-color:#f4efe4;border-bottom:0}
+.tag{position:absolute;font-size:11px;background:#12151acc;border-radius:4px;padding:1px 6px;white-space:nowrap}
+aside{background:var(--panel);border-left:1px solid var(--line);display:grid;grid-template-rows:auto 1fr;min-height:0;position:relative}
+section h2{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);padding:12px 16px 6px;font-weight:600}
+.agent{margin:0 12px 8px;padding:10px 12px;border-radius:8px;background:var(--panel2);border-left:3px solid var(--c);cursor:pointer;display:grid;grid-template-columns:40px 1fr;gap:10px}
+.avatar{width:40px;height:40px;border-radius:8px;background:#0d1014;display:grid;place-items:center;font-size:20px;border:1px solid var(--c)}
+.agent b{color:var(--c)} .agent .row{font-size:12px;color:var(--dim)}
+.ok{color:var(--ok)} .bad{color:var(--warn)}
+.log{display:flex;flex-direction:column;min-height:0;border-top:1px solid var(--line)}
+.filters{display:flex;gap:6px;padding:0 12px 8px;flex-wrap:wrap}
+.chip{font-size:12px;padding:2px 9px;border-radius:12px;border:1px solid var(--line);color:var(--dim);cursor:pointer}
+.chip.on{color:var(--text);border-color:var(--c,var(--sys));background:#ffffff0a}
+input.search{margin:0 12px 8px;background:var(--bg);border:1px solid var(--line);border-radius:6px;color:var(--text);padding:5px 8px;font:inherit;font-size:12px}
+.list{overflow:auto;flex:1;padding:0 6px 8px}
+.ev{display:grid;grid-template-columns:44px 18px 1fr;gap:6px;padding:4px 8px;border-radius:6px;cursor:pointer;font-size:13px}
+.ev:hover,.ev.sel{background:var(--panel2)} .ev .t{color:var(--faint)} .ev .ic{color:var(--k)}
+.ev.dialog span:last-child{font-style:italic}
+.drawer{position:absolute;inset:0;background:var(--panel);padding:14px 16px;overflow:auto;display:none;z-index:5}
+.drawer.show{display:block}
+.drawer h3{font-size:16px;margin-bottom:2px} .x{float:right}
+.kv{display:grid;grid-template-columns:110px 1fr;gap:4px 10px;margin:10px 0;font-size:13px}
+.kv dt{color:var(--dim)}
+.bar{height:6px;background:var(--bg);border-radius:3px;margin-top:6px} .bar i{display:block;height:100%;border-radius:3px;background:var(--c)}
+table{width:100%;border-collapse:collapse;font-size:12px;margin:6px 0} td,th{padding:3px 4px;text-align:left;border-bottom:1px solid var(--line)}
+tr.pick td{color:var(--alex);font-weight:600}
+.sub{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin:14px 0 4px}
+.mock{position:fixed;left:50%;bottom:8px;transform:translateX(-50%);z-index:9;background:#000b;border:1px solid var(--line);border-radius:8px;padding:3px 6px;font-size:11px;display:flex;gap:4px;align-items:center}
+.drawerbar{position:absolute;left:12px;top:12px;background:#12151acc;border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-size:12px;color:var(--dim)}
+</style>
+</head>
+<body>
+<div class="mock"><span class="dim">Mockup · Ansicht:</span>
+  <button class="btn" onclick="show('')">Standard</button>
+  <button class="btn" onclick="show('dAgent')">Agent</button>
+  <button class="btn" onclick="show('dLoc')">Ort</button>
+  <button class="btn" onclick="show('dEv')">Ereignis</button>
+  <button class="btn" onclick="document.getElementById('params').classList.toggle('open')">Parameter (AP07)</button>
+</div>
+
+<header>
+  <span class="brand">SIMULACRA</span>
+  <span class="clock">Tag 2, 08:42 <span id="phase">☀</span> <span class="dim">· Leichter Regen</span></span>
+  <span class="btns">
+    <button class="btn" title="Start">▶</button><button class="btn on" title="Pause">❚❚</button><button class="btn" title="Einzelschritt">⏭</button>
+  </span>
+  <span class="btns" title="Tempo"><button class="btn">0,5×</button><button class="btn on">1×</button><button class="btn">2×</button><button class="btn">4×</button><button class="btn">max</button></span>
+  <span class="sp"></span>
+  <span class="dim"><span class="dot"></span>Verbunden</span>
+  <span class="dim"><span class="dot"></span>Modell qwen3.8-9b <span class="mono">Ø 4,5 s</span></span>
+  <button class="btn" title="Zurücksetzen">⟲ Zurücksetzen</button>
+  <button class="btn" title="Parameter (kommt mit AP07)" disabled style="opacity:.4">⚙</button>
+</header>
+
+<main>
+  <div id="world">
+    <canvas id="cv" width="768" height="480"></canvas>
+    <div class="tag" style="left:34%;top:44%;color:var(--alex)">Alex · repariert die Bank</div>
+    <div class="tag" style="left:47%;top:56%;color:var(--mira)">Mira · geht zum Platz</div>
+    <div class="bubble" style="left:35%;top:30%">„Hast du Holz für mich übrig, Mira? Die Bank ist fast fertig.“</div>
+    <div class="hud"><span class="dim">Tageslicht</span><input id="light" type="range" min="0" max="100" value="100"><span class="dim mono" id="lv">100 %</span></div>
+    <div class="hint">Mausrad: Zoom · Ziehen: verschieben · F: folgen · 0: Gesamtansicht</div>
+  </div>
+
+  <aside>
+    <section>
+      <h2>Bewohner</h2>
+      <div class="agent" style="--c:var(--alex)" onclick="show('dAgent')"><div class="avatar">🧔</div><div><b>Alex</b> <span class="dim">· Werkstatt</span>
+        <div class="row">🔨 arbeitet · Bank reparieren</div><div class="row"><span class="ok">✓</span> Holz genommen</div></div></div>
+      <div class="agent" style="--c:var(--mira)" onclick="show('dAgent')"><div class="avatar">👩</div><div><b>Mira</b> <span class="dim">· Dorfplatz</span>
+        <div class="row">🚶 geht · zum Marktplatz</div><div class="row"><span class="bad">✗</span> Beet gießen: Gießkanne fehlt</div></div></div>
+    </section>
+    <section class="log">
+      <h2>Protokoll</h2>
+      <div class="filters">
+        <span class="chip on" style="--c:var(--world)">Welt</span><span class="chip on" style="--c:var(--dialog)">Dialog</span>
+        <span class="chip on" style="--c:var(--plan)">Planung</span><span class="chip" style="--c:var(--sys)">System</span>
+        <span class="chip">Alex</span><span class="chip">Mira</span>
+      </div>
+      <input class="search" placeholder="Suchen …">
+      <div class="list">
+        <div class="ev dialog" style="--k:var(--dialog)" onclick="show('dEv')"><span class="t mono">08:42</span><span class="ic">💬</span><span><b style="color:var(--alex)">Alex</b>: „Hast du Holz für mich übrig, Mira?“</span></div>
+        <div class="ev" style="--k:var(--world)"><span class="t mono">08:41</span><span class="ic">●</span><span>Mira verlässt das Haus.</span></div>
+        <div class="ev" style="--k:var(--plan)"><span class="t mono">08:40</span><span class="ic">◆</span><span>Mira entscheidet: zum Marktplatz gehen.</span></div>
+        <div class="ev" style="--k:var(--world)"><span class="t mono">08:38</span><span class="ic">●</span><span>Alex nimmt Holz aus dem Lager.</span></div>
+        <div class="ev" style="--k:var(--world)"><span class="t mono">08:30</span><span class="ic">●</span><span>Es beginnt leicht zu regnen.</span></div>
+        <div class="ev" style="--k:var(--plan)"><span class="t mono">08:21</span><span class="ic">◆</span><span>Alex entscheidet: Bank reparieren.</span></div>
+        <div class="ev" style="--k:var(--world)"><span class="t mono">08:05</span><span class="ic">●</span><span>Alex betritt die Werkstatt.</span></div>
+      </div>
+    </section>
+
+    <div class="drawer" id="dAgent">
+      <button class="btn x" onclick="show('')">✕</button>
+      <h3 style="color:var(--alex)">Alex</h3><div class="dim">34 · Handwerker · Werkstatt</div>
+      <dl class="kv"><dt>Status</dt><dd>🔨 handelt: Bank reparieren</dd><dt>Position</dt><dd class="mono">(21, 14) blickt nach Süden</dd><dt>Trägt</dt><dd>Holz ×3, Hammer</dd></dl>
+      <div class="sub">Charakter</div><div class="dim">Gewissenhaft, still, hilfsbereit. Mag Ordnung und fertige Dinge.</div>
+      <div class="sub">Bedürfnisse</div>
+      <div class="dim">Energie 71 %</div><div class="bar" style="--c:var(--alex)"><i style="width:71%"></i></div>
+      <div class="dim" style="margin-top:6px">Hunger 38 %</div><div class="bar" style="--c:var(--alex)"><i style="width:38%"></i></div>
+      <div class="sub">Letzte Aktionen</div>
+      <table><tr><td class="mono">08:38</td><td>Holz nehmen</td><td class="ok">✓</td></tr><tr><td class="mono">08:21</td><td>Bank reparieren</td><td class="ok">✓ läuft</td></tr><tr><td class="mono">08:05</td><td>Werkstatt betreten</td><td class="ok">✓</td></tr></table>
+      <div class="sub">Erinnerungen <span class="faint">(ab AP05)</span></div><div class="dim">Wird mit dem Gedächtnis angezeigt.</div>
+    </div>
+
+    <div class="drawer" id="dLoc">
+      <button class="btn x" onclick="show('')">✕</button>
+      <h3>Dorfplatz</h3><div class="dim mono">square · Rechteck 24,16 – 36,24</div>
+      <div class="sub">Objekte</div>
+      <table><tr><td>Bank</td><td>Baustelle 60 %</td></tr><tr><td>Brunnen</td><td>Wasser 80 %</td></tr><tr><td>Holzstapel</td><td>×14</td></tr></table>
+      <div class="sub">Anwesend</div><div><span style="color:var(--mira)">Mira</span></div>
+      <div class="sub">Jüngste Ereignisse hier</div>
+      <div class="ev" style="--k:var(--world)"><span class="t mono">08:41</span><span class="ic">●</span><span>Mira betritt den Platz.</span></div>
+    </div>
+
+    <div class="drawer" id="dEv">
+      <button class="btn x" onclick="show('')">✕</button>
+      <h3>Alex entscheidet</h3><div class="dim mono">01K9X…R4 · #412 · agent.decision · Planung</div>
+      <dl class="kv"><dt>Zeit</dt><dd class="mono">Tag 2, 08:21</dd><dt>Absicht</dt><dd>„Die Bank muss vor dem Regen fertig werden.“</dd><dt>Dauer</dt><dd class="mono">4,3 s · Fallback nein</dd></dl>
+      <div class="sub">Optionen (Punkte)</div>
+      <table><tr><th>Option</th><th>Punkte</th></tr><tr class="pick"><td>▶ Bank reparieren</td><td class="mono">0,82</td></tr><tr><td>Essen holen</td><td class="mono">0,41</td></tr><tr><td>Mira ansprechen</td><td class="mono">0,38</td></tr><tr><td>Warten</td><td class="mono">0,05</td></tr></table>
+      <div class="sub">Verknüpft</div><div class="dim">verursacht durch <span class="mono">#409</span> · führte zu <span class="mono">#413 Aktion begonnen</span></div>
+    </div>
+  </aside>
+</main>
+
+<div id="params" style="position:fixed;right:0;bottom:0;width:380px;background:var(--panel);border:1px solid var(--line);border-bottom:0;padding:8px 14px;font-size:12px;color:var(--dim);display:none" class="dim">▸ Parameter (Platz für AP07)</div>
+<style>#params.open{display:block}</style>
+
+<script>
+function show(id){document.querySelectorAll('.drawer').forEach(d=>d.classList.toggle('show',d.id===id))}
+const cv=document.getElementById('cv'),g=cv.getContext('2d'),T=12,W=64,H=40;
+const C={grass:'#5f8f4b',grass2:'#6a9a55',path:'#b59a6a',floor:'#9c7b57',wall:'#4a4a52',water:'#3f6fa8',tree:'#2f5d34',sand:'#d8c48a',roof:'#8a4b3a'};
+function rect(x,y,w,h,c){g.fillStyle=c;g.fillRect(x*T,y*T,w*T,h*T)}
+function draw(light){
+  for(let y=0;y<H;y++)for(let x=0;x<W;x++)rect(x,y,1,1,(x*7+y*13)%5==0?C.grass2:C.grass);
+  rect(40,4,20,12,C.sand);rect(42,5,16,10,C.water);
+  rect(8,18,48,3,C.path);rect(30,6,3,14,C.path);rect(24,16,12,8,C.path);
+  const house=(x,y,w,h)=>{rect(x,y,w,h,C.wall);rect(x+1,y+1,w-2,h-2,C.floor);rect(x+Math.floor(w/2),y+h-1,1,1,'#7a5230')};
+  house(8,6,14,10);house(6,24,10,8);
+  for(let i=0;i<70;i++){const x=(i*17)%W,y=(i*29)%H;if(x>22&&x<38&&y>5&&y<26)continue;if((x>39&&y<17))continue;rect(x,y,1,1,C.tree);rect(x,y-.4,1,.6,'#3c7040')}
+  rect(26,19,4,1,'#8a6a40');rect(31,22,2,2,'#555c66');
+  const fig=(x,y,c)=>{rect(x,y,1,1,c);rect(x+.2,y-.6,.6,.6,'#f0d2b0')};
+  fig(28,22,'#e0a458');fig(33,18,'#8fb996');
+  if(light<1){g.fillStyle=`rgba(14,24,58,${(1-light)*.65})`;g.fillRect(0,0,cv.width,cv.height);
+    if(light<.6){g.fillStyle=`rgba(255,200,110,${(1-light)*.9})`;[[11,10],[14,10],[10,27]].forEach(([x,y])=>g.fillRect(x*T,y*T,T,T*.7))}}
+}
+const sl=document.getElementById('light');
+function upd(){const v=sl.value/100;document.getElementById('lv').textContent=sl.value+' %';document.getElementById('phase').textContent=v>.7?'☀':v>.35?'🌆':'🌙';draw(v)}
+sl.oninput=upd;upd();
+</script>
+</body>
+</html>
