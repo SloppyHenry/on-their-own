@@ -50,3 +50,8 @@ Die Schublade „Einstellungen“ (Header-Knopf) liegt rechts über der Welt, da
 - **Status** (`StatusPanels.tsx`): Modell und Last, alle 3 s aufgefrischt; im Header erscheinen wartende Anfragen und Fehler der letzten 15 Minuten, sobald es welche gibt.
 - Tempo: Knöpfe 0,5×, 1×, 2×, 4×, Max. Zurücksetzen fragt nach dem Modell der neuen Simulation.
 - Protokollsatz für jede Änderung: „Einstellung „Knappheit“: 0 → 40.“
+
+## Eingabeleiste (AP08)
+Dauerhaft am unteren Rand (`composer/EventComposer.tsx`). Enter sendet, Shift+Enter macht eine neue Zeile, Esc bricht ab. Optional: betroffene Figuren (Chips) und Zeitpunkt (sofort, in 30 Minuten, in 2 Stunden, Uhrzeit heute/morgen/übermorgen; gilt nur für die eine Eingabe). Vorschläge beim Fokussieren: zuletzt verwendete, aus der Welt abgeleitete und die elf Beispiele.
+
+Der Status steht in der Leiste: *wird gelesen …* → *Rückfrage* (`ClarifyCard`: Auswahl oder Freitext) → *Vorschau* (`PreviewCard`: Klartext der Änderungen, „Ausführen“) → *ausgeführt ✓* oder *abgelehnt: Grund*. Einfache Ereignisse laufen ohne weitere Bestätigung; was das Sprachmodell gedeutet hat, zeigt immer die Vorschau. Das Ergebnis erscheint im Protokoll („Ereignis eingegeben …“ plus die Folgeereignisse, Auslieferungen als „Mira erfährt …“); entsteht ein Objekt, zentriert die Weltansicht darauf. „Verlauf“ listet die eigenen Eingaben mit Status, springt zum Protokolleintrag und übernimmt eine frühere Eingabe erneut. Nebenfiguren tragen in der Bewohnerliste die Kennzeichnung „Nebenfigur“.

@@ -110,6 +110,6 @@ test("„Er findet etwas“: das Pronomen wird erfragt, nicht geraten", async ({
   expect((await state(request)).objects.length).toBe(before);
   await page.getByTestId("clarify-card").getByRole("button", { name: "Mira" }).click();
   await expect(status(page)).toContainText("ausgeführt ✓");
-  const key = (await state(request)).objects.find((o: { name: string }) => o.name === "Schlüssel" && o.known_by?.includes("mira"));
+  const key = (await state(request)).objects.find((o: { name: string; known_by?: string[] }) => o.name === "Schlüssel" && o.known_by?.includes("mira"));
   expect(key).toMatchObject({ kind: "key", location_id: "garden" });
 });

@@ -28,7 +28,7 @@ export function MemoryInspector() {
   const names = useNames();
   const stored = useUiStore((s) => s.memoryAgent);
   const openMemory = useUiStore((s) => s.openMemory);
-  const agents = world.agentOrder;
+  const agents = world.agentOrder.filter((id) => world.agents[id]?.profile);      // Nebenfiguren haben kein Gedächtnis
   const agent = stored && agents.includes(stored) ? stored : agents[0];
   const [tab, setTab] = useState<Tab>("memories");
   const [f, setF] = useState<Filters>(EMPTY);

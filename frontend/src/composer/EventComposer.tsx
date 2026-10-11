@@ -58,7 +58,7 @@ export function EventComposer() {
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
         <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-dim">Ereignis</span>
         <div className="flex gap-1" role="group" aria-label="Betroffene Figuren">
-          {world?.agentOrder.map((id) => (
+          {world?.agentOrder.filter((id) => world.agents[id]?.profile).map((id) => (
             <button key={id} aria-pressed={c.agents.includes(id)} className="cursor-pointer rounded-full border px-2.5 py-0.5 text-xs" title="Betroffene Figur (optional)"
               style={c.agents.includes(id) ? { borderColor: accentOf(id), color: "var(--color-text)", background: "#ffffff0a" } : { borderColor: "var(--color-line)", color: "var(--color-dim)" }}
               onClick={() => c.toggleAgent(id)}>{names.agent(id)}</button>

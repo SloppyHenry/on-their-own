@@ -244,3 +244,16 @@ Verändernde Aufrufe brauchen den `Idempotency-Key`. Ereignis `simulation.parame
 
 ### Beobachtungsmodi (`agents/modes.py`)
 `observer` (Standard: die Agenten erfahren nichts), `creator` (editierbarer Abschnitt über eine äußere Instanz am Ende des Systemprompts), `intervention` (vorerst wie Beobachter; direkte Nachrichten kommen mit AP08). Ein Wechsel gilt ab der nächsten Entscheidung und ändert keine Erinnerungen.
+
+## Freie Ereigniseingabe (AP08)
+Ausführlich in [ereignisse.md](ereignisse.md). Verändernde Aufrufe brauchen den `Idempotency-Key`.
+
+| Methode und Pfad | Zweck |
+|---|---|
+| `POST /api/inject/parse` | `{text, agents?, at?}` → Vorschlag; `{answer_to, answer}` beantwortet eine Rückfrage. Ändert die Welt nicht. Antwort: `status` (`needs_clarification` / `ready` / `needs_confirmation` / `rejected`), `ops`, `preview` (Klartext), `clarification` {question, options, free_text}, `reason`, `source` (`rule`/`llm`) |
+| `POST /api/inject/confirm` | `{proposal_id}` führt aus (noch einmal gegen die aktuelle Welt geprüft) → `executed` mit `event_seqs` oder `rejected` mit Grund |
+| `GET /api/inject/history` | eigene Eingaben mit Status |
+| `GET /api/scheduled`, `DELETE /api/scheduled/{id}` | geplante Ereignisse ansehen und absagen |
+
+Fehler: 422 (leer, zu lang), 429 (mehr als 10 je Minute), 404/409 (unbekannte oder schon ausgeführte Eingabe).
+Neue Ereignistypen: `simulation.event_injected` (Text, Quelle, Modus, `directive`, Zusammenfassung), `simulation.event_scheduled`, `simulation.event_fired`, `simulation.effect_ended`, `agent.informed` (nur für den Empfänger sichtbar), `world.npc_acted`. Tabellen (`008_user_events.sql`): `inject_log`, `scheduled_events`, `npcs`.
