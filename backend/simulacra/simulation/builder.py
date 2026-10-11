@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 
+from ..agents.autonomy import Autonomy
 from ..agents.conversation import ConversationManager
 from ..agents.observations import ObservationCollector
 from ..agents.planner import Planner
@@ -34,6 +35,7 @@ class Simulation:
     planner: Planner
     collector: ObservationCollector
     memory: MemorySystem
+    autonomy: Autonomy
     runner: SimulationRunner
 
     @classmethod
@@ -44,11 +46,13 @@ class Simulation:
         convs = ConversationManager(engine, store, max_turns=settings.sim_conversation_max_turns)
         client = LLMClient.from_settings(settings, provider)
         memory = MemorySystem(engine, MemoryParams.from_settings(settings), store, client)
-        planner = Planner(engine, store, convs, client, Tuning(top_k=settings.sim_top_k), settings.sim_memory_lines, settings.sim_correction_retries, memory)
+        autonomy = Autonomy(engine, store, memory, client)
+        memory.reflector.relations = autonomy.relations
+        planner = Planner(engine, store, convs, client, Tuning(top_k=settings.sim_top_k), settings.sim_memory_lines, settings.sim_correction_retries, memory, autonomy)
         collector = ObservationCollector(engine.state, store)
-        runner = SimulationRunner(engine, store, convs, collector, planner, memory,
+        runner = SimulationRunner(engine, store, convs, collector, planner, memory, autonomy,
                                   DecisionLimiter(settings.sim_min_decision_gap_s, settings.sim_max_decisions_per_minute), settings.sim_tick_delay_s)
-        return cls(settings, str(db_path), provider, db, engine, store, convs, client, planner, collector, memory, runner)
+        return cls(settings, str(db_path), provider, db, engine, store, convs, client, planner, collector, memory, autonomy, runner)
 
     async def reset(self, backup_dir: Path | None = None) -> Path | None:
         """Hält an, sichert die bisherige Datenbank (nie löschen) und legt eine frische Welt an. Gibt den Sicherungspfad zurück."""

@@ -112,7 +112,7 @@ class MemoryWriter:
         last = self.know.state_of(agent_id)["last_plan"]
         self.know.set_last_plan(agent_id, plan)
         text = f"Ich habe vor: {_cut(plan, 140)}."
-        opened = [m for m in self.mem.recent(agent_id, kinds=("intention",), limit=10) if m.intention_state == "open"]
+        opened = [m for m in self.mem.recent(agent_id, kinds=("intention",), limit=10) if m.intention_state == "open" and not m.text.startswith("Mein Ziel:")]
         for old in opened:
             if self._jaccard(old.text, text) >= 0.4:                                   # dasselbe Vorhaben, neu formuliert: Wortlaut auffrischen
                 self.mem.update_text(agent_id, old.id, text, self._keywords(text, location_id, old.persons))

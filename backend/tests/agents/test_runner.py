@@ -36,7 +36,7 @@ async def test_step_runs_due_decisions_then_exactly_one_tick():
     t0 = sim.engine.minute
     assert await sim.runner.step() == 1
     assert sim.engine.minute == t0 + 1
-    assert len(sim.client.provider.calls) == 2                         # beide Agenten waren frei
+    assert len([c for c in sim.client.provider.calls if "option_id" in c["schema"]["properties"]]) == 2     # beide Agenten waren frei (dazu Zielsetzungen)
     assert all(sim.engine.state.agent(a).action is not None for a in ("alex", "mira"))
     assert await sim.runner.step(3) == 3 and sim.engine.minute == t0 + 4
 

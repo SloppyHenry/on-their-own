@@ -85,7 +85,8 @@ class GoalPlanner:
         if recent:
             lines.append("Zuletzt: " + "; ".join(f"«{g.text}» ({'erreicht' if g.state == 'achieved' else 'aufgegeben: ' + g.reason})" for g in recent[:3]) + ".")
         if previous is not None:
-            lines.append(f"Dein bisheriges Ziel «{previous.text}» ist festgefahren ({previous.reason}). Geh es anders an oder setze dir ein anderes.")
+            lines.append(f"Dein bisheriges Ziel «{previous.text}» ist festgefahren ({previous.reason}). " +
+                         ("Plane denselben Weg noch einmal neu, aber anders." if previous.replans == 0 else "Setze dir stattdessen ein anderes Ziel."))
         mem = self.memory.recall_for_text(agent_id, " ".join(longs), minute)
         if mem:
             lines += ["Woran du dich erinnerst:", *[f"- {m}" for m in mem]]

@@ -9,9 +9,22 @@ from simulacra.llm.providers import FakeProvider, first_option_fn
 from simulacra.simulation.builder import Simulation
 
 
+GOAL_ANSWER = json.dumps({"text": "Den Garten besuchen", "condition": {"type": "location_visited", "location": "garden"},
+                          "plan": [{"step": "Zum Garten gehen", "kind": "move", "target": "garden"}]}, ensure_ascii=False)
+
+
+def with_goals(fn):
+    """Beantwortet Zielsetzungs-Aufrufe (Schema mit `condition`), alles andere übernimmt `fn`."""
+    def wrapped(messages, schema, params):
+        if "condition" in (schema or {}).get("properties", {}):
+            return GOAL_ANSWER
+        return fn(messages, schema, params)
+    return wrapped
+
+
 def make_sim(fn=first_option_fn, script=None, **settings) -> Simulation:
     s = Settings(llm_api_key_file="/nonexistent", llm_backoff_s=0.0, **settings)
-    prov = FakeProvider(script=script, fn=None if script else fn)
+    prov = FakeProvider(script=script, fn=None if script else with_goals(fn))
     return Simulation.create(s, ":memory:", prov)
 
 

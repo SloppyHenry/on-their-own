@@ -7,6 +7,8 @@ export interface SimulacraApi {
   ActionStarted?: ActionStarted;
   AgentAdded?: AgentAdded;
   AgentDetail?: AgentDetail;
+  AgentNeeds?: AgentNeeds;
+  AgentOverview?: AgentOverview;
   Arrived?: Arrived;
   Ate?: Ate;
   ConversationEnded?: ConversationEnded;
@@ -14,12 +16,18 @@ export interface SimulacraApi {
   DayStarted?: DayStarted;
   Decision?: Decision;
   DecisionFailed?: DecisionFailed;
+  DecisionOut?: DecisionOut;
   Dialogue?: Dialogue;
   Drank?: Drank;
   EventDetail?: EventDetail;
   EventOut?: EventOut;
   EventsPage?: EventsPage;
+  FactorRegistry?: FactorRegistry;
+  FailureOut?: FailureOut;
   Fished?: Fished;
+  GoalChanged?: GoalChanged;
+  GoalOut?: GoalOut;
+  GuardTriggered?: GuardTriggered;
   Inspected?: Inspected;
   InventoryChanged?: InventoryChanged;
   ItemGiven?: ItemGiven;
@@ -47,6 +55,8 @@ export interface SimulacraApi {
   PhaseChanged?: PhaseChanged;
   ProposalAnswered?: ProposalAnswered;
   Read?: Read;
+  RelationChanged?: RelationChanged;
+  RelationOut?: RelationOut;
   ResetRequest?: ResetRequest;
   ResourceAdded?: ResourceAdded;
   ResourceChanged?: ResourceChanged;
@@ -224,6 +234,69 @@ export interface ProfileBrief {
 }
 /**
  * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "AgentNeeds".
+ */
+export interface AgentNeeds {
+  mood: MoodOut;
+  needs: NeedOut[];
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "MoodOut".
+ */
+export interface MoodOut {
+  reasons: unknown[][];
+  value: number;
+  word: string;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "NeedOut".
+ */
+export interface NeedOut {
+  critical: boolean;
+  key: string;
+  label: string;
+  value: number;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "AgentOverview".
+ */
+export interface AgentOverview {
+  goal: GoalOut | null;
+  id: string;
+  long_goals: GoalOut[];
+  mood: MoodOut;
+  needs: NeedOut[];
+  resting: boolean;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "GoalOut".
+ */
+export interface GoalOut {
+  condition: {
+    [k: string]: unknown;
+  } | null;
+  created: number;
+  failures: number;
+  id: string;
+  kind: string;
+  last_progress: number;
+  plan: {
+    [k: string]: unknown;
+  }[];
+  plan_step: number;
+  progress: number;
+  reason: string;
+  replans: number;
+  state: string;
+  text: string;
+  updated: number;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
  * via the `definition` "Arrived".
  */
 export interface Arrived {
@@ -275,6 +348,7 @@ export interface Decision {
   chosen?: string | null;
   decision_id: number;
   factors?: unknown[][];
+  goal?: string | null;
   importance?: number;
   intent?: string;
   latency_ms?: number;
@@ -282,7 +356,10 @@ export interface Decision {
   params?: {
     [k: string]: unknown;
   };
+  rank?: number | null;
+  retrieval_id?: number | null;
   status: string;
+  why?: string;
 }
 /**
  * This interface was referenced by `SimulacraApi`'s JSON-Schema
@@ -301,6 +378,61 @@ export interface OptionSummary {
 export interface DecisionFailed {
   attempts?: number;
   reason?: string | null;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "DecisionOut".
+ */
+export interface DecisionOut {
+  action: string | null;
+  agent_id: string;
+  attempts: number;
+  best: boolean | null;
+  chosen: string | null;
+  event_seq: number | null;
+  goal: {
+    [k: string]: unknown;
+  } | null;
+  goal_why: string | null;
+  groups: {
+    [k: string]: number;
+  };
+  id: number;
+  importance: number | null;
+  intent: string | null;
+  latency_ms: number | null;
+  mood: {
+    [k: string]: unknown;
+  } | null;
+  options: OptionOut[];
+  outcome: string | null;
+  outcome_text: string | null;
+  params: {
+    [k: string]: unknown;
+  } | null;
+  plan_next: string | null;
+  rank: number | null;
+  retrieval_id: number | null;
+  sim_minute: number;
+  status: string;
+  utterance: string | null;
+  why: string;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "OptionOut".
+ */
+export interface OptionOut {
+  action: string;
+  eta: number | null;
+  factors: unknown[][];
+  id: string;
+  kind: string;
+  label: string;
+  params: {
+    [k: string]: unknown;
+  };
+  score: number;
 }
 /**
  * This interface was referenced by `SimulacraApi`'s JSON-Schema
@@ -365,10 +497,70 @@ export interface EventsPage {
 }
 /**
  * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "FactorRegistry".
+ */
+export interface FactorRegistry {
+  factors: FactorInfo[];
+  groups: {
+    [k: string]: string;
+  };
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "FactorInfo".
+ */
+export interface FactorInfo {
+  key: string;
+  label: string;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "FailureOut".
+ */
+export interface FailureOut {
+  action: string;
+  code: string;
+  context: {
+    [k: string]: unknown;
+  };
+  event_seq: number | null;
+  id: number;
+  params: {
+    [k: string]: unknown;
+  };
+  sim_minute: number;
+  text: string;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
  * via the `definition` "Fished".
  */
 export interface Fished {
   caught: boolean;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "GoalChanged".
+ */
+export interface GoalChanged {
+  goal_id: string;
+  kind: string;
+  new: string;
+  old?: string | null;
+  progress?: number;
+  reason: string;
+  replaced?: string | null;
+  text: string;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "GuardTriggered".
+ */
+export interface GuardTriggered {
+  detail: string;
+  guard: string;
+  key?: string | null;
+  until?: number | null;
 }
 /**
  * This interface was referenced by `SimulacraApi`'s JSON-Schema
@@ -787,6 +979,48 @@ export interface Read {
 }
 /**
  * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "RelationChanged".
+ */
+export interface RelationChanged {
+  deltas: {
+    [k: string]: number;
+  };
+  other: string;
+  reason: string;
+  source: string;
+  values: {
+    [k: string]: number;
+  };
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "RelationOut".
+ */
+export interface RelationOut {
+  conflicts: string[];
+  log: RelationLogItem[];
+  other_id: string;
+  other_name: string;
+  shared: string[];
+  values: {
+    [k: string]: number;
+  };
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "RelationLogItem".
+ */
+export interface RelationLogItem {
+  deltas: {
+    [k: string]: number;
+  };
+  event_seq: number | null;
+  reason: string;
+  sim_minute: number;
+  source: string;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
  * via the `definition` "ResetRequest".
  */
 export interface ResetRequest {
@@ -1187,12 +1421,14 @@ export interface EventDataMap {
   "agent.proposal_declined": ProposalAnswered;
   "agent.decision": Decision;
   "agent.status_changed": StatusChanged;
+  "agent.relation_changed": RelationChanged;
+  "agent.guard_triggered": GuardTriggered;
   "agent.decision_failed": DecisionFailed;
   "agent.memory_created": MemoryCreated;
   "agent.memory_retrieved": MemoryRetrieved;
   "agent.memory_skipped": MemorySkipped;
   "agent.memory_archived": MemoryArchived;
-  "agent.goal_changed": Record<string, unknown>;
+  "agent.goal_changed": GoalChanged;
   "world.object_created": ObjectCreated;
   "world.object_changed": ObjectChanged;
   "world.object_removed": ObjectRemoved;
@@ -1254,6 +1490,8 @@ export const EVENT_CATEGORY: Record<EventType, EventCategory> = {
   "agent.proposal_declined": "dialogue",
   "agent.decision": "planning",
   "agent.status_changed": "planning",
+  "agent.relation_changed": "planning",
+  "agent.guard_triggered": "planning",
   "agent.decision_failed": "system",
   "agent.memory_created": "memory",
   "agent.memory_retrieved": "memory",
@@ -1290,4 +1528,4 @@ export const EVENT_CATEGORY: Record<EventType, EventCategory> = {
 };
 
 /** Noch nicht erzeugte, für spätere Pakete vorgesehene Typen. */
-export const PLANNED_EVENT_TYPES: EventType[] = ["agent.goal_changed", "simulation.event_injected"];
+export const PLANNED_EVENT_TYPES: EventType[] = ["simulation.event_injected"];

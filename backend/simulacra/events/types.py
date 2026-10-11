@@ -60,6 +60,7 @@ _ALL = [
     _t("agent.decision", "planning", m.Decision, "Entscheidung mit angebotenen Optionen und Bewertung"),
     _t("agent.status_changed", "planning", m.StatusChanged, "Handlungsstatus eines Agenten hat sich geändert"),
     _t("agent.relation_changed", "planning", m.RelationChanged, "Eine Beziehung hat sich verändert (mit Grund)"),
+    _t("agent.guard_triggered", "planning", m.GuardTriggered, "Ein Schutzmechanismus hat eingegriffen (Wiederholung, Gesprächsschleife, Ruhemodus …)"),
     _t("agent.decision_failed", "system", m.DecisionFailed, "Keine verwertbare Antwort vom Modell: Rückfall"),
     _t("agent.memory_created", "memory", m.MemoryCreated, "Erinnerung gespeichert"),
     _t("agent.memory_retrieved", "memory", m.MemoryRetrieved, "Erinnerungen für eine Entscheidung abgerufen"),

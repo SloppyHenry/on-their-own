@@ -16,12 +16,14 @@ from ..events.schema import EventOut, SimTime
 from ..events.types import REGISTRY
 from . import models as api
 from . import models_memory as mm
+from . import models_autonomy as ma
 
 API_MODELS: list[type[BaseModel]] = [
     api.StateSnapshot, api.AgentDetail, api.LocationDetail, api.EventsPage, api.EventDetail, api.SimCommandResult,
     api.StartRequest, api.StepRequest, api.ResetRequest, api.SpeedRequest,
     api.WsHello, api.WsResync, api.WsPong, api.WsSnapshot, api.WsEvents, api.WsEvent, api.WsPing, api.WsResyncRequired,
     mm.MemoriesPage, mm.MemoryDetail, mm.Knowledge, mm.RetrievalOut, mm.MemoryStats,
+    ma.GoalOut, ma.AgentNeeds, ma.AgentOverview, ma.RelationOut, ma.FailureOut, ma.DecisionOut, ma.FactorRegistry,
     EventOut, SimTime,
 ]
 

@@ -11,6 +11,7 @@ from dataclasses import dataclass, field
 from enum import StrEnum
 from typing import Any
 
+from ..agents.autonomy import Autonomy
 from ..agents.conversation import ConversationManager
 from ..agents.observations import ObservationCollector
 from ..agents.planner import Decision, Planner
@@ -50,9 +51,10 @@ REFLECT_MAX_POSTPONE = 20            # Schritte, die eine Reflexion höchstens w
 
 class SimulationRunner:
     def __init__(self, engine: WorldEngine, store: AgentStore, convs: ConversationManager, collector: ObservationCollector,
-                 planner: Planner, memory: MemorySystem, limiter: DecisionLimiter | None = None, tick_delay_s: float = 0.0):
+                 planner: Planner, memory: MemorySystem, autonomy: Autonomy, limiter: DecisionLimiter | None = None, tick_delay_s: float = 0.0):
         self.engine, self.store, self.convs, self.collector, self.planner = engine, store, convs, collector, planner
         self.memory = memory
+        self.autonomy = autonomy
         self.limiter = limiter or DecisionLimiter()
         self.tick_delay_s = tick_delay_s
         self.state = SimState.STOPPED
@@ -160,16 +162,17 @@ class SimulationRunner:
         db, mem = self.engine.db, self.memory
         if any(e.type == "world.day_started" for e in events):
             await db.run(lambda: [mem.maintenance.run(a, self.engine.minute) for a in self.store.ai_agent_ids()])
-        due = await db.run(lambda: [(a, r) for a in self.store.ai_agent_ids() if (r := mem.reflector.due(a, self.engine.minute))])
-        if not due or (not force and not self._gate.is_set()):
+        if not force and not self._gate.is_set():
             return
-        waiting = await db.run(self._due_agents)
+        waiting = bool(await db.run(self._due_agents))
+        due = await db.run(lambda: [(a, r) for a in self.store.ai_agent_ids() if (r := mem.reflector.due(a, self.engine.minute))])
         for aid, reason in due:
             self._postponed[aid] = self._postponed.get(aid, 0) + 1
             if waiting and self._postponed[aid] < REFLECT_MAX_POSTPONE:
                 continue
             self._postponed[aid] = 0
             await mem.reflector.run(aid, reason)
+        await self.autonomy.housekeeping(self.engine.minute, waiting)
 
     async def _decisions(self, force: bool) -> bool:
         ids = await self.engine.db.run(self._due_agents)
@@ -187,7 +190,7 @@ class SimulationRunner:
         out = []
         for aid in self.store.ai_agent_ids():
             body = self.engine.state.agent(aid)
-            if body is not None and body.action is None:
+            if body is not None and body.action is None and not self.autonomy.guards.resting(aid, self.engine.minute):
                 out.append(aid)
         return out
 
@@ -221,19 +224,26 @@ class SimulationRunner:
                                    respond=(opt.meta.get("respond", "") if opt else ""))
         if dec.plan_next:
             self.store.set_plan(aid, dec.plan_next)
+        ctx = dec.extra.get("ctx")
+        trace = self.autonomy.trace(dec, ctx) if ctx is not None else {}
         decision_id = self.store.log_decision({
             "sim_minute": dec.minute, "agent_id": aid, "status": dec.status, "options": [o.to_dict() for o in dec.options], "chosen": dec.chosen_id,
             "action": dec.action, "params": dec.params, "intent": dec.intent, "importance": dec.importance, "utterance": dec.utterance,
             "plan_next": dec.plan_next, "attempts": dec.attempts, "latency_ms": dec.latency_ms, "prompt_tokens": dec.prompt_tokens,
-            "completion_tokens": dec.completion_tokens, "error": dec.error})
+            "completion_tokens": dec.completion_tokens, "error": dec.error, "goal_id": (trace.get("goal") or {}).get("id"), "trace": trace or None})
         shown = {"decision_id": decision_id, "status": dec.status, "chosen": dec.chosen_id, "action": dec.action, "params": dec.params,
                  "intent": dec.intent, "importance": dec.importance, "attempts": dec.attempts, "latency_ms": dec.latency_ms,
                  "options": [{"id": o.id, "kind": o.kind, "label": o.label, "score": o.score} for o in dec.options],
-                 "factors": [[n, v] for n, v in (dec.chosen.factors if dec.chosen else [])]}
+                 "factors": [[n, v] for n, v in (dec.chosen.factors if dec.chosen else [])], "why": trace.get("why", ""), "rank": trace.get("rank"),
+                 "goal": (trace.get("goal") or {}).get("text"), "retrieval_id": dec.extra.get("retrieval_id")}
         decision_event = eng.emit_event("agent.decision", [aid], loc, shown)
         res = eng.propose(aid, dec.action, dec.params, parent_seq=decision_event.seq)
         seq = next((e.seq for e in res.events if e.type in ("agent.action_started", "agent.action_rejected")), None)
         self.store.set_decision_outcome(decision_id, "accepted" if res.ok else "rejected", res.rejected.text if res.rejected else None, seq)
+        if trace:
+            trace["outcome"] = {"ok": res.ok, "code": str(getattr(res.rejected.code, "value", res.rejected.code)) if res.rejected else None, "text": res.rejected.text if res.rejected else None}
+            self.store.set_decision_trace(decision_id, trace)
+        self.autonomy.after_decision(dec, res, self.engine.minute, decision_event.seq, trace or {})
         self.store.mark_decided(aid)
         self._set_status(aid, self._status_of(aid))
         self._remember(res.events, dec, decision_id, decision_event.seq, res)
@@ -264,6 +274,7 @@ class SimulationRunner:
                 extra += self.convs.on_dialogue(ev)
         extra += self.convs.expire(self.engine.minute)
         self._remember(events + extra)
+        self.autonomy.after_tick(events + extra, self.engine.minute)
         for aid in self.store.ai_agent_ids():
             self._set_status(aid, self._status_of(aid))
         return extra
@@ -271,6 +282,8 @@ class SimulationRunner:
     def _status_of(self, aid: str) -> str:
         body = self.engine.state.agent(aid)
         a = body.action if body else None
+        if self.autonomy.guards.resting(aid, self.engine.minute):
+            return "resting_mode"
         return ("idle" if a is None else "sleeping" if a.type == "sleep" or a.data.get("mode") == "sleep" else "talking" if a.type == "speak"
                 else "resting_mode" if a.type == "recover" else "acting")
 

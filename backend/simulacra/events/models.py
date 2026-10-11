@@ -154,6 +154,10 @@ class Decision(D):
     factors: list[list[Any]] = []             # [Name, Punkte] der gewählten Option
     attempts: int = 1
     latency_ms: int = 0
+    why: str = ""                            # Erklärung aus den Daten (agents/explain.py)
+    rank: int | None = None                   # Platz der gewählten Option nach Punkten (1 = bestbewertet)
+    goal: str | None = None                   # aktives Ziel zum Zeitpunkt der Entscheidung
+    retrieval_id: int | None = None           # Abruf aus dem Gedächtnis für diese Entscheidung
 
 
 class DecisionFailed(D):
@@ -216,6 +220,13 @@ class GoalChanged(D):
     reason: str
     progress: float = 0.0
     replaced: str | None = None
+
+
+class GuardTriggered(D):
+    guard: str
+    detail: str
+    key: str | None = None
+    until: int | None = None
 
 
 class StatusChanged(D):

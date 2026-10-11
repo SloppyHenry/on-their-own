@@ -1,7 +1,7 @@
 import json
 import re
 
-from agents.conftest import chooser, make_sim, put
+from agents.conftest import chooser, make_sim, put, with_goals
 
 
 def intent_chooser(importance=5):
@@ -56,6 +56,7 @@ async def test_retrieved_memories_appear_in_the_prompt():
 
 async def test_conversation_becomes_one_relation_memory_per_participant():
     sim = make_sim(fn=chooser("antworten", "Gespräch beginnen", utterance="Ich habe Holz für uns."))
+    sim.autonomy.planner.params.enabled = False               # hier geht es um das Gedächtnis, nicht um Ziele
     await run(sim, 40)
     rel = [x for who in ("alex", "mira") for x in sim.memory.store.list(who, kind="relation")[0]]
     assert rel, "es hätte ein Gespräch zusammengefasst werden müssen"
@@ -69,7 +70,7 @@ async def test_conversation_becomes_one_relation_memory_per_participant():
 async def test_intentions_are_tracked_and_replaced():
     sim = make_sim(fn=intent_chooser())
     await run(sim, 40)
-    intents = sim.memory.store.list("alex", kind="intention")[0]
+    intents = [m for m in sim.memory.store.list("alex", kind="intention")[0] if not m.text.startswith("Mein Ziel:")]
     assert len([i for i in intents if i.intention_state == "open"]) <= 1          # nur das aktuelle Vorhaben ist offen
     sim.close()
 
@@ -114,14 +115,14 @@ async def test_restart_keeps_everything_and_the_prompt_uses_it_again(tmp_path):
     from simulacra.llm.providers import FakeProvider
     from simulacra.simulation.builder import Simulation
     s = Settings(llm_api_key_file="/nonexistent", llm_backoff_s=0.0)
-    a = Simulation.create(s, tmp_path / "w.db", FakeProvider(fn=intent_chooser()))
+    a = Simulation.create(s, tmp_path / "w.db", FakeProvider(fn=with_goals(intent_chooser())))
     put(a, "alex", 7, 7)
     put(a, "mira", 8, 7)
     await a.runner.step(40)
     before = {who: [m.id for m in a.memory.store.list(who, limit=500)[0]] for who in ("alex", "mira")}
     assert before["alex"] and before["mira"]
     a.close()
-    b = Simulation.create(s, tmp_path / "w.db", FakeProvider(fn=intent_chooser()))
+    b = Simulation.create(s, tmp_path / "w.db", FakeProvider(fn=with_goals(intent_chooser())))
     after = {who: [m.id for m in b.memory.store.list(who, limit=500)[0]] for who in ("alex", "mira")}
     assert after == before
     b.memory.params.min_score = 0.0

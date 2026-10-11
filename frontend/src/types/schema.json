@@ -424,6 +424,75 @@
    "title": "AgentInfo",
    "type": "object"
   },
+  "AgentNeeds": {
+   "additionalProperties": false,
+   "properties": {
+    "mood": {
+     "$ref": "#/$defs/MoodOut"
+    },
+    "needs": {
+     "items": {
+      "$ref": "#/$defs/NeedOut"
+     },
+     "type": "array"
+    }
+   },
+   "required": [
+    "needs",
+    "mood"
+   ],
+   "title": "AgentNeeds",
+   "type": "object"
+  },
+  "AgentOverview": {
+   "additionalProperties": false,
+   "properties": {
+    "goal": {
+     "anyOf": [
+      {
+       "$ref": "#/$defs/GoalOut"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "id": {
+     "type": "string"
+    },
+    "long_goals": {
+     "default": [],
+     "items": {
+      "$ref": "#/$defs/GoalOut"
+     },
+     "type": "array"
+    },
+    "mood": {
+     "$ref": "#/$defs/MoodOut"
+    },
+    "needs": {
+     "items": {
+      "$ref": "#/$defs/NeedOut"
+     },
+     "type": "array"
+    },
+    "resting": {
+     "default": false,
+     "type": "boolean"
+    }
+   },
+   "required": [
+    "id",
+    "goal",
+    "long_goals",
+    "mood",
+    "needs",
+    "resting"
+   ],
+   "title": "AgentOverview",
+   "type": "object"
+  },
   "Arrived": {
    "additionalProperties": false,
    "properties": {
@@ -606,6 +675,17 @@
      },
      "type": "array"
     },
+    "goal": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
     "importance": {
      "default": 3,
      "type": "integer"
@@ -630,7 +710,33 @@
      "default": {},
      "type": "object"
     },
+    "rank": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "retrieval_id": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
     "status": {
+     "type": "string"
+    },
+    "why": {
+     "default": "",
      "type": "string"
     }
    },
@@ -752,6 +858,264 @@
     }
    },
    "title": "DecisionFailed",
+   "type": "object"
+  },
+  "DecisionOut": {
+   "additionalProperties": false,
+   "properties": {
+    "action": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "agent_id": {
+     "type": "string"
+    },
+    "attempts": {
+     "default": 1,
+     "type": "integer"
+    },
+    "best": {
+     "anyOf": [
+      {
+       "type": "boolean"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "chosen": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "event_seq": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "goal": {
+     "anyOf": [
+      {
+       "additionalProperties": true,
+       "type": "object"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "goal_why": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "groups": {
+     "additionalProperties": {
+      "type": "number"
+     },
+     "default": {},
+     "type": "object"
+    },
+    "id": {
+     "type": "integer"
+    },
+    "importance": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "intent": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "latency_ms": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "mood": {
+     "anyOf": [
+      {
+       "additionalProperties": true,
+       "type": "object"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "options": {
+     "default": [],
+     "items": {
+      "$ref": "#/$defs/OptionOut"
+     },
+     "type": "array"
+    },
+    "outcome": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "outcome_text": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "params": {
+     "anyOf": [
+      {
+       "additionalProperties": true,
+       "type": "object"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "plan_next": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "rank": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "retrieval_id": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "sim_minute": {
+     "type": "integer"
+    },
+    "status": {
+     "type": "string"
+    },
+    "utterance": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "why": {
+     "default": "",
+     "type": "string"
+    }
+   },
+   "required": [
+    "id",
+    "agent_id",
+    "sim_minute",
+    "status",
+    "chosen",
+    "action",
+    "params",
+    "intent",
+    "importance",
+    "utterance",
+    "plan_next",
+    "outcome",
+    "outcome_text",
+    "attempts",
+    "latency_ms",
+    "options",
+    "why",
+    "rank",
+    "best",
+    "goal",
+    "goal_why",
+    "groups",
+    "mood",
+    "retrieval_id",
+    "event_seq"
+   ],
+   "title": "DecisionOut",
    "type": "object"
   },
   "Dialogue": {
@@ -918,6 +1282,99 @@
    "title": "EventsPage",
    "type": "object"
   },
+  "FactorInfo": {
+   "additionalProperties": false,
+   "properties": {
+    "key": {
+     "type": "string"
+    },
+    "label": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "label",
+    "key"
+   ],
+   "title": "FactorInfo",
+   "type": "object"
+  },
+  "FactorRegistry": {
+   "additionalProperties": false,
+   "properties": {
+    "factors": {
+     "items": {
+      "$ref": "#/$defs/FactorInfo"
+     },
+     "type": "array"
+    },
+    "groups": {
+     "additionalProperties": {
+      "type": "string"
+     },
+     "type": "object"
+    }
+   },
+   "required": [
+    "factors",
+    "groups"
+   ],
+   "title": "FactorRegistry",
+   "type": "object"
+  },
+  "FailureOut": {
+   "additionalProperties": false,
+   "properties": {
+    "action": {
+     "type": "string"
+    },
+    "code": {
+     "type": "string"
+    },
+    "context": {
+     "additionalProperties": true,
+     "default": {},
+     "type": "object"
+    },
+    "event_seq": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "id": {
+     "type": "integer"
+    },
+    "params": {
+     "additionalProperties": true,
+     "default": {},
+     "type": "object"
+    },
+    "sim_minute": {
+     "type": "integer"
+    },
+    "text": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "id",
+    "sim_minute",
+    "action",
+    "params",
+    "code",
+    "text",
+    "context",
+    "event_seq"
+   ],
+   "title": "FailureOut",
+   "type": "object"
+  },
   "Fished": {
    "additionalProperties": false,
    "properties": {
@@ -929,6 +1386,184 @@
     "caught"
    ],
    "title": "Fished",
+   "type": "object"
+  },
+  "GoalChanged": {
+   "additionalProperties": false,
+   "properties": {
+    "goal_id": {
+     "type": "string"
+    },
+    "kind": {
+     "type": "string"
+    },
+    "new": {
+     "type": "string"
+    },
+    "old": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "progress": {
+     "default": 0.0,
+     "type": "number"
+    },
+    "reason": {
+     "type": "string"
+    },
+    "replaced": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "text": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "goal_id",
+    "kind",
+    "text",
+    "new",
+    "reason"
+   ],
+   "title": "GoalChanged",
+   "type": "object"
+  },
+  "GoalOut": {
+   "additionalProperties": false,
+   "properties": {
+    "condition": {
+     "anyOf": [
+      {
+       "additionalProperties": true,
+       "type": "object"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "created": {
+     "type": "integer"
+    },
+    "failures": {
+     "default": 0,
+     "type": "integer"
+    },
+    "id": {
+     "type": "string"
+    },
+    "kind": {
+     "type": "string"
+    },
+    "last_progress": {
+     "type": "integer"
+    },
+    "plan": {
+     "default": [],
+     "items": {
+      "additionalProperties": true,
+      "type": "object"
+     },
+     "type": "array"
+    },
+    "plan_step": {
+     "default": 0,
+     "type": "integer"
+    },
+    "progress": {
+     "default": 0.0,
+     "type": "number"
+    },
+    "reason": {
+     "default": "",
+     "type": "string"
+    },
+    "replans": {
+     "default": 0,
+     "type": "integer"
+    },
+    "state": {
+     "type": "string"
+    },
+    "text": {
+     "type": "string"
+    },
+    "updated": {
+     "type": "integer"
+    }
+   },
+   "required": [
+    "id",
+    "kind",
+    "text",
+    "state",
+    "condition",
+    "plan",
+    "plan_step",
+    "progress",
+    "created",
+    "updated",
+    "last_progress",
+    "failures",
+    "replans",
+    "reason"
+   ],
+   "title": "GoalOut",
+   "type": "object"
+  },
+  "GuardTriggered": {
+   "additionalProperties": false,
+   "properties": {
+    "detail": {
+     "type": "string"
+    },
+    "guard": {
+     "type": "string"
+    },
+    "key": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "until": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    }
+   },
+   "required": [
+    "guard",
+    "detail"
+   ],
+   "title": "GuardTriggered",
    "type": "object"
   },
   "Inspected": {
@@ -1852,6 +2487,32 @@
    "title": "MemoryStats",
    "type": "object"
   },
+  "MoodOut": {
+   "additionalProperties": false,
+   "properties": {
+    "reasons": {
+     "default": [],
+     "items": {
+      "items": {},
+      "type": "array"
+     },
+     "type": "array"
+    },
+    "value": {
+     "type": "number"
+    },
+    "word": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "value",
+    "word",
+    "reasons"
+   ],
+   "title": "MoodOut",
+   "type": "object"
+  },
   "Moved": {
    "additionalProperties": false,
    "properties": {
@@ -1881,6 +2542,32 @@
     "facing"
    ],
    "title": "Moved",
+   "type": "object"
+  },
+  "NeedOut": {
+   "additionalProperties": false,
+   "properties": {
+    "critical": {
+     "default": false,
+     "type": "boolean"
+    },
+    "key": {
+     "type": "string"
+    },
+    "label": {
+     "type": "string"
+    },
+    "value": {
+     "type": "number"
+    }
+   },
+   "required": [
+    "key",
+    "label",
+    "value",
+    "critical"
+   ],
+   "title": "NeedOut",
    "type": "object"
   },
   "ObjectChanged": {
@@ -2204,6 +2891,62 @@
    "title": "ObservationBrief",
    "type": "object"
   },
+  "OptionOut": {
+   "additionalProperties": false,
+   "properties": {
+    "action": {
+     "type": "string"
+    },
+    "eta": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "factors": {
+     "default": [],
+     "items": {
+      "items": {},
+      "type": "array"
+     },
+     "type": "array"
+    },
+    "id": {
+     "type": "string"
+    },
+    "kind": {
+     "type": "string"
+    },
+    "label": {
+     "type": "string"
+    },
+    "params": {
+     "additionalProperties": true,
+     "default": {},
+     "type": "object"
+    },
+    "score": {
+     "type": "number"
+    }
+   },
+   "required": [
+    "id",
+    "kind",
+    "label",
+    "action",
+    "params",
+    "eta",
+    "score",
+    "factors"
+   ],
+   "title": "OptionOut",
+   "type": "object"
+  },
   "OptionSummary": {
    "additionalProperties": false,
    "properties": {
@@ -2362,6 +3105,129 @@
     "name"
    ],
    "title": "Read",
+   "type": "object"
+  },
+  "RelationChanged": {
+   "additionalProperties": false,
+   "properties": {
+    "deltas": {
+     "additionalProperties": {
+      "type": "number"
+     },
+     "type": "object"
+    },
+    "other": {
+     "type": "string"
+    },
+    "reason": {
+     "type": "string"
+    },
+    "source": {
+     "type": "string"
+    },
+    "values": {
+     "additionalProperties": {
+      "type": "number"
+     },
+     "type": "object"
+    }
+   },
+   "required": [
+    "other",
+    "deltas",
+    "values",
+    "reason",
+    "source"
+   ],
+   "title": "RelationChanged",
+   "type": "object"
+  },
+  "RelationLogItem": {
+   "additionalProperties": false,
+   "properties": {
+    "deltas": {
+     "additionalProperties": {
+      "type": "number"
+     },
+     "type": "object"
+    },
+    "event_seq": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "reason": {
+     "type": "string"
+    },
+    "sim_minute": {
+     "type": "integer"
+    },
+    "source": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "sim_minute",
+    "deltas",
+    "reason",
+    "source",
+    "event_seq"
+   ],
+   "title": "RelationLogItem",
+   "type": "object"
+  },
+  "RelationOut": {
+   "additionalProperties": false,
+   "properties": {
+    "conflicts": {
+     "default": [],
+     "items": {
+      "type": "string"
+     },
+     "type": "array"
+    },
+    "log": {
+     "default": [],
+     "items": {
+      "$ref": "#/$defs/RelationLogItem"
+     },
+     "type": "array"
+    },
+    "other_id": {
+     "type": "string"
+    },
+    "other_name": {
+     "type": "string"
+    },
+    "shared": {
+     "default": [],
+     "items": {
+      "type": "string"
+     },
+     "type": "array"
+    },
+    "values": {
+     "additionalProperties": {
+      "type": "number"
+     },
+     "type": "object"
+    }
+   },
+   "required": [
+    "other_id",
+    "other_name",
+    "values",
+    "shared",
+    "conflicts",
+    "log"
+   ],
+   "title": "RelationOut",
    "type": "object"
   },
   "ResetRequest": {
@@ -3428,6 +4294,12 @@
   "AgentDetail": {
    "$ref": "#/$defs/AgentDetail"
   },
+  "AgentNeeds": {
+   "$ref": "#/$defs/AgentNeeds"
+  },
+  "AgentOverview": {
+   "$ref": "#/$defs/AgentOverview"
+  },
   "Arrived": {
    "$ref": "#/$defs/Arrived"
   },
@@ -3449,6 +4321,9 @@
   "DecisionFailed": {
    "$ref": "#/$defs/DecisionFailed"
   },
+  "DecisionOut": {
+   "$ref": "#/$defs/DecisionOut"
+  },
   "Dialogue": {
    "$ref": "#/$defs/Dialogue"
   },
@@ -3464,8 +4339,23 @@
   "EventsPage": {
    "$ref": "#/$defs/EventsPage"
   },
+  "FactorRegistry": {
+   "$ref": "#/$defs/FactorRegistry"
+  },
+  "FailureOut": {
+   "$ref": "#/$defs/FailureOut"
+  },
   "Fished": {
    "$ref": "#/$defs/Fished"
+  },
+  "GoalChanged": {
+   "$ref": "#/$defs/GoalChanged"
+  },
+  "GoalOut": {
+   "$ref": "#/$defs/GoalOut"
+  },
+  "GuardTriggered": {
+   "$ref": "#/$defs/GuardTriggered"
   },
   "Inspected": {
    "$ref": "#/$defs/Inspected"
@@ -3547,6 +4437,12 @@
   },
   "Read": {
    "$ref": "#/$defs/Read"
+  },
+  "RelationChanged": {
+   "$ref": "#/$defs/RelationChanged"
+  },
+  "RelationOut": {
+   "$ref": "#/$defs/RelationOut"
   },
   "ResetRequest": {
    "$ref": "#/$defs/ResetRequest"

@@ -90,20 +90,30 @@ class AgentStore:
     # --- Entscheidungsprotokoll ----------------------------------------------------------------------
     def log_decision(self, d: dict[str, Any]) -> int:
         cols = ("sim_minute", "agent_id", "status", "options", "chosen", "action", "params", "intent", "importance", "utterance", "plan_next",
-                "attempts", "latency_ms", "prompt_tokens", "completion_tokens", "error", "outcome", "outcome_text", "event_seq")
-        vals = [json.dumps(d.get(c), ensure_ascii=False) if c in ("options", "params") else d.get(c) for c in cols]
+                "attempts", "latency_ms", "prompt_tokens", "completion_tokens", "error", "outcome", "outcome_text", "event_seq", "goal_id", "trace")
+        vals = [json.dumps(d.get(c), ensure_ascii=False) if c in ("options", "params", "trace") and d.get(c) is not None else d.get(c) for c in cols]
         cur = self.conn.execute(f"INSERT INTO decisions({','.join(cols)}) VALUES({','.join('?' * len(cols))})", vals)
         return cur.lastrowid
 
     def set_decision_outcome(self, decision_id: int, outcome: str, text: str | None, event_seq: int | None) -> None:
         self.conn.execute("UPDATE decisions SET outcome=?, outcome_text=?, event_seq=? WHERE id=?", (outcome, text, event_seq, decision_id))
 
+    def set_decision_trace(self, decision_id: int, trace: dict[str, Any]) -> None:
+        self.conn.execute("UPDATE decisions SET trace=? WHERE id=?", (json.dumps(trace, ensure_ascii=False), decision_id))
+
     def decisions(self, agent_id: str | None = None, limit: int = 50) -> list[dict[str, Any]]:
         q, args = "SELECT * FROM decisions", []
         if agent_id:
             q, args = q + " WHERE agent_id=?", [agent_id]
         rows = self.conn.execute(q + " ORDER BY id DESC LIMIT ?", args + [limit]).fetchall()
-        return [dict(r) | {"options": json.loads(r["options"]), "params": json.loads(r["params"]) if r["params"] else None} for r in rows]
+        return [dict(r) | {"options": json.loads(r["options"]), "params": json.loads(r["params"]) if r["params"] else None,
+                           "trace": json.loads(r["trace"]) if r["trace"] else None} for r in rows]
+
+    def decision(self, decision_id: int) -> dict[str, Any] | None:
+        r = self.conn.execute("SELECT * FROM decisions WHERE id=?", (decision_id,)).fetchone()
+        if r is None:
+            return None
+        return dict(r) | {"options": json.loads(r["options"]), "params": json.loads(r["params"]) if r["params"] else None, "trace": json.loads(r["trace"]) if r["trace"] else None}
 
     def recent_actions(self, agent_id: str, n: int = 8) -> list[dict[str, Any]]:
         """Zuletzt abgeschlossene Aktionen (neueste zuerst), Grundlage der Wiederholungserkennung."""

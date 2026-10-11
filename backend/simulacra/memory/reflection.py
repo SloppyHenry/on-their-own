@@ -27,7 +27,10 @@ SCHEMA: dict[str, Any] = {
     "properties": {"reflections": {"type": "array", "minItems": 1, "maxItems": 3, "items": {
         "type": "object", "additionalProperties": False, "required": ["text", "importance", "sources"],
         "properties": {"text": {"type": "string"}, "importance": {"type": "integer", "minimum": 1, "maximum": 10},
-                       "sources": {"type": "array", "minItems": 1, "items": {"type": "integer"}}}}}},
+                       "sources": {"type": "array", "minItems": 1, "items": {"type": "integer"}},
+                       "relation": {"type": "object", "additionalProperties": False, "required": ["person"], "properties": {
+                           "person": {"type": "string"}, "trust": {"type": "integer", "minimum": -3, "maximum": 3},
+                           "sympathy": {"type": "integer", "minimum": -3, "maximum": 3}, "tension": {"type": "integer", "minimum": -3, "maximum": 3}}}}}}},
 }
 
 
@@ -44,6 +47,7 @@ class Reflector:
     def __init__(self, engine: WorldEngine, mem: MemoryStore, know: KnowledgeStore, writer: MemoryWriter, agents: AgentStore | None, client: LLMClient | None,
                  params: MemoryParams):
         self.engine, self.mem, self.know, self.writer, self.agents, self.client, self.params = engine, mem, know, writer, agents, client, params
+        self.relations = None                          # RelationStore, vom Aufbau der Simulation gesetzt (Beziehungsreflexion)
 
     # --- Auslöser ------------------------------------------------------------------------------------
     def due(self, agent_id: str, minute: int) -> str | None:
@@ -76,7 +80,7 @@ class Reflector:
                           *(["Das hast du dir schon überlegt (wiederhole es nicht):", *[f"- {t}" for t in before], ""] if before else []),
                           "Was fällt dir auf? Schreibe 1 bis 3 Einsichten über dich, über andere oder über das Dorf, jeweils ein bis zwei Sätze in der Ich-Form, auf Deutsch. "
                           "Jede Einsicht muss sich auf die Nummern der Erinnerungen stützen, aus denen sie folgt (\"sources\"). Erfinde nichts, was nicht in den Erinnerungen steht. "
-                          "\"importance\": 1 bis 10. Antworte nur mit dem JSON-Objekt."])
+                          "\"importance\": 1 bis 10. Betrifft eine Einsicht eine andere Person, kannst du in \"relation\" (person = Kennung) kleine Veränderungen deines Verhältnisses von -2 bis 2 angeben (trust, sympathy, tension). Antworte nur mit dem JSON-Objekt."])
         return Job(agent_id, reason, minute, sources, [{"role": "system", "content": prompts.system_prompt(model)}, {"role": "user", "content": user}])
 
     def apply(self, job: Job, raw: str) -> list[Memory]:
@@ -103,7 +107,17 @@ class Reflector:
                                      persons=persons, shared=any(s.shared for s in srcs), source_memory_ids=[s.id for s in srcs], force=True)
             if m:
                 out.append(m)
+                self._relation(job, it, srcs, text)
         return out
+
+    def _relation(self, job: "Job", item: dict, srcs: list[Memory], text: str) -> None:
+        """Beziehungsreflexion: kleine, begrenzte Schritte, nur zu Personen, die in den Quellen vorkommen."""
+        rel = item.get("relation") if isinstance(item, dict) else None
+        if self.relations is None or not isinstance(rel, dict) or rel.get("person") not in {p for s in srcs for p in s.persons}:
+            return
+        deltas = {k: float(rel[k]) for k in ("trust", "sympathy", "tension") if isinstance(rel.get(k), int)}
+        if deltas:
+            self.relations.adjust(job.agent_id, rel["person"], deltas, "Einsicht: " + text[:90], job.minute, source="reflection")
 
     @staticmethod
     def _clean(text: str) -> str:

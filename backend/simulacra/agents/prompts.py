@@ -45,12 +45,13 @@ def _objects_line(p: Perception) -> str:
 def user_prompt(p: Perception, options: list[Option]) -> str:
     w = p.words
     out = [f"Jetzt: {p.time_text}. Wetter: {p.weather}.",
-           f"Ort: {p.location_name}. Du fühlst dich {w['energy']}, {w['hunger']}, {w['thirst']}, {w['mood']}.",
+           f"Ort: {p.location_name}. Du fühlst dich {', '.join(w[k] for k in ('energy', 'hunger', 'thirst', 'mood') if k in w)}.",
            "Du trägst: " + (", ".join(p.inventory) if p.inventory else "nichts") + ".",
            "Hier siehst du: " + _objects_line(p) + ".",
            "Quellen hier: " + ("; ".join(f"{s['resource']} [{s['id']}] ({'vorhanden' if s['available'] else 'erschöpft'}"
                                           + (f", braucht {s['tool']}" if s['tool'] else "") + ")" for s in p.sources) or "–") + ".",
            "In deiner Nähe: " + ("; ".join(f"{x.name} ({x.where}, {x.activity})" for x in p.people) or "niemand") + "."]
+    out += p.extra.get("status_lines", [])
     if p.plan_next:
         out.append(f"Dein Vorhaben: {p.plan_next}")
     c = p.conversation

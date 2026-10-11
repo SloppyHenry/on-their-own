@@ -13,6 +13,7 @@ from pydantic import BaseModel, Field, ValidationError
 from ..llm.client import LLMClient
 from ..llm.providers import LLMError
 from ..memory.system import MemorySystem
+from .autonomy import Autonomy
 from ..world.engine import WorldEngine
 from . import options as options_mod
 from . import perception, prompts
@@ -69,14 +70,23 @@ class Decision:
 
 class Planner:
     def __init__(self, engine: WorldEngine, store: AgentStore, convs: ConversationManager, client: LLMClient,
-                 tuning: Tuning | None = None, memory_lines: int = 10, correction_retries: int = 2, memory: MemorySystem | None = None):
+                 tuning: Tuning | None = None, memory_lines: int = 10, correction_retries: int = 2, memory: MemorySystem | None = None, autonomy: Autonomy | None = None):
         self.engine, self.store, self.convs, self.client = engine, store, convs, client
         self.tuning, self.memory_lines, self.correction_retries = tuning or Tuning(), memory_lines, correction_retries
         self.memory = memory
+        self.autonomy = autonomy
 
     def prepare(self, agent_id: str) -> Prepared:
         """Wahrnehmen, erinnern (Abruf wird protokolliert und gemeldet), Optionen erzeugen und bewerten, Prompt bauen. Gehört auf den DB-Thread."""
         p = perception.build(self.engine, self.store, self.convs, agent_id, self.memory_lines)
+        if self.autonomy is not None:
+            ctx = self.autonomy.context(agent_id, p.minute)
+            p.ctx = ctx
+            for need in ("energy", "hunger", "thirst"):
+                if not ctx.on(need):
+                    p.words.pop(need, None)                     # ausgeschaltete Bedürfnisse tauchen im Prompt nicht auf
+            p.words["mood"] = ctx.mood.word
+            p.extra["status_lines"] = self.autonomy.status_lines(p, ctx)
         if self.memory is not None:
             self.memory.perceive(p)
             buffer = self.store.recent_observations(agent_id, self.memory_lines)
@@ -110,6 +120,7 @@ class Planner:
         p = prep.perception
         dec = Decision(p.agent.id, p.minute, "fallback", prep.options, *FALLBACK)
         dec.extra["retrieval_id"] = p.extra.get("retrieval_id")
+        dec.extra["ctx"] = p.ctx
         messages = list(prep.messages)
         t0 = time.perf_counter()
         for attempt in range(1, self.correction_retries + 2):
