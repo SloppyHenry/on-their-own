@@ -28,6 +28,9 @@ Backend ──/ws──▶ wsClient ──▶ Bündelung (40 ms) ──▶ simSt
 ## Gedächtnis-Inspektor (AP05)
 Eigene Ansicht über die Schaltfläche „Gedächtnis“ in der Kopfleiste (oder „Gedächtnis öffnen“ im Agenten-Detail); die Simulation läuft im Hintergrund weiter, neue Erinnerungen erscheinen live mit der Markierung „neu“. Spalte links: Agent, Reiter (Erinnerungen, Was ich weiß, Abrufe), Filter nach Art, Status, Person, Ort, Freitext und Sortierung, Umschalter „Alle nebeneinander“. Detail rechts: Text, Metadaten, Stichwörter, Quellereignis (Sprung ins Protokoll), Quellerinnerungen bei Einsichten, abgeleitete Einsichten, Abrufe mit Punktzahl und Entscheidung. Am Agenten in der Welt leuchtet das Namensschild beim Speichern (grün, „＋ gemerkt“) und beim Abrufen (violett, „↺ erinnert sich“) auf. Gedächtnis-Ereignisse im Protokoll sind über den Filter „Gedächtnis“ zuschaltbar (standardmäßig aus, sie sind häufig).
 
+## Autonomie in der Oberfläche (AP06)
+Agentenkarte: Ziel mit Fortschrittsbalken, Stimmung (Wort), Bedürfnisbalken (voll = gedeckt, kritisch rot). Agenten-Detail: Bedürfnisse und Stimmung mit den einzelnen Beiträgen, Ziele (langfristig, aktuelles kurzfristiges mit Erfüllungsbedingung in Worten und abgehaktem Plan, bisherige mit Ausgang), Beziehungen (vier Werte, gemeinsame Erlebnisse, offene Konflikte, jüngste Änderungen mit Grund), Fehlschläge, Entscheidungen mit „Warum?“. Protokoll: Entscheidungen haben „Warum?“ (Erklärtext aus den Daten und Faktorbalken, umschaltbar auf die Gruppen der Spezifikation), Filter „Fehlschläge“; Ereignisdetail einer Entscheidung zeigt alle Optionen mit Punkten und je Option die Faktoren. Daten: `/api/overview` (alle 5 s und bei Ziel-, Beziehungs- und Schutzereignissen).
+
 ## Befehle
 ```bash
 cd frontend

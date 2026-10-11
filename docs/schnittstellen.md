@@ -198,3 +198,21 @@ Alle nur lesend; unbekannter Agent 404, ungültige Filter 422. Ein Agent kann ni
 
 ### Ereignisse (Kategorie `memory`, Sichtbarkeit `system`)
 `agent.memory_created` (Erinnerung, Art, Wichtigkeit, Quellen), `agent.memory_retrieved` (Abruf-ID, Erinnerungen mit Punkten und Text, Tokens, Suchbegriffe), `agent.memory_skipped` (nur Debug und verworfene Reflexionen), `agent.memory_archived`. Siehe [gedaechtnis.md](gedaechtnis.md).
+
+
+## Autonomie (AP06)
+
+### REST (nur lesend)
+| Methode | Pfad | Zweck |
+|---|---|---|
+| GET | `/api/overview` | je Agent aktives Ziel, langfristige Ziele, Stimmung (Wert, Wort, Beiträge), Bedürfnisse (Dringlichkeit 0–100, kritisch), Ruhemodus |
+| GET | `/api/agents/{id}/goals?state=&limit=` | Ziele mit Bedingung, Plan, Planschritt, Fortschritt, Fehlschlägen, Grund |
+| GET | `/api/agents/{id}/needs` | Bedürfnisse und Stimmung |
+| GET | `/api/agents/{id}/relations` | je anderem Agenten Werte, gemeinsame Erlebnisse, offene Konflikte, jüngste Änderungen mit Grund |
+| GET | `/api/agents/{id}/failures?limit=` | Historie fehlgeschlagener Aktionen |
+| GET | `/api/agents/{id}/decisions?limit=` | Entscheidungen mit Optionen, Faktoren, Erklärung, Platz, Ziel, Ergebnis |
+| GET | `/api/decisions/{id}` | eine Entscheidung |
+| GET | `/api/factors` | Faktorname → Gruppe, Gruppen mit Klartext |
+
+### Ereignisse
+`agent.goal_changed` (Ziel-ID, Art, Text, alt/neu, Grund, Fortschritt, ersetztes Ziel; Kategorie *planning*), `agent.relation_changed` (Gegenüber, Änderungen, neue Werte, Grund, Quelle `rule`/`reflection`; Sichtbarkeit `system`), `agent.guard_triggered` (Schutz, Einzelheit, gesperrter Schlüssel, bis). `agent.decision` trägt zusätzlich `why`, `rank`, `goal`, `retrieval_id`. Siehe [autonomie.md](autonomie.md).
