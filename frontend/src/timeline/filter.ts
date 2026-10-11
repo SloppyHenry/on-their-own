@@ -5,7 +5,7 @@ import type { Filters } from "../store/uiStore";
 const NOISE = new Set(["agent.moved", "agent.status_changed", "world.time"]);
 
 /** Eingaben des Benutzers und ihre Folgen gehören ins Protokoll, auch wenn „System“ ausgeblendet ist. */
-const USER_EVENTS = new Set(["simulation.event_injected", "simulation.event_scheduled", "simulation.event_fired", "simulation.effect_ended"]);
+const USER_EVENTS = new Set(["simulation.event_injected", "simulation.event_scheduled", "simulation.event_fired", "simulation.effect_ended", "simulation.loaded"]);
 
 export const FAILURE_TYPES = new Set(["agent.action_failed", "agent.action_rejected", "agent.decision_failed", "agent.guard_triggered"]);
 

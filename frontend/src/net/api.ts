@@ -1,5 +1,5 @@
 // REST-Zugriff. Verändernde Aufrufe tragen einen Idempotency-Key, damit Wiederholungen nichts doppelt tun.
-import type { AgentDetail, AgentNeeds, AgentOverview, DecisionOut, FactorRegistry, FailureOut, GoalOut, RelationOut, EventDetail, EventsPage, Knowledge, LocationDetail, MemoriesPage, MemoryDetail, MemoryStats, RetrievalOut, SimCommandResult, StateSnapshot, ParamPatchOut, ParamSchema, ParamValues, PresetBrief, PresetLoadOut, PresetOut, PresetPreview, StatusOut, InjectProposal, ScheduledOut } from "../types/generated";
+import type { AgentDetail, AgentNeeds, AgentOverview, DecisionOut, FactorRegistry, FailureOut, GoalOut, RelationOut, EventDetail, EventsPage, Knowledge, LocationDetail, MemoriesPage, MemoryDetail, MemoryStats, RetrievalOut, SimCommandResult, StateSnapshot, ParamPatchOut, ParamSchema, ParamValues, PresetBrief, PresetLoadOut, PresetOut, PresetPreview, StatusOut, InjectProposal, ScheduledOut, SaveOut, StatsOut } from "../types/generated";
 
 export class ApiError extends Error {
   constructor(readonly status: number, readonly detail: string) {
@@ -30,6 +30,9 @@ async function request<T>(method: "GET" | "POST" | "PATCH" | "DELETE", path: str
 }
 
 export interface EventQuery {
+  from_minute?: number;
+  to_minute?: number;
+  q?: string;
   after_seq?: number;
   before_seq?: number;
   type_prefix?: string;
@@ -63,6 +66,13 @@ const mqs = (q: MemoryQuery) => {
   return p.size ? `?${p}` : "";
 };
 
+export const exportUrl = (id: string) => `/api/saves/${id}/export`;
+export const eventsExportUrl = (format: "csv" | "json", q: EventQuery & { from_minute?: number; to_minute?: number; q?: string }) => {
+  const p = new URLSearchParams({ format });
+  Object.entries(q).forEach(([k, v]) => v !== undefined && v !== "" && p.set(k, String(v)));
+  return `/api/events/export?${p}`;
+};
+
 export const api = {
   state: () => request<StateSnapshot>("GET", "/api/state"),
   events: (q: EventQuery = {}) => request<EventsPage>("GET", `/api/events${qs(q)}`),
@@ -86,7 +96,7 @@ export const api = {
   pause: () => request<SimCommandResult>("POST", "/api/sim/pause"),
   resume: () => request<SimCommandResult>("POST", "/api/sim/resume"),
   step: (n = 1) => request<SimCommandResult>("POST", "/api/sim/step", { n }),
-  reset: (model?: string) => request<SimCommandResult>("POST", "/api/sim/reset", { confirm: true, ...(model ? { model } : {}) }),
+  reset: (model?: string, keepProfiles = false) => request<SimCommandResult>("POST", "/api/sim/reset", { confirm: true, keep_profiles: keepProfiles, ...(model ? { model } : {}) }),
   speed: (level: string) => request<SimCommandResult>("POST", "/api/sim/speed", { level }),
   paramSchema: () => request<ParamSchema>("GET", "/api/params/schema"),
   params: () => request<ParamValues>("GET", "/api/params"),
@@ -99,6 +109,23 @@ export const api = {
   duplicatePreset: (id: string) => request<PresetOut>("POST", `/api/presets/${id}/duplicate`, {}),
   renamePreset: (id: string, name: string) => request<PresetOut>("PATCH", `/api/presets/${id}`, { name }),
   deletePreset: (id: string) => request<PresetBrief>("DELETE", `/api/presets/${id}?confirm=true`),
+  saves: () => request<SaveOut[]>("GET", "/api/saves"),
+  save: (name: string, description: string, overwrite = false) => request<SaveOut>("POST", "/api/saves", { name, description, overwrite }),
+  loadSave: (id: string) => request<SaveOut>("POST", `/api/saves/${id}/load`, { confirm: true }),
+  deleteSave: (id: string) => request<SaveOut>("DELETE", `/api/saves/${id}?confirm=true`),
+  importSave: async (file: Blob): Promise<SaveOut> => {
+    const res = await fetch("/api/saves/import", { method: "POST", headers: { "Idempotency-Key": key(), "Content-Type": "application/zip" }, body: file });
+    if (!res.ok) {
+      const j = await res.json().catch(() => ({}));
+      throw new ApiError(res.status, typeof j.detail === "string" ? j.detail : res.statusText);
+    }
+    return (await res.json()) as SaveOut;
+  },
+  stats: (q: { agent?: string; from_minute?: number; to_minute?: number } = {}) => {
+    const p = new URLSearchParams();
+    Object.entries(q).forEach(([k, v]) => v !== undefined && p.set(k, String(v)));
+    return request<StatsOut>("GET", `/api/stats${p.size ? `?${p}` : ""}`);
+  },
   status: () => request<StatusOut>("GET", "/api/status"),
   injectParse: (body: { text?: string; agents?: string[] | null; at?: number | null; answer_to?: string; answer?: string | number }) => request<InjectProposal>("POST", "/api/inject/parse", body),
   injectConfirm: (proposal_id: string) => request<InjectProposal>("POST", "/api/inject/confirm", { proposal_id }),

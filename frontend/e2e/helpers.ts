@@ -41,3 +41,8 @@ export async function settledTag(page: Page, id: string) {
   }, { intervals: [200] }).toBe(true);
   return (await loc.boundingBox())!;
 }
+
+/** Viele Einzelschritte in Paketen (die API erlaubt je Aufruf nur eine begrenzte Zahl). */
+export async function steps(req: APIRequestContext, n: number) {
+  for (let left = n; left > 0; left -= 50) await post(req, "/api/sim/step", { n: Math.min(50, left) });
+}

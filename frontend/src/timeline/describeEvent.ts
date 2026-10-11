@@ -88,6 +88,8 @@ const TEXT: Table = {
   "simulation.event_fired": (d) => (d.kind === "revert" ? `Zurückgenommen: ${d.text}.` : `Geplantes Ereignis: ${d.text}.`),
   "simulation.effect_ended": (d) => `Zu Ende: ${d.text}.`,
   "agent.informed": (d, n, ev) => informed(d, n.agent(ev.agents[0] ?? "")),
+  "simulation.saved": (d) => `${d.kind === "auto" ? "Autosave" : d.kind === "backup" ? "Sicherung" : "Spielstand gespeichert"}: ${d.name}.`,
+  "simulation.loaded": (d) => `Spielstand geladen: ${d.name}${d.backup ? ` (vorher gesichert als „${d.backup}“)` : ""}.`,
   "world.npc_acted": (d) => d.what || "Eine Nebenfigur hat etwas getan.",
 };
 

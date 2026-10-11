@@ -142,7 +142,7 @@ def test_reset_needs_confirmation_and_keeps_a_backup(tmp_path):
         assert r.status_code == 400 and "Bestätigung" in r.json()["detail"] and c.sim.engine.minute == 425
         assert post(c, "/api/sim/reset", {"confirm": False}).status_code == 400
         ok = post(c, "/api/sim/reset", {"confirm": True}).json()
-        assert ok["minute"] == 420 and ok["backup"] and (tmp_path / "backups").exists()
+        assert ok["minute"] == 420 and ok["backup"] and (tmp_path / "saves").exists()
         s = c.get("/api/state").json()
         assert s["clock"]["minute"] == 420 and s["seq"] == 1                            # neue Welt, Protokoll beginnt neu (erstes: simulation.reset)
         assert c.get("/api/events").json()["items"][0]["type"] == "simulation.reset"

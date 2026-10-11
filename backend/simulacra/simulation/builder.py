@@ -103,8 +103,8 @@ class Simulation:
         if model:
             self.settings.llm_model = model
         fresh = Simulation.create(self.settings, self.db_path, self.provider)
-        await fresh.db.run(fresh.store.ensure_all)
-        await fresh.db.run(lambda: self._restore_kept(fresh, kept, presets, profiles))
+        fresh.store.ensure_all()                       # ohne await bis zum Austausch: kein Browser-Aufruf trifft die geschlossene alte Datenbank
+        self._restore_kept(fresh, kept, presets, profiles)
         self._swap_in(fresh)
         self.engine.emit_event("simulation.reset", data={"backup": str(saved) if saved else None})
         return saved
@@ -153,7 +153,7 @@ class Simulation:
         if model:
             self.settings.llm_model = str(model)
         fresh = Simulation.create(self.settings, self.db_path, self.provider)
-        await fresh.db.run(fresh.store.ensure_all)
+        fresh.store.ensure_all()
         self._swap_in(fresh)
         self.engine.emit_event("simulation.loaded", data={"save_id": save_id, "name": entry["name"], "minute": self.engine.minute, "backup": backup["name"]})
         return entry

@@ -21,6 +21,7 @@ export function Header() {
   const view = useUiStore((s) => s.view);
   const setView = useUiStore((s) => s.setView);
   const openMemory = useUiStore((s) => s.openMemory);
+  const setSavesOpen = useUiStore((s) => s.setSavesOpen);
   const settingsOpen = useUiStore((s) => s.settingsOpen);
   const openSettings = useUiStore((s) => s.openSettings);
   const closeSettings = useUiStore((s) => s.closeSettings);
@@ -42,6 +43,9 @@ export function Header() {
       <SimulationControls />
       <span className="flex-1" />
       <button className={`btn ${settingsOpen ? "on" : ""}`} onClick={() => (settingsOpen ? closeSettings() : openSettings())} aria-pressed={settingsOpen} data-testid="open-settings">Einstellungen</button>
+      <button className="btn" onClick={() => setSavesOpen(true)} data-testid="open-saves">Spielstände</button>
+      <button className={`btn ${view === "history" ? "on" : ""}`} onClick={() => setView(view === "history" ? "world" : "history")} aria-pressed={view === "history"} data-testid="open-history-view">Verlauf</button>
+      <button className={`btn ${view === "stats" ? "on" : ""}`} onClick={() => setView(view === "stats" ? "world" : "stats")} aria-pressed={view === "stats"} data-testid="open-stats">Statistik</button>
       <button className={`btn ${view === "memory" ? "on" : ""}`} onClick={() => (view === "memory" ? setView("world") : openMemory(useUiStore.getState().lastAgent))} aria-pressed={view === "memory"}>{view === "memory" ? "← Zur Welt" : "Gedächtnis"}</button>
       <span className="text-dim" data-testid="conn"><span className={`mr-1.5 inline-block size-2 rounded-full ${dot}`} />{connText}</span>
       <span className="text-dim" title={health?.llm.error ?? ""}>

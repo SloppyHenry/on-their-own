@@ -21,13 +21,16 @@ export const DEFAULT_FILTERS: Filters = {
   failures: false,
 };
 
-export type View = "world" | "memory";
+export type View = "world" | "memory" | "history" | "stats";
 
 interface UiStore {
   view: View;
   /** Agent, dessen Gedächtnis der Inspektor zeigt. */
   memoryAgent: string | null;
   setView: (v: View) => void;
+  /** Dialog für Speichern, Laden, Export und Import. */
+  savesOpen: boolean;
+  setSavesOpen: (open: boolean) => void;
   /** Wunsch an die Weltansicht, eine Kachel zu zeigen (z. B. nach einem neuen Objekt aus der Ereigniseingabe). */
   focusRequest: { x: number; y: number; n: number } | null;
   focusOn: (x: number, y: number) => void;
@@ -51,6 +54,8 @@ export const useUiStore = create<UiStore>((set) => ({
   view: "world",
   memoryAgent: null,
   setView: (view) => set({ view }),
+  savesOpen: false,
+  setSavesOpen: (savesOpen) => set({ savesOpen }),
   focusRequest: null,
   focusOn: (x, y) => set((s) => ({ focusRequest: { x, y, n: (s.focusRequest?.n ?? 0) + 1 } })),
   settingsOpen: false,

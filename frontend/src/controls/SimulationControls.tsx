@@ -44,7 +44,7 @@ export function SimulationControls() {
       </div>
       <button className="btn" disabled={busy} onClick={() => setResetting(true)}>⟲ Zurücksetzen</button>
       {error && <span className="max-w-60 truncate text-xs text-warn" role="alert" title={error}>{error}</span>}
-      {resetting && <ResetDialog onCancel={() => setResetting(false)} onConfirm={(model) => { setResetting(false); void run(() => api.reset(model)); }} />}
+      {resetting && <ResetDialog onCancel={() => setResetting(false)} onConfirm={(model, keep) => { setResetting(false); void run(() => api.reset(model, keep)); }} />}
     </div>
   );
 }
