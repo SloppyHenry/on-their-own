@@ -27,11 +27,14 @@ def make_fn():
     talk = itertools.count()
 
     def fn(messages, schema, params):
+        if "reflections" in (schema or {}).get("properties", {}):                     # Reflexionsaufruf
+            return json.dumps({"reflections": [{"text": f"Ich merke, dass ich oft unterwegs bin (Muster {next(turn)}).", "importance": 6, "sources": [1, 2]}]}, ensure_ascii=False)
         opts = dict(re.findall(r"^(o\d+): (.*)$", messages[1]["content"], re.M))
         keys = list(opts) or ["o1"]
         pick = next((k for k, v in opts.items() if "antworten" in v or "Gespräch beginnen" in v), None)
         oid = pick or keys[next(turn) % len(keys)]
-        return json.dumps({"option_id": oid, "intent": "Test", "utterance": LINES[next(talk) % len(LINES)], "importance": 3}, ensure_ascii=False)
+        n = next(talk)
+        return json.dumps({"option_id": oid, "intent": f"Aufgabe {n} erledigen", "utterance": LINES[n % len(LINES)], "importance": 5, "plan_next": f"Später Aufgabe {n + 1} angehen"}, ensure_ascii=False)
 
     return fn
 

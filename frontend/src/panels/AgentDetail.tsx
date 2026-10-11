@@ -6,6 +6,7 @@ import { api } from "../net/api";
 import { useSimStore } from "../store/simStore";
 import { useUiStore } from "../store/uiStore";
 import { accentOf } from "../world/draw/characters";
+import { KIND_LABEL } from "../memory/labels";
 import { activityOf } from "./AgentPanel";
 import { Bar, Drawer } from "./Drawer";
 import { useDetail } from "./useDetail";
@@ -18,6 +19,9 @@ export function AgentDetail({ id }: { id: string }) {
   const follow = useUiStore((s) => s.follow);
   const setFollow = useUiStore((s) => s.setFollow);
   const { data } = useDetail(() => api.agent(id), id);
+  const openMemory = useUiStore((s) => s.openMemory);
+  const memVersion = useSimStore((s) => s.memoryVersion);
+  const { data: mem } = useDetail(() => api.memories(id, { limit: 5, sort: "time", status: "active" }), `${id}/mem/${memVersion}`, 0);
   const a = w.agents[id];
   if (!a) return null;
   const c = accentOf(id);
@@ -45,8 +49,10 @@ export function AgentDetail({ id }: { id: string }) {
             <td className={`py-1 ${d.outcome === "ok" ? "text-ok" : d.outcome ? "text-warn" : "text-dim"}`}>{d.outcome_text ?? d.status}</td></tr>
         ))}
       </tbody></table>
-      <div className="sub">Erinnerungen (ab AP05)</div>
-      <div className="text-dim">Erscheinen, sobald das Gedächtnis da ist.</div>
+      <div className="sub">Erinnerungen{mem ? ` (${mem.total})` : ""}</div>
+      {mem?.items.map((m) => <div key={m.id} className="border-b border-line py-1 text-xs"><span className="text-dim">{KIND_LABEL[m.kind]} · ★ {m.importance} ·</span> {m.text}</div>)}
+      {mem && !mem.items.length && <div className="text-dim">Noch nichts gemerkt.</div>}
+      <button className="btn mt-2 text-xs" onClick={() => openMemory(id)}>Gedächtnis öffnen</button>
       <button className="btn mt-4" onClick={() => select(null)}>Schließen</button>
     </Drawer>
   );

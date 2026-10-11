@@ -10,7 +10,7 @@ import { accentOf } from "../world/draw/characters";
 import { describeEvent } from "./describeEvent";
 import { matchesFilters } from "./filter";
 
-const CAT_LABEL: [EventCategory, string, string][] = [["world", "Welt", "var(--color-world)"], ["dialogue", "Dialog", "var(--color-dialog)"], ["planning", "Planung", "var(--color-plan)"], ["system", "System", "var(--color-sys)"]];
+const CAT_LABEL: [EventCategory, string, string][] = [["world", "Welt", "var(--color-world)"], ["dialogue", "Dialog", "var(--color-dialog)"], ["planning", "Planung", "var(--color-plan)"], ["memory", "Gedächtnis", "var(--color-ok)"], ["system", "System", "var(--color-sys)"]];
 type Row = { kind: "day"; day: number } | { kind: "ev"; ev: EventOut; text: string; icon: string };
 
 export function EventTimeline() {

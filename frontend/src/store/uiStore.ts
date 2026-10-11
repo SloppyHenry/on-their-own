@@ -12,13 +12,20 @@ export interface Filters {
 }
 
 export const DEFAULT_FILTERS: Filters = {
-  categories: { world: true, dialogue: true, planning: true, memory: true, system: false },
+  categories: { world: true, dialogue: true, planning: true, memory: false, system: false },
   agent: null,
   text: "",
   moves: false,
 };
 
+export type View = "world" | "memory";
+
 interface UiStore {
+  view: View;
+  /** Agent, dessen Gedächtnis der Inspektor zeigt. */
+  memoryAgent: string | null;
+  setView: (v: View) => void;
+  openMemory: (agent: string | null) => void;
   selection: Selection;
   /** Zuletzt gewählter Agent: Taste F folgt ihm auch nach dem Schließen des Details. */
   lastAgent: string | null;
@@ -30,6 +37,10 @@ interface UiStore {
 }
 
 export const useUiStore = create<UiStore>((set) => ({
+  view: "world",
+  memoryAgent: null,
+  setView: (view) => set({ view }),
+  openMemory: (memoryAgent) => set({ view: "memory", memoryAgent, selection: null }),
   selection: null,
   lastAgent: null,
   follow: null,

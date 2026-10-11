@@ -49,8 +49,10 @@ const TEXT: Table = {
   "agent.decision": (d, n, ev) => `${who(ev, n)} entscheidet: ${d.intent || (d.chosen ?? act(d.action))}`,
   "agent.status_changed": (d, n, ev) => `${who(ev, n)}: ${statusName(d.new)[0]}.`,
   "agent.decision_failed": (d, n, ev) => `${who(ev, n)} findet keine Entscheidung (${d.reason ?? "unbekannt"}), wartet kurz.`,
-  "agent.memory_created": (_d, n, ev) => `${who(ev, n)} merkt sich etwas.`,
-  "agent.memory_retrieved": (_d, n, ev) => `${who(ev, n)} erinnert sich.`,
+  "agent.memory_created": (d, n, ev) => `${who(ev, n)} merkt sich${d.kind === "reflection" ? " (Einsicht)" : d.kind === "summary" ? " (Rückblick)" : d.kind === "intention" ? " (Vorhaben)" : ""}: ${d.text}`,
+  "agent.memory_retrieved": (d, n, ev) => `${who(ev, n)} erinnert sich an ${d.items.length} ${d.items.length === 1 ? "Sache" : "Dinge"}: ${d.items.map((i) => i.text).join(" · ").slice(0, 160)}`,
+  "agent.memory_skipped": (d, n, ev) => `${who(ev, n)} merkt sich nichts: ${d.reason}.`,
+  "agent.memory_archived": (d, n, ev) => `${who(ev, n)} legt ${d.count} Erinnerungen ins Archiv.`,
   "agent.goal_changed": (_d, n, ev) => `${who(ev, n)} ändert ein Ziel.`,
   "world.object_created": (d) => `${d.object.name} ist neu in der Welt.`,
   "world.object_changed": (d) => `${d.name} verändert sich.`,
@@ -86,7 +88,7 @@ const ICON_BY_TYPE: Partial<Record<EventType, string>> = {
   "agent.proposal_declined": "chat", "agent.decision": "plan", "agent.status_changed": "plan", "agent.goal_changed": "plan",
   "agent.decision_failed": "warn", "agent.action_failed": "no", "agent.action_rejected": "no", "agent.action_interrupted": "warn",
   "agent.action_completed": "ok", "world.weather_changed": "rain", "world.day_started": "sun", "world.phase_changed": "sun",
-  "agent.slept": "zzz", "agent.rested": "zzz", "agent.memory_created": "think", "agent.memory_retrieved": "think",
+  "agent.slept": "zzz", "agent.rested": "zzz", "agent.memory_created": "think", "agent.memory_retrieved": "think", "agent.memory_skipped": "think", "agent.memory_archived": "think",
 };
 
 export function describeEvent(ev: EventOut, names: Names): Described {

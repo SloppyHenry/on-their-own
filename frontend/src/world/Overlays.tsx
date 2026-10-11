@@ -19,9 +19,11 @@ export function Overlays({ bridge }: { bridge: WorldBridge }) {
       const el = root.current;
       if (!el) return;
       el.dataset.roofs = f.roofs.map((r) => (r.closed ? "closed" : "open")).join(",");
-      const bubbles = bridge.bubbles(), now = Date.now();
+      const bubbles = bridge.bubbles(), pulses = useSimStore.getState().pulses, now = Date.now();
       for (const a of f.agents) {
         const tag = el.querySelector<HTMLElement>(`[data-tag="${a.id}"]`), bub = el.querySelector<HTMLElement>(`[data-bubble="${a.id}"]`);
+        const pulse = pulses[a.id], active = pulse && now - pulse.at < 2500 ? pulse.kind : "";
+        if (tag) { tag.dataset.pulse = active; const badge = tag.querySelector<HTMLElement>("[data-badge]"); if (badge) badge.textContent = active === "saved" ? "  ＋ gemerkt" : active === "recalled" ? "  ↺ erinnert sich" : ""; }
         if (tag) { tag.style.display = a.visible ? "" : "none"; tag.style.transform = `translate(${a.x}px, ${a.y + 4 * f.zoom}px) translateX(-50%)`; }
         if (!bub) continue;
         const b = bubbles[a.id], show = !!b && a.visible && now - b.shownAt < bubbleDuration(b.text);
@@ -46,7 +48,7 @@ export function Overlays({ bridge }: { bridge: WorldBridge }) {
       {Object.values(world?.agents ?? {}).map((a) => (
         <div key={a.id}>
           <div data-tag={a.id} className="absolute left-0 top-0 z-[2] whitespace-nowrap rounded-[5px] border bg-bg/80 px-1.5 text-[11px] font-medium text-white" style={{ borderColor: accentOf(a.id), display: "none" }}>
-            <b style={{ color: accentOf(a.id) }}>{a.name}</b> · {world ? activityOf(a, world).text : ""}
+            <b style={{ color: accentOf(a.id) }}>{a.name}</b> · {world ? activityOf(a, world).text : ""}<span data-badge className="text-[10px]" />
           </div>
           <div data-bubble={a.id} data-testid={`bubble-${a.id}`} className="bubble pointer-events-auto absolute left-0 top-0 z-[3] max-w-52 cursor-pointer px-2.5 py-1.5 text-xs leading-snug" style={{ display: "none" }} />
         </div>

@@ -14,10 +14,20 @@ export function mergeEvents(a: EventOut[], b: EventOut[], max = MAX_EVENTS): Eve
   return merged.length > max ? merged.slice(merged.length - max) : merged;
 }
 
+export interface Pulse {
+  kind: "saved" | "recalled";
+  at: number;
+}
+
 interface SimStore {
   world: World | null;
   events: EventOut[];
   bubbles: Record<string, Bubble>;
+  /** Aufleuchten am Agenten, wenn er etwas merkt oder abruft (nur Live-Ereignisse). */
+  pulses: Record<string, Pulse>;
+  /** Neu gemerkte Erinnerungen seit dem Laden (für die Markierung im Inspektor) und ein Zähler, der Listen zum Nachladen auffordert. */
+  newMemories: Record<string, number>;
+  memoryVersion: number;
   conn: Conn;
   setSnapshot: (s: StateSnapshot) => void;
   pushEvents: (items: EventOut[], live: boolean) => void;
@@ -36,14 +46,26 @@ export const useSimStore = create<SimStore>((set) => ({
   world: null,
   events: [],
   bubbles: {},
+  pulses: {},
+  newMemories: {},
+  memoryVersion: 0,
   conn: "connecting",
-  setSnapshot: (s) => set({ world: applySnapshot(s), events: [], bubbles: {} }),
+  setSnapshot: (s) => set({ world: applySnapshot(s), events: [], bubbles: {}, pulses: {}, newMemories: {}, memoryVersion: 0 }),
   pushEvents: (items, live) =>
     set((st) => {
       if (!st.world) return st;
       const bubbles = { ...st.bubbles };
-      if (live) for (const ev of items) { const b = bubbleOf(ev); if (b) bubbles[b.agent] = b; }
-      return { world: applyEvents(st.world, items), events: mergeEvents(st.events, items), bubbles };
+      const pulses = { ...st.pulses }, fresh = { ...st.newMemories };
+      let touched = false;
+      for (const ev of items) {
+        if (ev.type === "agent.memory_created" || ev.type === "agent.memory_retrieved") touched = true;
+        if (!live) continue;
+        const b = bubbleOf(ev);
+        if (b) bubbles[b.agent] = b;
+        if (ev.type === "agent.memory_created") { pulses[ev.agents[0]] = { kind: "saved", at: Date.now() }; fresh[(ev.data as { memory_id: string }).memory_id] = Date.now(); }
+        if (ev.type === "agent.memory_retrieved") pulses[ev.agents[0]] = { kind: "recalled", at: Date.now() };
+      }
+      return { world: applyEvents(st.world, items), events: mergeEvents(st.events, items), bubbles, pulses, newMemories: fresh, memoryVersion: touched ? st.memoryVersion + 1 : st.memoryVersion };
     }),
   setHistory: (items) => set((st) => ({ events: mergeEvents(items, st.events) })),
   setConn: (conn) => set({ conn }),

@@ -64,3 +64,6 @@ body {
   border-radius: 4px;
   box-shadow: 2px 2px 0 #0007;
 }
+
+[data-tag][data-pulse="saved"] { box-shadow: 0 0 10px var(--color-ok); border-color: var(--color-ok) !important; }
+[data-tag][data-pulse="recalled"] { box-shadow: 0 0 10px var(--color-plan); border-color: var(--color-plan) !important; }
