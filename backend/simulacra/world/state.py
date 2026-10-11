@@ -6,7 +6,7 @@ from typing import Any
 
 from ..db.connection import Database
 from . import object_kinds
-from .grid import Grid
+from .grid import Grid, TileType
 from .models import AgentBody, ActiveAction, Location, ResourceNode, WorldObject
 from .pathfinding import Pathfinder
 from .rules import WorldRules
@@ -22,6 +22,7 @@ class WorldState:
         self.grid: Grid
         self.pathfinder: Pathfinder
         self.locations: dict[str, Location] = {}
+        self.tile_types: dict[str, TileType] = {}
         self._loc_index: dict[tuple[int, int], str] = {}
         self.rules = WorldRules()
         if self.is_seeded():
@@ -63,10 +64,12 @@ class WorldState:
     def reload_caches(self) -> None:
         """Baut Raster, Ortsindex und Sperren aus der Datenbank neu auf (auch nach Rollback)."""
         w, h = self.get_meta("size")
-        cells = [["grass"] * w for _ in range(h)]
+        self.tile_types = self.load_tile_types()
+        fill = next(iter(self.tile_types))
+        cells = [[fill] * w for _ in range(h)]
         for r in self.conn.execute("SELECT x, y, type FROM tiles"):
             cells[r["y"]][r["x"]] = r["type"]
-        self.grid = Grid(w, h, cells)
+        self.grid = Grid(w, h, cells, self.tile_types)
         self.pathfinder = Pathfinder(self.grid)
         self.locations = {}
         for r in self.conn.execute("SELECT * FROM locations ORDER BY sort"):
@@ -78,6 +81,10 @@ class WorldState:
         self.rules = WorldRules(**(self.get_meta("rules") or {}))
         self.refresh_blocked()
         self.refresh_forbidden()
+
+    def load_tile_types(self) -> dict[str, TileType]:
+        return {r["id"]: TileType(r["id"], bool(r["walkable"]), r["cost"], r["char"], r["color"], r["label"])
+                for r in self.conn.execute("SELECT * FROM tile_types ORDER BY rowid")}
 
     def _build_loc_index(self) -> None:
         self._loc_index = {}
@@ -94,7 +101,7 @@ class WorldState:
     def refresh_blocked(self) -> None:
         blocked = set()
         for r in self.conn.execute("SELECT kind, x, y, state FROM objects WHERE holder IS NULL AND x IS NOT NULL"):
-            if object_kinds.KINDS[r["kind"]].blocks or (r["kind"] == "door" and json.loads(r["state"]).get("locked")):
+            if object_kinds.spec(r["kind"]).blocks or (r["kind"] == "door" and json.loads(r["state"]).get("locked")):
                 blocked.add((r["x"], r["y"]))
         self.grid.set_blocked(blocked)
 
@@ -175,13 +182,13 @@ class WorldState:
         else:
             self.conn.execute("UPDATE objects SET kind=?,name=?,location_id=?,x=?,y=?,holder=?,state=?,portable=?,owner=?,created_by=?,"
                               "created_at=?,hidden=?,known_by=? WHERE id=?", values)
-        if o.kind == "door" or object_kinds.KINDS[o.kind].blocks:
+        if o.kind == "door" or object_kinds.spec(o.kind).blocks:
             self.refresh_blocked()
 
     def remove_object(self, object_id: str) -> None:
         o = self.obj(object_id)
         self.conn.execute("DELETE FROM objects WHERE id=?", (object_id,))
-        if o and (o.kind == "door" or object_kinds.KINDS[o.kind].blocks):
+        if o and (o.kind == "door" or object_kinds.spec(o.kind).blocks):
             self.refresh_blocked()
 
     # --- Ressourcen ----------------------------------------------------------------------
@@ -212,7 +219,10 @@ class WorldState:
         return True
 
     def snapshot(self) -> dict[str, Any]:
-        return {"clock": self.minute, "weather": self.weather(), "rules": self.rules.model_dump(),
+        w, h = self.get_meta("size")
+        return {"clock": self.minute, "weather": self.weather(), "rules": self.rules.model_dump(), "size": [w, h],
+                "tile_types": {t.id: {"char": t.char, "walkable": t.walkable, "cost": t.cost, "color": t.color, "label": t.label}
+                               for t in self.tile_types.values()},
                 "agents": [a.model_dump() for a in self.agents()], "objects": [o.model_dump() for o in self.all_objects()],
                 "resources": [n.model_dump() for n in self.all_nodes()],
                 "locations": [l.model_dump() for l in self.locations.values()]}

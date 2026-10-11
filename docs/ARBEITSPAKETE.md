@@ -98,3 +98,6 @@ simulacra/
 2. Umsetzung auf Branch `ap/xx-name`, Tests, Statusbericht `docs/status/APxx.md` mit echten Ausgaben.
 3. Vorführung (Screenshots oder Konsolenlauf), dann deine Freigabe zum Zusammenführen.
 4. Auf maintux wird nur mit deiner ausdrücklichen Freigabe etwas installiert, gestartet oder neu gestartet.
+
+## Vorgemerkt: Mitspieler-Charaktere
+Anforderung vom 11.10.2026 (siehe `offene-fragen.md`, Nr. 11): Menschen steuern eigene Charaktere, die für die KI-Agenten gleichwertige Bewohner sind. Wird nach AP08 als eigenes Paket geschnitten. Schon jetzt beachten: Agenten haben in der Engine keinen Sonderstatus der KI (`add_agent`, `propose` gelten für jeden Körper), und die Wahrnehmung in AP02 darf nichts über die Steuerungsart eines Agenten verraten.

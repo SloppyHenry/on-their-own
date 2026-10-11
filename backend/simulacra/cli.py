@@ -8,6 +8,8 @@
     python -m simulacra.cli world tick 30
     python -m simulacra.cli world events --since 100 --type agent.dialogue
     python -m simulacra.cli world log alex
+    python -m simulacra.cli world patches               # bereits angewendete Welt-Patches
+    python -m simulacra.cli world patch datei.json      # Patch auf eine bestehende Welt anwenden (einmalig, atomar)
 """
 
 import argparse
@@ -73,8 +75,7 @@ def cmd_show(eng: WorldEngine, args) -> int:
 
 def cmd_map(eng: WorldEngine, args) -> int:
     st, g = eng.state, eng.state.grid
-    sym = {"grass": ".", "path": ",", "floor": "_", "wall": "#", "water": "~", "tree": "T", "door": "+", "sand": "s"}
-    rows = [[sym[g.tile(x, y)] for x in range(g.width)] for y in range(g.height)]
+    rows = [[g.types[g.tile(x, y)].char or "?" for x in range(g.width)] for y in range(g.height)]
     for o in st.all_objects():
         if o.x is not None and not o.hidden:
             rows[o.y][o.x] = "o" if o.kind not in ("plant", "construction_site") else ("*" if o.kind == "plant" else "x")
@@ -136,10 +137,34 @@ def cmd_log(eng: WorldEngine, args) -> int:
     return 0
 
 
+def cmd_patches(eng: WorldEngine, args) -> int:
+    done = eng.edit.applied_patches()
+    for p in done:
+        print(f"{clock.fmt(p['applied_at'])}  {p['id']}  {p['counts']}  {p['description']}")
+    print(f"{len(done)} Patch(es) angewendet.")
+    return 0
+
+
+def cmd_patch(eng: WorldEngine, args) -> int:
+    from .world.extend import WorldEditError
+    if not args.rest:
+        sys.exit("patch braucht eine Datei")
+    patch = json.loads(Path(args.rest[0]).read_text())
+    try:
+        res = eng.edit.apply_patch(patch)
+    except WorldEditError as e:
+        print(f"ABGELEHNT [{e.code}]: {e.text}")
+        return 2
+    print(f"Patch '{patch['id']}' angewendet: {res.value}")
+    for e in res.events:
+        print(_fmt_event(e))
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(prog="simulacra.cli", description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("group", choices=["world"])
-    ap.add_argument("command", choices=["init", "show", "map", "act", "tick", "events", "log"])
+    ap.add_argument("command", choices=["init", "show", "map", "act", "tick", "events", "log", "patch", "patches"])
     ap.add_argument("rest", nargs="*")
     ap.add_argument("--db", help="Pfad der Datenbank (Standard: <SIM_DATA_DIR>/live.db)")
     ap.add_argument("--seed", type=int, default=1)
@@ -163,7 +188,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "log":
         args.agent = args.rest[0] if args.rest else "alex"
         return cmd_log(eng, args)
-    return {"show": cmd_show, "map": cmd_map, "events": cmd_events}[args.command](eng, args)
+    return {"show": cmd_show, "map": cmd_map, "events": cmd_events, "patch": cmd_patch, "patches": cmd_patches}[args.command](eng, args)
 
 
 if __name__ == "__main__":

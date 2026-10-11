@@ -4,15 +4,14 @@ import json
 from collections import deque
 
 from simulacra.world import object_kinds
-from simulacra.world.grid import LEGEND, TILE_PROPS, Grid
-from simulacra.world.loader import DEFAULT_WORLD, load_blueprints, load_world_file
+from simulacra.world.loader import DEFAULT_WORLD, grid_from_world, load_blueprints, load_world_file
 
 
 def test_size_and_legend():
     w = load_world_file()
     rows = w["tiles"]
     assert w["size"] == [64, 40] and len(rows) == 40 and all(len(r) == 64 for r in rows)
-    assert set("".join(rows)) <= set(LEGEND)
+    assert set("".join(rows)) <= {t["char"] for t in w["tile_types"].values()}
 
 
 def test_required_locations_exist():
@@ -39,7 +38,7 @@ def test_all_kinds_and_blueprints_known(eng):
 
 
 def test_every_place_reachable_from_both_bedrooms(eng):
-    g = Grid.from_rows(load_world_file()["tiles"])
+    g = grid_from_world(load_world_file())
     for start in ((7, 7), (14, 7)):
         seen, q = {start}, deque([start])
         while q:
@@ -54,6 +53,10 @@ def test_every_place_reachable_from_both_bedrooms(eng):
                 assert tuple(o["tile"]) in seen, f"{o['id']} nicht erreichbar"
 
 
-def test_tile_props_complete():
-    assert set(LEGEND.values()) == set(TILE_PROPS)
-    assert json.loads(DEFAULT_WORLD.read_text())["schema"] == 1
+def test_tile_types_are_consistent():
+    w = load_world_file()
+    chars = [t["char"] for t in w["tile_types"].values()]
+    assert len(chars) == len(set(chars))
+    assert w["schema"] == 1 and json.loads(DEFAULT_WORLD.read_text())["name"]
+    for name, t in w["tile_types"].items():
+        assert isinstance(t["walkable"], bool) and (not t["walkable"] or t["cost"] >= 1), name

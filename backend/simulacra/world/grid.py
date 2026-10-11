@@ -1,12 +1,16 @@
-"""Kachelraster mit Kachelarten, Bewegungskosten und zusätzlichen Sperren."""
+"""Kachelraster mit Kachelarten (aus der Datenbank), Bewegungskosten und zusätzlichen Sperren."""
 
 from dataclasses import dataclass, field
 
-TILE_PROPS: dict[str, tuple[bool, int]] = {  # Art -> (begehbar, Kosten in Minuten)
-    "grass": (True, 2), "path": (True, 1), "floor": (True, 1), "door": (True, 1), "sand": (True, 2),
-    "wall": (False, 0), "water": (False, 0), "tree": (False, 0),
-}
-LEGEND = {".": "grass", ",": "path", "_": "floor", "#": "wall", "~": "water", "T": "tree", "+": "door", "s": "sand"}
+
+@dataclass(frozen=True)
+class TileType:
+    id: str
+    walkable: bool
+    cost: int                 # Minuten je Kachel (nur sinnvoll, wenn begehbar)
+    char: str | None = None
+    color: str | None = None
+    label: str = ""
 
 
 @dataclass
@@ -14,6 +18,7 @@ class Grid:
     width: int
     height: int
     cells: list[list[str]]
+    types: dict[str, TileType]
     blocked: set[tuple[int, int]] = field(default_factory=set)    # Objekte, verschlossene Türen
     forbidden: set[tuple[int, int]] = field(default_factory=set)  # Weltregeln (Bewegungsfreiheit)
     version: int = 0                                              # steigt bei jeder Änderung (Pfad-Cache)
@@ -29,13 +34,13 @@ class Grid:
         self.version += 1
 
     def walkable(self, x: int, y: int) -> bool:
-        return self.in_bounds(x, y) and TILE_PROPS[self.cells[y][x]][0]
+        return self.in_bounds(x, y) and self.types[self.cells[y][x]].walkable
 
     def is_open(self, x: int, y: int) -> bool:
         return self.walkable(x, y) and (x, y) not in self.blocked and (x, y) not in self.forbidden
 
     def cost(self, x: int, y: int) -> int:
-        return TILE_PROPS[self.cells[y][x]][1]
+        return self.types[self.cells[y][x]].cost
 
     def set_blocked(self, tiles: set[tuple[int, int]]) -> None:
         if tiles != self.blocked:
@@ -48,5 +53,6 @@ class Grid:
             self.version += 1
 
     @classmethod
-    def from_rows(cls, rows: list[str]) -> "Grid":
-        return cls(len(rows[0]), len(rows), [[LEGEND[c] for c in row] for row in rows])
+    def from_rows(cls, rows: list[str], types: dict[str, TileType]) -> "Grid":
+        by_char = {t.char: t.id for t in types.values() if t.char}
+        return cls(len(rows[0]), len(rows), [[by_char[c] for c in row] for row in rows], types)

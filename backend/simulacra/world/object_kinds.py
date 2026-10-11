@@ -54,16 +54,27 @@ KINDS: dict[str, ObjectKind] = {k.kind: k for k in [
 ]}
 
 
+UNKNOWN = ObjectKind("unknown", "Unbekanntes Objekt", portable=False)
+
+
 def get(kind: str) -> ObjectKind:
+    """Streng: nur bekannte Arten (für neue Objekte)."""
     try:
         return KINDS[kind]
     except KeyError:
         raise ValueError(f"unbekannte Objektart: {kind}") from None
 
 
+def spec(kind: str) -> ObjectKind:
+    """Tolerant: unbekannte Arten aus älteren Spielständen laden als harmlose, passive Objekte."""
+    return KINDS.get(kind, UNKNOWN)
+
+
 def normalize_state(kind: str, state: dict[str, Any]) -> dict[str, Any]:
     """Ergänzt Standardwerte und prüft Typen; unbekannte Schlüssel oder falsche Typen sind Fehler."""
-    spec = get(kind)
+    if kind not in KINDS:        # alter Spielstand mit inzwischen entfernter Art: Zustand unverändert lassen
+        return dict(state)
+    spec = KINDS[kind]
     unknown = set(state) - set(spec.schema)
     if unknown:
         raise ValueError(f"{kind}: unbekannte Zustandsfelder {sorted(unknown)}")

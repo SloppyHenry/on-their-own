@@ -144,7 +144,7 @@ class Use(Action):
         if isinstance(o, Rejected):
             return o
         mode = params.get("mode")
-        spec = object_kinds.get(o.kind)
+        spec = object_kinds.spec(o.kind)
         if mode not in spec.modes:
             have = ", ".join(spec.modes) or "keine"
             return rej(RejectCode.INVALID_TARGET, f"{o.name} kennt den Modus '{mode}' nicht (möglich: {have}).")

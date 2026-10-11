@@ -10,7 +10,7 @@ import logging
 from typing import Any
 
 from ..db.connection import Database
-from . import clock, weather
+from . import clock, extend, patches, weather
 from .actions import REGISTRY
 from .actions.base import Ctx, rej
 from .loader import load_blueprints, seed_world
@@ -22,11 +22,39 @@ log = logging.getLogger(__name__)
 RECOVER = "recover"  # interne Aktion: Zeitverlust nach fehlgeschlagener Aktion
 
 
+class WorldEditor:
+    """Erweiterungen der laufenden Welt (siehe extend.py); jede Operation ist eine Transaktion mit Ereignis."""
+
+    def __init__(self, engine: "WorldEngine"):
+        self._e = engine
+
+    def _do(self, fn, *args, **kw) -> extend.EditResult:
+        out: dict[str, Any] = {}
+        events = self._e._run(lambda ctx: out.update(value=fn(ctx, *args, **kw)))
+        return extend.EditResult(events, out.get("value"))
+
+    def add_tile_type(self, id_: str, **kw): return self._do(extend.add_tile_type, id_, **kw)
+    def set_tiles(self, changes, cause: str = "edit"): return self._do(extend.set_tiles, changes, cause)
+    def paint_rect(self, x: int, y: int, w: int, h: int, tile_type: str):
+        return self._do(extend.set_tiles, [(x + i, y + j, tile_type) for j in range(h) for i in range(w)])
+    def extend_map(self, width: int, height: int, fill: str = "grass"): return self._do(extend.extend_map, width, height, fill)
+    def add_location(self, id_: str, name: str, rect, **kw): return self._do(extend.add_location, id_, name, rect, **kw)
+    def update_location(self, id_: str, **kw): return self._do(extend.update_location, id_, **kw)
+    def add_agent(self, id_: str, name: str, tile, **kw): return self._do(extend.add_agent, id_, name, tile, **kw)
+    def spawn_object(self, kind: str, name: str, **kw): return self._do(extend.spawn_object, kind, name, **kw)
+    def remove_object(self, object_id: str, cause: str = "removed"): return self._do(extend.remove_object, object_id, cause)
+    def add_resource_node(self, id_: str, tile, resource: str, amount: float, cap: float, **kw):
+        return self._do(extend.add_resource_node, id_, tile, resource, amount, cap, **kw)
+    def apply_patch(self, patch: dict): return self._do(patches.apply_patch, patch)
+    def applied_patches(self) -> list[dict]: return self._e.state.get_meta("patches", [])
+
+
 class WorldEngine:
     def __init__(self, db: Database, blueprints: dict[str, dict[str, Any]] | None = None):
         self.db = db
         self.state = WorldState(db)
         self.blueprints = blueprints or load_blueprints()
+        self.edit = WorldEditor(self)
 
     # --- Aufbau ------------------------------------------------------------------------
     @classmethod

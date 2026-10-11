@@ -1,10 +1,9 @@
-from simulacra.world.grid import Grid
-from simulacra.world.loader import load_world_file
+from simulacra.world.loader import grid_from_world, load_world_file
 from simulacra.world.pathfinding import Pathfinder
 
 
 def grid():
-    return Grid.from_rows(load_world_file()["tiles"])
+    return grid_from_world(load_world_file())
 
 
 def test_house_to_lake_path_is_connected_and_open():

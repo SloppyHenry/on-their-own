@@ -34,6 +34,7 @@ events = eng.tick()                           # eine Simulationsminute; advance(
 eng.interrupt("alex", "Hunger")               # laufende Aktion abbrechen (Baustelle bleibt bestehen)
 eng.set_rules(WorldRules(...))                # Weltregeln, sofort wirksam
 eng.set_weather("rain", 120)                  # Eingriff (AP08)
+eng.edit.spawn_object(...) / add_location / add_agent / extend_map / apply_patch   # Erweiterungen, siehe welt-erweitern.md
 eng.state.snapshot()                          # kompletter Zustand als Dict (Grundlage für den Frontend-Snapshot in AP03)
 eng.events_since(seq) / eng.action_history(agent)
 await eng.propose_async(...) / await eng.tick_async()   # gleiche Operationen auf dem einzigen Schreib-Thread
@@ -78,15 +79,16 @@ Schema (`Event`): `seq` (fortlaufende ID), `ts` (UTC), `sim_minute`, `type`, `ag
 | `world.resource_changed` | Quelle gesammelt, verbraucht oder nachgewachsen |
 | `world.weather_changed`, `world.phase_changed`, `world.day_started` | Zeit und Wetter |
 | `simulation.parameter_changed` | Weltregeln geändert |
+| `world.tile_type_added`, `world.tiles_changed`, `world.map_extended`, `world.location_added`, `world.location_updated`, `world.agent_added`, `world.resource_added`, `world.patch_applied` | Erweiterungen der Welt (siehe `welt-erweitern.md`) |
 
 ### Wissen und Sichtbarkeit
 `WorldObject.hidden` + `known_by`: Verborgene Objekte sind nur für die Agenten in `known_by` sichtbar (`visible_to(agent_id)`). Aktionen lehnen unbekannte Objekte mit `invalid_target` ab. **Die Wahrnehmung für Prompts (AP02) muss `objects_at()` immer über `visible_to` filtern.** Entdeckt wird beim `inspect` eines Objekts am selben Ort im Umkreis von 3 Kacheln.
 
 ### Datenbank (`backend/simulacra/db/migrations/001_init.sql`)
-Tabellen: `meta`, `tiles`, `locations`, `objects`, `resources`, `agents_body`, `inventory`, `clock`, `weather`, `events`, `action_log`. SQLite im WAL-Modus, Schema-Version in `PRAGMA user_version`, Migrationen als nummerierte Dateien, die beim Öffnen automatisch angewendet werden. Eine Schreibverbindung (Sperre plus Ein-Thread-Warteschlange `Database.write/run`), Leser über `Database.reader()`.
+Tabellen: `meta`, `tile_types`, `tiles`, `locations`, `objects`, `resources`, `agents_body`, `inventory`, `clock`, `weather`, `events`, `action_log`. SQLite im WAL-Modus, Schema-Version in `PRAGMA user_version`, Migrationen als nummerierte Dateien, die beim Öffnen automatisch angewendet werden. Eine Schreibverbindung (Sperre plus Ein-Thread-Warteschlange `Database.write/run`), Leser über `Database.reader()`.
 
 ### Startwelt-Datei (`backend/simulacra/data/world_default.json`, Schema 1)
-`size` `[64,40]`, `home`, `legend` (Zeichen → Kachelart), `tiles` (40 Zeilen à 64 Zeichen), `locations` (`id`, `name`, `rect` `[x,y,b,h]`, `entrances`, `extra_tiles`, `props`; der erste passende Eintrag gewinnt, `props.fallback` gilt für alle übrigen Kacheln), `objects` (`id`, `kind`, `name`, `tile`, `state`, `portable`, `owner`, `hidden`), `resource_nodes`, `agents`, `start`. Bauvorlagen: `blueprints.json`. Neue Objektarten nur in `world/object_kinds.py` ergänzen.
+`size` `[64,40]`, `home`, `tile_types` (Kachelart → `char`, `walkable`, `cost`, `color`, `label`), `tiles` (40 Zeilen à 64 Zeichen), `locations` (`id`, `name`, `rect` `[x,y,b,h]`, `entrances`, `extra_tiles`, `props`; der erste passende Eintrag gewinnt, `props.fallback` gilt für alle übrigen Kacheln), `objects` (`id`, `kind`, `name`, `tile`, `state`, `portable`, `owner`, `hidden`), `resource_nodes`, `agents`, `start`. Bauvorlagen: `blueprints.json`. Neue Objektarten nur in `world/object_kinds.py` ergänzen. Ausführlich: [welt-erweitern.md](welt-erweitern.md).
 
 ### Entwicklungswerkzeug
 ```bash
