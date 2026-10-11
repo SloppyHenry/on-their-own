@@ -6,7 +6,8 @@ set -euo pipefail
 source "$(dirname "$0")/_compose.sh"
 
 file="${1:-}"; [[ -n "$file" && -f "$file" ]] || die "Aufruf: scripts/restore.sh <backup.tar.gz> [--yes]"
-tar -tzf "$file" | grep -qx 'manifest.json' || die "$file ist kein Simulacra-Backup."
+listing="$(tar -tzf "$file" 2>/dev/null)" || die "$file ist kein lesbares Archiv."
+grep -qx 'manifest.json' <<<"$listing" || die "$file ist kein Simulacra-Backup."
 
 if [[ "${2:-}" != "--yes" ]]; then
   echo "Der aktuelle Stand wird durch $file ersetzt (vorher wird er gesichert)."

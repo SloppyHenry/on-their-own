@@ -22,14 +22,14 @@ if [[ -n "$(sim_running)" ]]; then
 else
   sim_compose run --rm -T --no-deps simulacra python -m simulacra.saves.cli backup - >"$tmp"
 fi
-tar -tzf "$tmp" >/dev/null 2>&1 || die "Das Backup ist kein lesbares Archiv, nichts gespeichert."
-tar -tzf "$tmp" | grep -qx 'manifest.json' || die "Im Backup fehlt manifest.json, nichts gespeichert."
+listing="$(tar -tzf "$tmp" 2>/dev/null)" || die "Das Backup ist kein lesbares Archiv, nichts gespeichert."
+grep -qx 'manifest.json' <<<"$listing" || die "Im Backup fehlt manifest.json, nichts gespeichert."       # kein Pipe: grep -q + pipefail meldet sonst SIGPIPE als Fehler
 mv "$tmp" "$out"
 
 n=0
 while IFS= read -r f; do                       # Dateinamen sortieren zeitlich; neueste zuerst, alles ab Nummer KEEP+1 löschen
   n=$((n + 1))
   if (( n > KEEP )); then rm -f -- "$f"; fi
-done < <(ls -1 "$DEST"/simulacra-*.tar.gz | sort -r)
+done < <(printf "%s\n" "$DEST"/simulacra-*.tar.gz | sort -r)
 
 echo "$out"

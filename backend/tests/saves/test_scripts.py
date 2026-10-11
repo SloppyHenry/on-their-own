@@ -2,6 +2,7 @@
 den echten Backup-Befehl im Datenverzeichnis ausführt (kein Docker nötig)."""
 
 import os
+import re
 import stat
 import subprocess
 import sys
@@ -175,3 +176,20 @@ def test_every_file_the_app_needs_at_runtime_survives_the_docker_context_rules()
            if (pat.startswith("**/") and any(fnmatch.fnmatch(part, pat[3:]) for part in f.split("/")))
            or (not pat.startswith("**/") and (fnmatch.fnmatch(f, pat.lstrip("/")) or f.startswith(pat.lstrip("/").rstrip("/") + "/")))]
     assert not hit, hit
+
+
+def test_no_script_pipes_into_grep_q_under_pipefail():
+    """`tar -t | grep -q` bricht mit pipefail durch SIGPIPE ab, sobald das Archiv größer als der Pipe-Puffer ist (so auf maintux aufgefallen)."""
+    bad = [f"{p.name}: {l.strip()}" for p in (ROOT / "scripts").glob("*.sh") for l in p.read_text().splitlines() if re.search(r"(?<!\|)\|(?!\|)\s*grep\s+-q", l.split("#")[0])]
+    assert not bad, bad
+
+
+def test_backup_accepts_an_archive_far_larger_than_the_pipe_buffer(env):
+    e, data, tmp = env
+    (data / "saves").mkdir(exist_ok=True)
+    for i in range(300):                                                  # viele Dateien: lange Auflistung
+        sqlite = __import__("sqlite3").connect(data / "saves" / f"x{i:04d}.db")
+        sqlite.execute("CREATE TABLE t(a)")
+        sqlite.close()
+    r = sh(e, ROOT / "scripts/backup.sh")
+    assert r.returncode == 0, r.stderr
