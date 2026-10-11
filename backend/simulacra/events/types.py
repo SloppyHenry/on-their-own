@@ -60,8 +60,10 @@ _ALL = [
     _t("agent.decision", "planning", m.Decision, "Entscheidung mit angebotenen Optionen und Bewertung"),
     _t("agent.status_changed", "planning", m.StatusChanged, "Handlungsstatus eines Agenten hat sich geändert"),
     _t("agent.decision_failed", "system", m.DecisionFailed, "Keine verwertbare Antwort vom Modell: Rückfall"),
-    _t("agent.memory_created", "memory", m.Loose, "Erinnerung gespeichert (ab AP05)", True),
-    _t("agent.memory_retrieved", "memory", m.Loose, "Erinnerung abgerufen (ab AP05)", True),
+    _t("agent.memory_created", "memory", m.MemoryCreated, "Erinnerung gespeichert"),
+    _t("agent.memory_retrieved", "memory", m.MemoryRetrieved, "Erinnerungen für eine Entscheidung abgerufen"),
+    _t("agent.memory_skipped", "memory", m.MemorySkipped, "Nicht gemerkt (unter der Schwelle); nur mit Debug-Parameter"),
+    _t("agent.memory_archived", "memory", m.MemoryArchived, "Erinnerungen archiviert (nicht gelöscht)"),
     _t("agent.goal_changed", "planning", m.Loose, "Ziel geändert (ab AP06)", True),
     # Welt
     _t("world.object_created", "world", m.ObjectCreated, "Objekt ist entstanden"),
@@ -107,7 +109,9 @@ def visibility_of(type_: str, agents: list[str]) -> str:
     cat = category_of(type_)
     if cat == "system":
         return "system"
-    if cat in ("dialogue", "planning", "memory") and agents:
+    if cat == "memory":
+        return "system"                      # was ein Agent speichert oder abruft, sieht der andere nie
+    if cat in ("dialogue", "planning") and agents:
         return "agents:" + ",".join(sorted(agents))
     return "public"
 

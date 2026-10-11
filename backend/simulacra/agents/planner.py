@@ -12,6 +12,7 @@ from pydantic import BaseModel, Field, ValidationError
 
 from ..llm.client import LLMClient
 from ..llm.providers import LLMError
+from ..memory.system import MemorySystem
 from ..world.engine import WorldEngine
 from . import options as options_mod
 from . import perception, prompts
@@ -68,13 +69,19 @@ class Decision:
 
 class Planner:
     def __init__(self, engine: WorldEngine, store: AgentStore, convs: ConversationManager, client: LLMClient,
-                 tuning: Tuning | None = None, memory_lines: int = 10, correction_retries: int = 2):
+                 tuning: Tuning | None = None, memory_lines: int = 10, correction_retries: int = 2, memory: MemorySystem | None = None):
         self.engine, self.store, self.convs, self.client = engine, store, convs, client
         self.tuning, self.memory_lines, self.correction_retries = tuning or Tuning(), memory_lines, correction_retries
+        self.memory = memory
 
     def prepare(self, agent_id: str) -> Prepared:
         """Wahrnehmen, erinnern, Optionen erzeugen und bewerten, Prompt bauen. Nur lesend; gehört auf den DB-Thread."""
         p = perception.build(self.engine, self.store, self.convs, agent_id, self.memory_lines)
+        if self.memory is not None:
+            self.memory.perceive(p)
+            buffer = self.store.recent_observations(agent_id, self.memory_lines)
+            rec = self.memory.recall_for(p, exclude_since=buffer[0]["sim_minute"] if buffer else None)
+            p.recalled, p.extra["retrieval_id"] = rec.lines, rec.retrieval_id
         opts = options_mod.build_options(self.engine, self.store, p, self.tuning)
         messages = [{"role": "system", "content": prompts.system_prompt(p.agent)}, {"role": "user", "content": prompts.user_prompt(p, opts)}]
         return Prepared(p, opts, messages, prompts.decision_schema([o.id for o in opts]))
@@ -102,6 +109,7 @@ class Planner:
         """Fragt das Modell, korrigiert bei unbrauchbaren Antworten und fällt notfalls auf `wait` zurück."""
         p = prep.perception
         dec = Decision(p.agent.id, p.minute, "fallback", prep.options, *FALLBACK)
+        dec.extra["retrieval_id"] = p.extra.get("retrieval_id")
         messages = list(prep.messages)
         t0 = time.perf_counter()
         for attempt in range(1, self.correction_retries + 2):

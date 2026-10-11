@@ -14,6 +14,7 @@ from typing import Any
 from ..agents.conversation import ConversationManager
 from ..agents.observations import ObservationCollector
 from ..agents.planner import Decision, Planner
+from ..memory.system import MemorySystem
 from ..agents.store import AgentStore
 from ..world.engine import WorldEngine
 from ..world.models import Event, ProposeResult
@@ -46,8 +47,9 @@ class RunStats:
 
 class SimulationRunner:
     def __init__(self, engine: WorldEngine, store: AgentStore, convs: ConversationManager, collector: ObservationCollector,
-                 planner: Planner, limiter: DecisionLimiter | None = None, tick_delay_s: float = 0.0):
+                 planner: Planner, memory: MemorySystem, limiter: DecisionLimiter | None = None, tick_delay_s: float = 0.0):
         self.engine, self.store, self.convs, self.collector, self.planner = engine, store, convs, collector, planner
+        self.memory = memory
         self.limiter = limiter or DecisionLimiter()
         self.tick_delay_s = tick_delay_s
         self.state = SimState.STOPPED
@@ -213,8 +215,26 @@ class SimulationRunner:
         self.store.set_decision_outcome(decision_id, "accepted" if res.ok else "rejected", res.rejected.text if res.rejected else None, seq)
         self.store.mark_decided(aid)
         self._set_status(aid, self._status_of(aid))
-        self.collector.ingest(res.events, self.store.ai_agent_ids())
+        self._remember(res.events, dec, decision_id, decision_event.seq, res)
         return res
+
+    def _remember(self, events: list[Event], dec: Decision | None = None, decision_id: int | None = None, decision_seq: int | None = None, res: ProposeResult | None = None) -> None:
+        """Beobachtungen aufnehmen und daraus Erinnerungen schreiben (bei einer Entscheidung mit deren Wichtigkeit und Absicht)."""
+        ai = self.store.ai_agent_ids()
+        mem, observed = self.memory, self.collector.ingest(events, self.store.ai_agent_ids())
+        valid = dec is not None and dec.status == "valid"
+        if dec is not None and decision_id is not None and dec.extra.get("retrieval_id"):
+            mem.know.link_decision(dec.agent_id, dec.extra["retrieval_id"], decision_id)
+        mem.writer.process(observed, {dec.agent_id: dec.importance} if valid else None)
+        if valid and dec is not None and res is not None:
+            loc = self.engine.state.agent(dec.agent_id).location_id
+            mem.writer.from_decision(dec.agent_id, dec.action, dec.intent, dec.importance, self.engine.minute, loc, accepted=res.ok,
+                                     reason=res.rejected.text if res.rejected else None, params=dec.params, decision_seq=decision_seq)
+            if dec.plan_next:
+                mem.writer.set_intention(dec.agent_id, dec.plan_next, self.engine.minute, loc, dec.intent)
+        for ev in events:
+            if ev.type == "agent.conversation_ended":
+                mem.writer.conversation_ended(ev, ai)
 
     def _after_tick(self, events: list[Event]) -> list[Event]:
         extra: list[Event] = []
@@ -222,7 +242,7 @@ class SimulationRunner:
             if ev.type == "agent.dialogue":
                 extra += self.convs.on_dialogue(ev)
         extra += self.convs.expire(self.engine.minute)
-        self.collector.ingest(events + extra, self.store.ai_agent_ids())
+        self._remember(events + extra)
         for aid in self.store.ai_agent_ids():
             self._set_status(aid, self._status_of(aid))
         return extra

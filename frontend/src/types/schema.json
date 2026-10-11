@@ -1296,6 +1296,147 @@
    "title": "MapExtended",
    "type": "object"
   },
+  "MemoryArchived": {
+   "additionalProperties": false,
+   "properties": {
+    "count": {
+     "type": "integer"
+    },
+    "memory_ids": {
+     "items": {
+      "type": "string"
+     },
+     "type": "array"
+    },
+    "reason": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "count",
+    "memory_ids",
+    "reason"
+   ],
+   "title": "MemoryArchived",
+   "type": "object"
+  },
+  "MemoryCreated": {
+   "additionalProperties": false,
+   "properties": {
+    "importance": {
+     "type": "integer"
+    },
+    "kind": {
+     "type": "string"
+    },
+    "location": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "memory_id": {
+     "type": "string"
+    },
+    "persons": {
+     "default": [],
+     "items": {
+      "type": "string"
+     },
+     "type": "array"
+    },
+    "shared": {
+     "default": false,
+     "type": "boolean"
+    },
+    "source_event_id": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "source_memory_ids": {
+     "default": [],
+     "items": {
+      "type": "string"
+     },
+     "type": "array"
+    },
+    "text": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "memory_id",
+    "kind",
+    "text",
+    "importance"
+   ],
+   "title": "MemoryCreated",
+   "type": "object"
+  },
+  "MemoryRetrieved": {
+   "additionalProperties": false,
+   "properties": {
+    "items": {
+     "items": {
+      "$ref": "#/$defs/RetrievedItem"
+     },
+     "type": "array"
+    },
+    "query": {
+     "default": [],
+     "items": {
+      "type": "string"
+     },
+     "type": "array"
+    },
+    "retrieval_id": {
+     "type": "integer"
+    },
+    "tokens": {
+     "type": "integer"
+    }
+   },
+   "required": [
+    "retrieval_id",
+    "items",
+    "tokens"
+   ],
+   "title": "MemoryRetrieved",
+   "type": "object"
+  },
+  "MemorySkipped": {
+   "additionalProperties": false,
+   "properties": {
+    "importance": {
+     "type": "integer"
+    },
+    "reason": {
+     "type": "string"
+    },
+    "text": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "text",
+    "importance",
+    "reason"
+   ],
+   "title": "MemorySkipped",
+   "type": "object"
+  },
   "Moved": {
    "additionalProperties": false,
    "properties": {
@@ -1936,6 +2077,31 @@
     "energy"
    ],
    "title": "Rested",
+   "type": "object"
+  },
+  "RetrievedItem": {
+   "additionalProperties": false,
+   "properties": {
+    "id": {
+     "type": "string"
+    },
+    "kind": {
+     "type": "string"
+    },
+    "score": {
+     "type": "number"
+    },
+    "text": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "id",
+    "kind",
+    "score",
+    "text"
+   ],
+   "title": "RetrievedItem",
    "type": "object"
   },
   "SimCommandResult": {
@@ -2792,6 +2958,18 @@
   },
   "MapExtended": {
    "$ref": "#/$defs/MapExtended"
+  },
+  "MemoryArchived": {
+   "$ref": "#/$defs/MemoryArchived"
+  },
+  "MemoryCreated": {
+   "$ref": "#/$defs/MemoryCreated"
+  },
+  "MemoryRetrieved": {
+   "$ref": "#/$defs/MemoryRetrieved"
+  },
+  "MemorySkipped": {
+   "$ref": "#/$defs/MemorySkipped"
   },
   "Moved": {
    "$ref": "#/$defs/Moved"

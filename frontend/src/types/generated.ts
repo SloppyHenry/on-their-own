@@ -29,6 +29,10 @@ export interface SimulacraApi {
   LocationDiscovered?: LocationDiscovered;
   LocationEvent?: LocationEvent;
   MapExtended?: MapExtended;
+  MemoryArchived?: MemoryArchived;
+  MemoryCreated?: MemoryCreated;
+  MemoryRetrieved?: MemoryRetrieved;
+  MemorySkipped?: MemorySkipped;
   Moved?: Moved;
   ObjectChanged?: ObjectChanged;
   ObjectCreated?: ObjectCreated;
@@ -517,6 +521,59 @@ export interface MapExtended {
 }
 /**
  * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "MemoryArchived".
+ */
+export interface MemoryArchived {
+  count: number;
+  memory_ids: string[];
+  reason: string;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "MemoryCreated".
+ */
+export interface MemoryCreated {
+  importance: number;
+  kind: string;
+  location?: string | null;
+  memory_id: string;
+  persons?: string[];
+  shared?: boolean;
+  source_event_id?: string | null;
+  source_memory_ids?: string[];
+  text: string;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "MemoryRetrieved".
+ */
+export interface MemoryRetrieved {
+  items: RetrievedItem[];
+  query?: string[];
+  retrieval_id: number;
+  tokens: number;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "RetrievedItem".
+ */
+export interface RetrievedItem {
+  id: string;
+  kind: string;
+  score: number;
+  text: string;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "MemorySkipped".
+ */
+export interface MemorySkipped {
+  importance: number;
+  reason: string;
+  text: string;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
  * via the `definition` "Moved".
  */
 export interface Moved {
@@ -991,8 +1048,10 @@ export interface EventDataMap {
   "agent.decision": Decision;
   "agent.status_changed": StatusChanged;
   "agent.decision_failed": DecisionFailed;
-  "agent.memory_created": Record<string, unknown>;
-  "agent.memory_retrieved": Record<string, unknown>;
+  "agent.memory_created": MemoryCreated;
+  "agent.memory_retrieved": MemoryRetrieved;
+  "agent.memory_skipped": MemorySkipped;
+  "agent.memory_archived": MemoryArchived;
   "agent.goal_changed": Record<string, unknown>;
   "world.object_created": ObjectCreated;
   "world.object_changed": ObjectChanged;
@@ -1058,6 +1117,8 @@ export const EVENT_CATEGORY: Record<EventType, EventCategory> = {
   "agent.decision_failed": "system",
   "agent.memory_created": "memory",
   "agent.memory_retrieved": "memory",
+  "agent.memory_skipped": "memory",
+  "agent.memory_archived": "memory",
   "agent.goal_changed": "planning",
   "world.object_created": "world",
   "world.object_changed": "world",
@@ -1089,4 +1150,4 @@ export const EVENT_CATEGORY: Record<EventType, EventCategory> = {
 };
 
 /** Noch nicht erzeugte, für spätere Pakete vorgesehene Typen. */
-export const PLANNED_EVENT_TYPES: EventType[] = ["agent.memory_created", "agent.memory_retrieved", "agent.goal_changed", "simulation.event_injected"];
+export const PLANNED_EVENT_TYPES: EventType[] = ["agent.goal_changed", "simulation.event_injected"];

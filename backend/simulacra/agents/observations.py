@@ -4,6 +4,8 @@ import math
 from typing import Any
 
 from ..world import clock
+from ..memory.models import Observed
+from ..memory.importance import SHARED_KINDS
 from ..world.models import AgentBody, Event
 from ..world.state import WorldState
 from .phrases import PHASE_DE, RES_DE, WEATHER_DE, loc_at, third_person
@@ -23,16 +25,18 @@ class ObservationCollector:
     def __init__(self, state: WorldState, store: AgentStore):
         self.state, self.store = state, store
 
-    def ingest(self, events: list[Event], agent_ids: list[str]) -> int:
-        """Wandelt Ereignisse in Beobachtungen der KI-Agenten um und speichert sie. Gibt die Anzahl zurück."""
+    def ingest(self, events: list[Event], agent_ids: list[str]) -> list[Observed]:
+        """Wandelt Ereignisse in Beobachtungen der KI-Agenten um, speichert sie im Kurzzeitpuffer und gibt sie zurück (Grundlage des Gedächtnisses)."""
         bodies = {a.id: a for a in self.state.agents()}
-        n = 0
+        out: list[Observed] = []
         for ev in events:
             for agent_id, kind, text, imp in self._observe(ev, bodies, set(agent_ids)):
                 if agent_id in agent_ids:
                     self.store.add_observation(agent_id, ev.sim_minute, kind, text, imp, ev.seq)
-                    n += 1
-        return n
+                    persons = [p for p in dict.fromkeys([*ev.agents, *([ev.data["to"], ev.data["speaker"]] if ev.type == "agent.dialogue" else [])]) if p != agent_id and p in bodies]
+                    out.append(Observed(agent_id=agent_id, kind=kind, text=text, importance=imp, minute=ev.sim_minute, event_seq=ev.seq,
+                                        event_id=ev.event_id, location_id=ev.location_id, persons=persons, shared=bool(persons) and kind in SHARED_KINDS))
+        return out
 
     # --- Regeln ---------------------------------------------------------------------------------
     @staticmethod

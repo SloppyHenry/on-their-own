@@ -68,6 +68,7 @@ class Perception:
     unknown_exists: bool
     last_seen: dict[str, dict] = field(default_factory=dict)
     plan_next: str = ""
+    recalled: list[str] = field(default_factory=list)       # abgerufene Erinnerungen (Langzeitgedächtnis)
     extra: dict[str, Any] = field(default_factory=dict)
 
 

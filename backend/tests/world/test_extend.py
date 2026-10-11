@@ -320,6 +320,7 @@ def test_database_from_before_tile_types_is_migrated(tmp_path):
     raw = sqlite3.connect(path)                         # Zustand vor Migration 002 nachstellen
     raw.executescript("DROP TABLE tile_types; DROP TABLE agent_profiles; DROP TABLE agent_runtime; DROP TABLE observations; "
                      "DROP TABLE conversations; DROP TABLE decisions; DROP TABLE idempotency; "
+                     "DROP TABLE memories_fts; DROP TABLE memories; DROP TABLE retrievals; DROP TABLE known_objects; DROP TABLE known_locations; DROP TABLE memory_state; "
                      "DROP INDEX events_event_id; DROP INDEX events_category; DROP INDEX events_location; DROP INDEX events_parent; "
                      "ALTER TABLE events DROP COLUMN event_id; ALTER TABLE events DROP COLUMN category; ALTER TABLE events DROP COLUMN visibility; "
                      "PRAGMA user_version = 1;")

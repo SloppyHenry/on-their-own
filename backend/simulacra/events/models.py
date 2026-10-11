@@ -161,6 +161,44 @@ class DecisionFailed(D):
     attempts: int = 0
 
 
+class RetrievedItem(D):
+    id: str
+    kind: str
+    score: float
+    text: str
+
+
+class MemoryCreated(D):
+    memory_id: str
+    kind: str
+    text: str
+    importance: int
+    location: str | None = None
+    persons: list[str] = []
+    shared: bool = False
+    source_event_id: str | None = None
+    source_memory_ids: list[str] = []
+
+
+class MemoryRetrieved(D):
+    retrieval_id: int
+    items: list[RetrievedItem]
+    tokens: int
+    query: list[str] = []
+
+
+class MemorySkipped(D):
+    text: str
+    importance: int
+    reason: str
+
+
+class MemoryArchived(D):
+    count: int
+    memory_ids: list[str]
+    reason: str
+
+
 class StatusChanged(D):
     old: str
     new: str

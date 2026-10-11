@@ -14,6 +14,8 @@ from ..config import Settings
 from ..db.connection import Database
 from ..llm.client import LLMClient
 from ..llm.providers import LLMProvider
+from ..memory.params import MemoryParams
+from ..memory.system import MemorySystem
 from ..world.engine import WorldEngine
 from .limits import DecisionLimiter
 from .runner import SimulationRunner
@@ -31,6 +33,7 @@ class Simulation:
     client: LLMClient
     planner: Planner
     collector: ObservationCollector
+    memory: MemorySystem
     runner: SimulationRunner
 
     @classmethod
@@ -40,11 +43,12 @@ class Simulation:
         store = AgentStore(engine.state)
         convs = ConversationManager(engine, store, max_turns=settings.sim_conversation_max_turns)
         client = LLMClient.from_settings(settings, provider)
-        planner = Planner(engine, store, convs, client, Tuning(top_k=settings.sim_top_k), settings.sim_memory_lines, settings.sim_correction_retries)
+        memory = MemorySystem(engine, MemoryParams.from_settings(settings))
+        planner = Planner(engine, store, convs, client, Tuning(top_k=settings.sim_top_k), settings.sim_memory_lines, settings.sim_correction_retries, memory)
         collector = ObservationCollector(engine.state, store)
-        runner = SimulationRunner(engine, store, convs, collector, planner,
+        runner = SimulationRunner(engine, store, convs, collector, planner, memory,
                                   DecisionLimiter(settings.sim_min_decision_gap_s, settings.sim_max_decisions_per_minute), settings.sim_tick_delay_s)
-        return cls(settings, str(db_path), provider, db, engine, store, convs, client, planner, collector, runner)
+        return cls(settings, str(db_path), provider, db, engine, store, convs, client, planner, collector, memory, runner)
 
     async def reset(self, backup_dir: Path | None = None) -> Path | None:
         """Hält an, sichert die bisherige Datenbank (nie löschen) und legt eine frische Welt an. Gibt den Sicherungspfad zurück."""

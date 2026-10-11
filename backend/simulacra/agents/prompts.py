@@ -63,6 +63,9 @@ def user_prompt(p: Perception, options: list[Option]) -> str:
             out.append(f"  Vorschlag von {c['open_proposal']['by_name']}: «{c['open_proposal']['text']}»")
     out.append("Zuletzt erlebt:" + ("" if p.memory else " –"))
     out += [f"- {m}" for m in p.memory]
+    if p.recalled:
+        out.append("Woran du dich erinnerst:")
+        out += [f"- {m}" for m in p.recalled]
     out.append("")
     out.append("Optionen:")
     out += [f"{o.id}: {o.label}" + (" [du sagst/schreibst etwas]" if o.utterance_key else "") for o in options]
