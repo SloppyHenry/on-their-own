@@ -2487,6 +2487,74 @@
    "title": "MemoryStats",
    "type": "object"
   },
+  "ModelStatus": {
+   "additionalProperties": false,
+   "properties": {
+    "avg_response_s": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "avg_tokens_per_s": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "base_url": {
+     "type": "string"
+    },
+    "calls": {
+     "default": 0,
+     "type": "integer"
+    },
+    "errors_15min": {
+     "default": 0,
+     "type": "integer"
+    },
+    "model": {
+     "type": "string"
+    },
+    "queue": {
+     "default": 0,
+     "type": "integer"
+    },
+    "reachable": {
+     "anyOf": [
+      {
+       "type": "boolean"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    }
+   },
+   "required": [
+    "reachable",
+    "model",
+    "base_url",
+    "avg_response_s",
+    "avg_tokens_per_s",
+    "errors_15min",
+    "queue",
+    "calls"
+   ],
+   "title": "ModelStatus",
+   "type": "object"
+  },
   "MoodOut": {
    "additionalProperties": false,
    "properties": {
@@ -2972,20 +3040,406 @@
    "title": "OptionSummary",
    "type": "object"
   },
-  "ParameterChanged": {
+  "ParamChange": {
    "additionalProperties": false,
    "properties": {
+    "agent": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "key": {
+     "type": "string"
+    },
+    "value": {
+     "default": null
+    }
+   },
+   "required": [
+    "key"
+   ],
+   "title": "ParamChange",
+   "type": "object"
+  },
+  "ParamPatch": {
+   "additionalProperties": false,
+   "properties": {
+    "changes": {
+     "items": {
+      "$ref": "#/$defs/ParamChange"
+     },
+     "maxItems": 100,
+     "minItems": 1,
+     "type": "array"
+    }
+   },
+   "required": [
+    "changes"
+   ],
+   "title": "ParamPatch",
+   "type": "object"
+  },
+  "ParamPatchOut": {
+   "additionalProperties": false,
+   "properties": {
+    "results": {
+     "items": {
+      "$ref": "#/$defs/ParamResult"
+     },
+     "type": "array"
+    },
+    "values": {
+     "$ref": "#/$defs/ParamValues"
+    }
+   },
+   "required": [
+    "results",
+    "values"
+   ],
+   "title": "ParamPatchOut",
+   "type": "object"
+  },
+  "ParamResetRequest": {
+   "additionalProperties": false,
+   "properties": {
+    "agent": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "group": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "keys": {
+     "anyOf": [
+      {
+       "items": {
+        "type": "string"
+       },
+       "type": "array"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    }
+   },
+   "title": "ParamResetRequest",
+   "type": "object"
+  },
+  "ParamResult": {
+   "additionalProperties": false,
+   "properties": {
+    "agent": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "key": {
+     "type": "string"
+    },
+    "new": {
+     "default": null
+    },
+    "old": {
+     "default": null
+    },
+    "reason": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "status": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "key",
+    "agent",
+    "status",
+    "old",
+    "new",
+    "reason"
+   ],
+   "title": "ParamResult",
+   "type": "object"
+  },
+  "ParamSchema": {
+   "additionalProperties": false,
+   "properties": {
+    "groups": {
+     "additionalProperties": {
+      "type": "string"
+     },
+     "type": "object"
+    },
+    "params": {
+     "items": {
+      "$ref": "#/$defs/ParamSpecOut"
+     },
+     "type": "array"
+    }
+   },
+   "required": [
+    "groups",
+    "params"
+   ],
+   "title": "ParamSchema",
+   "type": "object"
+  },
+  "ParamSpecOut": {
+   "additionalProperties": false,
+   "properties": {
+    "default": {
+     "default": null
+    },
+    "effect": {
+     "type": "string"
+    },
+    "effect_text": {
+     "type": "string"
+    },
     "group": {
      "type": "string"
     },
-    "rules": {
+    "help": {
+     "type": "string"
+    },
+    "key": {
+     "type": "string"
+    },
+    "label": {
+     "type": "string"
+    },
+    "locked": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "max": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "max_len": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "min": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "options": {
+     "default": [],
+     "items": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array"
+     },
+     "type": "array"
+    },
+    "scope": {
+     "type": "string"
+    },
+    "step": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "type": {
+     "type": "string"
+    },
+    "unit": {
+     "default": "",
+     "type": "string"
+    },
+    "warn": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    }
+   },
+   "required": [
+    "key",
+    "group",
+    "scope",
+    "type",
+    "label",
+    "help",
+    "default",
+    "min",
+    "max",
+    "step",
+    "unit",
+    "options",
+    "effect",
+    "effect_text",
+    "locked",
+    "warn",
+    "max_len"
+   ],
+   "title": "ParamSpecOut",
+   "type": "object"
+  },
+  "ParamValues": {
+   "additionalProperties": false,
+   "properties": {
+    "agents": {
+     "items": {
+      "type": "string"
+     },
+     "type": "array"
+    },
+    "changed": {
+     "default": [],
+     "items": {
+      "type": "string"
+     },
+     "type": "array"
+    },
+    "defaults": {
+     "additionalProperties": true,
+     "type": "object"
+    },
+    "values": {
      "additionalProperties": true,
      "type": "object"
     }
    },
    "required": [
-    "group",
-    "rules"
+    "agents",
+    "values",
+    "defaults",
+    "changed"
+   ],
+   "title": "ParamValues",
+   "type": "object"
+  },
+  "ParameterChanged": {
+   "additionalProperties": false,
+   "properties": {
+    "agent": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "group": {
+     "type": "string"
+    },
+    "key": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "new": {
+     "default": null
+    },
+    "old": {
+     "default": null
+    },
+    "rules": {
+     "additionalProperties": true,
+     "default": {},
+     "type": "object"
+    },
+    "status": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    }
+   },
+   "required": [
+    "group"
    ],
    "title": "ParameterChanged",
    "type": "object"
@@ -3029,6 +3483,232 @@
     "time"
    ],
    "title": "PhaseChanged",
+   "type": "object"
+  },
+  "PresetBrief": {
+   "additionalProperties": false,
+   "properties": {
+    "builtin": {
+     "type": "boolean"
+    },
+    "count": {
+     "type": "integer"
+    },
+    "description": {
+     "default": "",
+     "type": "string"
+    },
+    "id": {
+     "type": "string"
+    },
+    "name": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "id",
+    "name",
+    "description",
+    "builtin",
+    "count"
+   ],
+   "title": "PresetBrief",
+   "type": "object"
+  },
+  "PresetDiffItem": {
+   "additionalProperties": false,
+   "properties": {
+    "agent": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "key": {
+     "type": "string"
+    },
+    "label": {
+     "type": "string"
+    },
+    "new": {
+     "default": null
+    },
+    "old": {
+     "default": null
+    }
+   },
+   "required": [
+    "key",
+    "label",
+    "agent",
+    "old",
+    "new"
+   ],
+   "title": "PresetDiffItem",
+   "type": "object"
+  },
+  "PresetDuplicate": {
+   "additionalProperties": false,
+   "properties": {
+    "name": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    }
+   },
+   "title": "PresetDuplicate",
+   "type": "object"
+  },
+  "PresetLoadOut": {
+   "additionalProperties": false,
+   "properties": {
+    "preset": {
+     "$ref": "#/$defs/PresetBrief"
+    },
+    "results": {
+     "items": {
+      "$ref": "#/$defs/ParamResult"
+     },
+     "type": "array"
+    },
+    "values": {
+     "$ref": "#/$defs/ParamValues"
+    }
+   },
+   "required": [
+    "preset",
+    "results",
+    "values"
+   ],
+   "title": "PresetLoadOut",
+   "type": "object"
+  },
+  "PresetLoadRequest": {
+   "additionalProperties": false,
+   "properties": {
+    "confirm": {
+     "default": false,
+     "type": "boolean"
+    }
+   },
+   "title": "PresetLoadRequest",
+   "type": "object"
+  },
+  "PresetOut": {
+   "additionalProperties": false,
+   "properties": {
+    "builtin": {
+     "type": "boolean"
+    },
+    "data": {
+     "additionalProperties": true,
+     "type": "object"
+    },
+    "description": {
+     "default": "",
+     "type": "string"
+    },
+    "id": {
+     "type": "string"
+    },
+    "name": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "id",
+    "name",
+    "description",
+    "builtin",
+    "data"
+   ],
+   "title": "PresetOut",
+   "type": "object"
+  },
+  "PresetPreview": {
+   "additionalProperties": false,
+   "properties": {
+    "diff": {
+     "items": {
+      "$ref": "#/$defs/PresetDiffItem"
+     },
+     "type": "array"
+    },
+    "preset": {
+     "$ref": "#/$defs/PresetBrief"
+    }
+   },
+   "required": [
+    "preset",
+    "diff"
+   ],
+   "title": "PresetPreview",
+   "type": "object"
+  },
+  "PresetRename": {
+   "additionalProperties": false,
+   "properties": {
+    "description": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "name": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "name"
+   ],
+   "title": "PresetRename",
+   "type": "object"
+  },
+  "PresetSave": {
+   "additionalProperties": false,
+   "properties": {
+    "description": {
+     "default": "",
+     "type": "string"
+    },
+    "groups": {
+     "anyOf": [
+      {
+       "items": {
+        "type": "string"
+       },
+       "type": "array"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "name": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "name"
+   ],
+   "title": "PresetSave",
    "type": "object"
   },
   "ProfileBrief": {
@@ -3236,6 +3916,17 @@
     "confirm": {
      "default": false,
      "type": "boolean"
+    },
+    "model": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
     }
    },
    "title": "ResetRequest",
@@ -3719,9 +4410,10 @@
      "anyOf": [
       {
        "enum": [
-        "slow",
-        "normal",
-        "fast",
+        "0.5x",
+        "1x",
+        "2x",
+        "4x",
         "max"
        ],
        "type": "string"
@@ -3860,6 +4552,23 @@
    "title": "StatusChanged",
    "type": "object"
   },
+  "StatusOut": {
+   "additionalProperties": false,
+   "properties": {
+    "load": {
+     "$ref": "#/$defs/SystemLoad"
+    },
+    "model": {
+     "$ref": "#/$defs/ModelStatus"
+    }
+   },
+   "required": [
+    "model",
+    "load"
+   ],
+   "title": "StatusOut",
+   "type": "object"
+  },
   "StepRequest": {
    "additionalProperties": false,
    "properties": {
@@ -3871,6 +4580,47 @@
     }
    },
    "title": "StepRequest",
+   "type": "object"
+  },
+  "SystemLoad": {
+   "additionalProperties": false,
+   "properties": {
+    "actions_failed": {
+     "type": "integer"
+    },
+    "actions_ok": {
+     "type": "integer"
+    },
+    "decisions_per_minute": {
+     "type": "number"
+    },
+    "max_concurrent": {
+     "type": "integer"
+    },
+    "power_save": {
+     "type": "boolean"
+    },
+    "sim_minutes_per_minute": {
+     "type": "number"
+    },
+    "speed_level": {
+     "type": "string"
+    },
+    "state": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "decisions_per_minute",
+    "sim_minutes_per_minute",
+    "actions_ok",
+    "actions_failed",
+    "state",
+    "speed_level",
+    "max_concurrent",
+    "power_save"
+   ],
+   "title": "SystemLoad",
    "type": "object"
   },
   "TileChange": {
@@ -4423,6 +5173,21 @@
   "ObjectRemoved": {
    "$ref": "#/$defs/ObjectRemoved"
   },
+  "ParamPatch": {
+   "$ref": "#/$defs/ParamPatch"
+  },
+  "ParamPatchOut": {
+   "$ref": "#/$defs/ParamPatchOut"
+  },
+  "ParamResetRequest": {
+   "$ref": "#/$defs/ParamResetRequest"
+  },
+  "ParamSchema": {
+   "$ref": "#/$defs/ParamSchema"
+  },
+  "ParamValues": {
+   "$ref": "#/$defs/ParamValues"
+  },
   "ParameterChanged": {
    "$ref": "#/$defs/ParameterChanged"
   },
@@ -4431,6 +5196,30 @@
   },
   "PhaseChanged": {
    "$ref": "#/$defs/PhaseChanged"
+  },
+  "PresetBrief": {
+   "$ref": "#/$defs/PresetBrief"
+  },
+  "PresetDuplicate": {
+   "$ref": "#/$defs/PresetDuplicate"
+  },
+  "PresetLoadOut": {
+   "$ref": "#/$defs/PresetLoadOut"
+  },
+  "PresetLoadRequest": {
+   "$ref": "#/$defs/PresetLoadRequest"
+  },
+  "PresetOut": {
+   "$ref": "#/$defs/PresetOut"
+  },
+  "PresetPreview": {
+   "$ref": "#/$defs/PresetPreview"
+  },
+  "PresetRename": {
+   "$ref": "#/$defs/PresetRename"
+  },
+  "PresetSave": {
+   "$ref": "#/$defs/PresetSave"
   },
   "ProposalAnswered": {
    "$ref": "#/$defs/ProposalAnswered"
@@ -4491,6 +5280,9 @@
   },
   "StatusChanged": {
    "$ref": "#/$defs/StatusChanged"
+  },
+  "StatusOut": {
+   "$ref": "#/$defs/StatusOut"
   },
   "StepRequest": {
    "$ref": "#/$defs/StepRequest"

@@ -1,0 +1,26 @@
+{
+ "id": "kooperative-gemeinschaft",
+ "name": "Kooperative Gemeinschaft",
+ "description": "Beide helfen einander und teilen Ziele; gemeinsame Erinnerungen zählen mehr.",
+ "values": {
+  "personality.cooperation": {
+   "alex": 95,
+   "mira": 95
+  },
+  "personality.helpfulness": {
+   "alex": 90,
+   "mira": 90
+  },
+  "personality.conflict_readiness": {
+   "alex": 15,
+   "mira": 15
+  },
+  "personality.suggestion_acceptance": {
+   "alex": 80,
+   "mira": 80
+  },
+  "memory.w_shared": 1.0,
+  "goal_persistence": 60,
+  "planning_horizon": 7
+ }
+}

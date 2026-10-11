@@ -67,7 +67,7 @@ async def reset(request: Request, body: ResetRequest | None = None):
         raise HTTPException(400, "Zurücksetzen braucht die ausdrückliche Bestätigung {\"confirm\": true}. Die bisherige Welt wird gesichert, nicht gelöscht.")
 
     async def action(sim):
-        saved = await sim.reset()
+        saved = await sim.reset(model=body.model)
         return _result(sim, backup=str(saved) if saved else None)
     return await _command(request, body, action)
 

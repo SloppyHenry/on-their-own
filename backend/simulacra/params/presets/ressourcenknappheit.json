@@ -1,0 +1,14 @@
+{
+ "id": "ressourcenknappheit",
+ "name": "Ressourcenknappheit",
+ "description": "Holz, Steine und Nahrung sind knapp und wachsen langsam nach; Bauen ist teurer.",
+ "values": {
+  "world.scarcity": 70,
+  "world.resource_availability": 60,
+  "world.build_cost": 150,
+  "world.build_duration": 130,
+  "needs.hunger.rate": 130,
+  "needs.thirst.rate": 120,
+  "world.failure_consequence": "time"
+ }
+}

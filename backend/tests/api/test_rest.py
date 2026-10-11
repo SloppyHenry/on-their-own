@@ -123,14 +123,14 @@ def test_step_is_refused_while_running():
 
 def test_speed_levels_and_validation():
     with api() as c:
-        assert post(c, "/api/sim/speed", {"level": "slow"}).json()["tick_delay_s"] == 3.0
+        assert post(c, "/api/sim/speed", {"level": "0.5x"}).json()["tick_delay_s"] == 2.0
         r = post(c, "/api/sim/speed", {"tick_delay_s": 0.7}).json()
         assert r["speed_level"] == "custom" and c.sim.runner.tick_delay_s == 0.7
-        assert post(c, "/api/sim/speed", {"level": "fast"}).json()["speed_level"] == "fast"
-        assert post(c, "/api/sim/speed", {}).status_code == 422 and post(c, "/api/sim/speed", {"level": "fast", "tick_delay_s": 1}).status_code == 422
+        assert post(c, "/api/sim/speed", {"level": "4x"}).json()["speed_level"] == "4x"
+        assert post(c, "/api/sim/speed", {}).status_code == 422 and post(c, "/api/sim/speed", {"level": "4x", "tick_delay_s": 1}).status_code == 422
         assert post(c, "/api/sim/speed", {"level": "warp"}).status_code == 422 and post(c, "/api/sim/speed", {"tick_delay_s": -1}).status_code == 422
         ev = c.get("/api/events", params={"type": "simulation.speed_changed"}).json()["items"]
-        assert [e["data"]["level"] for e in ev] == ["slow", "custom", "fast"]
+        assert [e["data"]["level"] for e in ev] == ["0.5x", "custom", "4x"]
         assert post(c, "/api/sim/step", {"n": 0}).status_code == 422 and post(c, "/api/sim/step", {"n": 51}).status_code == 422
 
 

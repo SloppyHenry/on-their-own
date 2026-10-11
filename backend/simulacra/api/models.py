@@ -199,10 +199,11 @@ class StepRequest(BaseModel):
 
 class ResetRequest(BaseModel):
     confirm: bool = False
+    model: str | None = None             # Modell der neuen Simulation (gilt für den ganzen Lauf)
 
 
 class SpeedRequest(BaseModel):
-    level: Literal["slow", "normal", "fast", "max"] | None = None
+    level: Literal["0.5x", "1x", "2x", "4x", "max"] | None = None
     tick_delay_s: float | None = Field(None, ge=0, le=60)
 
 

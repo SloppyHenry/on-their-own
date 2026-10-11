@@ -17,6 +17,8 @@ from ..llm.client import LLMClient
 from ..llm.providers import LLMProvider
 from ..memory.params import MemoryParams
 from ..memory.system import MemorySystem
+from ..params.apply import ParamService
+from ..params.presets import PresetManager
 from ..world.engine import WorldEngine
 from .limits import DecisionLimiter
 from .runner import SimulationRunner
@@ -37,6 +39,8 @@ class Simulation:
     memory: MemorySystem
     autonomy: Autonomy
     runner: SimulationRunner
+    params: ParamService
+    presets: PresetManager
 
     @classmethod
     def create(cls, settings: Settings, db_path: str | Path = ":memory:", provider: LLMProvider | None = None, seed: int = 1) -> "Simulation":
@@ -52,11 +56,18 @@ class Simulation:
         collector = ObservationCollector(engine.state, store)
         runner = SimulationRunner(engine, store, convs, collector, planner, memory, autonomy,
                                   DecisionLimiter(settings.sim_min_decision_gap_s, settings.sim_max_decisions_per_minute), settings.sim_tick_delay_s)
-        return cls(settings, str(db_path), provider, db, engine, store, convs, client, planner, collector, memory, autonomy, runner)
+        sim = cls(settings, str(db_path), provider, db, engine, store, convs, client, planner, collector, memory, autonomy, runner, None, None)  # type: ignore[arg-type]
+        sim.params, sim.presets = ParamService(sim), PresetManager(sim)
+        sim.params.restore(sim.params.export())            # gespeicherte Abweichungen (Neustart) wieder anwenden
+        return sim
 
-    async def reset(self, backup_dir: Path | None = None) -> Path | None:
-        """Hält an, sichert die bisherige Datenbank (nie löschen) und legt eine frische Welt an. Gibt den Sicherungspfad zurück."""
+    async def reset(self, backup_dir: Path | None = None, model: str | None = None) -> Path | None:
+        """Hält an, sichert die bisherige Datenbank (nie löschen) und legt eine frische Welt an. Gibt den Sicherungspfad zurück.
+
+        Die Parameter bleiben erhalten (sie gelten für die nächste Welt); `model` wählt das Modell der neuen Simulation (es ist je Lauf fest).
+        """
         await self.runner.stop()
+        kept = await self.db.run(self.params.export)
         self.db.close()
         saved = None
         if self.db_path != ":memory:" and Path(self.db_path).exists():
@@ -65,9 +76,14 @@ class Simulation:
             saved = target_dir / f"live-{datetime.now():%Y%m%d-%H%M%S}.db"
             shutil.move(self.db_path, saved)
         bus = self.engine.bus                      # Abonnenten (Browser) bleiben über das Zurücksetzen hinweg verbunden
+        if model:
+            self.settings.llm_model = model
         fresh = Simulation.create(self.settings, self.db_path, self.provider)
         fresh.engine.bus = bus
+        await fresh.db.run(fresh.store.ensure_all)
+        await fresh.db.run(lambda: fresh.params.restore(kept))
         self.__dict__.update(fresh.__dict__)
+        self.params.sim = self.presets.sim = self
         self.engine.emit_event("simulation.reset", data={"backup": str(saved) if saved else None})
         return saved
 

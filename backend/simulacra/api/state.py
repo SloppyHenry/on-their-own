@@ -11,7 +11,7 @@ from ..world import clock
 from .models import (ActionInfo, AgentDetail, AgentInfo, ClockInfo, DecisionBrief, LocationDetail, LocationInfo, MapData, ObjectInfo,
                      ObservationBrief, ProfileBrief, ResourceInfo, SimStatus, StateSnapshot, TileTypeInfo, WeatherInfo)
 
-SPEED_LEVELS = {"slow": 3.0, "normal": 1.0, "fast": 0.2, "max": 0.0}
+from ..params.specs_sim import SPEEDS as SPEED_LEVELS
 SPARE_CHARS = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!$%&*"
 
 

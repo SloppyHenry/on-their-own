@@ -1,0 +1,16 @@
+{
+ "id": "experimentelle-konfiguration",
+ "name": "Experimentelle Konfiguration",
+ "description": "Stark verändertes Spiel mit Wärmebedürfnis, mehr Zufall, schnelleren Zeitschritten und Entscheidungen im Hintergrund.",
+ "values": {
+  "needs.warmth.enabled": true,
+  "spontaneity": 85,
+  "exploration": 80,
+  "world.minutes_per_tick": 5,
+  "sim.time_waits_for_decisions": false,
+  "world.movement": "no_forest",
+  "llm.temperature": 1.2,
+  "top_k_options": 8,
+  "memory.retrieval_threshold": 0.25
+ }
+}

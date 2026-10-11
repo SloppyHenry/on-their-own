@@ -1,0 +1,24 @@
+{
+ "id": "freie-exploration",
+ "name": "Freie Exploration",
+ "description": "Neugierige Figuren, die gern Neues entdecken; wenig Druck durch Bedürfnisse.",
+ "values": {
+  "autonomy": 70,
+  "initiative": 65,
+  "spontaneity": 70,
+  "exploration": 90,
+  "goal_persistence": 40,
+  "personality.curiosity": {
+   "alex": 90,
+   "mira": 90
+  },
+  "personality.risk_taking": {
+   "alex": 70,
+   "mira": 60
+  },
+  "world.resource_availability": 130,
+  "needs.hunger.rate": 70,
+  "needs.thirst.rate": 70,
+  "needs.energy.rate": 70
+ }
+}

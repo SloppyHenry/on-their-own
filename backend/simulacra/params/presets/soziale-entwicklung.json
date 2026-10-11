@@ -1,0 +1,23 @@
+{
+ "id": "soziale-entwicklung",
+ "name": "Soziale Entwicklung",
+ "description": "Beziehungen stehen im Vordergrund: viel Gespräch, Soziales zählt als Bedürfnis.",
+ "values": {
+  "initiative": 60,
+  "personality.sociability": {
+   "alex": 90,
+   "mira": 90
+  },
+  "personality.conversation_initiative": {
+   "alex": 85,
+   "mira": 85
+  },
+  "personality.cooperation": {
+   "alex": 70,
+   "mira": 75
+  },
+  "needs.social.enabled": true,
+  "memory.w_shared": 0.8,
+  "memory.reflection_threshold": 60
+ }
+}

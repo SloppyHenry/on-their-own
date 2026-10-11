@@ -86,6 +86,14 @@ class GoalStore:
             if t and t not in have:
                 self.create(agent_id, "long", t, minute, reason="aus dem Profil")
 
+    def sync_long(self, agent_id: str, texts: list[str], minute: int) -> None:
+        """Gleicht die langfristigen Ziele mit den (geänderten) Zielen des Profils ab: Entfernte werden aufgegeben, neue angelegt."""
+        wanted = {t.strip() for t in texts if t.strip()}
+        for g in self.long_goals(agent_id):
+            if g.text not in wanted:
+                self.set_state(g, "abandoned", "aus dem Profil entfernt", minute)
+        self.ensure_long(agent_id, sorted(wanted, key=texts.index) if all(w in texts for w in wanted) else list(wanted), minute)
+
     def create(self, agent_id: str, kind: str, text: str, minute: int, *, condition: dict | None = None, plan: list[dict] | None = None, parent_id: str | None = None,
                reason: str = "", replaces: str | None = None) -> Goal:
         gid = "goal_" + new_ulid()

@@ -17,6 +17,7 @@ from ..events.types import REGISTRY
 from . import models as api
 from . import models_memory as mm
 from . import models_autonomy as ma
+from . import models_params as mp
 
 API_MODELS: list[type[BaseModel]] = [
     api.StateSnapshot, api.AgentDetail, api.LocationDetail, api.EventsPage, api.EventDetail, api.SimCommandResult,
@@ -24,6 +25,8 @@ API_MODELS: list[type[BaseModel]] = [
     api.WsHello, api.WsResync, api.WsPong, api.WsSnapshot, api.WsEvents, api.WsEvent, api.WsPing, api.WsResyncRequired,
     mm.MemoriesPage, mm.MemoryDetail, mm.Knowledge, mm.RetrievalOut, mm.MemoryStats,
     ma.GoalOut, ma.AgentNeeds, ma.AgentOverview, ma.RelationOut, ma.FailureOut, ma.DecisionOut, ma.FactorRegistry,
+    mp.ParamSchema, mp.ParamValues, mp.ParamPatch, mp.ParamPatchOut, mp.ParamResetRequest, mp.PresetBrief, mp.PresetOut, mp.PresetSave, mp.PresetRename,
+    mp.PresetDuplicate, mp.PresetPreview, mp.PresetLoadRequest, mp.PresetLoadOut, mp.StatusOut,
     EventOut, SimTime,
 ]
 
@@ -52,7 +55,8 @@ def _clean(node, top: bool = False):
     return node
 
 
-REQUESTS = {api.StartRequest, api.StepRequest, api.ResetRequest, api.SpeedRequest, api.WsHello, api.WsResync, api.WsPong}
+REQUESTS = {api.StartRequest, api.StepRequest, api.ResetRequest, api.SpeedRequest, mp.ParamPatch, mp.ParamResetRequest, mp.PresetSave, mp.PresetRename,
+            mp.PresetDuplicate, mp.PresetLoadRequest, api.WsHello, api.WsResync, api.WsPong}
 
 
 def build_schema() -> dict:

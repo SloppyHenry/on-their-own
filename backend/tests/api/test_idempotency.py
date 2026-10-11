@@ -27,7 +27,7 @@ def test_same_key_with_different_content_or_path_is_a_conflict():
         assert post(c, "/api/sim/step", {"n": 1}, key=key).status_code == 200
         r = post(c, "/api/sim/step", {"n": 2}, key=key)
         assert r.status_code == 409 and "andere Anfrage" in r.json()["detail"]
-        assert post(c, "/api/sim/speed", {"level": "fast"}, key=key).status_code == 409
+        assert post(c, "/api/sim/speed", {"level": "4x"}, key=key).status_code == 409
         assert c.sim.engine.minute == 421
 
 

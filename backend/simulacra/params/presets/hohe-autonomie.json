@@ -1,0 +1,21 @@
+{
+ "id": "hohe-autonomie",
+ "name": "Hohe Autonomie",
+ "description": "Die Figuren verfolgen eigene Ziele ausdauernd und mit längerem Planhorizont.",
+ "values": {
+  "autonomy": 90,
+  "initiative": 85,
+  "goal_persistence": 85,
+  "planning_horizon": 8,
+  "spontaneity": 40,
+  "personality.autonomy": {
+   "alex": 90,
+   "mira": 90
+  },
+  "personality.persistence": {
+   "alex": 85,
+   "mira": 85
+  },
+  "memory.reflection_threshold": 60
+ }
+}

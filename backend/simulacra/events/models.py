@@ -384,7 +384,12 @@ class SimReset(D):
 
 class ParameterChanged(D):
     group: str
-    rules: dict[str, Any]
+    rules: dict[str, Any] = {}               # nur bei Weltregeln: alle Regeln nach der Änderung
+    key: str | None = None
+    agent: str | None = None
+    old: Any = None
+    new: Any = None
+    status: str | None = None                # applied | pending_next_decision | requires_model_restart
 
 
 class SpeedChanged(D):

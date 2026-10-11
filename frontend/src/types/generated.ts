@@ -50,9 +50,22 @@ export interface SimulacraApi {
   ObjectCreated?: ObjectCreated;
   ObjectDiscovered?: ObjectDiscovered;
   ObjectRemoved?: ObjectRemoved;
+  ParamPatch?: ParamPatch;
+  ParamPatchOut?: ParamPatchOut;
+  ParamResetRequest?: ParamResetRequest;
+  ParamSchema?: ParamSchema;
+  ParamValues?: ParamValues;
   ParameterChanged?: ParameterChanged;
   PatchApplied?: PatchApplied;
   PhaseChanged?: PhaseChanged;
+  PresetBrief?: PresetBrief;
+  PresetDuplicate?: PresetDuplicate;
+  PresetLoadOut?: PresetLoadOut;
+  PresetLoadRequest?: PresetLoadRequest;
+  PresetOut?: PresetOut;
+  PresetPreview?: PresetPreview;
+  PresetRename?: PresetRename;
+  PresetSave?: PresetSave;
   ProposalAnswered?: ProposalAnswered;
   Read?: Read;
   RelationChanged?: RelationChanged;
@@ -73,6 +86,7 @@ export interface SimulacraApi {
   StartRequest?: StartRequest;
   StateSnapshot?: StateSnapshot;
   StatusChanged?: StatusChanged;
+  StatusOut?: StatusOut;
   StepRequest?: StepRequest;
   TileChanged?: TileChanged;
   TileTypeAdded?: TileTypeAdded;
@@ -931,13 +945,126 @@ export interface ObjectRemoved {
 }
 /**
  * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "ParamPatch".
+ */
+export interface ParamPatch {
+  /**
+   * @minItems 1
+   * @maxItems 100
+   */
+  changes: [ParamChange, ...ParamChange[]];
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "ParamChange".
+ */
+export interface ParamChange {
+  agent?: string | null;
+  key: string;
+  value?: {
+    [k: string]: unknown;
+  };
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "ParamPatchOut".
+ */
+export interface ParamPatchOut {
+  results: ParamResult[];
+  values: ParamValues;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "ParamResult".
+ */
+export interface ParamResult {
+  agent: string | null;
+  key: string;
+  new: {
+    [k: string]: unknown;
+  };
+  old: {
+    [k: string]: unknown;
+  };
+  reason: string | null;
+  status: string;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "ParamValues".
+ */
+export interface ParamValues {
+  agents: string[];
+  changed: string[];
+  defaults: {
+    [k: string]: unknown;
+  };
+  values: {
+    [k: string]: unknown;
+  };
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "ParamResetRequest".
+ */
+export interface ParamResetRequest {
+  agent?: string | null;
+  group?: string | null;
+  keys?: string[] | null;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "ParamSchema".
+ */
+export interface ParamSchema {
+  groups: {
+    [k: string]: string;
+  };
+  params: ParamSpecOut[];
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "ParamSpecOut".
+ */
+export interface ParamSpecOut {
+  default: {
+    [k: string]: unknown;
+  };
+  effect: string;
+  effect_text: string;
+  group: string;
+  help: string;
+  key: string;
+  label: string;
+  locked: string | null;
+  max: number | null;
+  max_len: number | null;
+  min: number | null;
+  options: string[][];
+  scope: string;
+  step: number | null;
+  type: string;
+  unit: string;
+  warn: string | null;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
  * via the `definition` "ParameterChanged".
  */
 export interface ParameterChanged {
+  agent?: string | null;
   group: string;
-  rules: {
+  key?: string | null;
+  new?: {
     [k: string]: unknown;
   };
+  old?: {
+    [k: string]: unknown;
+  };
+  rules?: {
+    [k: string]: unknown;
+  };
+  status?: string | null;
 }
 /**
  * This interface was referenced by `SimulacraApi`'s JSON-Schema
@@ -957,6 +1084,93 @@ export interface PatchApplied {
 export interface PhaseChanged {
   phase: string;
   time: string;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "PresetBrief".
+ */
+export interface PresetBrief {
+  builtin: boolean;
+  count: number;
+  description: string;
+  id: string;
+  name: string;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "PresetDuplicate".
+ */
+export interface PresetDuplicate {
+  name?: string | null;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "PresetLoadOut".
+ */
+export interface PresetLoadOut {
+  preset: PresetBrief;
+  results: ParamResult[];
+  values: ParamValues;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "PresetLoadRequest".
+ */
+export interface PresetLoadRequest {
+  confirm?: boolean;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "PresetOut".
+ */
+export interface PresetOut {
+  builtin: boolean;
+  data: {
+    [k: string]: unknown;
+  };
+  description: string;
+  id: string;
+  name: string;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "PresetPreview".
+ */
+export interface PresetPreview {
+  diff: PresetDiffItem[];
+  preset: PresetBrief;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "PresetDiffItem".
+ */
+export interface PresetDiffItem {
+  agent: string | null;
+  key: string;
+  label: string;
+  new: {
+    [k: string]: unknown;
+  };
+  old: {
+    [k: string]: unknown;
+  };
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "PresetRename".
+ */
+export interface PresetRename {
+  description?: string | null;
+  name: string;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "PresetSave".
+ */
+export interface PresetSave {
+  description?: string;
+  groups?: string[] | null;
+  name: string;
 }
 /**
  * This interface was referenced by `SimulacraApi`'s JSON-Schema
@@ -1025,6 +1239,7 @@ export interface RelationLogItem {
  */
 export interface ResetRequest {
   confirm?: boolean;
+  model?: string | null;
 }
 /**
  * This interface was referenced by `SimulacraApi`'s JSON-Schema
@@ -1134,7 +1349,7 @@ export interface SpeedChanged {
  * via the `definition` "SpeedRequest".
  */
 export interface SpeedRequest {
-  level?: ("slow" | "normal" | "fast" | "max") | null;
+  level?: ("0.5x" | "1x" | "2x" | "4x" | "max") | null;
   tick_delay_s?: number | null;
 }
 /**
@@ -1259,6 +1474,42 @@ export interface WeatherInfo {
 export interface StatusChanged {
   new: string;
   old: string;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "StatusOut".
+ */
+export interface StatusOut {
+  load: SystemLoad;
+  model: ModelStatus;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "SystemLoad".
+ */
+export interface SystemLoad {
+  actions_failed: number;
+  actions_ok: number;
+  decisions_per_minute: number;
+  max_concurrent: number;
+  power_save: boolean;
+  sim_minutes_per_minute: number;
+  speed_level: string;
+  state: string;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "ModelStatus".
+ */
+export interface ModelStatus {
+  avg_response_s: number | null;
+  avg_tokens_per_s: number | null;
+  base_url: string;
+  calls: number;
+  errors_15min: number;
+  model: string;
+  queue: number;
+  reachable: boolean | null;
 }
 /**
  * This interface was referenced by `SimulacraApi`'s JSON-Schema

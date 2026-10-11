@@ -42,6 +42,7 @@ class RunStats:
     def summary(self) -> dict[str, Any]:
         minutes = max(1e-9, (time.monotonic() - self.started_monotonic) / 60)
         return {"decisions": self.decisions, "valid": self.valid, "fallback": self.fallback, "rejected_by_world": self.rejected, "ticks": self.ticks,
+                "sim_minutes_per_minute": round(self.ticks / minutes, 2),
                 "valid_ratio": round(self.valid / self.decisions, 3) if self.decisions else None,
                 "decisions_per_minute": round(self.decisions / minutes, 2), "by_action": dict(self.by_action)}
 
