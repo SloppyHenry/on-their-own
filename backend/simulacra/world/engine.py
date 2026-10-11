@@ -143,13 +143,17 @@ class WorldEngine:
 
     def set_rules(self, rules: WorldRules) -> list[Event]:
         """Übernimmt neue Weltregeln sofort (Obergrenzen werden angewandt, Sperren neu berechnet)."""
+        old = self.state.rules
+
         def work(ctx: Ctx) -> None:
             self.state.save_rules(rules)
+            ratio = rules.resource_scarcity / old.resource_scarcity if old.resource_scarcity else 1.0
             for n in self.state.all_nodes():
                 if n.cap < 900:
-                    cap = n.cap * rules.resource_scarcity
-                    if n.amount > cap:
-                        self.state.set_node_amount(n.id, cap)
+                    cap = n.cap * rules.resource_scarcity * rules.resource_availability
+                    amount = min(cap, n.amount * ratio) if abs(ratio - 1.0) > 1e-9 else min(cap, n.amount)       # Knappheit skaliert den Bestand sofort
+                    if abs(amount - n.amount) > 1e-9:
+                        self.state.set_node_amount(n.id, amount)
             self.state.refresh_forbidden()
             ctx.emit("simulation.parameter_changed", data={"group": "world_rules", "rules": rules.model_dump()})
         return self._run(work)
@@ -282,7 +286,7 @@ class WorldEngine:
         for n in self.state.all_nodes():
             if n.regen_per_hour <= 0 or n.cap >= 900:
                 continue
-            cap = n.cap * scarcity
+            cap = n.cap * scarcity * ctx.rules.resource_availability
             new = min(cap, n.amount + n.regen_per_hour * scarcity)
             if new > n.amount:
                 self.state.set_node_amount(n.id, new)

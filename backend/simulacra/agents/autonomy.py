@@ -30,6 +30,7 @@ class Autonomy:
         self.guards = Guards(engine)
         self.planner = GoalPlanner(engine, self.goals, memory, agents, self.relations, client, GoalParams())
         self.abandoned_streak: dict[str, int] = {}
+        self.shifts = {"autonomy": 0, "spontaneity": 0, "persistence": 0, "curiosity": 0, "conversation_initiative": 0}   # globale Aufschläge auf die Persönlichkeit (AP07)
         self.triggers: dict[str, str] = {}               # Anlass für einen Zielwechsel (z. B. angenommener Vorschlag)
         self.seed = int(engine.state.get_meta("seed") or 1)
 
@@ -53,6 +54,10 @@ class Autonomy:
                             relations={a.id: self.relations.get(agent_id, a.id) for a in st.agents() if a.id != agent_id}, goal=self.goals.active_short(agent_id),
                             long_goals=self.goals.long_goals(agent_id), locks=self.guards.locks(agent_id, minute), failures=self.guards.failures(agent_id, 8),
                             critical=self.needs.critical(body.needs, soft), seed=self.seed)
+
+    def effective(self, personality):
+        """Persönlichkeit mit den globalen Reglern (Autonomie, Spontaneität, Zielpersistenz, Erkunden, Initiative) als Aufschlag, begrenzt auf 0–100."""
+        return personality.model_copy(update={k: max(0, min(100, getattr(personality, k) + v)) for k, v in self.shifts.items() if v})
 
     def status_lines(self, p: Perception, ctx: AgentContext) -> list[str]:
         """Zusätzliche Zeilen für den Prompt: Bedürfnisse, Ziel, Beziehung zu den Anwesenden. Ausgeschaltete Bedürfnisse fehlen ganz."""
@@ -133,12 +138,12 @@ class Autonomy:
             trigger = self.triggers.pop(aid, None)
             if g is not None and model is not None and trigger and not waiting:
                 # Zielwechsel durch einen Anlass: nur, wenn das laufende Ziel nicht schon weit ist (Zielpersistenz erhöht die Hürde)
-                if g.progress < 0.5 + 0.4 * (model.personality.persistence - 50) / 50 and g.plan_step < len(g.plan):
+                if g.progress < 0.5 + 0.4 * (self.effective(model.personality).persistence - 50) / 50 and g.plan_step < len(g.plan):
                     g.reason = trigger
                     await self.planner.run(aid, trigger, previous=g, switch=True)
                     continue
             if g is not None and model is not None:
-                stale = gp.stale_minutes * (0.6 + model.personality.persistence / 100)
+                stale = gp.stale_minutes * (0.6 + self.effective(model.personality).persistence / 100)
                 reason = f"{g.failures} Planschritte in Folge gescheitert" if g.failures >= gp.max_failures else \
                     f"kein Fortschritt seit {minute - g.last_progress} Minuten" if minute - g.last_progress > stale else ""
                 if not reason or (waiting and g.failures < gp.max_failures):

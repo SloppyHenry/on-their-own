@@ -55,6 +55,8 @@ class Reflector:
         p = self.params
         if not p.reflect_enabled or self.client is None or self.agents is None:
             return None
+        if p.quiet_reflection and 6 * 60 <= clock.minute_of_day(minute) < 21 * 60:
+            return None                                       # Energiesparen: Reflexionen nur abends und nachts
         st = self.know.state_of(agent_id)
         if st["last_reflection_minute"] is not None and minute - st["last_reflection_minute"] < MIN_GAP_MINUTES:
             return None

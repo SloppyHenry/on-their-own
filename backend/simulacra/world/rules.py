@@ -7,6 +7,7 @@ from pydantic import BaseModel, Field
 
 class WorldRules(BaseModel):
     resource_scarcity: float = Field(1.0, ge=0.1, le=3.0)       # skaliert Nachwuchs und Obergrenze
+    resource_availability: float = Field(1.0, ge=0.0, le=2.0)   # skaliert nur die Obergrenzen je Ort
     gather_time_mult: float = Field(1.0, ge=0.25, le=4.0)
     build_cost_mult: float = Field(1.0, ge=0.25, le=4.0)
     build_duration_mult: float = Field(1.0, ge=0.25, le=4.0)

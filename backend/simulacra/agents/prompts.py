@@ -13,7 +13,7 @@ OTHER_ACTIONS = ("move_to(target|tile) · wait(minutes) · inspect(object_id) ·
 ALLOWED_OTHER = ["move_to", "wait", "inspect", "take", "drop", "give", "use", "gather", "plant", "water", "build", "eat", "drink", "rest", "sleep", "speak"]
 
 
-def system_prompt(a: AgentModel) -> str:
+def system_prompt(a: AgentModel, extra: str = "") -> str:
     pr, pe = a.profile, a.personality
     traits = ", ".join(f"{label} {getattr(pe, key)}" for key, label in PERSONALITY_LABELS.items())
     lines = [
@@ -33,6 +33,8 @@ def system_prompt(a: AgentModel) -> str:
         "- Optional \"plan_next\": was du danach vorhast. Optional \"proposal\": ein Vorschlag an dein Gegenüber im Gespräch (etwas gemeinsam tun).",
         "- Antworte ausschließlich mit dem JSON-Objekt.",
     ]
+    if extra:
+        lines += ["", extra]                       # Beobachtungsmodus (agents/modes.py): steht am Ende, der Anfang bleibt für den Prompt-Cache gleich
     return "\n".join(lines)
 
 

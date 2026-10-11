@@ -14,6 +14,7 @@ from ..llm.client import LLMClient
 from ..llm.providers import LLMError
 from ..memory.system import MemorySystem
 from .autonomy import Autonomy
+from .modes import ModeState
 from ..world.engine import WorldEngine
 from . import options as options_mod
 from . import perception, prompts
@@ -75,10 +76,14 @@ class Planner:
         self.tuning, self.memory_lines, self.correction_retries = tuning or Tuning(), memory_lines, correction_retries
         self.memory = memory
         self.autonomy = autonomy
+        self.mode = ModeState()
+        self.context_budget = 6000                      # Tokens je Prompt (Schätzung); darüber werden Erinnerungen und ältere Beobachtungen gekürzt
 
     def prepare(self, agent_id: str) -> Prepared:
         """Wahrnehmen, erinnern (Abruf wird protokolliert und gemeldet), Optionen erzeugen und bewerten, Prompt bauen. Gehört auf den DB-Thread."""
         p = perception.build(self.engine, self.store, self.convs, agent_id, self.memory_lines)
+        if self.autonomy is not None:
+            p.agent = p.agent.model_copy(update={"personality": self.autonomy.effective(p.agent.personality)})
         if self.autonomy is not None:
             ctx = self.autonomy.context(agent_id, p.minute)
             p.ctx = ctx
@@ -93,7 +98,12 @@ class Planner:
             rec = self.memory.recall_for(p, exclude_since=buffer[0]["sim_minute"] if buffer else None)
             p.recalled, p.extra["retrieval_id"] = rec.lines, rec.retrieval_id
         opts = options_mod.build_options(self.engine, self.store, p, self.tuning)
-        messages = [{"role": "system", "content": prompts.system_prompt(p.agent)}, {"role": "user", "content": prompts.user_prompt(p, opts)}]
+        system = prompts.system_prompt(p.agent, self.mode.prompt_extra())
+        user = prompts.user_prompt(p, opts)
+        while (len(system) + len(user)) / 3.2 > self.context_budget and (p.recalled or len(p.memory) > 1):    # Kontextbudget: erst Langzeit-, dann ältere Kurzzeiterinnerungen
+            (p.recalled.pop() if p.recalled else p.memory.pop(0))
+            user = prompts.user_prompt(p, opts)
+        messages = [{"role": "system", "content": system}, {"role": "user", "content": user}]
         return Prepared(p, opts, messages, prompts.decision_schema([o.id for o in opts]))
 
     # --- Antwort prüfen -------------------------------------------------------------------------------

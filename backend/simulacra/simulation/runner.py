@@ -67,6 +67,11 @@ class SimulationRunner:
         self._step_lock = asyncio.Lock()
         self._rotation = 0
         self._postponed: dict[str, int] = {}
+        self.minutes_per_tick = 1                       # Geschwindigkeit des Tageszyklus: so viele Simulationsminuten je Schritt (AP07)
+        self.waits_for_decisions = True                 # an: die Zeit wartet auf die Entscheidungen; aus: sie läuft weiter, Entscheidungen kommen später
+        self.decision_interval = 1                      # Mindestabstand zwischen Entscheidungen eines Agenten in Simulationsminuten
+        self.power_save = False                         # Energiesparen: Pause ohne verbundenen Browser, begrenzte Entscheidungen, keine Reflexion am Tag
+        self._bg: asyncio.Task | None = None
 
     # --- Steuerbefehle ----------------------------------------------------------------------------
     async def start(self, ticks: int | None = None) -> None:
@@ -87,6 +92,7 @@ class SimulationRunner:
             return
         self._gate.clear()
         await self._idle.wait()                        # laufende Entscheidung läuft zu Ende
+        await self._join_background()
         self.state = SimState.PAUSED
         await self._announce("simulation.paused")
 
@@ -118,6 +124,7 @@ class SimulationRunner:
         self._gate.set()
         if self._task is not None:
             await self._task
+        await self._join_background()
         self.state = SimState.STOPPED
         await self._announce("simulation.stopped")
 
@@ -138,6 +145,9 @@ class SimulationRunner:
                 self._idle.clear()
                 if self._stop_req or (ticks is not None and done >= ticks):
                     break
+                if self.power_save and not self.engine.bus._subs:       # niemand schaut zu: nichts tun, bis ein Browser verbunden ist
+                    await asyncio.sleep(1.0)
+                    continue
                 async with self._step_lock:
                     done += await self._step(force=False)
                 if self.tick_delay_s:
@@ -149,13 +159,24 @@ class SimulationRunner:
                 await self._announce("simulation.stopped")
 
     async def _step(self, force: bool) -> int:
-        if not await self._decisions(force):
-            return 0                                     # Pause mitten im Schritt: kein Tick, der Schritt wird später vollständig wiederholt
-        events = await self.engine.tick_async()
-        extra = await self.engine.db.run(lambda: self._after_tick(events))
-        await self._housekeeping(events + extra, force)
+        if self.waits_for_decisions or force:
+            if not await self._decisions(force):
+                return 0                                 # Pause mitten im Schritt: kein Tick, der Schritt wird später vollständig wiederholt
+        elif self._bg is None or self._bg.done():
+            self._bg = asyncio.create_task(self._decisions(True))     # Zeit läuft weiter, Entscheidungen kommen, wenn das Modell fertig ist
+        events: list[Event] = []
+        for _ in range(self.minutes_per_tick):
+            tick = await self.engine.tick_async()
+            extra = await self.engine.db.run(lambda t=tick: self._after_tick(t))
+            events += tick + extra
+        await self._housekeeping(events, force)
         self.stats.ticks += 1
         return 1
+
+    async def _join_background(self) -> None:
+        if self._bg is not None and not self._bg.done():
+            await self._bg
+        self._bg = None
 
     async def _housekeeping(self, events: list[Event], force: bool) -> None:
         """Gedächtnispflege einmal je Tag; Reflexionen mit niedriger Priorität: nur wenn kein Agent auf eine Entscheidung wartet (oder lange aufgeschoben)."""
@@ -190,8 +211,12 @@ class SimulationRunner:
         out = []
         for aid in self.store.ai_agent_ids():
             body = self.engine.state.agent(aid)
-            if body is not None and body.action is None and not self.autonomy.guards.resting(aid, self.engine.minute):
-                out.append(aid)
+            if body is None or body.action is not None or self.autonomy.guards.resting(aid, self.engine.minute):
+                continue
+            last = self.store.get(aid).last_decision_minute
+            if self.decision_interval > 1 and last is not None and self.engine.minute - last < self.decision_interval:
+                continue                                  # Mindestabstand zwischen zwei Entscheidungen (Parameter)
+            out.append(aid)
         return out
 
     async def _decide(self, aid: str) -> None:

@@ -28,6 +28,8 @@ class Maintenance:
     def summarize(self, agent_id: str, minute: int) -> int:
         today, made = clock.day_of(minute), 0
         st = self.know.state_of(agent_id)
+        if today - st["last_summary_day"] <= self.params.summary_interval_days:
+            return 0                                          # erst wieder nach Ablauf des Intervalls (Parameter)
         for day in range(max(1, st["last_summary_day"] + 1), today):
             eps = self.mem.episodes_of_day(agent_id, day)
             if len(eps) >= 2:
@@ -46,6 +48,8 @@ class Maintenance:
 
     def archive(self, agent_id: str, minute: int) -> int:
         today = clock.day_of(minute)
+        if self.params.archive_after_days <= 0:
+            return 0                                          # 0 = nie archivieren
         covered = {r for m in self.mem.recent(agent_id, kinds=("summary",), limit=500) for r in m.source_memory_ids}
         old, ids = (today - self.params.archive_after_days) * 1440, []
         for m in self.mem.recent(agent_id, kinds=("episode", "fact", "relation", "intention"), limit=100000):

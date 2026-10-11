@@ -18,6 +18,7 @@ class LLMClient:
         self.metrics = LLMMetrics()
         self._sem = asyncio.Semaphore(max_concurrent)
         self._max_concurrent = max_concurrent
+        self.waiting = 0                                   # Anfragen, die auf einen freien Platz warten
 
     @classmethod
     def from_settings(cls, s: Settings, provider: LLMProvider | None = None) -> "LLMClient":
@@ -35,7 +36,13 @@ class LLMClient:
     async def chat(self, messages: list[dict], schema: dict | None = None, **overrides) -> LLMResult:
         params = replace(self.params, **overrides) if overrides else self.params
         t_wait = time.perf_counter()
-        async with self._sem:
+        self.waiting += 1
+        sem = self._sem                                    # set_max_concurrent ersetzt die Semaphore; diese hier wieder freigeben
+        try:
+            await sem.acquire()
+        finally:
+            self.waiting -= 1
+        try:
             queue_s = time.perf_counter() - t_wait
             attempts, t0 = 0, time.perf_counter()
             while True:
@@ -51,3 +58,5 @@ class LLMClient:
                 self.metrics.add(CallRecord(queue_s, time.perf_counter() - t0, result.prompt_tokens, result.completion_tokens,
                                             result.tokens_per_s, None, attempts))
                 return result
+        finally:
+            sem.release()

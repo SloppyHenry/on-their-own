@@ -1,5 +1,6 @@
 """Messwerte der LLM-Anfragen: Einzelwerte und gleitende Mittel für die Statusanzeige."""
 
+import time
 from collections import deque
 from dataclasses import dataclass, field
 from statistics import fmean
@@ -14,6 +15,7 @@ class CallRecord:
     tokens_per_s: float | None = None
     error: str | None = None       # None bei Erfolg, sonst Fehlerart
     attempts: int = 1
+    at: float = field(default_factory=time.time)
 
 
 @dataclass
@@ -41,4 +43,5 @@ class LLMMetrics:
         return {"calls": self.total_calls, "errors": self.total_errors, "errors_by_kind": dict(self.errors_by_kind),
                 "avg_response_s": avg(r.total_s for r in ok), "avg_queue_s": avg(r.queue_s for r in self.records),
                 "avg_prompt_tokens": avg(r.prompt_tokens for r in ok), "avg_completion_tokens": avg(r.completion_tokens for r in ok),
-                "avg_tokens_per_s": avg(r.tokens_per_s for r in ok), "window": len(self.records)}
+                "avg_tokens_per_s": avg(r.tokens_per_s for r in ok), "window": len(self.records),
+                "errors_15min": sum(1 for r in self.records if r.error and r.at >= time.time() - 900)}

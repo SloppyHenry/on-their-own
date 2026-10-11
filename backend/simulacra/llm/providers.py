@@ -28,6 +28,7 @@ class LLMParams:
     timeout_s: float = 90.0
     response_format: str = "json_schema"      # json_schema | json_object | none
     thinking: bool = False
+    reasoning_effort: str | None = None       # low | medium (nur mit thinking)
     schema_name: str = "antwort"
 
 
@@ -63,6 +64,8 @@ class OpenAICompatProvider:
                                 "max_tokens": p.max_tokens, "stream": False}
         if not p.thinking:
             body["chat_template_kwargs"] = {"enable_thinking": False}
+        elif p.reasoning_effort:
+            body["reasoning_effort"] = p.reasoning_effort
         if p.response_format == "json_schema" and schema is not None:
             body["response_format"] = {"type": "json_schema", "json_schema": {"name": p.schema_name, "strict": True, "schema": schema}}
         elif p.response_format in ("json_schema", "json_object"):

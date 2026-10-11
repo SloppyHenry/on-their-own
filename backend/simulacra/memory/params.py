@@ -23,6 +23,8 @@ class MemoryParams:
     reflect_evening_minute: int = 21 * 60   # sonst einmal am Abend
     reflect_sources: int = 20           # so viele jüngste wichtige Erinnerungen gehen in eine Reflexion
     summary_enabled: bool = True
+    summary_interval_days: int = 1      # alle so viele Tage werden die abgeschlossenen Tage zusammengefasst
+    quiet_reflection: bool = False      # Energiesparen: tagsüber (6–21 Uhr) keine Reflexion
     archive_after_days: int = 2         # Episoden, die älter sind und eine Zusammenfassung haben, werden archiviert
     archive_below: float = 0.0          # (Reserve) zusätzliche Mindestwichtigkeit zum Behalten
     max_active: int = 2000              # Obergrenze aktiver Erinnerungen je Agent
