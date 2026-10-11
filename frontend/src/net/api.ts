@@ -1,5 +1,5 @@
 // REST-Zugriff. Verändernde Aufrufe tragen einen Idempotency-Key, damit Wiederholungen nichts doppelt tun.
-import type { AgentDetail, AgentNeeds, AgentOverview, DecisionOut, FactorRegistry, FailureOut, GoalOut, RelationOut, EventDetail, EventsPage, Knowledge, LocationDetail, MemoriesPage, MemoryDetail, MemoryStats, RetrievalOut, SimCommandResult, StateSnapshot, ParamPatchOut, ParamSchema, ParamValues, PresetBrief, PresetLoadOut, PresetOut, PresetPreview, StatusOut } from "../types/generated";
+import type { AgentDetail, AgentNeeds, AgentOverview, DecisionOut, FactorRegistry, FailureOut, GoalOut, RelationOut, EventDetail, EventsPage, Knowledge, LocationDetail, MemoriesPage, MemoryDetail, MemoryStats, RetrievalOut, SimCommandResult, StateSnapshot, ParamPatchOut, ParamSchema, ParamValues, PresetBrief, PresetLoadOut, PresetOut, PresetPreview, StatusOut, InjectProposal, ScheduledOut } from "../types/generated";
 
 export class ApiError extends Error {
   constructor(readonly status: number, readonly detail: string) {
@@ -100,4 +100,9 @@ export const api = {
   renamePreset: (id: string, name: string) => request<PresetOut>("PATCH", `/api/presets/${id}`, { name }),
   deletePreset: (id: string) => request<PresetBrief>("DELETE", `/api/presets/${id}?confirm=true`),
   status: () => request<StatusOut>("GET", "/api/status"),
+  injectParse: (body: { text?: string; agents?: string[] | null; at?: number | null; answer_to?: string; answer?: string | number }) => request<InjectProposal>("POST", "/api/inject/parse", body),
+  injectConfirm: (proposal_id: string) => request<InjectProposal>("POST", "/api/inject/confirm", { proposal_id }),
+  injectHistory: (limit = 30) => request<InjectProposal[]>("GET", `/api/inject/history?limit=${limit}`),
+  scheduled: () => request<ScheduledOut[]>("GET", "/api/scheduled"),
+  cancelScheduled: (id: string) => request<ScheduledOut>("DELETE", `/api/scheduled/${id}`),
 };

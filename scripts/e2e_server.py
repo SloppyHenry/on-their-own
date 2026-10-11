@@ -34,6 +34,13 @@ def make_fn():
             return json.dumps({"text": f"{text} und sich umsehen", "condition": {"type": "location_visited", "location": loc}, "plan": [{"step": text, "kind": "move", "target": loc}]}, ensure_ascii=False)
         if "reflections" in (schema or {}).get("properties", {}):                     # Reflexionsaufruf
             return json.dumps({"reflections": [{"text": f"Ich merke, dass ich oft unterwegs bin (Muster {next(turn)}).", "importance": 6, "sources": [1, 2]}]}, ensure_ascii=False)
+        props = (schema or {}).get("properties", {})
+        if "clarification" in props:                                                   # Interpretation freier Eingaben (AP08)
+            if "Eimer" in messages[1]["content"]:
+                return json.dumps({"ops": [{"op": "spawn_object", "name": "Rostiger Eimer", "kind": "item", "location": "garden"}], "confidence": 0.9, "clarification": ""})
+            return json.dumps({"ops": [], "confidence": 0.2, "clarification": "Was genau soll passieren, und wo?"})
+        if set(props) == {"text"}:                                                     # Antwort einer Nebenfigur
+            return json.dumps({"text": "Guten Tag! Ich bin nur auf der Durchreise."}, ensure_ascii=False)
         opts = dict(re.findall(r"^(o\d+): (.*)$", messages[1]["content"], re.M))
         keys = list(opts) or ["o1"]
         pick = next((k for k, v in opts.items() if "antworten" in v or "Gespräch beginnen" in v), None)

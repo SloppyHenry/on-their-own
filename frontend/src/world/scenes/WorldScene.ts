@@ -47,6 +47,7 @@ export class WorldScene extends Phaser.Scene {
     this.rig = new CameraRig(this, 64 * T, 40 * T, () => this.bridge.setFollow(null));
     this.input.on("pointerup", (p: Phaser.Input.Pointer) => this.click(p));
     this.bridge.commands.fit = () => this.rig.fit();
+    this.bridge.commands.focusTile = (x, y) => this.rig.focus((x + 0.5) * T, (y + 0.5) * T, Math.max(this.cameras.main.zoom, 2));
     this.bridge.commands.toggleFollow = () => {
       const sel = this.bridge.selection(), f = this.bridge.follow(), target = sel?.kind === "agent" ? sel.id : this.bridge.lastAgent();
       if (f) this.bridge.setFollow(null);

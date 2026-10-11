@@ -9,6 +9,7 @@ import { useSimStore } from "../store/simStore";
 import { useUiStore } from "../store/uiStore";
 import { MemoryInspector } from "../memory/MemoryInspector";
 import { WorldCanvas } from "../world/WorldCanvas";
+import { EventComposer } from "../composer/EventComposer";
 import { ParameterPanel } from "../settings/ParameterPanel";
 import { Header } from "./Header";
 
@@ -19,7 +20,7 @@ export function AppShell() {
   useEffect(() => startLive(), []);
 
   return (
-    <div className="grid h-full grid-rows-[48px_1fr]">
+    <div className="grid h-full grid-rows-[48px_1fr_auto]">
       <Header />
       <main className={`grid min-h-0 ${view === "memory" ? "grid-cols-[1fr_0px]" : "grid-cols-[1fr_380px]"}`}>
         <div className="relative min-w-0 overflow-hidden bg-[#0e1115]">
@@ -33,6 +34,7 @@ export function AppShell() {
           {selection?.kind === "event" && <EventDetail refId={selection.id} />}
         </aside>
       </main>
+      {ready && <EventComposer />}
     </div>
   );
 }

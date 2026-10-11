@@ -1,6 +1,7 @@
 // Phaser läuft nur in diesem Container. Alles andere (Schilder, Blasen) sind DOM-Overlays; Daten kommen über die Brücke.
 import Phaser from "phaser";
 import { useEffect, useRef, useState } from "react";
+import { useUiStore } from "../store/uiStore";
 import { Overlays } from "./Overlays";
 import { WorldScene } from "./scenes/WorldScene";
 import { createBridge } from "./worldBridge";
@@ -9,6 +10,8 @@ export function WorldCanvas() {
   const host = useRef<HTMLDivElement>(null);
   const fx = useRef<HTMLCanvasElement>(null);
   const [bridge] = useState(createBridge);
+  const focus = useUiStore((s) => s.focusRequest);
+  useEffect(() => { if (focus) bridge.commands.focusTile?.(focus.x, focus.y); }, [focus, bridge]);
 
   useEffect(() => {
     bridge.fx = fx.current;

@@ -30,7 +30,7 @@ export interface WorldBridge {
   /** Eigene 2D-Fläche über der Szene für Licht und Wetter (vom Container gesetzt). */
   fx: HTMLCanvasElement | null;
   /** Befehle der Oberfläche an die Szene (Taste 0, Taste F). */
-  commands: { fit?: () => void; toggleFollow?: () => void };
+  commands: { fit?: () => void; toggleFollow?: () => void; focusTile?: (x: number, y: number) => void };
 }
 
 export function createBridge(): WorldBridge {

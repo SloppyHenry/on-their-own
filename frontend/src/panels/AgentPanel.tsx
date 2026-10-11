@@ -41,7 +41,7 @@ function AgentCard({ id }: { id: string }) {
       style={{ borderLeftColor: c }} onClick={() => select({ kind: "agent", id })} data-testid={`agent-card-${id}`}>
       <Portrait id={id} />
       <span className="min-w-0">
-        <b style={{ color: c }}>{a.name}</b>
+        <b style={{ color: c }}>{a.name}</b>{!a.profile && <span className="text-[11px] text-faint" title="Nebenfigur: ohne eigenes Gedächtnis und ohne Ziele"> · Nebenfigur</span>}
         <span className="text-dim"> · {w.locations[a.location_id]?.name ?? "unterwegs"}</span>
         <span className="block truncate text-xs text-dim"><Icon name={icon} size={14} /> {text}</span>
         {ov?.goal && <span className="mt-0.5 block text-xs" data-testid={`goal-line-${id}`}><span className="text-dim">Ziel:</span> {ov.goal.text}<GoalProgress g={ov.goal} /></span>}

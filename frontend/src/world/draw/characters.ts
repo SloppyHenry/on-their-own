@@ -53,8 +53,8 @@ const hash = (s: string) => [...s].reduce((a, c) => (a * 31 + c.charCodeAt(0)) >
 
 export function lookOf(id: string): Look {
   if (LOOKS[id]) return LOOKS[id];
-  const h = hash(id), sh = SHIRTS[h % SHIRTS.length], hr = HAIRS[(h >> 3) % HAIRS.length];
-  return { pal: { ...BASE_PAL, h: hr[0], H: hr[1], s: SKINS[(h >> 5) % SKINS.length], b: sh[0], B: sh[1], p: "#4a5568" } };
+  const h = hash(id), sh = SHIRTS[h % SHIRTS.length], hr = HAIRS[(h >>> 3) % HAIRS.length];
+  return { pal: { ...BASE_PAL, h: hr[0], H: hr[1], s: SKINS[(h >>> 5) % SKINS.length], b: sh[0], B: sh[1], p: "#4a5568" } };
 }
 
 export function accentOf(id: string): string {
