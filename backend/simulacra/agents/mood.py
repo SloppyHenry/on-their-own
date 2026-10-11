@@ -35,7 +35,7 @@ def compute(body_needs: dict[str, float], soft: dict[str, float], enabled: dict[
     r = [(n, v) for n, v in r if abs(v) >= 0.005]
     value = max(-1.0, min(1.0, sum(v for _, v in r)))
     worst = min(((n, v) for n, v in r if n != "Grundstimmung"), key=lambda x: x[1], default=("", 0.0))
-    if value < -0.25:
+    if worst[1] <= -0.3 or value < -0.25:
         word = {"Hunger": "gereizt", "Durst": "gereizt", "Müdigkeit": "erschöpft", "Einsamkeit": "einsam", "Anspannung": "angespannt", "Kälte": "durchgefroren"}.get(worst[0], "gedrückt")
     elif value < 0.05:
         word = "etwas matt"

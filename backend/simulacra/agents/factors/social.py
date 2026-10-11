@@ -4,7 +4,7 @@ from ..context import AgentContext
 from ..model import Personality
 from ..perception import Perception
 from . import Env, Factors, add
-from .core import SOCIAL
+from .core import OUTDOOR_MOVES, SOCIAL
 
 
 def personality(o, p: Perception, pers: Personality, ctx: AgentContext, env: Env) -> Factors:
@@ -31,6 +31,8 @@ def personality(o, p: Perception, pers: Personality, ctx: AgentContext, env: Env
         add(f, "Konfliktbereitschaft", 10 * pers.f("conflict_readiness"))
     if o.kind in ("rest", "sleep", "wait"):
         add(f, "Ruhebedürfnis", 18 * pers.f("calm_need"))
+    if o.kind in OUTDOOR_MOVES:
+        add(f, "Ruhebedürfnis", -6 * pers.f("calm_need"))
     return f
 
 

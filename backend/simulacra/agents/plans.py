@@ -78,6 +78,7 @@ class GoalPlanner:
         body = st.agent(agent_id)
         if model is None or body is None:
             return None
+        self.goals.ensure_long(agent_id, model.profile.goals, minute)
         f = self._facts(agent_id)
         longs = [g.text for g in self.goals.long_goals(agent_id)] or model.profile.goals
         recent = [g for g in self.goals.list(agent_id, kind="short", limit=4) if g.state != "active"]

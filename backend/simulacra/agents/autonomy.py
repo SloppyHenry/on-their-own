@@ -116,7 +116,8 @@ class Autonomy:
                 for a in ai:
                     self.relations.relax(a, minute)
         for a in ai:
-            self.goals.evaluate(a, minute)
+            if self.goals.evaluate(a, minute) is not None:
+                self.abandoned_streak[a] = 0                 # ein erreichtes Ziel beendet die Pechsträhne
 
     async def housekeeping(self, minute: int, waiting: bool) -> None:
         """Ziele setzen, festgefahrene Pläne auflösen (Neuplanung, Alternativziel, Ruhemodus); mit niedriger Priorität wie Reflexionen."""
@@ -138,12 +139,9 @@ class Autonomy:
                         self.abandoned_streak[aid] = 0
                         await db.run(lambda a=aid: self.guards.start_rest(a, minute, "mehrere Ziele hintereinander aufgegeben"))
                 else:
-                    new = await self.planner.run(aid, reason, previous=g)
-                    if new is not None:
-                        self.abandoned_streak[aid] = 0
+                    await self.planner.run(aid, reason, previous=g)
             elif not waiting and (r := self.planner.due(aid, minute, busy=False)):
-                if await self.planner.run(aid, r) is not None:
-                    self.abandoned_streak[aid] = 0
+                await self.planner.run(aid, r)
 
     def explain_json(self, trace: dict[str, Any] | None) -> str | None:
         return json.dumps(trace, ensure_ascii=False) if trace else None
