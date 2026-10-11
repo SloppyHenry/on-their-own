@@ -36,7 +36,7 @@ export function Header() {
       <span className="text-dim" title={health?.llm.error ?? ""}>
         <span className={`mr-1.5 inline-block size-2 rounded-full ${health?.llm.reachable ? "bg-ok" : "bg-warn"}`} />
         {health ? health.llm.configured_model : "Modell unbekannt"}
-        {avg != null && <span className="ml-1 font-mono text-xs"> Ø {avg.toFixed(1)} s</span>}
+        {avg != null && avg > 0 && <span className="ml-1 font-mono text-xs"> Ø {avg.toFixed(1)} s</span>}
       </span>
     </header>
   );

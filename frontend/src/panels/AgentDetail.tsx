@@ -21,7 +21,7 @@ export function AgentDetail({ id }: { id: string }) {
   const a = w.agents[id];
   if (!a) return null;
   const c = accentOf(id);
-  const { text, icon } = activityOf(a);
+  const { text, icon } = activityOf(a, w);
   const held = Object.values(w.objects).filter((o) => o.holder === id).map((o) => o.name);
   const inv = Object.entries(a.inventory).map(([k, v]) => `${resourceName(k)} ×${v}`);
   const prof = a.profile;

@@ -20,6 +20,8 @@ export const DEFAULT_FILTERS: Filters = {
 
 interface UiStore {
   selection: Selection;
+  /** Zuletzt gewählter Agent: Taste F folgt ihm auch nach dem Schließen des Details. */
+  lastAgent: string | null;
   follow: string | null;
   filters: Filters;
   select: (s: Selection) => void;
@@ -29,9 +31,10 @@ interface UiStore {
 
 export const useUiStore = create<UiStore>((set) => ({
   selection: null,
+  lastAgent: null,
   follow: null,
   filters: DEFAULT_FILTERS,
-  select: (selection) => set({ selection }),
+  select: (selection) => set((s) => ({ selection, lastAgent: selection?.kind === "agent" ? selection.id : s.lastAgent })),
   setFollow: (follow) => set({ follow }),
   setFilters: (patch) => set((s) => ({ filters: { ...s.filters, ...patch } })),
 }));
