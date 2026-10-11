@@ -4,7 +4,7 @@ from dataclasses import replace
 
 from .spec import ParamSpec
 
-T = "tests/params/test_effects.py::"
+T = "tests/params/test_effects_llm.py::"
 THINKING = (("off", "aus"), ("short", "kurz"), ("normal", "normal"))
 EFFORT = {"off": (False, None), "short": (True, "low"), "normal": (True, "medium")}
 

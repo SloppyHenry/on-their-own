@@ -3,7 +3,7 @@
 from ..agents.model import PERSONALITY_LABELS, Personality, load_default
 from .spec import ParamSpec
 
-T = "tests/params/test_effects.py::"
+T = "tests/params/test_effects_agents.py::"
 
 
 def _shift(key: str, label: str, help_: str, trait: str, test: str) -> ParamSpec:

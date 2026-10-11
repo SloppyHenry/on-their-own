@@ -2,14 +2,14 @@
 
 from .spec import ParamSpec
 
-T = "tests/params/test_effects.py::"
+T = "tests/params/test_effects_world.py::"
 SCARCITY_SPAN = 0.9                 # 100 % Knappheit = Faktor 0,1 (Untergrenze der Regel)
 BASE_RATES = {"energy": ("energy_decay_per_hour", 3.0), "hunger": ("hunger_rise_per_hour", 3.0), "thirst": ("thirst_rise_per_hour", 4.0)}
 MOVEMENT = (("free", "frei"), ("house_garden", "Haus und Garten"), ("no_forest", "ohne Wald"), ("custom", "eigene Liste"))
 
 
 def set_rules(sim, **update) -> None:
-    sim.engine.set_rules(sim.engine.state.rules.model_copy(update=update))
+    sim.engine.set_rules(sim.engine.state.rules.model_copy(update=update), announce=False)
 
 
 def _rule(key, label, help_, rule, default, lo, hi, step, to, frm, *, type_="int", unit="", test, effect="immediate", consumers=None):
@@ -54,7 +54,7 @@ def _movement_blocked(sim, mode: str) -> list[str]:
     if mode == "no_forest":
         return ["forest"] if "forest" in sim.engine.state.locations else []
     if mode == "custom":
-        return [x for x in _split(sim.params.get("world.movement_custom")) if x in sim.engine.state.locations]
+        return [x for x in _split(getattr(sim, "movement_custom", "")) if x in sim.engine.state.locations]
     return []
 
 
@@ -72,17 +72,18 @@ def _movement() -> ParamSpec:
 
     return ParamSpec(key="world.movement", group="world", scope="global", type="enum", label="Bewegungsfreiheit", options=MOVEMENT, default="free", effect="immediate",
                      help="Welche Orte die Agenten nicht betreten dürfen (gesperrte Orte kommen in der Wegfindung nicht vor).", apply=apply, read=read,
-                     consumers=("simulacra.world.engine:movement_blocked_locations",), effect_test=T + "test_movement_blocks_locations")
+                     consumers=("simulacra.world.state:movement_blocked_locations",), effect_test=T + "test_movement_blocks_locations")
 
 
 def _movement_custom() -> ParamSpec:
     def apply(sim, v, a):
+        sim.movement_custom = v
         if sim.params.get("world.movement") == "custom":
             set_rules(sim, movement_blocked_locations=_movement_blocked(sim, "custom"))
 
     return ParamSpec(key="world.movement_custom", group="world", scope="global", type="text", label="Eigene Sperrliste", default="", max_len=300, effect="immediate",
                      help="Kennungen gesperrter Orte, durch Komma getrennt (gilt bei „eigene Liste“), z. B. lake, forest.",
-                     apply=apply, read=lambda sim, a: sim.params.get("world.movement_custom"), consumers=("simulacra.params.specs_world:_movement_blocked",), effect_test=T + "test_movement_blocks_locations")
+                     apply=apply, read=lambda sim, a: getattr(sim, "movement_custom", ""), consumers=("simulacra.params.specs_world:_movement_blocked",), effect_test=T + "test_movement_blocks_locations")
 
 
 def _tick_minutes() -> ParamSpec:
@@ -104,9 +105,9 @@ SPECS = [
     _need_enabled("thirst", "Durst", True), _need_rate("thirst", "Durst"),
     _need_enabled("social", "Geselligkeit", True), _need_enabled("calm", "Ruhe", True), _need_enabled("warmth", "Wärme", False),
     _tick_minutes(),
-    _rule("world.build_cost", "Baukosten", "Kosten der Bauvorlagen (100 % = normal).", "build_cost_mult", 100, 25, 300, 5, lambda v: v / 100, lambda r: round(r * 100), unit="%", test="test_build_cost_and_duration"),
-    _rule("world.build_duration", "Bauzeit", "Dauer des Bauens (100 % = normal).", "build_duration_mult", 100, 25, 300, 5, lambda v: v / 100, lambda r: round(r * 100), unit="%", test="test_build_cost_and_duration"),
-    _rule("world.max_objects", "Höchstzahl Objekte", "Grenze für erzeugte Objekte.", "max_objects", 150, 20, 500, 10, lambda v: v, lambda r: r, unit="Objekte", test="test_max_objects_limits_building"),
+    _rule("world.build_cost", "Baukosten", "Kosten der Bauvorlagen (100 % = normal).", "build_cost_mult", 100, 25, 300, 5, lambda v: v / 100, lambda r: round(r * 100), unit="%", test="test_build_cost_and_duration", consumers=("simulacra.world.actions.building:build_cost_mult",)),
+    _rule("world.build_duration", "Bauzeit", "Dauer des Bauens (100 % = normal).", "build_duration_mult", 100, 25, 300, 5, lambda v: v / 100, lambda r: round(r * 100), unit="%", test="test_build_cost_and_duration", consumers=("simulacra.world.actions.building:build_duration_mult",)),
+    _rule("world.max_objects", "Höchstzahl Objekte", "Grenze für erzeugte Objekte.", "max_objects", 150, 20, 500, 10, lambda v: v, lambda r: r, unit="Objekte", test="test_max_objects_limits_building", consumers=("simulacra.world.actions.building:max_objects",)),
     _movement(), _movement_custom(),
     ParamSpec(key="world.failure_consequence", group="world", scope="global", type="enum", label="Folge einer Ablehnung", options=(("none", "keine"), ("time", "Zeitverlust"), ("energy", "Zeit + Energie")),
               default="time", effect="immediate", help="Was eine abgelehnte oder gescheiterte Handlung kostet.",

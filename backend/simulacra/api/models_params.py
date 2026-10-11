@@ -27,9 +27,14 @@ class ParamSpecOut(Out):
     max_len: int | None = None
 
 
+class ParamGroup(Out):
+    id: str
+    label: str
+
+
 class ParamSchema(Out):
-    groups: dict[str, str]
-    params: list[ParamSpecOut]
+    groups: list[ParamGroup]
+    specs: list[ParamSpecOut]
 
 
 class ParamValues(Out):

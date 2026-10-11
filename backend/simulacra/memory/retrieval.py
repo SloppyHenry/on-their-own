@@ -109,13 +109,15 @@ class Retriever:
         scored.sort(key=lambda x: (-x.score, -x.memory.sim_created))
         chosen: list[Scored] = []
         used = 0
-        kinds = {"reflection": 0, "intention": 0}
+        kinds = {"reflection": 0, "intention": 0}                     # nur Einsichten und Vorhaben sind begrenzt, Erlebtes nicht
         for s in scored:
             if len(chosen) >= self.params.max_items:
                 break
-            if s.memory.kind in kinds and kinds[s.memory.kind] >= (self.params.max_reflections if s.memory.kind == "reflection" else 1):
+            capped = s.memory.kind in kinds
+            if capped and kinds[s.memory.kind] >= (self.params.max_reflections if s.memory.kind == "reflection" else 1):
                 continue
-            kinds[s.memory.kind] = kinds.get(s.memory.kind, 0) + 1
+            if capped:
+                kinds[s.memory.kind] += 1
             if used + s.tokens > self.params.budget_tokens:
                 continue
             chosen.append(s)

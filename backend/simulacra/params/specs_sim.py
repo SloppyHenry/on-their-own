@@ -3,7 +3,7 @@
 from ..agents.modes import DEFAULT_CREATOR_TEXT, MODE_LABELS
 from .spec import ParamSpec
 
-T = "tests/params/test_effects.py::"
+T = "tests/params/test_effects_sim.py::"
 SPEEDS = {"0.5x": 2.0, "1x": 1.0, "2x": 0.5, "4x": 0.25, "max": 0.0}
 
 
@@ -12,10 +12,10 @@ def _speed_of(delay: float) -> str:
 
 
 SPECS = [
-    ParamSpec(key="sim.speed", group="sim", scope="global", type="enum", label="Tempo", options=tuple((k, k.replace("x", "×") if k != "max" else "max.") for k in SPEEDS), default="1x",
+    ParamSpec(key="sim.speed", group="sim", scope="global", type="enum", label="Tempo", options=tuple((k, k.replace("x", "×") if k != "max" else "max.") for k in SPEEDS), default="max",
               effect="immediate", help="Wie schnell die Simulation läuft (Pause zwischen den Takten).", apply=lambda sim, v, a: sim.runner.set_speed(SPEEDS[v]),
               read=lambda sim, a: _speed_of(sim.runner.tick_delay_s), consumers=("simulacra.simulation.runner:tick_delay_s",), effect_test=T + "test_speed_sets_the_tick_pause"),
-    ParamSpec(key="sim.tick_pause_ms", group="sim", scope="global", type="int", label="Pause je Takt", default=1000, min=0, max=5000, step=50, unit="ms", effect="immediate",
+    ParamSpec(key="sim.tick_pause_ms", group="sim", scope="global", type="int", label="Pause je Takt", default=0, min=0, max=5000, step=50, unit="ms", effect="immediate",
               help="Feineinstellung der Pause zwischen den Takten (überschreibt das Tempo).", apply=lambda sim, v, a: sim.runner.set_speed(int(v) / 1000),
               read=lambda sim, a: round(sim.runner.tick_delay_s * 1000), consumers=("simulacra.simulation.runner:tick_delay_s",), effect_test=T + "test_speed_sets_the_tick_pause"),
     ParamSpec(key="sim.max_decisions_per_min", group="sim", scope="global", type="int", label="Höchstzahl Entscheidungen je Minute", default=0, min=0, max=60, step=1, unit="/min", effect="immediate",

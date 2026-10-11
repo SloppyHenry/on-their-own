@@ -3067,6 +3067,23 @@
    "title": "ParamChange",
    "type": "object"
   },
+  "ParamGroup": {
+   "additionalProperties": false,
+   "properties": {
+    "id": {
+     "type": "string"
+    },
+    "label": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "id",
+    "label"
+   ],
+   "title": "ParamGroup",
+   "type": "object"
+  },
   "ParamPatch": {
    "additionalProperties": false,
    "properties": {
@@ -3201,12 +3218,12 @@
    "additionalProperties": false,
    "properties": {
     "groups": {
-     "additionalProperties": {
-      "type": "string"
+     "items": {
+      "$ref": "#/$defs/ParamGroup"
      },
-     "type": "object"
+     "type": "array"
     },
-    "params": {
+    "specs": {
      "items": {
       "$ref": "#/$defs/ParamSpecOut"
      },
@@ -3215,7 +3232,7 @@
    },
    "required": [
     "groups",
-    "params"
+    "specs"
    ],
    "title": "ParamSchema",
    "type": "object"

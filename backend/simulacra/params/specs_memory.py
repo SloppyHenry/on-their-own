@@ -2,7 +2,7 @@
 
 from .spec import ParamSpec
 
-T = "tests/params/test_effects.py::"
+T = "tests/params/test_effects_memory.py::"
 
 
 def _mem(key, label, help_, attr, default, lo, hi, step, *, type_="float", unit="", test, to=None, frm=None, consumers=None):

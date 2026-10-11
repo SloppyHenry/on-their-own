@@ -1017,10 +1017,16 @@ export interface ParamResetRequest {
  * via the `definition` "ParamSchema".
  */
 export interface ParamSchema {
-  groups: {
-    [k: string]: string;
-  };
-  params: ParamSpecOut[];
+  groups: ParamGroup[];
+  specs: ParamSpecOut[];
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "ParamGroup".
+ */
+export interface ParamGroup {
+  id: string;
+  label: string;
 }
 /**
  * This interface was referenced by `SimulacraApi`'s JSON-Schema

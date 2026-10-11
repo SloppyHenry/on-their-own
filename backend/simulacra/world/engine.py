@@ -141,8 +141,8 @@ class WorldEngine:
             self.state.save_agent(actor)
         return self._run(work)
 
-    def set_rules(self, rules: WorldRules) -> list[Event]:
-        """Übernimmt neue Weltregeln sofort (Obergrenzen werden angewandt, Sperren neu berechnet)."""
+    def set_rules(self, rules: WorldRules, announce: bool = True) -> list[Event]:
+        """Übernimmt neue Weltregeln sofort (Obergrenzen werden angewandt, Sperren neu berechnet). `announce=False`: der Aufrufer meldet die Änderung selbst."""
         old = self.state.rules
 
         def work(ctx: Ctx) -> None:
@@ -155,7 +155,8 @@ class WorldEngine:
                     if abs(amount - n.amount) > 1e-9:
                         self.state.set_node_amount(n.id, amount)
             self.state.refresh_forbidden()
-            ctx.emit("simulation.parameter_changed", data={"group": "world_rules", "rules": rules.model_dump()})
+            if announce:
+                ctx.emit("simulation.parameter_changed", data={"group": "world_rules", "rules": rules.model_dump()})
         return self._run(work)
 
     def set_weather(self, kind: str, duration_minutes: int, cause: str = "event") -> list[Event]:

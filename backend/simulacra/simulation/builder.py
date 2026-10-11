@@ -82,6 +82,7 @@ class Simulation:
         fresh.engine.bus = bus
         await fresh.db.run(fresh.store.ensure_all)
         await fresh.db.run(lambda: fresh.params.restore(kept))
+        self.__dict__.pop("movement_custom", None)
         self.__dict__.update(fresh.__dict__)
         self.params.sim = self.presets.sim = self
         self.engine.emit_event("simulation.reset", data={"backup": str(saved) if saved else None})
