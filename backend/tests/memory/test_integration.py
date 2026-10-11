@@ -125,7 +125,10 @@ async def test_restart_keeps_everything_and_the_prompt_uses_it_again(tmp_path):
     after = {who: [m.id for m in b.memory.store.list(who, limit=500)[0]] for who in ("alex", "mira")}
     assert after == before
     b.memory.params.min_score = 0.0
-    await b.runner.step(25)
+    for _ in range(40):                                                   # bis einer wieder entscheidet (lange Aktionen laufen weiter)
+        await b.runner.step(20)
+        if b.client.provider.calls:
+            break
     assert b.client.provider.calls, "nach dem Neustart wurde nicht entschieden"
     assert any("Woran du dich erinnerst:" in c["messages"][1]["content"] for c in b.client.provider.calls)
     b.close()

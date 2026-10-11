@@ -10,5 +10,6 @@
   "known_places": ["house.living", "house.kitchen", "house.bedroom_a", "house.bedroom_b", "house.workshop", "garden", "square"]
  },
  "personality": {"sociability": 80, "curiosity": 55, "helpfulness": 70, "risk_taking": 45, "conflict_readiness": 35,
-  "cooperation": 75, "calm_need": 35, "conversation_initiative": 70, "suggestion_acceptance": 60}
+  "cooperation": 75, "calm_need": 35, "conversation_initiative": 70, "suggestion_acceptance": 60,
+  "persistence": 55, "spontaneity": 60, "autonomy": 60}
 }

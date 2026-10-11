@@ -129,7 +129,7 @@ def test_every_type_has_model_category_and_description():
     for name, t in et.REGISTRY.items():
         assert t.category in et.CATEGORIES and t.description and re.fullmatch(r"(agent|world|simulation)\.[a-z_]+", name), name
         assert hasattr(t.model, "model_json_schema")
-    assert {t.name for t in et.REGISTRY.values() if t.planned} == {"agent.goal_changed", "simulation.event_injected"}
+    assert {t.name for t in et.REGISTRY.values() if t.planned} == {"simulation.event_injected"}
 
 
 def test_strict_mode_rejects_unknown_types_and_fields(eng):

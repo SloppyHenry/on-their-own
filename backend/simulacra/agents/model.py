@@ -14,6 +14,7 @@ PERSONALITY_LABELS = {
     "sociability": "Geselligkeit", "curiosity": "Neugier", "helpfulness": "Hilfsbereitschaft", "risk_taking": "Risikobereitschaft",
     "conflict_readiness": "Konfliktbereitschaft", "cooperation": "Kooperationsneigung", "calm_need": "Bedürfnis nach Ruhe",
     "conversation_initiative": "Gesprächsinitiative", "suggestion_acceptance": "Bereitschaft, Vorschläge anzunehmen",
+    "persistence": "Zielpersistenz", "spontaneity": "Spontaneität", "autonomy": "Autonomie",
 }
 
 
@@ -27,6 +28,9 @@ class Personality(BaseModel):
     calm_need: int = Field(50, ge=0, le=100)
     conversation_initiative: int = Field(50, ge=0, le=100)
     suggestion_acceptance: int = Field(50, ge=0, le=100)
+    persistence: int = Field(50, ge=0, le=100)      # Zielpersistenz: beim Plan bleiben
+    spontaneity: int = Field(50, ge=0, le=100)      # Spontaneität: vom Plan abweichen, kontrollierter Zufall
+    autonomy: int = Field(50, ge=0, le=100)         # Autonomie: eigene Vorhaben statt Reaktion auf Ereignisse
 
     def f(self, key: str) -> float:
         """Wert als Faktor von -1 (0) über 0 (50) bis +1 (100); damit gewichten die Bewertungen."""

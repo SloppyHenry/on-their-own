@@ -51,5 +51,12 @@ class MemorySystem:
                                     "items": [{"id": s.memory.id, "kind": s.memory.kind, "score": round(s.score, 3), "text": s.memory.text} for s in rec.items]})
         return rec
 
+    def recall_for_text(self, agent_id: str, text: str, minute: int, n: int = 5) -> list[str]:
+        """Einige relevante Erinnerungen zu einem Text (z. B. für die Zielsetzung); ohne Protokoll und ohne Abrufzähler."""
+        body = self.engine.state.agent(agent_id)
+        loc = self.engine.state.locations.get(body.location_id) if body else None
+        sit = Situation(minute=minute, location_id=body.location_id if body else "", location_name=loc.name if loc else "", plan=text)
+        return [s.line() for s in self.retriever.recall(agent_id, sit, log=False).items[:n]]
+
     def memories(self, agent_id: str, **kw) -> list[Memory]:
         return self.store.list(agent_id, **kw)[0]

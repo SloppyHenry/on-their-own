@@ -83,14 +83,14 @@ def generate(engine: WorldEngine, store: AgentStore, p: Perception) -> list[Opti
         if o.kind == "plant":
             add("water", f"{o.name} gießen", "water", {"object_id": o.id})
         if o.kind == "construction_site":
-            add("resume", f"Den Bau fortsetzen: {o.name}", "build", {"site_id": o.id})
+            add("resume", f"Den Bau fortsetzen: {o.name}", "build", {"site_id": o.id}, meta={"bp_kind": engine.blueprints.get(o.state.get("blueprint", ""), {}).get("kind")})
     for n in st.nodes_at(p.location_id):
         if n.amount >= 1:
             add("gather", f"{RES_DE.get(n.resource, n.resource)} sammeln (2×)" + (f", braucht {n.requires_tool}" if n.requires_tool else ""),
                 "gather", {"resource": n.resource, "amount": 2, "node": n.id})
     for bp_id, bp in engine.blueprints.items():
         cost = ", ".join(f"{max(1, math.ceil(q * st.rules.build_cost_mult))}× {RES_DE.get(r, r)}" for r, q in bp["cost"].items())
-        add("build", f"{bp['name']} bauen (Kosten: {cost})", "build", {"blueprint": bp_id})
+        add("build", f"{bp['name']} bauen (Kosten: {cost})", "build", {"blueprint": bp_id}, meta={"bp_kind": bp["kind"]})
     # Soziales
     conv = p.conversation
     for person in p.people:

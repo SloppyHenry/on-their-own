@@ -199,6 +199,25 @@ class MemoryArchived(D):
     reason: str
 
 
+class RelationChanged(D):
+    other: str
+    deltas: dict[str, float]
+    values: dict[str, float]
+    reason: str
+    source: str
+
+
+class GoalChanged(D):
+    goal_id: str
+    kind: str
+    text: str
+    old: str | None = None
+    new: str
+    reason: str
+    progress: float = 0.0
+    replaced: str | None = None
+
+
 class StatusChanged(D):
     old: str
     new: str

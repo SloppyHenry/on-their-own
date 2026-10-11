@@ -69,6 +69,7 @@ class Perception:
     last_seen: dict[str, dict] = field(default_factory=dict)
     plan_next: str = ""
     recalled: list[str] = field(default_factory=list)       # abgerufene Erinnerungen (Langzeitgedächtnis)
+    ctx: Any = None                                         # AgentContext (Bedürfnisse, Stimmung, Beziehungen, Ziele); vom Planer gesetzt
     extra: dict[str, Any] = field(default_factory=dict)
 
 
