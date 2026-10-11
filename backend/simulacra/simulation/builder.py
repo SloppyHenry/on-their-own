@@ -43,7 +43,7 @@ class Simulation:
         store = AgentStore(engine.state)
         convs = ConversationManager(engine, store, max_turns=settings.sim_conversation_max_turns)
         client = LLMClient.from_settings(settings, provider)
-        memory = MemorySystem(engine, MemoryParams.from_settings(settings))
+        memory = MemorySystem(engine, MemoryParams.from_settings(settings), store, client)
         planner = Planner(engine, store, convs, client, Tuning(top_k=settings.sim_top_k), settings.sim_memory_lines, settings.sim_correction_retries, memory)
         collector = ObservationCollector(engine.state, store)
         runner = SimulationRunner(engine, store, convs, collector, planner, memory,

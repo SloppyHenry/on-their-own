@@ -9,6 +9,8 @@ def intent_chooser(importance=5):
     state = {"n": 0}
 
     def fn(messages, schema, params):
+        if "reflections" in schema.get("properties", {}):                              # Reflexionsaufruf
+            return json.dumps({"reflections": [{"text": "Ich merke, dass mir Ordnung wichtig ist.", "importance": 6, "sources": [1, 2]}]}, ensure_ascii=False)
         opts = dict(re.findall(r"^(o\d+): (.*)$", messages[1]["content"], re.M))
         keys = list(opts)
         talk = next((k for k, v in opts.items() if "antworten" in v or "Gespräch beginnen" in v), None)

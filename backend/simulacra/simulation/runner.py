@@ -45,6 +45,9 @@ class RunStats:
                 "decisions_per_minute": round(self.decisions / minutes, 2), "by_action": dict(self.by_action)}
 
 
+REFLECT_MAX_POSTPONE = 20            # Schritte, die eine Reflexion höchstens warten muss, wenn ständig Agenten entscheiden
+
+
 class SimulationRunner:
     def __init__(self, engine: WorldEngine, store: AgentStore, convs: ConversationManager, collector: ObservationCollector,
                  planner: Planner, memory: MemorySystem, limiter: DecisionLimiter | None = None, tick_delay_s: float = 0.0):
@@ -61,6 +64,7 @@ class SimulationRunner:
         self._stop_req = False
         self._step_lock = asyncio.Lock()
         self._rotation = 0
+        self._postponed: dict[str, int] = {}
 
     # --- Steuerbefehle ----------------------------------------------------------------------------
     async def start(self, ticks: int | None = None) -> None:
@@ -147,8 +151,25 @@ class SimulationRunner:
             return 0                                     # Pause mitten im Schritt: kein Tick, der Schritt wird später vollständig wiederholt
         events = await self.engine.tick_async()
         extra = await self.engine.db.run(lambda: self._after_tick(events))
+        await self._housekeeping(events + extra, force)
         self.stats.ticks += 1
         return 1
+
+    async def _housekeeping(self, events: list[Event], force: bool) -> None:
+        """Gedächtnispflege einmal je Tag; Reflexionen mit niedriger Priorität: nur wenn kein Agent auf eine Entscheidung wartet (oder lange aufgeschoben)."""
+        db, mem = self.engine.db, self.memory
+        if any(e.type == "world.day_started" for e in events):
+            await db.run(lambda: [mem.maintenance.run(a, self.engine.minute) for a in self.store.ai_agent_ids()])
+        due = await db.run(lambda: [(a, r) for a in self.store.ai_agent_ids() if (r := mem.reflector.due(a, self.engine.minute))])
+        if not due or (not force and not self._gate.is_set()):
+            return
+        waiting = await db.run(self._due_agents)
+        for aid, reason in due:
+            self._postponed[aid] = self._postponed.get(aid, 0) + 1
+            if waiting and self._postponed[aid] < REFLECT_MAX_POSTPONE:
+                continue
+            self._postponed[aid] = 0
+            await mem.reflector.run(aid, reason)
 
     async def _decisions(self, force: bool) -> bool:
         ids = await self.engine.db.run(self._due_agents)

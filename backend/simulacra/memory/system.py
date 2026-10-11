@@ -1,23 +1,29 @@
 """Das Gedächtnis als Ganzes: Speicher, Schreiben, Abrufen, Reflexion, Pflege. Eine Instanz je Simulation."""
 
 from ..agents.perception import Perception
+from ..agents.store import AgentStore
+from ..llm.client import LLMClient
 from ..world.engine import WorldEngine
 from .knowledge import KnowledgeStore
+from .maintenance import Maintenance
 from .models import Memory
 from .params import MemoryParams
 from .retrieval import Recall, Retriever, Situation
+from .reflection import Reflector
 from .store import MemoryStore
 from .writer import MemoryWriter
 
 
 class MemorySystem:
-    def __init__(self, engine: WorldEngine, params: MemoryParams | None = None):
+    def __init__(self, engine: WorldEngine, params: MemoryParams | None = None, agents: AgentStore | None = None, client: LLMClient | None = None):
         self.engine = engine
         self.params = params or MemoryParams()
         self.store = MemoryStore(engine.state)
         self.know = KnowledgeStore(engine.state)
         self.writer = MemoryWriter(engine, self.store, self.know, self.params)
         self.retriever = Retriever(self.store, self.know, self.params)
+        self.reflector = Reflector(engine, self.store, self.know, self.writer, agents, client, self.params)
+        self.maintenance = Maintenance(engine, self.store, self.know, self.writer, self.params)
 
     def situation(self, p: Perception) -> Situation:
         talk = " ".join(p.conversation["lines"][-3:]) if p.conversation else ""
