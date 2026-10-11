@@ -92,3 +92,40 @@ async def test_visibility_boundary_event_only_for_mira():
     sim.memory.writer.process([Observed(agent_id="mira", kind="discovery", text="Du entdeckst etwas: Karte.", importance=7, minute=500, location_id="lake")])
     assert sim.memory.store.count("mira") == 1 and sim.memory.store.count("alex") == 0
     sim.close()
+
+
+async def test_a_third_agent_who_was_not_there_remembers_nothing_of_the_conversation():
+    from agents.conftest import add_ai_agent
+    sim = make_sim(fn=chooser("antworten", "Gespräch beginnen", utterance="Ich habe Holz für uns."))
+    sim.store.ensure_all()
+    add_ai_agent(sim, "jonas", "Jonas", [40, 35])
+    put(sim, "alex", 7, 7)
+    put(sim, "mira", 8, 7)
+    put(sim, "jonas", 40, 35)
+    await sim.runner.step(70)
+    assert sim.memory.store.list("alex", kind="relation")[0] and sim.memory.store.list("mira", kind="relation")[0]
+    mine = [m for m in sim.memory.store.list("jonas", limit=500)[0] if "Mira" in m.text and "gesprochen" in m.text]
+    assert mine == []                                                       # Jonas war nicht dabei und hat nichts gehört
+    sim.close()
+
+
+async def test_restart_keeps_everything_and_the_prompt_uses_it_again(tmp_path):
+    from simulacra.config import Settings
+    from simulacra.llm.providers import FakeProvider
+    from simulacra.simulation.builder import Simulation
+    s = Settings(llm_api_key_file="/nonexistent", llm_backoff_s=0.0)
+    a = Simulation.create(s, tmp_path / "w.db", FakeProvider(fn=intent_chooser()))
+    put(a, "alex", 7, 7)
+    put(a, "mira", 8, 7)
+    await a.runner.step(40)
+    before = {who: [m.id for m in a.memory.store.list(who, limit=500)[0]] for who in ("alex", "mira")}
+    assert before["alex"] and before["mira"]
+    a.close()
+    b = Simulation.create(s, tmp_path / "w.db", FakeProvider(fn=intent_chooser()))
+    after = {who: [m.id for m in b.memory.store.list(who, limit=500)[0]] for who in ("alex", "mira")}
+    assert after == before
+    b.memory.params.min_score = 0.0
+    await b.runner.step(25)
+    assert b.client.provider.calls, "nach dem Neustart wurde nicht entschieden"
+    assert any("Woran du dich erinnerst:" in c["messages"][1]["content"] for c in b.client.provider.calls)
+    b.close()
