@@ -69,6 +69,8 @@ Simulationsuhr und Kalender, Wetter, Verbindungsstatus WebSocket (verbunden, ver
 - Phaser liest aus dem Store über eine schmale Brücke (`worldBridge.ts`), damit React und Phaser sich nicht gegenseitig neu rendern.
 
 ## Grafik
+**Entschieden (11.10.2026):** Variante 2 im Stil eines gemütlichen Farmdorfs, Referenz ist das freigegebene Mockup (`docs/mockups/`). Die Bausteine (Häuser, Bäume, Zäune, Beete, Stände, Figuren) werden **parametrisch** aus Weltdaten gezeichnet, damit der Generator (AP12) später passend erweitern kann; Vorgaben siehe dort. Phaser-Texturen entstehen zur Laufzeit aus diesen Zeichenfunktionen, es gibt keine Bilddateien.
+
 - Variante 1 (Vorschlag): freie CC0-Pakete (z. B. Kenney „Tiny Town“ / „Roguelike“-Sets) – Download und Lizenz bestätigst du vorher.
 - Variante 2: eigene, einfache Pixel-Sprites, im Projekt erzeugt.
 - Herkunft und Lizenz in `docs/assets.md`.
