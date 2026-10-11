@@ -106,7 +106,7 @@ class GoalStore:
         if state == "achieved":
             g.progress = 1.0
         self.conn.execute("UPDATE goals SET state=?, updated=?, reason=?, progress=? WHERE id=?", (state, minute, reason, g.progress, g.id))
-        if self.memory is not None and g.memory_id and state in ("achieved", "abandoned"):
+        if self.memory is not None and g.memory_id and state in ("achieved", "abandoned", "paused"):
             self.memory.store.set_intention(g.agent_id, g.memory_id, "done" if state == "achieved" else "dropped")
         self._emit(g, old, reason)
         return g

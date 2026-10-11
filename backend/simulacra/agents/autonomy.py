@@ -30,6 +30,7 @@ class Autonomy:
         self.guards = Guards(engine)
         self.planner = GoalPlanner(engine, self.goals, memory, agents, self.relations, client, GoalParams())
         self.abandoned_streak: dict[str, int] = {}
+        self.triggers: dict[str, str] = {}               # Anlass für einen Zielwechsel (z. B. angenommener Vorschlag)
         self.seed = int(engine.state.get_meta("seed") or 1)
 
     @property
@@ -112,6 +113,10 @@ class Autonomy:
                 d = ev.data
                 self.guards.log_failure(ev.agents[0], ev.sim_minute, d["action"], d.get("params", {}), d["code"], d["text"], {"location": ev.location_id}, ev.seq)
                 self.goals.on_action(ev.agents[0], d["action"], d.get("params", {}), False, ev.sim_minute)
+            elif ev.type == "agent.proposal_accepted":
+                for a in ev.data.get("by", ""), ev.data.get("answered_by", ""):
+                    if a in ai:
+                        self.triggers[a] = "neuer gemeinsamer Vorschlag angenommen"
             elif ev.type == "world.time":
                 for a in ai:
                     self.relations.relax(a, minute)
@@ -125,6 +130,13 @@ class Autonomy:
         for aid in self.agents.ai_agent_ids():
             g = await db.run(lambda a=aid: self.goals.active_short(a))
             model = await db.run(lambda a=aid: self.agents.get(a))
+            trigger = self.triggers.pop(aid, None)
+            if g is not None and model is not None and trigger and not waiting:
+                # Zielwechsel durch einen Anlass: nur, wenn das laufende Ziel nicht schon weit ist (Zielpersistenz erhöht die Hürde)
+                if g.progress < 0.5 + 0.4 * (model.personality.persistence - 50) / 50 and g.plan_step < len(g.plan):
+                    g.reason = trigger
+                    await self.planner.run(aid, trigger, previous=g, switch=True)
+                    continue
             if g is not None and model is not None:
                 stale = gp.stale_minutes * (0.6 + model.personality.persistence / 100)
                 reason = f"{g.failures} Planschritte in Folge gescheitert" if g.failures >= gp.max_failures else \

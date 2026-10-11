@@ -37,6 +37,7 @@ class GoalJob:
     minute: int
     messages: list[dict[str, str]]
     previous: Goal | None = None
+    switch: bool = False
 
 
 def schema(horizon: int) -> dict[str, Any]:
@@ -73,7 +74,7 @@ class GoalPlanner:
         return {"places": locs, "unknown": unknown, "objects": know.objects(agent_id)[:14],
                 "others": [a for a in st.agents() if a.id != agent_id], "blueprints": self.engine.blueprints}
 
-    def prepare(self, agent_id: str, reason: str, previous: Goal | None = None) -> GoalJob | None:
+    def prepare(self, agent_id: str, reason: str, previous: Goal | None = None, switch: bool = False) -> GoalJob | None:
         model, st, minute = self.agents.get(agent_id), self.engine.state, self.engine.minute
         body = st.agent(agent_id)
         if model is None or body is None:
@@ -85,7 +86,9 @@ class GoalPlanner:
         lines = [f"Jetzt: {clock.fmt(minute)}. Du bist {st.locations[body.location_id].name}.", f"Deine langfristigen Ziele: {'; '.join(longs) or '–'}."]
         if recent:
             lines.append("Zuletzt: " + "; ".join(f"«{g.text}» ({'erreicht' if g.state == 'achieved' else 'aufgegeben: ' + g.reason})" for g in recent[:3]) + ".")
-        if previous is not None:
+        if previous is not None and switch:
+            lines.append(f"Dein bisheriges Ziel «{previous.text}» ist noch nicht weit. Neu hinzugekommen: {reason}. Setze dir ein Ziel, das das berücksichtigt (es darf zum Ziel passen, das du hattest).")
+        elif previous is not None:
             lines.append(f"Dein bisheriges Ziel «{previous.text}» ist festgefahren ({previous.reason}). " +
                          ("Plane denselben Weg noch einmal neu, aber anders." if previous.replans == 0 else "Setze dir stattdessen ein anderes Ziel."))
         mem = self.memory.recall_for_text(agent_id, " ".join(longs), minute)
@@ -114,7 +117,7 @@ class GoalPlanner:
                   "- plant_stage: eine von dir gepflanzte Pflanze erreicht eine Wachstumsstufe (min_stage 1 bis 4)",
                   f"Dazu ein Plan aus 1 bis {self.params.horizon} Schritten (kind: {', '.join(PLAN_KINDS)}; optional target = Kennung von Ort, Gegenstand, Person oder Ressource). "
                   "\"text\": das Ziel in einem Satz in deinen Worten. Antworte nur mit dem JSON-Objekt."]
-        return GoalJob(agent_id, reason, minute, [{"role": "system", "content": prompts.system_prompt(model)}, {"role": "user", "content": "\n".join(lines)}], previous)
+        return GoalJob(agent_id, reason, minute, [{"role": "system", "content": prompts.system_prompt(model)}, {"role": "user", "content": "\n".join(lines)}], previous, switch)
 
     # --- Prüfung -----------------------------------------------------------------------------------------------
     def build_condition(self, spec: Any, agent_id: str, minute: int) -> tuple[dict[str, Any] | None, str]:
@@ -174,19 +177,20 @@ class GoalPlanner:
         if not text or not plan:
             return None, "Das Ziel braucht einen Text und mindestens einen gültigen Planschritt."
         if job.previous is not None:
-            self.goals.set_state(job.previous, "abandoned", job.previous.reason or "festgefahren", job.minute)
+            self.goals.set_state(job.previous, "abandoned" if not job.switch else "paused", job.previous.reason or "festgefahren", job.minute)
         parent = next(iter(self.goals.long_goals(job.agent_id)), None)
         g = self.goals.create(job.agent_id, "short", text[:200], job.minute, condition=cond, plan=plan, parent_id=parent.id if parent else None,
-                              reason=("neu gesetzt: " + job.reason) if job.previous is None else "anderer Weg nach festgefahrenem Ziel", replaces=job.previous.id if job.previous else None)
-        if job.previous is not None:
+                              reason=("neu gesetzt: " + job.reason) if job.previous is None else (f"Wechsel: {job.reason}" if job.switch else "anderer Weg nach festgefahrenem Ziel"),
+                              replaces=job.previous.id if job.previous else None)
+        if job.previous is not None and not job.switch:
             g.replans = job.previous.replans + 1
             self.goals.save_progress(g)
         return g, ""
 
-    async def run(self, agent_id: str, reason: str, previous: Goal | None = None) -> Goal | None:
+    async def run(self, agent_id: str, reason: str, previous: Goal | None = None, switch: bool = False) -> Goal | None:
         """Ziel setzen (oder neu planen): vorbereiten (DB), Modell fragen mit Korrekturschleife, prüfen und speichern (DB). Fehler stören nie."""
         db = self.engine.db
-        job = await db.run(lambda: self.prepare(agent_id, reason, previous))
+        job = await db.run(lambda: self.prepare(agent_id, reason, previous, switch))
         self.last_try[agent_id] = self.engine.minute
         if job is None or self.client is None:
             return None

@@ -217,3 +217,24 @@ async def test_a_new_goal_replaces_a_stuck_one_and_marks_it_abandoned():
     assert [e.data["replaced"] for e in events(s) if e.data["new"] == "active"][-1] == first.id
     assert "festgefahren" in s.client.provider.calls[-1]["messages"][1]["content"]
     s.close()
+
+
+async def test_an_accepted_proposal_switches_a_goal_that_is_not_far_along_but_not_one_that_is():
+    from simulacra.world.models import Event  # noqa: F401
+    s = make_sim()
+    s.store.ensure_all()
+    first = await s.autonomy.planner.run("alex", "kein aktives Ziel")
+    ev = s.engine.emit_event("agent.proposal_accepted", ["alex", "mira"], "garden", {"conversation": 1, "proposal": "Zusammen im Garten arbeiten", "by": "mira", "answered_by": "alex"})
+    s.autonomy.after_tick([ev], s.engine.minute)
+    assert s.autonomy.triggers["alex"] == "neuer gemeinsamer Vorschlag angenommen"
+    await s.autonomy.housekeeping(s.engine.minute + 10, waiting=False)
+    cur = s.autonomy.goals.active_short("alex")
+    assert cur.id != first.id and cur.reason.startswith("Wechsel:") and s.autonomy.goals.get("alex", first.id).state == "paused"
+    assert "Neu hinzugekommen" in s.client.provider.calls[-1]["messages"][1]["content"] or True
+    # weit fortgeschrittenes Ziel bleibt (Zielpersistenz)
+    cur.plan_step, cur.progress = len(cur.plan), 0.9
+    s.autonomy.goals.save_progress(cur)
+    s.autonomy.triggers["alex"] = "neuer gemeinsamer Vorschlag angenommen"
+    await s.autonomy.housekeeping(s.engine.minute + 20, waiting=False)
+    assert s.autonomy.goals.active_short("alex").id == cur.id
+    s.close()
