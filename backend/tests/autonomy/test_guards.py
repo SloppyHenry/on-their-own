@@ -58,6 +58,37 @@ def test_a_locked_option_is_no_longer_offered(sim):
     assert victim.key in {o.key for o in sim.planner.prepare("alex").options} or True
 
 
+def _lock(sim, *keys):
+    with sim.db.transaction():
+        for k in keys:
+            sim.engine.state.conn.execute("INSERT OR REPLACE INTO action_locks(agent_id, key, until, reason) VALUES('alex', ?, ?, 'wiederholt')", (k, sim.engine.minute + 60))
+
+
+def test_locks_hold_even_when_only_few_options_remain(sim):
+    """Langlauf-Befund AP11: bei kurzen Listen blieb eine gesperrte Option mit -100 Punkten wählbar (5× «Sich ausruhen» in Folge)."""
+    put(sim, "alex", 7, 7)
+    locked: set[str] = set()
+    for _ in range(30):                                                                     # angezeigt wird eine Auswahl; gesperrt Gezeigtes rückt nach
+        shown = sim.planner.prepare("alex").options
+        assert shown and not locked & {o.key for o in shown}
+        fresh = [o.key for o in shown if o.kind != "wait"]
+        if not fresh:
+            break
+        locked |= set(fresh)
+        _lock(sim, *fresh)
+    assert {o.kind for o in shown} == {"wait"}                                               # am Ende bleibt nur Abwarten, nie eine gesperrte Option
+
+
+def test_a_locked_action_cannot_be_chosen_through_other(sim):
+    put(sim, "alex", 7, 7)
+    _lock(sim, "rest:minutes=15")
+    prep = sim.planner.prepare("alex")
+    raw = json.dumps({"option_id": "other", "intent": "ausruhen", "utterance": "", "importance": 2, "other_action": "rest", "other_params": {"minutes": 15}})
+    assert "gesperrt" in sim.planner.parse(raw, prep)
+    ok = json.dumps({"option_id": "other", "intent": "ausruhen", "utterance": "", "importance": 2, "other_action": "rest", "other_params": {"minutes": 30}})
+    assert not isinstance(sim.planner.parse(ok, prep), str)
+
+
 async def test_forced_identical_answers_end_in_a_lock_and_a_different_choice():
     """Das Modell wählt immer dieselbe Option (erste Inspektion): nach drei Wiederholungen wird sie gesperrt, danach geht der Agent anderes tun."""
     def always_inspect(messages, schema, params):

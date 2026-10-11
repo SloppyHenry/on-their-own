@@ -19,6 +19,7 @@ from ..world.engine import WorldEngine
 from . import options as options_mod
 from . import perception, prompts
 from .conversation import ConversationManager
+from .factors.core import option_key
 from .perception import Perception
 from .scoring import Option, Tuning
 from .store import AgentStore
@@ -118,6 +119,10 @@ class Planner:
         if d.option_id == "other":
             if d.other_action not in prompts.ALLOWED_OTHER:
                 return "Bei \"other\" fehlt eine erlaubte other_action."
+            p = prep.perception
+            locks = p.ctx.locks if p.ctx is not None else {}
+            if locks.get(option_key(d.other_action, d.other_params), 0) > p.minute:   # Wiederholungsschutz gilt auch für freie Aktionen
+                return "Diese Aktion ist gerade gesperrt, weil du sie zu oft wiederholt hast. Wähle etwas anderes."
             return d, None
         opt = by_id.get(d.option_id)
         if opt is None:

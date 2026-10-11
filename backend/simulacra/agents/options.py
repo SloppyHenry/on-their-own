@@ -135,8 +135,7 @@ def build_options(engine: WorldEngine, store: AgentStore, p: Perception, tuning:
     st_locs = engine.state.locations
     locks = p.ctx.locks if p.ctx is not None else {}
     for key in [k for k, o in valid.items() if locks.get(o.key, 0) > p.minute and o.kind not in ("reply", "end_talk", "accept", "decline")]:
-        if len(valid) > 3:
-            del valid[key]                                       # gesperrte Aktion (Wiederholungsschutz) wird gar nicht erst angeboten
+        del valid[key]                                           # gesperrte Aktion (Wiederholungsschutz) wird gar nicht erst angeboten; „Abwarten“ wird nie gesperrt
     for o in valid.values():
         indoors = (o.target_loc or p.location_id).startswith("house.")
         loc = st_locs.get(o.target_loc or p.location_id)
