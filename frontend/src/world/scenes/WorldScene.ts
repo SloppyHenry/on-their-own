@@ -4,6 +4,7 @@ import type { LocationInfo, ObjectInfo, World } from "../../store/types";
 import { accentOf } from "../draw/characters";
 import { drawEffects, type Light, type Rect } from "../draw/effects";
 import { fenceCanvas, fencePieces } from "../draw/fences";
+import { findBuildings, isOccupied, roofCanvas, ROOF_PAD, type Building } from "../draw/roof";
 import { objectCanvas, resourceCanvas, resourceKey, visualKey, type ObjectEnv } from "../draw/objects";
 import { TILE as T } from "../draw/pen";
 import { buildTerrain, type Terrain } from "../draw/terrain";
@@ -25,6 +26,10 @@ export class WorldScene extends Phaser.Scene {
   private views!: AgentViews;
   private rig!: CameraRig;
   private lastClick = { id: "", t: 0 };
+  private buildings: Building[] = [];
+  private roofs = new Map<string, { img: Phaser.GameObjects.Image; alpha: number }>();
+  private smoke!: Phaser.GameObjects.Graphics;
+  private terrainVersion = 0;
   private minuteBucket = -1;
   private started = false;
   private off: (() => void) | null = null;
@@ -37,6 +42,7 @@ export class WorldScene extends Phaser.Scene {
     this.cameras.main.setBackgroundColor("#0e1115");
     this.water = this.add.graphics().setDepth(1);
     this.marks = this.add.graphics().setDepth(8000);
+    this.smoke = this.add.graphics().setDepth(7001);
     this.views = new AgentViews(this);
     this.rig = new CameraRig(this, 64 * T, 40 * T, () => this.bridge.setFollow(null));
     this.input.on("pointerup", (p: Phaser.Input.Pointer) => this.click(p));
@@ -100,6 +106,39 @@ export class WorldScene extends Phaser.Scene {
       this.statics.set(`f:${f.x},${f.y}`, this.add.image(f.x * T, (f.y + 1) * T, key).setOrigin(0, 1).setDepth((f.y + 1) * T));
     }
     this.rig.setMap(w.map.width * T, w.map.height * T);
+    this.rebuildRoofs(w);
+  }
+
+  private rebuildRoofs(w: World) {
+    this.roofs.forEach((r) => r.img.destroy());
+    this.roofs.clear();
+    this.terrainVersion += 1;
+    this.buildings = findBuildings(w.map.rows, w.map.legend, Object.values(w.locations));
+    for (const b of this.buildings) {
+      const key = `roof:${b.id}:${this.terrainVersion}`;
+      this.textures.addCanvas(key, roofCanvas(b));
+      const img = this.add.image(b.bbox.x0 * T - ROOF_PAD, b.bbox.y0 * T - ROOF_PAD, key).setOrigin(0).setDepth(7000);
+      this.roofs.set(b.id, { img, alpha: 1 });
+    }
+  }
+
+  /** Dach schließt sich, wenn niemand im Gebäude ist, und blendet sich weich aus, sobald jemand hineingeht. */
+  private updateRoofs(w: World, dt: number, t: number) {
+    const sel = this.bridge.selection(), selLoc = sel?.kind === "location" ? sel.id : null, agents = Object.values(w.agents);
+    this.smoke.clear();
+    for (const b of this.buildings) {
+      const r = this.roofs.get(b.id);
+      if (!r) continue;
+      const target = isOccupied(b, agents, selLoc) ? 0 : 1;
+      r.alpha += (target - r.alpha) * (1 - Math.exp(-dt * 7));
+      r.img.setAlpha(r.alpha).setVisible(r.alpha > 0.01);
+      if (r.alpha < 0.1) continue;
+      const sx = b.chimney.x * T + 8, sy = b.chimney.y * T - 2;
+      for (let i = 0; i < 6; i++) {
+        const a = (t * 0.35 + i / 6) % 1, size = 2 + a * 4;
+        this.smoke.fillStyle(0xebebf0, (1 - a) * 0.65 * r.alpha).fillRect(Math.round(sx + Math.sin(a * 7 + i) * 3 + a * 9 - size / 2), Math.round(sy - a * 30), size, size);
+      }
+    }
   }
 
   private place(key: string, tex: string, x: number, y: number, depth: number, alpha = 1) {
@@ -150,6 +189,7 @@ export class WorldScene extends Phaser.Scene {
     this.views.update(w, dt, t, selected);
     const follow = this.bridge.follow(), fp = follow ? this.views.position(follow) : null;
     if (fp) this.rig.follow(fp.x, fp.y - 8, dt);
+    this.updateRoofs(w, dt, t);
     this.drawWater(t);
     this.drawMarks(w, t, selected);
     this.drawLight(w, t, dt);
@@ -193,8 +233,11 @@ export class WorldScene extends Phaser.Scene {
     const sc = (wx: number, wy: number) => this.rig.toScreen(wx, wy);
     for (const a of Object.values(w.agents)) { const p = this.views.position(a.id); if (p) { const s = sc(p.x, p.y - 8); lights.push({ x: s.x, y: s.y, r: 34 * z, strength: 0.6 }); } }
     for (const o of Object.values(w.objects)) if ((o.kind === "fireplace" || o.kind === "firepit") && o.state.lit && o.x != null && o.y != null) { const s = sc(o.x * T + 8, o.y * T + 6); lights.push({ x: s.x, y: s.y, r: 70 * z, strength: 1 }); }
+    for (const f of this.terrain?.windows ?? []) { const s = sc(f.x + f.w / 2, f.y + f.h / 2); lights.push({ x: s.x, y: s.y, r: 30 * z, strength: 0.9 }); }
+    const closed = new Set<string>();
+    for (const b of this.buildings) if ((this.roofs.get(b.id)?.alpha ?? 0) > 0.5) b.rooms.forEach((r) => closed.add(r));
     for (const l of Object.values(w.locations)) {
-      if (!(l.props.style as { floor?: string } | undefined)?.floor) continue;
+      if (!(l.props.style as { floor?: string } | undefined)?.floor || closed.has(l.id)) continue;
       const a = sc(l.rect[0] * T, l.rect[1] * T), b = sc((l.rect[0] + l.rect[2]) * T, (l.rect[1] + l.rect[3]) * T);
       rooms.push({ x: a.x, y: a.y, w: b.x - a.x, h: b.y - a.y });
     }
@@ -205,6 +248,7 @@ export class WorldScene extends Phaser.Scene {
     const cam = this.cameras.main;
     this.bridge.emitFrame({
       zoom: cam.zoom,
+      roofs: this.buildings.map((b) => ({ id: b.id, closed: (this.roofs.get(b.id)?.alpha ?? 0) > 0.5 })),
       agents: Object.keys(w.agents).map((id) => {
         const p = this.views.position(id) ?? tileFoot(w.agents[id].x, w.agents[id].y), s = this.rig.toScreen(p.x, p.y);
         return { id, x: s.x, y: s.y, visible: s.x > -40 && s.y > -40 && s.x < cam.width + 40 && s.y < cam.height + 40 };

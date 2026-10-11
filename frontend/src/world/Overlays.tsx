@@ -18,6 +18,7 @@ export function Overlays({ bridge }: { bridge: WorldBridge }) {
     bridge.onFrame((f) => {
       const el = root.current;
       if (!el) return;
+      el.dataset.roofs = f.roofs.map((r) => (r.closed ? "closed" : "open")).join(",");
       const bubbles = bridge.bubbles(), now = Date.now();
       for (const a of f.agents) {
         const tag = el.querySelector<HTMLElement>(`[data-tag="${a.id}"]`), bub = el.querySelector<HTMLElement>(`[data-bubble="${a.id}"]`);

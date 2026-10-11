@@ -12,6 +12,7 @@ export interface AgentFrame {
 
 export interface Frame {
   agents: AgentFrame[];
+  roofs: { id: string; closed: boolean }[];
   zoom: number;
 }
 

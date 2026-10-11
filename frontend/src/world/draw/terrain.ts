@@ -11,6 +11,8 @@ export interface TerrainInput {
 
 export interface Terrain {
   canvas: HTMLCanvasElement;
+  /** Fenster der Außenfassade (Pixelrechtecke), nachts warm beleuchtet. */
+  windows: { x: number; y: number; w: number; h: number }[];
   trees: { x: number; y: number }[];
   water: [number, number][];
 }
@@ -106,7 +108,7 @@ function floor(p: Pen, x: number, y: number, kind: string) {
 }
 
 /** Wand: Vorderseite (Putz) wenn darunter keine Wand liegt, sonst Oberkante mit Schindelmuster. */
-function wall(p: Pen, g: Grid, x: number, y: number) {
+function wall(p: Pen, g: Grid, x: number, y: number, windows: Terrain["windows"]) {
   const px = x * T, py = y * T;
   if (g.is(x, y + 1, "wall")) {
     p.F("#8a4b3a", px, py, T, T);
@@ -121,6 +123,15 @@ function wall(p: Pen, g: Grid, x: number, y: number) {
   if (x % 3 === 0) p.F("#8a5a32", px, py + 4, 2, 12);
   p.F("#8a5a32", px, py + 14, T, 2);
   p.F("#6a4424", px, py + 15, T, 1);
+  if (!g.is(x, y + 1, "floor", "door") && x % 3 === 1 && g.is(x - 1, y, "wall") && g.is(x + 1, y, "wall")) {      // Außenfassade: Fenster mit Läden
+    p.F("#2e2218", px + 1, py + 5, 14, 9);
+    p.F("#4a7a58", px + 2, py + 6, 3, 7);
+    p.F("#4a7a58", px + 11, py + 6, 3, 7);
+    p.F("#5b402c", px + 5, py + 6, 6, 7);
+    p.F("#9fd0ee", px + 6, py + 7, 4, 5);
+    p.F("#d9f0fa", px + 6, py + 7, 2, 1);
+    windows.push({ x: px + 5, y: py + 6, w: 6, h: 7 });
+  }
 }
 
 function doorway(p: Pen, g: Grid, x: number, y: number, kind: string) {
@@ -163,7 +174,7 @@ function rugs(p: Pen, g: Grid) {
 
 export function buildTerrain(inp: TerrainInput): Terrain {
   const g = new Grid(inp), surf = surfaceMap(g), { canvas, p } = newCanvas(g.w * T, g.h * T);
-  const trees: Terrain["trees"] = [], waterTiles: [number, number][] = [];
+  const trees: Terrain["trees"] = [], waterTiles: [number, number][] = [], windows: Terrain["windows"] = [];
   for (let y = 0; y < g.h; y++) for (let x = 0; x < g.w; x++) {
     const t = g.at(x, y), s = surf(x, y);
     switch (t) {
@@ -171,7 +182,7 @@ export function buildTerrain(inp: TerrainInput): Terrain {
       case "path": s.surface === "cobble" ? cobble(p, x, y) : dirt(p, x, y); break;
       case "floor": floor(p, x, y, s.floor ?? "planks"); break;
       case "door": doorway(p, g, x, y, s.floor ?? "planks"); break;
-      case "wall": wall(p, g, x, y); break;
+      case "wall": wall(p, g, x, y, windows); break;
       case "sand": sand(p, x, y); break;
       case "water": water(p, x, y); waterTiles.push([x, y]); break;
       case "tree": {
@@ -189,5 +200,5 @@ export function buildTerrain(inp: TerrainInput): Terrain {
   }
   for (let y = 0; y < g.h; y++) for (let x = 0; x < g.w; x++) edges(p, g, x, y, g.at(x, y) === "path" && surf(x, y).surface === "cobble" ? "cobble" : g.at(x, y));
   rugs(p, g);
-  return { canvas, trees, water: waterTiles };
+  return { canvas, trees, water: waterTiles, windows };
 }

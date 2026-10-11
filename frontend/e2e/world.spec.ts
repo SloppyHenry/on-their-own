@@ -35,3 +35,14 @@ test("Taste F folgt dem gewählten Agenten, Taste 0 zeigt die ganze Welt", async
   const v = (await view.boundingBox())!;
   await expect.poll(async () => { const b = (await m.boundingBox())!; return Math.abs(b.x + b.width / 2 - (v.x + v.width / 2)); }, { timeout: 8000 }).toBeLessThan(40);
 });
+
+test("Dach ist offen, solange jemand im Haus ist, und schließt sich, wenn alle draußen sind", async ({ page, request }) => {
+  test.setTimeout(120_000);
+  await openApp(page);
+  const roofs = page.getByTestId("overlays");
+  await expect(roofs).toHaveAttribute("data-roofs", "open");
+  await post(request, "/api/sim/speed", { level: "max" });
+  await page.getByRole("button", { name: "Start" }).click();
+  await expect(roofs).toHaveAttribute("data-roofs", "closed", { timeout: 90_000 });
+  await post(request, "/api/sim/pause");
+});
