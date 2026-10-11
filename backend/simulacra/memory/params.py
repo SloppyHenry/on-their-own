@@ -15,10 +15,11 @@ class MemoryParams:
     half_life_h: float = 36.0           # Halbwertszeit der Aktualität in Simulationsstunden
     min_score: float = 0.35             # Schwelle (normierte Punktzahl 0-1)
     max_items: int = 6                  # höchstens so viele Erinnerungen je Prompt
-    budget_tokens: int = 450            # Token-Budget für die abgerufenen Erinnerungen
+    max_reflections: int = 2            # davon höchstens so viele Einsichten (sonst verdrängen sie alles Erlebte)
+    budget_tokens: int = 400            # Token-Budget für die abgerufenen Erinnerungen
     candidates: int = 40                # Kandidaten aus der Suche je Abruf
     reflect_enabled: bool = True
-    reflect_threshold: int = 45         # Summe der Wichtigkeit neuer Erinnerungen seit der letzten Reflexion
+    reflect_threshold: int = 80         # Summe der Wichtigkeit neuer Erinnerungen seit der letzten Reflexion
     reflect_evening_minute: int = 21 * 60   # sonst einmal am Abend
     reflect_sources: int = 20           # so viele jüngste wichtige Erinnerungen gehen in eine Reflexion
     summary_enabled: bool = True

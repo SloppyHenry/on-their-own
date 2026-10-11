@@ -79,3 +79,7 @@ class KnowledgeStore:
     def mark_summarized(self, agent_id: str, day: int) -> None:
         self.state_of(agent_id)
         self.conn.execute("UPDATE memory_state SET last_summary_day=? WHERE agent_id=?", (day, agent_id))
+
+    def set_last_plan(self, agent_id: str, plan: str) -> None:
+        self.state_of(agent_id)
+        self.conn.execute("UPDATE memory_state SET last_plan=? WHERE agent_id=?", (plan, agent_id))

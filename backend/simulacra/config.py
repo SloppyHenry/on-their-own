@@ -31,7 +31,7 @@ class Settings(BaseSettings):
     sim_conversation_max_turns: int = 8
     sim_memory_lines: int = 10            # letzte Beobachtungen im Prompt
     mem_store_threshold: int = 4          # Gedächtnis (AP05): ab dieser Wichtigkeit dauerhaft speichern
-    mem_budget_tokens: int = 450          # Token-Budget abgerufener Erinnerungen je Prompt
+    mem_budget_tokens: int = 400          # Token-Budget abgerufener Erinnerungen je Prompt
     mem_max_items: int = 6
     mem_half_life_h: float = 36.0         # Halbwertszeit der Aktualität (Simulationsstunden)
     mem_min_score: float = 0.35           # Schwelle für den Abruf (0-1)
@@ -40,7 +40,7 @@ class Settings(BaseSettings):
     mem_w_imp: float = 0.6
     mem_w_shared: float = 0.2
     mem_reflect_enabled: bool = True
-    mem_reflect_threshold: int = 45       # Wichtigkeitssumme seit der letzten Reflexion
+    mem_reflect_threshold: int = 80       # Wichtigkeitssumme seit der letzten Reflexion
     mem_max_active: int = 2000            # aktive Erinnerungen je Agent
     mem_archive_after_days: int = 2
     mem_debug_skips: bool = False         # nicht Gemerktes als Ereignis melden (Debug)

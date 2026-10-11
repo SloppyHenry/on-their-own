@@ -30,7 +30,7 @@ def sim():
 def test_reflection_is_due_by_importance_or_in_the_evening(sim):
     r = sim.memory.reflector
     assert r.due("alex", 600) is None                                       # noch nichts erlebt
-    fill(sim, n=8, importance=6)                                           # 48 >= Schwelle 45
+    fill(sim, n=14, importance=6)                                          # 84 >= Schwelle 80
     assert r.due("alex", 600) == "importance"
     sim.memory.know.mark_reflected("alex", 600, 1)
     assert r.due("alex", 620) is None                                       # Mindestabstand und Zähler zurückgesetzt
@@ -141,3 +141,44 @@ def test_upper_limit_archives_more_but_never_deletes(sim):
     sim.memory.maintenance.archive("alex", 1500 + 1440)
     st = sim.memory.store
     assert st.count("alex") <= 5 and st.count("alex") + st.count("alex", "archived") == len(mems)
+
+
+# --- Vorhaben, Qualität der Reflexionen, Abruf --------------------------------------------------------------------
+def test_plans_are_stored_only_when_they_persist_or_contain_a_commitment(sim):
+    w, st = sim.memory.writer, sim.memory.store
+    assert w.set_intention("alex", "Holz für das Regal sammeln", 500, "forest") is None          # erste Nennung: nur merken
+    kept = w.set_intention("alex", "Mit dem Holz für das Regal weitermachen", 510, "forest")      # kehrt wieder: bleibt bestehen
+    assert kept and kept.kind == "intention" and kept.intention_state == "open"
+    assert w.set_intention("alex", "Weiter Holz für das Regal sammeln", 520, "forest") is None     # offenes Vorhaben nur aufgefrischt
+    assert len(st.list("alex", kind="intention")[0]) == 1
+    assert "Weiter Holz" in st.get("alex", kept.id).text
+    promise = w.set_intention("alex", "Später mit Mira im Garten sprechen", 530, "garden")         # Zusage mit Person und Zeit
+    assert promise and promise.persons == ["mira"]
+    assert st.get("alex", kept.id).intention_state in ("dropped", "done")                         # das alte Vorhaben ist überholt
+    assert [m.intention_state for m in st.list("alex", kind="intention")[0]].count("open") == 1
+
+
+def test_source_citations_are_removed_from_reflection_text():
+    from simulacra.memory.reflection import Reflector
+    assert Reflector._clean("Ich merke, dass ich gern plane (Quelle: 3, 5).") == "Ich merke, dass ich gern plane."
+    assert Reflector._clean("Alex ist geduldig. Quellen: 2, 4.") == "Alex ist geduldig."
+    assert Reflector._clean("Ich mag den See [Erinnerung 2].") == "Ich mag den See."
+
+
+async def test_repeating_an_earlier_reflection_is_discarded(sim):
+    fill(sim, n=8)
+    assert len(await sim.memory.reflector.run("alex", "test")) == 1
+    sim.memory.know.mark_reflected("alex", 0, 0)
+    assert await sim.memory.reflector.run("alex", "test") == []                              # dieselbe Einsicht noch einmal
+    assert len(sim.memory.store.list("alex", kind="reflection")[0]) == 1
+
+
+def test_recall_does_not_let_reflections_crowd_out_experience(sim):
+    w = sim.memory.writer
+    for i in range(5):
+        w.remember("alex", "reflection", f"Ich erkenne Muster {i} in meinem Verhalten im Garten.", 8, 400 + i, force=True)
+    w.remember("alex", "episode", "Ich habe im Garten die Beete gegossen.", 5, 550, location_id="garden")
+    sim.memory.params.min_score = 0.0
+    items = sim.memory.retriever.recall("alex", Situation(minute=560, location_id="garden", location_name="Garten"), log=False).items
+    assert [s.memory.kind for s in items].count("reflection") <= 2
+    assert any(s.memory.kind == "episode" for s in items)

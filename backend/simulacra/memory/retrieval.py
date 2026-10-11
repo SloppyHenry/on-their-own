@@ -90,7 +90,8 @@ class Retriever:
         shared = 1.0 if m.shared else 0.0
         total_w = p.w_rel + p.w_rec + p.w_imp + p.w_shared
         base = (p.w_rel * rel + p.w_rec * rec + p.w_imp * imp + p.w_shared * shared) / total_w
-        bonus = PIN_BONUS if (m.kind == "reflection" or (m.kind == "intention" and m.intention_state == "open")) else 0.0
+        pinned = m.kind == "reflection" or (m.kind == "intention" and m.intention_state == "open")
+        bonus = PIN_BONUS * (0.35 + 0.65 * min(1.0, rel * 2)) if pinned else 0.0     # bevorzugt, aber nur so stark, wie es zur Lage passt
         parts = {"relevanz": round(rel, 3), "aktualität": round(rec, 3), "wichtigkeit": round(imp, 3), "gemeinsam": shared, "zuschlag": bonus}
         return min(1.0, base + bonus), parts
 
@@ -108,9 +109,13 @@ class Retriever:
         scored.sort(key=lambda x: (-x.score, -x.memory.sim_created))
         chosen: list[Scored] = []
         used = 0
+        kinds = {"reflection": 0, "intention": 0}
         for s in scored:
             if len(chosen) >= self.params.max_items:
                 break
+            if s.memory.kind in kinds and kinds[s.memory.kind] >= (self.params.max_reflections if s.memory.kind == "reflection" else 1):
+                continue
+            kinds[s.memory.kind] = kinds.get(s.memory.kind, 0) + 1
             if used + s.tokens > self.params.budget_tokens:
                 continue
             chosen.append(s)

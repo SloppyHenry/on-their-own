@@ -1,6 +1,7 @@
 """Reflexion: aus den jüngsten wichtigen Erinnerungen werden 1–3 Einsichten. Das Modell nennt die Quellen; erfundene oder fremde Quellen werden verworfen."""
 
 import json
+import re
 from dataclasses import dataclass
 from typing import Any
 
@@ -70,7 +71,9 @@ class Reflector:
             return None
         sources = {i + 1: m for i, m in enumerate(mems)}
         lines = [f"{i}: {format_line(m)}" for i, m in sources.items()]
+        before = [m.text for m in self.mem.recent(agent_id, kinds=("reflection",), limit=4)]
         user = "\n".join([f"Jetzt: {clock.fmt(minute)}. Du denkst in Ruhe über das nach, was du zuletzt erlebt hast.", "", "Deine Erinnerungen (Nummer: Zeitpunkt, Inhalt):", *lines, "",
+                          *(["Das hast du dir schon überlegt (wiederhole es nicht):", *[f"- {t}" for t in before], ""] if before else []),
                           "Was fällt dir auf? Schreibe 1 bis 3 Einsichten über dich, über andere oder über das Dorf, jeweils ein bis zwei Sätze in der Ich-Form, auf Deutsch. "
                           "Jede Einsicht muss sich auf die Nummern der Erinnerungen stützen, aus denen sie folgt (\"sources\"). Erfinde nichts, was nicht in den Erinnerungen steht. "
                           "\"importance\": 1 bis 10. Antworte nur mit dem JSON-Objekt."])
@@ -91,12 +94,23 @@ class Reflector:
             if not text or not srcs:
                 self._reject(job, "ohne gültige Quellen" if text else "leer", text, loc)
                 continue
+            text = self._clean(text)
+            if any(self.writer._jaccard(text, old.text) >= 0.5 for old in self.mem.recent(job.agent_id, kinds=("reflection",), limit=20)):
+                self._reject(job, "wiederholt eine frühere Einsicht", text, loc)
+                continue
             persons = sorted({p for s in srcs for p in s.persons})
             m = self.writer.remember(job.agent_id, "reflection", text[:MAX_TEXT], max(4, min(9, int(it.get("importance", 5)))), job.minute, location_id=None,
                                      persons=persons, shared=any(s.shared for s in srcs), source_memory_ids=[s.id for s in srcs], force=True)
             if m:
                 out.append(m)
         return out
+
+    @staticmethod
+    def _clean(text: str) -> str:
+        """Quellenverweise im Text („(Quelle: 3)“, „Quellen: 2, 5“) gehören ins Feld sources, nicht in die Einsicht."""
+        text = re.sub(r"\s*[\(\[]\s*(?:Quellen?|Erinnerung(?:en)?|Nr\.?)\b[^)\]]*[)\]]", "", text)
+        text = re.sub(r"\s*(?:Quellen?|Erinnerung(?:en)?)\s*:\s*[\d,\s und]+\.?\s*$", "", text)
+        return " ".join(text.split())
 
     def _reject(self, job: Job, why: str, text: str, loc: str | None) -> None:
         self.engine.emit_event("agent.memory_skipped", [job.agent_id], loc, {"text": text[:200], "importance": 0, "reason": f"Reflexion verworfen: {why}"})

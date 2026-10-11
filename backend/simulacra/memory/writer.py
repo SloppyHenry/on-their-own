@@ -2,6 +2,7 @@
 Einschätzung des Agenten. Unter der Schwelle bleibt etwas nur im Kurzzeitpuffer (Beobachtungen)."""
 
 import json
+import re
 from typing import Any
 
 from ..world.engine import WorldEngine
@@ -13,6 +14,7 @@ from .models import Memory, Observed
 from .params import MemoryParams
 from .store import MemoryStore
 
+COMMIT_WORDS = {"später", "morgen", "abend", "nachher", "versprochen", "verabredet", "vereinbart", "versprechen", "heute"}
 DEDUPE_MINUTES = 30
 QUOTE = 90
 
@@ -63,7 +65,7 @@ class MemoryWriter:
             return None
         m = self.mem.add(agent_id, kind, text, importance, minute, keywords=self._keywords(text, location_id, persons, extra_keywords), persons=persons,
                          location_id=location_id, shared=shared, source_event_id=source_event_id, source_memory_ids=source_memory_ids, **intention)
-        if kind not in ("reflection", "summary"):
+        if kind not in ("reflection", "summary", "intention"):
             self.know.add_importance(agent_id, importance)
         self._emit(m, caused_by)
         return m
@@ -97,21 +99,35 @@ class MemoryWriter:
         return self.remember(agent_id, "episode", text, importance if accepted else max(importance, 4), minute, location_id=location_id, extra_keywords=extra,
                              caused_by=decision_seq)
 
+    def _jaccard(self, a: str, b: str) -> float:
+        x, y = set(kw.tokens(a)), set(kw.tokens(b))
+        return len(x & y) / len(x | y) if x | y else 0.0
+
     def set_intention(self, agent_id: str, plan: str, minute: int, location_id: str | None, current_intent: str = "") -> Memory | None:
-        """Neues Vorhaben (`plan_next`). Ein vorheriges offenes Vorhaben gilt als erledigt, wenn es zur aktuellen Absicht passt, sonst als aufgegeben."""
+        """`plan_next` des Agenten. Gespeichert wird ein Vorhaben nur, wenn es zählt: wenn es beim nächsten Mal wiederkehrt (bleibt bestehen) oder eine Zusage
+        enthält (Person, „später“, „morgen“ …). Ein offenes Vorhaben wird bei gleichem Inhalt nur aufgefrischt; ein überholtes gilt als erledigt oder aufgegeben."""
         plan = plan.strip().rstrip(".")
         if not plan:
             return None
-        new_words = set(kw.tokens(plan))
-        for old in self.mem.recent(agent_id, kinds=("intention",), limit=10):
-            if old.intention_state != "open":
-                continue
-            old_words = set(kw.tokens(old.text))
-            if old_words and len(old_words & new_words) / len(old_words | new_words) >= 0.6:
-                return None                                              # dasselbe Vorhaben, anders formuliert
-            done = bool(old_words & set(kw.tokens(current_intent))) and len(old_words & set(kw.tokens(current_intent))) >= 2
-            self.mem.set_intention(agent_id, old.id, "done" if done else "dropped")
-        return self.remember(agent_id, "intention", f"Ich habe vor: {_cut(plan, 140)}.", 5, minute, location_id=location_id, force=True, intention_state="open")
+        last = self.know.state_of(agent_id)["last_plan"]
+        self.know.set_last_plan(agent_id, plan)
+        text = f"Ich habe vor: {_cut(plan, 140)}."
+        opened = [m for m in self.mem.recent(agent_id, kinds=("intention",), limit=10) if m.intention_state == "open"]
+        for old in opened:
+            if self._jaccard(old.text, text) >= 0.4:                                   # dasselbe Vorhaben, neu formuliert: Wortlaut auffrischen
+                self.mem.update_text(agent_id, old.id, text, self._keywords(text, location_id, old.persons))
+                return None
+        for old in opened:
+            overlap = set(kw.tokens(old.text)) & set(kw.tokens(current_intent))
+            self.mem.set_intention(agent_id, old.id, "done" if len(overlap) >= 2 else "dropped")
+        words = {w.lower() for w in re.findall(r"\w+", plan)}
+        names = [a.name for a in self.engine.state.agents() if a.id != agent_id]
+        commitment = bool(words & COMMIT_WORDS) or any(n.lower() in words for n in names)
+        persistent = bool(last) and self._jaccard(last, plan) >= 0.4
+        if not (commitment or persistent):
+            return None
+        persons = [a.id for a in self.engine.state.agents() if a.id != agent_id and a.name.lower() in words]
+        return self.remember(agent_id, "intention", text, 5, minute, location_id=location_id, persons=persons, force=True, intention_state="open")
 
     # --- Gespräche --------------------------------------------------------------------------------------------
     def conversation_ended(self, ev: Event, ai_ids: list[str]) -> list[Memory]:

@@ -69,5 +69,6 @@ CREATE TABLE memory_state (
     importance_since_reflection INTEGER NOT NULL DEFAULT 0,
     last_reflection_minute INTEGER,
     last_reflection_day INTEGER NOT NULL DEFAULT 0,
-    last_summary_day INTEGER NOT NULL DEFAULT 0
+    last_summary_day INTEGER NOT NULL DEFAULT 0,
+    last_plan TEXT NOT NULL DEFAULT ''             -- zuletzt genanntes Vorhaben (Vorhaben werden erst bei Wiederholung oder Zusage gespeichert)
 );

@@ -50,6 +50,9 @@ class MemoryStore:
         for mid in ids:
             self.conn.execute("UPDATE memories SET status=? WHERE agent_id=? AND id=?", (status, agent_id, mid))
 
+    def update_text(self, agent_id: str, mid: str, text: str, keywords: list[str]) -> None:
+        self.conn.execute("UPDATE memories SET text=?, keywords=? WHERE agent_id=? AND id=?", (text, " ".join(keywords), agent_id, mid))
+
     def set_intention(self, agent_id: str, mid: str, state: str) -> None:
         self.conn.execute("UPDATE memories SET intention_state=? WHERE agent_id=? AND id=?", (state, agent_id, mid))
 
