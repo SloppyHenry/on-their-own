@@ -39,8 +39,35 @@ describe("Store", () => {
   });
 });
 
+describe("Gedächtnis-Signale", () => {
+  const saved = () => ev("agent.memory_created", { memory_id: "mem_1", kind: "episode", text: "Ich habe etwas getan.", importance: 5 }, { agents: ["alex"], category: "memory" });
+  const recalled = () => ev("agent.memory_retrieved", { retrieval_id: 1, items: [], tokens: 0, query: [] }, { agents: ["mira"], category: "memory" });
+
+  it("Live-Ereignisse lassen den Agenten aufleuchten und markieren neue Erinnerungen", () => {
+    useSimStore.getState().pushEvents([saved(), recalled()], true);
+    const s = useSimStore.getState();
+    expect(s.pulses.alex.kind).toBe("saved");
+    expect(s.pulses.mira.kind).toBe("recalled");
+    expect(s.newMemories.mem_1).toBeGreaterThan(0);
+    expect(s.memoryVersion).toBe(1);
+  });
+
+  it("nachgelieferte Ereignisse leuchten nicht, laden aber die Listen neu", () => {
+    useSimStore.getState().pushEvents([saved()], false);
+    const s = useSimStore.getState();
+    expect(s.pulses).toEqual({});
+    expect(s.newMemories).toEqual({});
+    expect(s.memoryVersion).toBe(1);
+  });
+});
+
 describe("Protokollfilter", () => {
   const f = DEFAULT_FILTERS;
+  it("Gedächtnis-Ereignisse sind standardmäßig ausgeblendet (häufig), zuschaltbar", () => {
+    const m = ev("agent.memory_created", {}, { agents: ["alex"], category: "memory" });
+    expect(matchesFilters(m, "x", f)).toBe(false);
+    expect(matchesFilters(m, "x", { ...f, categories: { ...f.categories, memory: true } })).toBe(true);
+  });
   it("blendet Einzelschritte standardmäßig aus", () => {
     expect(matchesFilters(ev("agent.moved", {}, { agents: ["alex"] }), "x", f)).toBe(false);
     expect(matchesFilters(ev("agent.moved", {}, { agents: ["alex"] }), "x", { ...f, moves: true })).toBe(true);

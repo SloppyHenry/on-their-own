@@ -75,7 +75,7 @@ class Planner:
         self.memory = memory
 
     def prepare(self, agent_id: str) -> Prepared:
-        """Wahrnehmen, erinnern, Optionen erzeugen und bewerten, Prompt bauen. Nur lesend; gehört auf den DB-Thread."""
+        """Wahrnehmen, erinnern (Abruf wird protokolliert und gemeldet), Optionen erzeugen und bewerten, Prompt bauen. Gehört auf den DB-Thread."""
         p = perception.build(self.engine, self.store, self.convs, agent_id, self.memory_lines)
         if self.memory is not None:
             self.memory.perceive(p)
