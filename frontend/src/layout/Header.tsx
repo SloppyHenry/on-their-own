@@ -32,23 +32,23 @@ export function Header() {
   const night = clock ? clock.daylight < 0.4 : false;
 
   return (
-    <header className="flex items-center gap-3 border-b border-line bg-panel px-3">
+    <header className="flex min-w-0 items-center gap-3 overflow-hidden border-b border-line bg-panel px-3">
       <span className="text-[13px] font-semibold tracking-[0.18em]">SIMULACRA</span>
       {clock && world && (
         <span data-testid="clock" className="whitespace-nowrap">
           Tag {clock.day}, {clock.time} <Icon name={night ? "moon" : "sun"} className="text-alex" />
-          <span className="text-dim"> · {clock.weekday} · <Icon name={world.weather.kind === "rain" ? "rain" : "sun"} className="text-world" /> {weatherName(world.weather.kind)}</span>
+          <span className="text-dim"><span className="max-[1500px]:hidden"> · {clock.weekday}</span><span className="max-[1340px]:hidden"> · <Icon name={world.weather.kind === "rain" ? "rain" : "sun"} className="text-world" /> {weatherName(world.weather.kind)}</span></span>
         </span>
       )}
       <SimulationControls />
-      <span className="flex-1" />
+      <span className="min-w-0 flex-1" />
       <button className={`btn ${settingsOpen ? "on" : ""}`} onClick={() => (settingsOpen ? closeSettings() : openSettings())} aria-pressed={settingsOpen} data-testid="open-settings">Einstellungen</button>
       <button className="btn" onClick={() => setSavesOpen(true)} data-testid="open-saves">Spielstände</button>
       <button className={`btn ${view === "history" ? "on" : ""}`} onClick={() => setView(view === "history" ? "world" : "history")} aria-pressed={view === "history"} data-testid="open-history-view">Verlauf</button>
       <button className={`btn ${view === "stats" ? "on" : ""}`} onClick={() => setView(view === "stats" ? "world" : "stats")} aria-pressed={view === "stats"} data-testid="open-stats">Statistik</button>
       <button className={`btn ${view === "memory" ? "on" : ""}`} onClick={() => (view === "memory" ? setView("world") : openMemory(useUiStore.getState().lastAgent))} aria-pressed={view === "memory"}>{view === "memory" ? "← Zur Welt" : "Gedächtnis"}</button>
       <span className="whitespace-nowrap text-dim" data-testid="conn"><span className={`mr-1.5 inline-block size-2 rounded-full ${dot}`} />{connText}</span>
-      <span className="max-w-[15rem] truncate whitespace-nowrap text-dim" title={health?.llm.error ?? ""}>
+      <span className="min-w-0 max-w-[15rem] shrink truncate whitespace-nowrap text-dim" title={health?.llm.error ?? ""}>
         <span className={`mr-1.5 inline-block size-2 rounded-full ${health?.llm.reachable ? "bg-ok" : "bg-warn"}`} />
         {health ? health.llm.configured_model : "Modell unbekannt"}
         {avg != null && avg > 0 && <span className="ml-1 font-mono text-xs"> Ø {avg.toFixed(1)} s</span>}
