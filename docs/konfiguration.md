@@ -16,6 +16,8 @@ Der API-Key wird nie geloggt, erscheint nicht in `repr()` oder `model_dump_json(
 | `SIM_DATA_DIR` | `./data` (von `scripts/dev.sh` auf `<Projekt>/data` gesetzt) | SQLite, Spielstände, Logs | Neustart |
 | `SIM_HOST` | `127.0.0.1` | Adresse des Backends | Neustart |
 | `SIM_PORT` | `8090` | Port des Backends | Neustart |
+| `SIM_STATIC_DIR` | leer | Verzeichnis mit dem gebauten Frontend (`frontend/dist`); gesetzt liefert das Backend die Oberfläche selbst aus (im Container `/app/static`), leer = nur API (Entwicklung mit Vite) | Neustart |
+| `SIM_ACCESS_TOKEN` | leer | Zugangsschutz: leer = aus; sonst brauchen `/api/*` und `/ws` eine Anmeldung (siehe [betrieb.md](betrieb.md)) | Neustart |
 
 Laufzeit-Parameter (Slider, Autonomie, Gedächtnis, Welt) kommen mit AP07 in eine eigene Registry und werden hier ergänzt.
 

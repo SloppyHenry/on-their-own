@@ -274,3 +274,16 @@ Ausführlich in [spielstaende.md](spielstaende.md). Verändernde Aufrufe brauche
 | `GET /api/events/export?format=csv\|json&…` | Verlauf mit den Filtern der Liste (`type_prefix`, `agent`, `category`, `location`, `from_minute`, `to_minute`, `q`) |
 
 Neue Ereignistypen: `simulation.saved`, `simulation.loaded`. Tabellen: `stats_samples` (`009_stats.sql`); die Stände selbst liegen in `data/saves/`.
+
+## Zugangsschutz und Oberfläche (AP10)
+
+Nur mit gesetztem `SIM_ACCESS_TOKEN`. Ohne Token verhalten sich alle Pfade wie bisher.
+
+| Pfad | Zweck |
+|---|---|
+| `GET /api/auth/status` | `{required, authenticated}` (immer frei); die Oberfläche fragt das beim Start |
+| `POST /api/auth/login` | `{token}` → Cookie `sim_access` (HttpOnly, SameSite=Strict, 30 Tage; enthält nur den SHA-256 des Tokens). Falsches Token: 401, nach 10 Fehlversuchen in einer Minute 429 |
+| `POST /api/auth/logout` | löscht das Cookie |
+
+Mit Schutz antworten `/api/*` (außer `/api/health` und `/api/auth/*`) ohne Cookie mit **401** `{"detail": "Anmeldung erforderlich."}`, `/ws` schließt mit Code **4401**. Skripte können stattdessen `Authorization: Bearer <token>` senden. Ist `SIM_STATIC_DIR` gesetzt, liefert das Backend alle übrigen Pfade als Oberfläche aus (unbekannte Pfade fallen auf `index.html` zurück, `/api/*` bleibt 404).
+

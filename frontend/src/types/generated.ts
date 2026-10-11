@@ -11,6 +11,7 @@ export interface SimulacraApi {
   AgentOverview?: AgentOverview;
   Arrived?: Arrived;
   Ate?: Ate;
+  AuthStatus?: AuthStatus;
   ConversationEnded?: ConversationEnded;
   ConversationStarted?: ConversationStarted;
   DayStarted?: DayStarted;
@@ -45,6 +46,7 @@ export interface SimulacraApi {
   LocationDetail?: LocationDetail;
   LocationDiscovered?: LocationDiscovered;
   LocationEvent?: LocationEvent;
+  LoginRequest?: LoginRequest;
   MapExtended?: MapExtended;
   MemoriesPage?: MemoriesPage;
   MemoryArchived?: MemoryArchived;
@@ -340,6 +342,14 @@ export interface Arrived {
  */
 export interface Ate {
   hunger: number;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "AuthStatus".
+ */
+export interface AuthStatus {
+  authenticated: boolean;
+  required: boolean;
 }
 /**
  * This interface was referenced by `SimulacraApi`'s JSON-Schema
@@ -898,6 +908,13 @@ export interface LocationEvent {
   reassigned?: {
     [k: string]: number;
   } | null;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "LoginRequest".
+ */
+export interface LoginRequest {
+  token: string;
 }
 /**
  * This interface was referenced by `SimulacraApi`'s JSON-Schema

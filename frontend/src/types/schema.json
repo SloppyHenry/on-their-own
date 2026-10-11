@@ -676,6 +676,23 @@
    "title": "Ate",
    "type": "object"
   },
+  "AuthStatus": {
+   "additionalProperties": false,
+   "properties": {
+    "authenticated": {
+     "type": "boolean"
+    },
+    "required": {
+     "type": "boolean"
+    }
+   },
+   "required": [
+    "required",
+    "authenticated"
+   ],
+   "title": "AuthStatus",
+   "type": "object"
+  },
   "Clarification": {
    "additionalProperties": false,
    "properties": {
@@ -2710,6 +2727,19 @@
     "discovered_by"
    ],
    "title": "LocationInfo",
+   "type": "object"
+  },
+  "LoginRequest": {
+   "additionalProperties": false,
+   "properties": {
+    "token": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "token"
+   ],
+   "title": "LoginRequest",
    "type": "object"
   },
   "MapData": {
@@ -6135,6 +6165,9 @@
   "Ate": {
    "$ref": "#/$defs/Ate"
   },
+  "AuthStatus": {
+   "$ref": "#/$defs/AuthStatus"
+  },
   "ConversationEnded": {
    "$ref": "#/$defs/ConversationEnded"
   },
@@ -6236,6 +6269,9 @@
   },
   "LocationEvent": {
    "$ref": "#/$defs/LocationEvent"
+  },
+  "LoginRequest": {
+   "$ref": "#/$defs/LoginRequest"
   },
   "MapExtended": {
    "$ref": "#/$defs/MapExtended"

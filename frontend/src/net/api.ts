@@ -1,11 +1,13 @@
 // REST-Zugriff. Verändernde Aufrufe tragen einen Idempotency-Key, damit Wiederholungen nichts doppelt tun.
-import type { AgentDetail, AgentNeeds, AgentOverview, DecisionOut, FactorRegistry, FailureOut, GoalOut, RelationOut, EventDetail, EventsPage, Knowledge, LocationDetail, MemoriesPage, MemoryDetail, MemoryStats, RetrievalOut, SimCommandResult, StateSnapshot, ParamPatchOut, ParamSchema, ParamValues, PresetBrief, PresetLoadOut, PresetOut, PresetPreview, StatusOut, InjectProposal, ScheduledOut, SaveOut, StatsOut } from "../types/generated";
+import type { AgentDetail, AgentNeeds, AgentOverview, DecisionOut, FactorRegistry, FailureOut, GoalOut, RelationOut, EventDetail, EventsPage, Knowledge, LocationDetail, MemoriesPage, MemoryDetail, MemoryStats, RetrievalOut, SimCommandResult, StateSnapshot, ParamPatchOut, ParamSchema, ParamValues, PresetBrief, PresetLoadOut, PresetOut, PresetPreview, StatusOut, InjectProposal, ScheduledOut, SaveOut, StatsOut, AuthStatus } from "../types/generated";
 
 export class ApiError extends Error {
   constructor(readonly status: number, readonly detail: string) {
     super(`HTTP ${status}: ${detail}`);
   }
 }
+
+export const AUTH_REQUIRED = "sim:auth-required";
 
 const key = () => (typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : `k-${Date.now()}-${Math.random().toString(36).slice(2, 12)}`);
 
@@ -24,6 +26,7 @@ async function request<T>(method: "GET" | "POST" | "PATCH" | "DELETE", path: str
     } catch {
       /* Antwort ohne JSON */
     }
+    if (res.status === 401 && !path.startsWith("/api/auth/")) window.dispatchEvent(new Event(AUTH_REQUIRED));   // Anmeldung abgelaufen
     throw new ApiError(res.status, detail);
   }
   return (await res.json()) as T;
@@ -130,6 +133,8 @@ export const api = {
   injectParse: (body: { text?: string; agents?: string[] | null; at?: number | null; answer_to?: string; answer?: string | number }) => request<InjectProposal>("POST", "/api/inject/parse", body),
   injectConfirm: (proposal_id: string) => request<InjectProposal>("POST", "/api/inject/confirm", { proposal_id }),
   injectHistory: (limit = 30) => request<InjectProposal[]>("GET", `/api/inject/history?limit=${limit}`),
+  authStatus: () => request<AuthStatus>("GET", "/api/auth/status"),
+  login: (token: string) => request<AuthStatus>("POST", "/api/auth/login", { token }),
   scheduled: () => request<ScheduledOut[]>("GET", "/api/scheduled"),
   cancelScheduled: (id: string) => request<ScheduledOut>("DELETE", `/api/scheduled/${id}`),
 };

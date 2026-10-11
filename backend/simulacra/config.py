@@ -55,6 +55,8 @@ class Settings(BaseSettings):
     data_dir: Path = Path("./data")
     host: str = "127.0.0.1"
     port: int = 8090
+    static_dir: Path | None = None        # gebautes Frontend (frontend/dist); im Container /app/static, in der Entwicklung leer (Vite)
+    access_token: SecretStr | None = None # leer = kein Zugangsschutz (Heimnetz); gesetzt = API und WebSocket nur mit Anmeldung
 
     @computed_field  # type: ignore[prop-decorator]
     @property

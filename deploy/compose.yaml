@@ -1,0 +1,25 @@
+# Simulacra auf maintux. Aufruf immer über scripts/deploy_maintux.sh, backup.sh, restore.sh oder:
+#   docker compose -f deploy/compose.yaml up -d
+# Einstellungen stehen in deploy/.env (Vorlage: deploy/env.example).
+services:
+  simulacra:
+    build: { context: .., dockerfile: deploy/Dockerfile }
+    image: simulacra:latest
+    container_name: simulacra
+    restart: unless-stopped
+    ports: ["${SIM_PUBLISH:-8090}:8090"]
+    environment:
+      SIM_LLM_BASE_URL: ${SIM_LLM_BASE_URL:-http://host.docker.internal:8080/v1}
+      SIM_LLM_API_KEY_FILE: /run/secrets/llm_api_key
+      SIM_ACCESS_TOKEN: ${SIM_ACCESS_TOKEN:-}
+      SIM_AUTOSTART: ${SIM_AUTOSTART:-false}
+    secrets: [llm_api_key]
+    extra_hosts: ["host.docker.internal:host-gateway"]
+    volumes: ["simulacra-data:/data"]
+    mem_limit: 2g
+    cpus: 4
+    logging: { driver: json-file, options: { max-size: "10m", max-file: "5" } }
+secrets:
+  llm_api_key: { file: "${SIM_KEY_FILE:-${HOME}/simulacra-secrets/llm_api_key}" }
+volumes:
+  simulacra-data: {}

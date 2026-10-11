@@ -14,6 +14,7 @@ from pydantic.json_schema import models_json_schema
 from ..events import models as event_models
 from ..events.schema import EventOut, SimTime
 from ..events.types import REGISTRY
+from . import auth
 from . import models as api
 from . import models_memory as mm
 from . import models_autonomy as ma
@@ -30,7 +31,7 @@ API_MODELS: list[type[BaseModel]] = [
     mp.ParamSchema, mp.ParamValues, mp.ParamPatch, mp.ParamPatchOut, mp.ParamResetRequest, mp.PresetBrief, mp.PresetOut, mp.PresetSave, mp.PresetRename,
     mp.PresetDuplicate, mp.PresetPreview, mp.PresetLoadRequest, mp.PresetLoadOut, mp.StatusOut,
     mi.InjectParseRequest, mi.InjectConfirmRequest, mi.InjectProposal, mi.ScheduledOut,
-    ms.SaveOut, ms.SaveCreate, ms.SaveLoadRequest, ms.StatsOut,
+    ms.SaveOut, ms.SaveCreate, ms.SaveLoadRequest, ms.StatsOut, auth.AuthStatus, auth.LoginRequest,
     EventOut, SimTime,
 ]
 

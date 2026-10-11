@@ -8,8 +8,9 @@ from fastapi import Depends, FastAPI
 from .. import __version__
 from ..config import Settings, get_settings
 from ..simulation.builder import Simulation
-from . import routes_autonomy, routes_events, routes_inject, routes_memory, routes_params, routes_saves, routes_sim, routes_state, routes_stats, ws
+from . import auth, routes_autonomy, routes_events, routes_inject, routes_memory, routes_params, routes_saves, routes_sim, routes_state, routes_stats, ws
 from .idempotency import Idempotency
+from .static import mount_frontend
 
 LLM_PROBE_TIMEOUT_S = 3.0
 
@@ -53,6 +54,10 @@ def create_app(sim: Simulation | None = None, settings: Settings | None = None) 
     app = FastAPI(title="Simulacra", version=__version__, lifespan=lifespan)
     app.state.idempotency = Idempotency()
     app.state.settings = settings or get_settings()
+    app.state.auth_fails = []
+    token = app.state.settings.access_token
+    if token is not None and token.get_secret_value():
+        app.add_middleware(auth.AccessMiddleware, token=token.get_secret_value())
     if sim is not None:                                  # auch ohne Lifespan (z. B. in Tests) erreichbar
         app.state.sim = sim
 
@@ -76,6 +81,9 @@ def create_app(sim: Simulation | None = None, settings: Settings | None = None) 
     app.include_router(routes_stats.router)
     app.include_router(routes_sim.router)
     app.include_router(ws.router)
+    app.include_router(auth.router)
+    if app.state.settings.static_dir is not None:          # zuletzt: der Auffangpfad darf keine API-Route überdecken
+        mount_frontend(app, app.state.settings.static_dir)
     return app
 
 
