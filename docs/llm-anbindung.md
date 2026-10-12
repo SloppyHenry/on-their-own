@@ -59,6 +59,24 @@ Auffälligkeiten auf dem Server (nur lesend geprüft): beim Laden meldet der Pri
 
 **Folge:** Standardmodell bleibt Qwen 9B. Bonsai wird wieder untersucht, wenn Zugriff auf die Konfiguration von maintux freigegeben ist (z. B. Prüfung der Layer-Verteilung, kleinerer Kontext, ein Lauf mit freier GPU).
 
+## Anderes Modell oder andere Maschine
+
+Die App spricht jeden OpenAI-kompatiblen Endpunkt an (`/v1/chat/completions`, `/v1/models`). Drei Einstellungen genügen (Umgebung, `backend/.env` oder im Container `deploy/.env`):
+
+| Variable | Bedeutung |
+|---|---|
+| `SIM_LLM_BASE_URL` | Endpunkt, z. B. `http://maintux:8080/v1` oder `http://192.168.178.160:8080/v1` |
+| `SIM_LLM_API_KEY_FILE` / `SIM_LLM_API_KEY` | Schlüssel als Datei oder direkt (im Container als Docker-Secret) |
+| `SIM_LLM_MODEL` | Vorbelegung für neue Simulationen; muss in `/v1/models` stehen. Eine bestehende Simulation behält ihr Modell (offene Frage 10). |
+
+Voraussetzungen an Modell und Server: JSON-Schema-Zwang (`response_format: json_schema`, bei llama.cpp über Grammatik) oder wenigstens `json_object`; ohne beides steigt die Zahl der Korrekturen stark (Messung oben). Bei Qwen 3.x schaltet `chat_template_kwargs: {"enable_thinking": false}` das Denken ab (`SIM_LLM_THINKING=false`, Standard); andere Modelle ignorieren das Feld. Die Antwortlänge (`SIM_LLM_MAX_TOKENS`, 400) und das Zeitlimit (90 s) passen für 7B–14B-Modelle; größere Modelle brauchen eher ein längeres Zeitlimit.
+
+Nach einem Wechsel prüfen: `GET /api/health` (Router erreichbar, Modell bekannt) und einige Entscheidungen im Protokoll ansehen (Anteil gültiger Antworten, Antwortzeit in der Statusanzeige).
+
+### Messung auf SecondTux (12.10.2026)
+
+Router auf SecondTux (RTX 3060, 12 GB), `qwen3.8-9b` (Q8_0), ein Slot, Variante C2. Aus dem Langlauf mit echtem Modell ([status/langlauf.md](status/langlauf.md)): Ø ca. 4 s je Anfrage bei ca. 1440 Prompt- und 115 Antwort-Tokens, ca. 35 Tokens/s, ca. 11 Entscheidungen pro Minute für beide Agenten zusammen, in der ersten Stunde keine ungültige Antwort. Damit ist die 3060 mit dem Q8-Modell etwas schneller als maintux mit dem Uncensored-Modell (Ø 4,5 s, AP02).
+
 ## Nicht gemessen
 - Die Modelle `qwen3.8-27b-uncensored` und `qwen3-coder-30b-uncensored`.
 - Inhaltliche Qualität über viele Entscheidungen hinweg.

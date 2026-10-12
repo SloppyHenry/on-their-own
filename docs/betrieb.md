@@ -89,6 +89,36 @@ cd backend && uv pip compile pyproject.toml -o requirements.lock --python-versio
 
 Prüfen, ob es Wheels für Linux gibt (das Image hat keinen Compiler): `uv pip install --dry-run --python-platform x86_64-manylinux_2_28 --python-version 3.14 --only-binary :all: -r requirements.lock --target /tmp/x`.
 
+## Anderer Rechner (z. B. SecondTux)
+
+Dasselbe Setup läuft auf jedem Linux-Rechner mit Docker und einem llama.cpp-Router. Eingerichtet am 12.10.2026 auf **SecondTux** (`tuxtower`, 192.168.178.160, RTX 3060, Router mit `qwen3.8-9b`), erreichbar unter `http://tuxtower:8090`.
+
+Unterschiede zu maintux und was dafür nötig war:
+
+| Punkt | SecondTux |
+|---|---|
+| ssh | anderer Schlüssel und Benutzer: `SIM_SSH_OPTS="-o IdentitiesOnly=yes -i ~/.ssh/id_ed25519_datenstein" SIM_DEPLOY_USER=henry` |
+| Router | lauscht nur an der LAN-Adresse (`llama-server --host 192.168.178.160`), daher in `deploy/.env` auf dem Ziel `SIM_LLM_BASE_URL=http://192.168.178.160:8080/v1` statt `host.docker.internal` |
+| Modellname | `SIM_LLM_MODEL=qwen3.8-9b` (wie ihn `/v1/models` meldet) |
+| Firewall | `ufw` mit `INPUT DROP` sperrte den Container vom Router aus; eine Regel für das Docker-Netz auf Port 8080 (von Henry mit sudo gesetzt), z. B. `sudo ufw allow from 172.16.0.0/12 to any port 8080 proto tcp` |
+
+`deploy/.env` auf dem Ziel (bleibt beim Ausrollen unberührt):
+
+```bash
+SIM_PUBLISH=8090
+SIM_LLM_BASE_URL=http://192.168.178.160:8080/v1
+SIM_LLM_MODEL=qwen3.8-9b
+SIM_AUTOSTART=false
+```
+
+Ausrollen vom Mac:
+
+```bash
+SIM_DEPLOY_HOST=tuxtower SIM_DEPLOY_USER=henry SIM_SSH_OPTS="-o IdentitiesOnly=yes -i $HOME/.ssh/id_ed25519_datenstein" scripts/deploy_maintux.sh
+```
+
+Prüfen: `curl -s http://tuxtower:8090/api/health` zeigt unter `llm` `reachable: true` und `model_available: true`. Backup und Wiederherstellung wie oben, auf dem Ziel im Ordner `~/simulacra`.
+
 ## Fehlersuche
 
 | Beobachtung | Ursache und Schritt |
