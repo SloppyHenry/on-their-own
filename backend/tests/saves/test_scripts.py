@@ -49,7 +49,8 @@ def env(tmp_path):
     sim.engine.advance(30)
     sim.saves.create("Mein Stand", "", kind="manual")
     sim.close()
-    e = {**os.environ, "PATH": f"{bin_dir}:{os.environ['PATH']}", "STUB_LOG": str(tmp_path / "calls.log"), "STUB_STATE": str(tmp_path / "state"),
+    own = {k: v for k, v in os.environ.items() if not k.startswith("SIM_")}        # Umgebung des Aufrufers (z. B. ein Deploy auf einen anderen Rechner) darf die Tests nicht beeinflussen
+    e = {**own, "PATH": f"{bin_dir}:{os.environ['PATH']}", "STUB_LOG": str(tmp_path / "calls.log"), "STUB_STATE": str(tmp_path / "state"),
          "STUB_DATA": str(data), "SIM_BACKUP_DIR": str(tmp_path / "backups"), "HOME": str(tmp_path), "PYTHONPATH": str(ROOT / "backend")}
     (tmp_path / "state").write_text("running")
     return e, data, tmp_path
