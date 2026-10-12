@@ -1,4 +1,4 @@
-# Simulacra auf maintux. Aufruf immer über scripts/deploy_maintux.sh, backup.sh, restore.sh oder:
+# Simulacra auf maintux (oder einem anderen Rechner mit Docker und Router). Aufruf immer über scripts/deploy_maintux.sh, backup.sh, restore.sh oder:
 #   docker compose -f deploy/compose.yaml up -d
 # Einstellungen stehen in deploy/.env (Vorlage: deploy/env.example).
 name: simulacra
@@ -11,6 +11,7 @@ services:
     ports: ["${SIM_PUBLISH:-8090}:8090"]
     environment:
       SIM_LLM_BASE_URL: ${SIM_LLM_BASE_URL:-http://host.docker.internal:8080/v1}
+      SIM_LLM_MODEL: ${SIM_LLM_MODEL:-qwen3.8-9b-uncensored}
       SIM_LLM_API_KEY_FILE: /run/secrets/llm_api_key
       SIM_ACCESS_TOKEN: ${SIM_ACCESS_TOKEN:-}
       SIM_AUTOSTART: ${SIM_AUTOSTART:-false}
