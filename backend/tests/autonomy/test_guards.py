@@ -219,3 +219,12 @@ async def test_stuck_goals_wait_while_an_agent_is_waiting_for_a_decision_unless_
     await s.autonomy.housekeeping(later, waiting=True)                         # drei Fehlschläge: sofort
     assert s.autonomy.goals.active_short("alex").id != g.id
     s.close()
+
+
+def test_a_conversation_with_oneself_or_an_unknown_figure_is_never_created(sim):
+    """Langlauf/Abnahme-Befund (Nr. 15): „speak“ an sich selbst legte ein Gespräch [x, x] an; die Gesprächsansicht stürzte danach ab."""
+    for partner in ("alex", "niemand", 7, ["mira"], None):
+        sim.convs.note_intent("alex", partner)
+    assert sim.engine.state.conn.execute("SELECT count(*) FROM conversations").fetchone()[0] == 0
+    sim.convs.note_intent("alex", "mira")
+    assert sim.convs.view_for("alex")["partner"] == "mira"

@@ -54,10 +54,13 @@ def make_fn():
 def prepare(sim: Simulation) -> Simulation:
     sim.store.ensure_all()
     eng = sim.engine
+    if eng.state.get_meta("e2e_prepared"):          # Neustart auf vorhandener Welt: nichts verändern (Abnahme Nr. 7)
+        return sim
     with eng.db.transaction():                       # Mira neben Alex in dessen Zimmer
         a = eng.state.agent("mira")
         a.x, a.y, a.location_id = 8, 7, eng.state.location_at(8, 7)
         eng.state.save_agent(a)
+        eng.state.set_meta("e2e_prepared", True)
     return sim
 
 
@@ -73,6 +76,9 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--port", type=int, default=8191)
     ap.add_argument("--data-dir", type=Path, default=Path("/tmp/simulacra-e2e"))
+    ap.add_argument("--inject-rate", type=int, default=None, help="Eingaben je Minute (nur Tests; Standard wie im Betrieb)")
     args = ap.parse_args()
     sim = build(args.data_dir)
+    if args.inject_rate:
+        sim.inject.rate = args.inject_rate
     uvicorn.run(create_app(sim, settings=sim.settings), host="127.0.0.1", port=args.port, log_level="warning")

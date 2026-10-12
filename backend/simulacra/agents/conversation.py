@@ -35,7 +35,7 @@ class Conversation:
     end_reason: str | None = None
 
     def partner_of(self, agent_id: str) -> str:
-        return next(p for p in self.participants if p != agent_id)
+        return next((p for p in self.participants if p != agent_id), agent_id)
 
 
 def _words(text: str) -> set[str]:
@@ -83,9 +83,10 @@ class ConversationManager:
 
     # --- Entscheidungszeitpunkt: was der Sprecher mit seinem Beitrag vorhat ---------------------------
     def note_intent(self, speaker: str, partner: str, *, end: bool = False, proposal: str = "", respond: str = "") -> None:
-        if self.engine.state.agent(partner) is None:
-            return
-        partner = self.engine.state.agent(partner).id
+        other = self.engine.state.agent(partner) if isinstance(partner, str) else None
+        if other is None or other.id == speaker:
+            return                                                   # unbekannt oder man selbst: die Welt lehnt das Sprechen ab, ein Gespräch entsteht nicht
+        partner = other.id
         c = self.between(speaker, partner) or self._begin(speaker, partner)
         if end:
             c.pending_end = speaker
