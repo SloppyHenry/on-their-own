@@ -2,7 +2,7 @@
 
 Eine Netzsperre im Prozess lässt nur localhost und maintux durch; jeder andere Verbindungsversuch scheitert und wird gezählt.
 Die Simulation nutzt den echten HTTP-Client (OpenAI-kompatibel) gegen einen lokalen Ersatz des Routers.
-Mit `-m integration` läuft derselbe Nachweis gegen das echte Modell auf maintux.
+Mit `-m integration` läuft derselbe Nachweis gegen das echte Modell (Router aus SIM_LLM_BASE_URL, Standard maintux).
 """
 
 import json
@@ -112,9 +112,11 @@ def test_k14_kein_cloud_endpunkt_in_code_oder_konfiguration():
 
 
 @pytest.mark.integration
-async def test_k14_echtes_modell_auf_maintux_hinter_der_netzsperre(monkeypatch, tmp_path):
-    lock = NetLock(monkeypatch)
+async def test_k14_echtes_modell_im_heimnetz_hinter_der_netzsperre(monkeypatch, tmp_path):
+    """Durch die Sperre kommt nur der Router aus SIM_LLM_BASE_URL (Standard maintux, z. B. auch SecondTux)."""
     settings = Settings()
+    router = httpx.URL(settings.llm_base_url).host
+    lock = NetLock(monkeypatch, allowed_names=("localhost", "127.0.0.1", "::1", router))
     sim = Simulation.create(settings, tmp_path / "live.db")
     sim.store.ensure_all()
     await sim.runner.step(15)
