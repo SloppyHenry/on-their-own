@@ -1,12 +1,15 @@
+import asyncio
 import json
 import time
 
 import pytest
 from starlette.websockets import WebSocketDisconnect
 
+from agents.conftest import make_sim
+from simulacra.api.ws import _live
 from simulacra.events.store import EventStore
 
-from .conftest import api, event_seqs, hello, post, recv_until
+from .conftest import api, event_seqs, hello, post, recv_until, wait_one_minute
 
 
 def all_seqs(c):
@@ -216,3 +219,50 @@ def test_clock_after_reset_never_carries_the_old_minute():
             after = recv_until(ws, lambda m: m["type"] == "clock" and m["minute"] == 421)
             assert all(m["minute"] <= 421 for m in after if m["type"] == "clock")
             assert msgs[-1]["state"]["clock"]["minute"] == 420
+
+
+class _RecordingWs:
+    """Steht für den Browser: merkt sich alles Gesendete, schickt selbst nichts."""
+    def __init__(self):
+        self.sent: list[dict] = []
+
+    async def send_text(self, text: str) -> None:
+        self.sent.append(json.loads(text))
+
+    async def receive_text(self) -> str:
+        await asyncio.Future()
+
+    async def close(self, code: int = 1000, reason: str = "") -> None:
+        pass
+
+
+async def _until(pred, timeout: float = 5.0) -> None:
+    deadline = time.monotonic() + timeout
+    while not pred():
+        assert time.monotonic() < deadline, "erwartete Nachricht kam nicht"
+        await asyncio.sleep(0.01)
+
+
+async def test_clock_already_fetched_before_the_reset_is_dropped_not_sent_after_the_snapshot():
+    """Rennen unter Last (12.10.2026): Die Warte-Aufgabe für den Uhrtakt hatte Minute 425 der alten Welt schon abgeholt, als das
+    Reset-Ereignis kam; beide waren in derselben Runde fertig, der Snapshot ging zuerst raus und danach der alte Takt.
+    Hier liegen Takt und Reset gezielt gleichzeitig an, bevor die Verbindung sie liest."""
+    sim = make_sim(fn=wait_one_minute)
+    try:
+        await sim.runner.step(5)
+        sub = sim.engine.bus.subscribe()
+        sim.engine.bus.clock(sim.engine.minute)                     # Takt der alten Welt (425), noch nicht gesendet
+        await sim.reset()
+        ws = _RecordingWs()
+        live = asyncio.create_task(_live(ws, sim, sub, 0, 60.0, 5000))
+        await _until(lambda: any(m["type"] == "snapshot" for m in ws.sent))
+        await sim.runner.step(1)
+        await _until(lambda: any(m["type"] == "clock" and m["minute"] == 421 for m in ws.sent))
+        live.cancel()
+        sub.close()
+        types = [m["type"] for m in ws.sent]
+        after = ws.sent[types.index("snapshot"):]
+        assert after[0]["state"]["clock"]["minute"] == 420
+        assert [m["minute"] for m in after if m["type"] == "clock"] == [421]
+    finally:
+        sim.close()

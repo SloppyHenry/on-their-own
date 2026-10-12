@@ -37,6 +37,14 @@ async def _sync(ws: WebSocket, sim, last_seq: int | None, max_gap: int) -> int:
     return payload[-1].seq if payload else (last_seq or 0)
 
 
+def _fresh_clock(sub: Subscription, clock: asyncio.Task) -> asyncio.Task:
+    """Vor einem Snapshot: Takt verwerfen. Die laufende Warte-Aufgabe kann den alten Takt schon abgeholt haben (fertig oder
+    zum Fortsetzen bereit); dann hilft `drop_clock` allein nicht, sie würde die alte Minute nach dem Snapshot senden."""
+    clock.cancel()
+    sub.drop_clock()
+    return asyncio.create_task(sub.next_clock(CLOCK_MIN_GAP_S))
+
+
 async def _live(ws: WebSocket, sim, sub: Subscription, sent: int, ping_s: float, max_gap: int) -> None:
     recv: asyncio.Task = asyncio.create_task(ws.receive_text())
     queue: asyncio.Task = asyncio.create_task(sub.get())
@@ -61,6 +69,7 @@ async def _live(ws: WebSocket, sim, sub: Subscription, sent: int, ping_s: float,
                 recv = asyncio.create_task(ws.receive_text())
                 if msg.get("type") in ("hello", "resync"):
                     sub.reset()
+                    clock = _fresh_clock(sub, clock)
                     awaiting_resync = False
                     sent = await _sync(ws, sim, msg.get("last_seq"), max_gap)
             if queue in done:
@@ -72,7 +81,7 @@ async def _live(ws: WebSocket, sim, sub: Subscription, sent: int, ping_s: float,
                 elif not awaiting_resync:
                     for e in item:
                         if e.type in ("simulation.reset", "simulation.loaded"):   # neue Welt oder geladener Stand: alle bekommen einen frischen Snapshot
-                            sub.drop_clock()
+                            clock = _fresh_clock(sub, clock)
                             sent = await _sync(ws, sim, None, max_gap)
                         elif e.seq > sent:
                             await ws.send_text(WsEvent(event=to_out(e)).model_dump_json())
