@@ -29,6 +29,7 @@ from websockets.asyncio.client import connect
 ROOT = Path(__file__).resolve().parents[1]
 PY = ROOT / "backend" / ".venv" / "bin" / "python"
 LIMITS = {"rss_mb": 1024, "db_mb_per_sim_day": 50, "error_streak": 5, "action_streak": 5}
+UNGUARDED = ("wait", "speak")        # wie simulacra.agents.guards.UNGUARDED_ACTIONS: Warten und Gesprächszüge sperrt der Wiederholungsschutz nicht
 
 
 def start_server(mode: str, out: Path, port: int) -> subprocess.Popen:
@@ -57,12 +58,13 @@ def db_mb(out: Path) -> float:
     return round(sum(p.stat().st_size for p in (db, Path(f"{db}-wal"), Path(f"{db}-shm")) if p.exists()) / 2**20, 2)
 
 
-def longest_streak(values: list) -> tuple[int, object]:
+def longest_streak(values: list, counts=lambda v: True) -> tuple[int, object]:
+    """Längste Folge gleicher Werte; `counts` wählt, welche Werte für das Maximum zählen."""
     best, cur, val, prev = 0, 0, None, object()
     for v in values:
         cur = cur + 1 if v == prev else 1
         prev = v
-        if cur > best:
+        if cur > best and counts(v):
             best, val = cur, v
     return best, val
 
@@ -90,9 +92,11 @@ def db_metrics(out: Path) -> dict:
         streaks = {}
         for (aid,) in q("SELECT DISTINCT agent_id FROM decisions"):
             rows = q("SELECT status, action, params FROM decisions WHERE agent_id=? ORDER BY id", aid)
-            same, same_key = longest_streak([action_key(a, p) for _, a, p in rows])        # wie der Wiederholungsschutz: Aktion mit Ziel
+            keys = [action_key(a, p) for _, a, p in rows]
+            same, same_key = longest_streak(keys)                                         # wie der Wiederholungsschutz: Aktion mit Ziel
+            guarded, guarded_key = longest_streak(keys, lambda k: k.split(":")[0] not in UNGUARDED)   # nur, was der Schutz überwacht
             kind, kind_name = longest_streak([a for _, a, _ in rows])                     # nur die Aktionsart (zur Information)
-            streaks[aid] = {"error_streak": longest_run([st != "valid" for st, _, _ in rows]), "action_streak": same, "action_streak_key": same_key,
+            streaks[aid] = {"error_streak": longest_run([st != "valid" for st, _, _ in rows]), "action_streak": same, "action_streak_key": same_key, "guarded_streak": guarded, "guarded_streak_key": guarded_key,
                             "kind_streak": kind, "kind_streak_name": kind_name}
         conv = q("SELECT max(json_array_length(turns)), count(*) FROM conversations")[0]
         return {

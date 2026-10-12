@@ -12,6 +12,10 @@ from ..world.models import Event
 from .scoring import Option
 
 
+UNGUARDED_KINDS = ("wait", "reply", "end_talk", "accept", "decline", "speak")   # Warten und Gesprächszüge sperrt der Wiederholungsschutz nie
+UNGUARDED_ACTIONS = ("wait", "speak")                                           # die Weltaktionen hinter diesen Optionen
+
+
 @dataclass
 class GuardParams:
     repeat_window: int = 6              # so viele letzte Entscheidungen werden betrachtet
@@ -51,7 +55,7 @@ class Guards:
 
     def check_repetition(self, agent_id: str, chosen: Option | None, minute: int, recent: list[dict[str, Any]]) -> bool:
         """Gleiche Aktion mit gleichem Ziel `repeat_limit`-mal in den letzten Entscheidungen: Sperre für `lock_minutes`."""
-        if chosen is None or chosen.kind in ("wait", "reply", "end_talk", "accept", "decline", "speak"):
+        if chosen is None or chosen.kind in UNGUARDED_KINDS:
             return False
         same = 1 + sum(1 for r in recent[: self.params.repeat_window - 1] if r["action"] + ":" + ",".join(f"{k}={v}" for k, v in sorted(r["params"].items()) if k != "text") == chosen.key)
         if same < self.params.repeat_limit:
