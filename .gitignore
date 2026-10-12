@@ -1,4 +1,5 @@
-data/
+# nur der Datenordner im Projektstamm; backend/simulacra/data/ (Weltdaten) gehört ins Repository
+/data/
 node_modules/
 .venv/
 *.db

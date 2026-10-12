@@ -1,0 +1,54 @@
+{
+ "bench": {
+  "name": "Bank",
+  "kind": "bench",
+  "cost": {
+   "wood": 3
+  },
+  "minutes": 60,
+  "where": "outdoor",
+  "workbench": false
+ },
+ "birdhouse": {
+  "name": "Vogelhaus",
+  "kind": "birdhouse",
+  "cost": {
+   "wood": 2
+  },
+  "minutes": 90,
+  "where": "outdoor",
+  "workbench": true
+ },
+ "firepit": {
+  "name": "Feuerstelle",
+  "kind": "firepit",
+  "cost": {
+   "wood": 2,
+   "stone": 3
+  },
+  "minutes": 75,
+  "where": "outdoor",
+  "workbench": false
+ },
+ "fence": {
+  "name": "Gartenzaun",
+  "kind": "fence",
+  "cost": {
+   "wood": 2
+  },
+  "minutes": 45,
+  "where": "outdoor",
+  "workbench": false
+ },
+ "pier_extension": {
+  "name": "Steg-Verlängerung",
+  "kind": "pier_plank",
+  "cost": {
+   "wood": 4
+  },
+  "minutes": 120,
+  "where": "lake",
+  "workbench": false,
+  "tile_effect": "floor"
+ }
+}
