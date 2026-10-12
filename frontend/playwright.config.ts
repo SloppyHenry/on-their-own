@@ -1,7 +1,7 @@
 import { defineConfig } from "@playwright/test";
 
-const BACKEND = 8192;
-const FRONTEND = 5175;
+const BACKEND = Number(process.env.SIM_E2E_BACKEND_PORT ?? 8192);     // abweichend, wenn 8192 belegt ist (z. B. vom Langlauf)
+const FRONTEND = Number(process.env.SIM_E2E_FRONTEND_PORT ?? 5175);
 
 /** Echtes Backend mit deterministischem Fake-LLM (scripts/e2e_server.py), echtes Frontend über Vite; kein Zugriff auf maintux. */
 export default defineConfig({

@@ -7,6 +7,7 @@
 `real` nutzt das Modell aus den SIM_*-Einstellungen (Standard: Router auf maintux), `fake` das deterministische Fake-LLM der
 Browser-Tests. Beide laufen mit Standard-Preset und höchstem Tempo. Jede Messung landet als Zeile in `<out>/samples.jsonl`;
 der WebSocket-Leser prüft dabei die Lückenlosigkeit der Ereignisnummern über die ganze Laufzeit.
+Auf dem Mac mit `caffeinate -i` starten, sonst schläft der Rechner ein und der Lauf misst Pausen mit.
 """
 
 import argparse
@@ -157,7 +158,7 @@ async def post(c: httpx.AsyncClient, path: str, body: dict | None = None) -> dic
 async def sample(c: httpx.AsyncClient, proc: subprocess.Popen, out: Path, ws: WsWatcher, t0: float) -> dict:
     st = (await c.get("/api/state")).json()
     sim = st["simulation"]
-    return {"t_s": round(time.monotonic() - t0, 1), "wall": time.strftime("%Y-%m-%d %H:%M:%S"), "sim_minute": st["clock"]["minute"],
+    return {"t_s": round(time.time() - t0, 1), "wall": time.strftime("%Y-%m-%d %H:%M:%S"), "sim_minute": st["clock"]["minute"],
             "state": sim["state"], "stats": sim["stats"], "llm": sim["llm"], "rss_mb": rss_mb(proc.pid), "db_mb": db_mb(out),
             "db": await asyncio.to_thread(db_metrics, out), "ws": ws.summary(), "alive": proc.poll() is None}
 
@@ -168,7 +169,7 @@ async def run(args) -> int:
         sys.exit(f"{out} enthält schon einen Lauf (--resume zum Fortsetzen)")
     proc = start_server(args.mode, out, args.port)
     base = f"http://127.0.0.1:{args.port}"
-    t0 = time.monotonic()
+    t0 = time.time()                       # Uhrzeit, nicht monotonic: die steht auf macOS still, solange der Rechner schläft
     async with httpx.AsyncClient(base_url=base, timeout=60) as c:
         for _ in range(120):
             try:
@@ -194,9 +195,9 @@ async def run(args) -> int:
                 f.flush()
                 print(f"{s['wall']}  Sim-Minute {s['sim_minute']}  Entscheidungen {s['stats']['decisions']}  RSS {s['rss_mb']} MB  DB {s['db_mb']} MB  "
                       f"Ereignisse {s['db']['events']}  WS-Lücken {s['ws']['gaps']}", flush=True)
-                if not s["alive"] or time.monotonic() >= end:
+                if not s["alive"] or time.time() >= end:
                     break
-                await asyncio.sleep(min(args.interval, max(1.0, end - time.monotonic())))
+                await asyncio.sleep(min(args.interval, max(1.0, end - time.time())))
         if proc.poll() is None:
             await post(c, "/api/sim/pause")
         reader.cancel()
