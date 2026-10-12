@@ -148,6 +148,21 @@ def test_exhaustion_forces_sleep_or_rest_and_night_prefers_sleep(sim):
     assert night - day > 30
 
 
+def test_away_from_bed_at_night_going_to_bed_is_offered_and_ranks_high(sim):
+    """Langlauf-Befund (AP11): Schlafen gibt es nur am Bett; ohne diese Option schliefen die Agenten nie."""
+    put(sim, "alex", 30, 7)                                           # Garten
+    needs(sim, "alex", energy=70)
+    assert "to_bed" not in {o.kind for o in all_opts(sim, "alex")}    # tagsüber und ausgeruht: kein Grund
+    sim.engine.advance(15 * 60)                                       # 22:00
+    put(sim, "alex", 30, 7)
+    needs(sim, "alex", energy=70)
+    o = next(o for o in all_opts_scored(sim, "alex") if o.kind == "to_bed")
+    assert o.params == {"target": "bed_alex"} and o.target_loc == "house.bedroom_a" and "Zum Schlafen" in o.label
+    assert "to_bed" in {x.kind for x in opts(sim, "alex")}            # unter den angebotenen sechs
+    needs(sim, "alex", energy=10)
+    assert {"to_bed", "rest"} & {x.kind for x in opts(sim, "alex")}   # erschöpft: Pflichtoption
+
+
 def all_opts_scored(sim, aid):
     return opts(sim, aid, Tuning(top_k=60, per_kind_max=60))
 

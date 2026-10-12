@@ -29,7 +29,7 @@ def personality(o, p: Perception, pers: Personality, ctx: AgentContext, env: Env
     if o.kind == "decline":
         add(f, "Annahmebereitschaft", -25 * pers.f("suggestion_acceptance"))
         add(f, "Konfliktbereitschaft", 10 * pers.f("conflict_readiness"))
-    if o.kind in ("rest", "sleep", "wait"):
+    if o.kind in ("rest", "sleep", "to_bed", "wait"):
         add(f, "Ruhebedürfnis", 18 * pers.f("calm_need"))
     if o.kind in OUTDOOR_MOVES:
         add(f, "Ruhebedürfnis", -6 * pers.f("calm_need"))

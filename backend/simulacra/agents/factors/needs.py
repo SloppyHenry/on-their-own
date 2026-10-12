@@ -12,11 +12,11 @@ def relief(o, p: Perception, pers: Personality, ctx: AgentContext, env: Env) -> 
     needs, night = p.body.needs, p.phase == "night"
     e, h, t = needs["energy"], needs["hunger"], needs["thirst"]
     if ctx.on("energy"):
-        if o.kind == "sleep":
+        if o.kind in ("sleep", "to_bed"):                           # ins Bett gehen zählt wie Schlafen; der Weg kostet über den Faktor „Weg“
             add(f, "Müdigkeit", 45 * max(0.0, (40 - e) / 40) + (20 if night and e < 85 else 0) - (25 if not night and e >= 30 else 0))
         if o.kind == "rest":
             add(f, "Müdigkeit", 20 * max(0.0, (60 - e) / 60))
-        if e < 15 and o.kind not in ("sleep", "rest", "eat", "drink"):
+        if e < 15 and o.kind not in ("sleep", "to_bed", "rest", "eat", "drink"):
             add(f, "Erschöpfung", -15)
     food = o.kind in ("eat", "cook", "harvest", "fish") or (o.kind == "gather" and o.params.get("resource") == "food")
     water = o.kind == "drink" or (o.kind == "gather" and o.params.get("resource") == "water")
@@ -37,7 +37,7 @@ def relief(o, p: Perception, pers: Personality, ctx: AgentContext, env: Env) -> 
         elif o.kind in ("speak", "reply") and calm > 65:
             add(f, "Bedürfnis Ruhe", -14 * (calm - 65) / 35)
     if ctx.on("warmth") and warm > 40:
-        if env.indoors_target and (o.kind in ("move", "light", "rest", "sleep", "cook")):
+        if env.indoors_target and (o.kind in ("move", "to_bed", "light", "rest", "sleep", "cook")):
             add(f, "Wärme", 20 * (warm - 40) / 60)
         elif o.kind in OUTDOOR_MOVES | {"gather", "build"} and not env.indoors_target:
             add(f, "Wärme", -14 * (warm - 40) / 60)

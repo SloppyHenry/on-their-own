@@ -245,3 +245,22 @@ async def test_a_partner_written_as_a_name_is_stored_as_the_agent_id():
     assert rows and all(json.loads(r["participants"]) == ["alex", "mira"] for r in rows)
     assert sim.convs.view_for("alex") is None or sim.convs.view_for("alex")["partner"] == "mira"
     sim.close()
+
+
+async def test_at_night_an_agent_away_from_home_walks_to_bed_and_sleeps():
+    """Langlauf-Befund (AP11): im 2-Stunden-Lauf mit dem echten Modell schlief niemand, weil Schlafen nur am Bett angeboten wurde."""
+    from .conftest import needs
+    sim = make_sim(fn=chooser("Zum Schlafen", "Im Bett schlafen", "Schlafen"))
+    sim.store.ensure_all()
+    sim.engine.advance(15 * 60)                                         # 22:00
+    put(sim, "alex", 30, 7)                                             # Garten
+    needs(sim, "alex", energy=60)
+    for _ in range(12):
+        await sim.runner.step(10)
+        if any(e.type == "agent.slept" or (e.type == "agent.action_started" and e.data.get("action") == "sleep")
+               for e in sim.engine.events_since(0, 100000) if "alex" in e.agents):
+            break
+    a = sim.engine.state.agent("alex")
+    assert a.location_id == "house.bedroom_a"
+    assert (a.action is not None and a.action.type == "sleep") or any(e.type == "agent.slept" for e in sim.engine.events_since(0, 100000))
+    sim.close()

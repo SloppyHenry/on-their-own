@@ -9,7 +9,7 @@ from . import Env, Factors, add
 
 BASE = {"speak": 28, "reply": 46, "end_talk": 16, "accept": 40, "decline": 18, "give": 22, "move": 24, "explore": 30,
         "inspect": 12, "take": 18, "gather": 28, "build": 30, "plant": 34, "water": 32, "harvest": 42, "eat": 22, "drink": 22,
-        "rest": 18, "sleep": 14, "wait": 8, "read": 22, "write": 14, "fish": 28, "cook": 30, "light": 18, "extinguish": 8,
+        "rest": 18, "sleep": 14, "to_bed": 14, "wait": 8, "read": 22, "write": 14, "fish": 28, "cook": 30, "light": 18, "extinguish": 8,
         "unlock": 24, "lock": 6, "resume": 36, "search": 20}
 OUTDOOR_MOVES = {"move", "explore"}
 SOCIAL = {"speak", "reply", "accept", "give", "search"}
@@ -70,7 +70,7 @@ def profile(o, p: Perception, pers: Personality, ctx: AgentContext, env: Env) ->
     if p.plan_next:
         add(f, "Vorhaben", min(24.0, 12.0 * len(words & tokens(p.plan_next))))
     themes = agent_themes(prof.goals, prof.interests)
-    if env.place_themes and themes and o.kind not in SOCIAL | {"wait", "rest", "sleep", "eat", "drink"}:
+    if env.place_themes and themes and o.kind not in SOCIAL | {"wait", "rest", "sleep", "to_bed", "eat", "drink"}:
         add(f, "Passt zu Zielen und Interessen des Ortes", min(18.0, float(sum(themes.get(t, 0) for t in env.place_themes) * 0.8)))
     return f
 

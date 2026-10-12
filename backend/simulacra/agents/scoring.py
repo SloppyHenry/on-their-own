@@ -81,7 +81,7 @@ def select(options: list[Option], p: Perception, tuning: Tuning) -> list[Option]
     if body_needs["thirst"] > 70 and ctx.on("thirst"):
         must.append(("drink",))
     if body_needs["energy"] < 25 and ctx.on("energy"):
-        must.append(("sleep", "rest"))
+        must.append(("sleep", "to_bed", "rest"))
     if p.conversation and p.conversation["awaiting_reply"]:
         must += [("reply",), ("end_talk",)]
     if p.conversation and p.conversation["open_proposal"] and p.conversation["open_proposal"]["by"] != p.agent.id:

@@ -69,10 +69,10 @@ def commitment(o, p: Perception, pers: Personality, ctx: AgentContext, env: Env)
         matches = goal_match(o, g, p)[0] >= 26.0
         if matches:
             add(f, "Planbindung", 12 * pers.f("persistence") - 8 * pers.f("spontaneity"))
-        elif o.kind not in REACTIVE and o.kind not in ("eat", "drink", "sleep", "rest"):
+        elif o.kind not in REACTIVE and o.kind not in ("eat", "drink", "sleep", "to_bed", "rest"):
             add(f, "Planbindung", -6 * pers.f("persistence") + 6 * pers.f("spontaneity"))
     if o.kind in REACTIVE:
         add(f, "Eigeninitiative", -8 * pers.f("autonomy"))
-    elif o.kind not in ("wait", "rest", "sleep", "eat", "drink"):
+    elif o.kind not in ("wait", "rest", "sleep", "to_bed", "eat", "drink"):
         add(f, "Eigeninitiative", 8 * pers.f("autonomy"))
     return f
