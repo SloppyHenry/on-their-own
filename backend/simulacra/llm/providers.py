@@ -115,13 +115,15 @@ class FakeProvider:
         self.script = list(script or [])
         self.fn = fn
         self.delay_s = delay_s
-        self.calls: list[dict] = []
+        self.calls: list[dict] = []                          # letzte Aufrufe für Tests, gekappt (unbegrenzt wuchs der Speicher im Fake-Langlauf)
         self.active = 0
         self.max_active = 0
 
     async def complete(self, messages: list[dict], schema: dict | None, params: LLMParams) -> LLMResult:
         import asyncio
         self.calls.append({"messages": messages, "schema": schema, "params": params})
+        if len(self.calls) > 2000:
+            del self.calls[:1000]
         self.active += 1
         self.max_active = max(self.max_active, self.active)
         try:

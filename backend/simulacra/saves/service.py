@@ -30,6 +30,7 @@ class AutoSavePolicy:
     sim_hours: int = 6               # alle so viele Simulationsstunden (0 = aus)
     real_minutes: int = 30           # und alle so viele Echtzeitminuten (0 = aus)
     keep: int = 5                    # Ringpuffer: so viele Autosaves bleiben
+    min_real_gap_s: float = 120.0    # Sim-Stunden-Autosave frühestens so lange nach dem letzten (bei Höchsttempo sonst alle paar Sekunden eine volle Kopie)
 
 
 def current_schema() -> int:
@@ -84,7 +85,7 @@ class SaveService:
     # --- Autosave ----------------------------------------------------------------------------------------------------
     def maybe_autosave(self, minute: int) -> dict[str, Any] | None:
         p = self.sim.autosave
-        due_sim = p.sim_hours > 0 and minute - self._last_sim >= p.sim_hours * 60
+        due_sim = p.sim_hours > 0 and minute - self._last_sim >= p.sim_hours * 60 and time.monotonic() - self._last_real >= p.min_real_gap_s
         due_real = p.real_minutes > 0 and time.monotonic() - self._last_real >= p.real_minutes * 60
         if not (due_sim or due_real):
             return None

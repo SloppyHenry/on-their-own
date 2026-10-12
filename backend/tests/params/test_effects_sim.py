@@ -96,6 +96,7 @@ async def test_modes_change_the_prompt_but_not_the_memories(sim):
 
 async def test_autosave_follows_the_interval_and_keeps_a_ring(tmp_path, monkeypatch):
     sim = file_sim(tmp_path / "live.db")
+    sim.autosave.min_real_gap_s = 0                                                                                 # Echtzeit-Mindestabstand: eigener Test unten
     manual = await sim.engine.db.run(lambda: sim.saves.create("Handarbeit"))
     await sim.params.patch([{"key": "sim.autosave_sim_hours", "value": 1}, {"key": "sim.autosave_real_minutes", "value": 0}, {"key": "sim.autosave_keep", "value": 3}])
     await sim.runner.step(59)
@@ -116,4 +117,21 @@ async def test_autosave_follows_the_interval_and_keeps_a_ring(tmp_path, monkeypa
     assert sim.saves.list()[0]["kind"] == "auto" and sim.saves.list()[0]["name"].startswith("Autosave")
     await sim.params.patch([{"key": "sim.autosave_real_minutes", "value": 0}])
     assert sim.autosave.real_minutes == 0
+    sim.close()
+
+
+async def test_autosave_by_sim_hours_keeps_a_real_time_gap_at_full_speed(tmp_path, monkeypatch):
+    """Langlauf-Befund (AP11): bei Höchsttempo entstand alle 3–4 s eine volle Kopie der Datenbank (≈ 100 MB/s Schreiblast)."""
+    import simulacra.saves.service as svc
+    sim = file_sim(tmp_path / "live.db")
+    await sim.params.patch([{"key": "sim.autosave_sim_hours", "value": 1}, {"key": "sim.autosave_real_minutes", "value": 0}])
+    now = [svc.time.monotonic()]
+    monkeypatch.setattr(svc.time, "monotonic", lambda: now[0])
+    await sim.runner.step(60 * 6)
+    assert [e for e in sim.saves.list() if e["kind"] == "auto"] == []                                            # sechs Sim-Stunden in Sekunden: keine Kopie
+    now[0] += sim.autosave.min_real_gap_s
+    await sim.runner.step(60)
+    assert len([e for e in sim.saves.list() if e["kind"] == "auto"]) == 1                                         # nach dem Mindestabstand wieder
+    await sim.runner.step(60 * 3)
+    assert len([e for e in sim.saves.list() if e["kind"] == "auto"]) == 1
     sim.close()
