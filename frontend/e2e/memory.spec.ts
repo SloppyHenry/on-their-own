@@ -47,7 +47,11 @@ test("Filter, Suche und Detail mit Herkunft", async ({ page, request }) => {
 });
 
 test("Wissen und Abrufe sind einsehbar", async ({ page, request }) => {
-  await post(request, "/api/sim/step", { n: 50 });
+  // so lange weiter, bis Alex einen Abruf hatte: wann das ist, hängt vom Zähler des Fake-Modells ab, den das Zurücksetzen nicht zurückstellt
+  for (let i = 0; i < 8; i++) {
+    await post(request, "/api/sim/step", { n: 50 });
+    if ((await (await request.get("/api/agents/alex/retrievals?limit=1")).json()).length) break;
+  }
   await openApp(page);
   await page.getByRole("banner").getByRole("button", { name: "Gedächtnis" }).click();
   await page.getByRole("button", { name: "Was ich weiß" }).click();
