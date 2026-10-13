@@ -164,7 +164,7 @@ function hItems(c, variant, openRect) {
     });
   })(ty);
   for (var i = 0; i < H_OBJ.length; i++) (function (o) { var spr = hFurniture(o[0], o[3]); add((o[2] + 1) * H_T - 1, function (lg) { hSprite(lg, c, spr, o[1] * H_T + 8, (o[2] + 1) * H_T - 1); }); })(H_OBJ[i]);
-  for (var g = 0; g < 17; g++) { (function (x, y) { add(y, function (lg) { hSprite(lg, c, wFence(), x, y); }); })(30 * H_T + g * H_T + 8, 4 * H_T + 4); (function (x, y) { add(y, function (lg) { hSprite(lg, c, wFence(), x, y); }); })(30 * H_T + g * H_T + 8, 16 * H_T - 1); }
+  if (!window.H_NOFENCE) for (var g = 0; g < 17; g++) { (function (x, y) { add(y, function (lg) { hSprite(lg, c, wFence(), x, y); }); })(30 * H_T + g * H_T + 8, 4 * H_T + 4); (function (x, y) { add(y, function (lg) { hSprite(lg, c, wFence(), x, y); }); })(30 * H_T + g * H_T + 8, 16 * H_T - 1); }
   var people = [['alex', 18, 14, 'down', 0], ['mira', 9, 13, 'left', 1], ['alex', 22, 9, 'right', 2]];
   if (variant !== 'zu') people = people.slice(0, 2);
   else people = [['mira', 22, 19, 'up', 1]];
