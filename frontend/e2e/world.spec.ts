@@ -86,6 +86,23 @@ test("Haus zeigt, wer drin ist; leer ohne Anzeige; Esc führt aus der Innenansic
   await post(request, "/api/sim/pause");
 });
 
+test("Puppenhaus: Klick auf einen Raum zeigt ihn groß, Esc führt Schritt für Schritt zurück ins Haus und ins Dorf", async ({ page }) => {
+  await openApp(page);
+  await openHouse(page);
+  const overlays = page.getByTestId("overlays"), labels = page.locator("[data-room]");
+  await expect(labels).not.toHaveCount(1);                                                     // ganzes Haus: alle Räume beschriftet
+  const l = await settled(page, '[data-room="house.kitchen"]');
+  await page.mouse.click(l.x + l.width / 2, l.y - 25);                                                      // auf den Küchenboden über dem Schild
+  await expect(labels).toHaveCount(1);
+  await expect(page.locator('[data-room="house.kitchen"]')).toBeVisible();
+  await expect(page.getByTestId("leave-house")).toContainText("ganzes Haus");
+  await page.keyboard.press("Escape");
+  await expect(labels).not.toHaveCount(1);
+  await expect(overlays).toHaveAttribute("data-interior", "0");
+  await page.keyboard.press("Escape");
+  await expect(overlays).toHaveAttribute("data-interior", "-1");
+});
+
 test("Ansicht umschalten: Tiefe und Flach, die Wahl bleibt nach dem Neuladen", async ({ page }) => {
   await openApp(page);
   await expect(page.getByTestId("view-menu").getByRole("button", { name: "Tiefe", exact: true })).toHaveAttribute("aria-pressed", "true");

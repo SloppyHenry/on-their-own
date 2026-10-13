@@ -12,11 +12,13 @@ Seit AP13 gilt der Stil von Mockup A (`docs/mockups/welt-optik/world.js`, von He
 | Haus, Brunnen, Bank, Laterne, Brett, Zaun, Pfosten, Vogelscheuche, Wegweiser, Briefkasten, Fass, Boot | `art/village.ts` | 1:1; das Brett zeigt so viele Zettel wie der Zustand |
 | Figuren | `art/people.ts` | Vorderansicht wie `wPerson`, dazu hinten, Seite, vier Laufbilder, Sitzen, Schlafen, Werkzeug; Palette je Agent, unbekannte aus der Kennung |
 | Möbel, Pflanzen nach Stufe, Baustelle, Vorräte, Kleinkram | `art/things.ts` | im Stil des Mockups; unbekannte Arten als neutrale Kiste |
-| Dorf nach Mockup A: Boden, Himmel, Effekte, Haus innen | `world/dorf/boden.ts`, `bild.ts`, `innen.ts` | `wTexel` und `frame()` aus `world.js` unverändert, Formen und Deko aus `look` der Weltdatei (AP14) |
+| Dorf nach Mockup A: Boden, Himmel, Effekte | `world/dorf/boden.ts`, `bild.ts` | `wTexel` und `frame()` aus `world.js` unverändert, Formen und Deko aus `look` der Weltdatei (AP14) |
 | Boden (Gras, Wege, Pflaster, Wasser, Ufer, Steg, Beete, Böden innen) für Welten ohne `look` | `world/view/ground.ts` | wie `wTexel`, aus Kacheln und Orten; Grasbüschel, Blumen, Schatten |
 | Himmel, Wolken, Sterne, Mond, Hügel | `view/sky.ts` | wie im Mockup |
 | Lichtschein, Teilchen, Regen, Schnee, Nebel, Vignette | `view/post.ts` | Farbstimmung und Tilt-Shift per CSS (`WorldCanvas.tsx`) |
-| Wände der Innenansicht, Rauch, Schlafzeichen | `view/pieces.ts` | |
+| Haus innen als Puppenhaus (Mockup innen2): Rückwände mit Tapeten, Böden je Raumstil, Teppiche, dünne Wände, Licht | `world/dorf/haus/plan.ts`, `haus/bild.ts` | Stile, Wandschmuck und Einrichtung aus `look.interior` der Weltdatei (Frage 23) |
+| Einrichtung innen: Fenster, Bilder, Uhr, Spiegel, Regale, Pflanzen, Lampen, Schrank, Sessel, Küchenzeile, Korb, Katze … | `world/art/rooms.ts` | aus dem Mockup innen2 übernommen |
+| Rauch, Schlafzeichen | `view/pieces.ts` | |
 | Icons der Oberfläche | `lib/px.ts` | 8 × 8 Pixel, einfarbig |
 
 Der Stil (gemütliches Farmdorf, 16-Pixel-Kacheln, dunkle Konturen, warme Farben, gewölbter Horizont) ist an das Genre angelehnt, **ohne Material aus einem bestehenden Spiel zu verwenden**.

@@ -80,7 +80,10 @@ test("Leistung: Startwelt und große Welt", async ({ page, request }) => {
   await settled(page, '[data-house="0"]');
   await page.mouse.click((await settled(page, '[data-house="0"]')).x, (await settled(page, '[data-house="0"]')).y);
   out.dorf_haus_innen = await measure(page, 3000, 0);
-  await page.keyboard.press("Escape");
+  const l = await settled(page, '[data-room="house.living"]');
+  await page.mouse.click(l.x + l.width / 2, l.y - 25);
+  out.dorf_haus_raum = await measure(page, 3000, 0);
+  await page.keyboard.press("0");
   const snap = await (await request.get("/api/state")).json();
   await page.evaluate((s) => { (window as unknown as { __sim: { getState(): { setSnapshot(x: unknown): void } } }).__sim.getState().setSnapshot(s); }, bigSnapshot(snap));
   await page.waitForTimeout(1500);

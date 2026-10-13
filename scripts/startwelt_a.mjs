@@ -100,11 +100,30 @@ const look = {
     pos("forest_wood", 0, 0, "none"), pos("forest_mushrooms", 0, 0, "none"), pos("forest_seeds", 0, 0, "none"),
   ]),
   door: { outside: door, inside: inDoor, at: [A("W_HOUSE").x, A("W_HOUSE").y] },
-  interior: { rect: [IX, IY, 24, 13] },
+  interior: {
+    rect: [IX, IY, 24, 13],
+    // Einrichtung nach dem Mockup docs/mockups/welt-optik/innen2.html (Frage 23): Tapete, Boden, Vorhang je Raum; Wanddeko
+    // [Art, Kachel-x, Raum, Abstand von oben]; Möbel [Art, x, y] (Kacheln); Teppiche
+    rooms: {
+      "house.bedroom_a": { paper: "streifen", floor: "dielen", curtain: "#5d7fb0" }, "house.bedroom_b": { paper: "blumen", floor: "dielenHell", curtain: "#d97a92" },
+      "house.workshop": { paper: "bretter", floor: "werkstatt", curtain: "#a9884e" }, "house.kitchen": { paper: "kacheln", floor: "fliesen", curtain: "#e0a458" },
+      "house.living": { paper: "ranken", floor: "parkett", curtain: "#b04a4a" },
+    },
+    wall: [["fenster", 29.4, "house.bedroom_a", 6], ["bild:see", 27.3, "house.bedroom_a", 12], ["fenster", 36.4, "house.bedroom_b", 6], ["bild:blume", 34.4, "house.bedroom_b", 11],
+      ["wandregal:buecher", 38.3, "house.bedroom_b", 12], ["fenster", 44.3, "house.workshop", 6], ["werkzeugwand", 41.4, "house.workshop", 9], ["fenster", 46.6, "house.workshop", 6],
+      ["toepfe", 27.4, "house.kitchen", 8], ["wandregal:glaeser", 32.6, "house.kitchen", 10], ["uhr", 34.9, "house.kitchen", 9], ["bild:portrait", 38.6, "house.living", 10],
+      ["spiegel", 41.2, "house.living", 9], ["wandregal:deko", 45.4, "house.living", 12]],
+    decor: [["nachttisch", 29, 5], ["schrank", 32, 4], ["pflanze", 27, 8], ["stehlampe", 39, 4], ["katze", 34, 8], ["pflanze:gross", 39, 8], ["saegebock", 44, 7], ["kiste", 41, 8], ["kiste", 42, 8],
+      ["kuechenzeile", 33, 10], ["objekt:table", 30, 12], ["stehlampe", 37, 11], ["sessel:#5d8fb0", 45, 13], ["pflanze:gross", 37, 14], ["kerze", 44, 12]],
+    rugs: [["oval", 30, 7.3, 26, 11, "#5d7fb0", "#86a6d0", "#3f5f8c"], ["oval", 37, 7.3, 22, 11, "#d97a92", "#f2b0c0", "#b05a72"], ["teppich", 40, 11, 46, 14], ["laeufer", 29, 12.4, 34]],
+  },
 };
+// Große Möbel sperren ihre Kachel (sonst liefe man hindurch)
+const MOEBEL = [[29, 5], [32, 4], [27, 8], [39, 4], [39, 8], [44, 7], [41, 8], [42, 8], [32, 10], [33, 10], [34, 10], [30, 12], [37, 11], [45, 13], [37, 14]];
+for (const [x, y] of MOEBEL) grid[y][x] = "m";
 look.decor = look.decor.filter(([k, vx, vy]) => !(k === "rock" && vx === 210 && vy === 150));   // dieser Stein ist die Quelle „shore_rocks“
 
-const types = { ...old.tile_types, fence: { char: "f", walkable: false, cost: 0, color: "#a96f42", label: "Zaun" } };
+const types = { ...old.tile_types, fence: { char: "f", walkable: false, cost: 0, color: "#a96f42", label: "Zaun" }, furniture: { char: "m", walkable: false, cost: 0, color: "#a96f42", label: "Möbel" } };
 const world = {
   ...old, name: "Dorf am See", size: [W, H], home: door, tile_types: types, tiles: grid.map((r) => r.join("")),
   links: [[door, inDoor]], locations, objects, resource_nodes, agents, look,

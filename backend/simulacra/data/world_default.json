@@ -67,6 +67,13 @@
    "cost": 0,
    "color": "#a96f42",
    "label": "Zaun"
+  },
+  "furniture": {
+   "char": "m",
+   "walkable": false,
+   "cost": 0,
+   "color": "#a96f42",
+   "label": "Möbel"
   }
  },
  "name": "Dorf am See",
@@ -79,17 +86,17 @@
   "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
   "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
   "TTTTTTTTTTTTTTTTTTTTTTTTTT########################T",
-  "TTTTTTTTTTTTTTTTTTTTTTTTTT#______#______#________#T",
-  "TTTTTTTTTTTTTTTTTTTTTTTTTT#______#______#________#T",
+  "TTTTTTTTTTTTTTTTTTTTTTTTTT#_____m#_____m#________#T",
+  "TTTTTTTTTTTTTTTTTTTTTTTTTT#__m___#______#________#T",
   "TTT..................TTTTT#______#______#________#T",
-  "TTT..................TTTTT#______#______#________#T",
-  "TTT..######..T.T...T.TTTTT#______#______#________#T",
+  "TTT..................TTTTT#______#______#___m____#T",
+  "TTT..######..T.T...T.TTTTT#m_____#_____m#mm______#T",
   "TTT..######..........TTTTT####+####+########+#####T",
-  "TTT..##+###T...T~~~~.TTTTT#_________#____________#T",
-  "TTT.....,.......~~~~~TTTTT#_________#____________#T",
-  "TTT...T..,,,,,,_~~~~~TTTTT#_________+____________#T",
-  "TTTT.fffff.,,,..~~~~.TTTTT#_________#____________#T",
-  "TTT.f....f,,,........TTTTT#_________#____________#T",
+  "TTT..##+###T...T~~~~.TTTTT#_____mmm_#____________#T",
+  "TTT.....,.......~~~~~TTTTT#_________#m___________#T",
+  "TTT...T..,,,,,,_~~~~~TTTTT#___m_____+____________#T",
+  "TTTT.fffff.,,,..~~~~.TTTTT#_________#________m___#T",
+  "TTT.f....f,,,........TTTTT#_________#m___________#T",
   "TTT.f....,.....T.....TTTTT################+#######T",
   "TTT.f....f...........TTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
   "TTT..fffff.........T.TTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
@@ -2462,6 +2469,231 @@
     3,
     24,
     13
+   ],
+   "rooms": {
+    "house.bedroom_a": {
+     "paper": "streifen",
+     "floor": "dielen",
+     "curtain": "#5d7fb0"
+    },
+    "house.bedroom_b": {
+     "paper": "blumen",
+     "floor": "dielenHell",
+     "curtain": "#d97a92"
+    },
+    "house.workshop": {
+     "paper": "bretter",
+     "floor": "werkstatt",
+     "curtain": "#a9884e"
+    },
+    "house.kitchen": {
+     "paper": "kacheln",
+     "floor": "fliesen",
+     "curtain": "#e0a458"
+    },
+    "house.living": {
+     "paper": "ranken",
+     "floor": "parkett",
+     "curtain": "#b04a4a"
+    }
+   },
+   "wall": [
+    [
+     "fenster",
+     29.4,
+     "house.bedroom_a",
+     6
+    ],
+    [
+     "bild:see",
+     27.3,
+     "house.bedroom_a",
+     12
+    ],
+    [
+     "fenster",
+     36.4,
+     "house.bedroom_b",
+     6
+    ],
+    [
+     "bild:blume",
+     34.4,
+     "house.bedroom_b",
+     11
+    ],
+    [
+     "wandregal:buecher",
+     38.3,
+     "house.bedroom_b",
+     12
+    ],
+    [
+     "fenster",
+     44.3,
+     "house.workshop",
+     6
+    ],
+    [
+     "werkzeugwand",
+     41.4,
+     "house.workshop",
+     9
+    ],
+    [
+     "fenster",
+     46.6,
+     "house.workshop",
+     6
+    ],
+    [
+     "toepfe",
+     27.4,
+     "house.kitchen",
+     8
+    ],
+    [
+     "wandregal:glaeser",
+     32.6,
+     "house.kitchen",
+     10
+    ],
+    [
+     "uhr",
+     34.9,
+     "house.kitchen",
+     9
+    ],
+    [
+     "bild:portrait",
+     38.6,
+     "house.living",
+     10
+    ],
+    [
+     "spiegel",
+     41.2,
+     "house.living",
+     9
+    ],
+    [
+     "wandregal:deko",
+     45.4,
+     "house.living",
+     12
+    ]
+   ],
+   "decor": [
+    [
+     "nachttisch",
+     29,
+     5
+    ],
+    [
+     "schrank",
+     32,
+     4
+    ],
+    [
+     "pflanze",
+     27,
+     8
+    ],
+    [
+     "stehlampe",
+     39,
+     4
+    ],
+    [
+     "katze",
+     34,
+     8
+    ],
+    [
+     "pflanze:gross",
+     39,
+     8
+    ],
+    [
+     "saegebock",
+     44,
+     7
+    ],
+    [
+     "kiste",
+     41,
+     8
+    ],
+    [
+     "kiste",
+     42,
+     8
+    ],
+    [
+     "kuechenzeile",
+     33,
+     10
+    ],
+    [
+     "objekt:table",
+     30,
+     12
+    ],
+    [
+     "stehlampe",
+     37,
+     11
+    ],
+    [
+     "sessel:#5d8fb0",
+     45,
+     13
+    ],
+    [
+     "pflanze:gross",
+     37,
+     14
+    ],
+    [
+     "kerze",
+     44,
+     12
+    ]
+   ],
+   "rugs": [
+    [
+     "oval",
+     30,
+     7.3,
+     26,
+     11,
+     "#5d7fb0",
+     "#86a6d0",
+     "#3f5f8c"
+    ],
+    [
+     "oval",
+     37,
+     7.3,
+     22,
+     11,
+     "#d97a92",
+     "#f2b0c0",
+     "#b05a72"
+    ],
+    [
+     "teppich",
+     40,
+     11,
+     46,
+     14
+    ],
+    [
+     "laeufer",
+     29,
+     12.4,
+     34
+    ]
    ]
   }
  }

@@ -32,6 +32,8 @@ export interface Pose {
   toolSpr: HTMLCanvasElement | null;
   toolAngle: number;
   sleeping: boolean;
+  /** Sitzt auf Sofa oder Bank (Innenansicht hebt die Figur an und sortiert sie vor das Möbel). */
+  sitting?: boolean;
 }
 
 const BED_KINDS = new Set(["bed"]), SEAT_KINDS = new Set(["sofa", "bench"]);
@@ -90,6 +92,6 @@ export class Figures {
     const sit = !v.moving && (a.action?.type === "rest" || a.action?.params?.mode === "sit") && kinds.some((k) => SEAT_KINDS.has(k));
     const working = !v.moving && a.action != null && a.action.type in TOOL_FOR_ACTION;
     const tl = working ? TOOL_FOR_ACTION[a.action!.type] : null;
-    return { ...base, spr: figure(a.id, sit ? "down" : dir, frame, sit ? "sit" : ""), lift: working ? Math.abs(Math.sin(t * 9)) : 0, toolSpr: tl ? tool(tl) : null, toolAngle: tl === "can" ? Math.sin(t * 3) * 0.3 : Math.sin(t * 9) * 0.6 };
+    return { ...base, sitting: sit, spr: figure(a.id, sit ? "down" : dir, frame, sit ? "sit" : ""), lift: working ? Math.abs(Math.sin(t * 9)) : 0, toolSpr: tl ? tool(tl) : null, toolAngle: tl === "can" ? Math.sin(t * 3) * 0.3 : Math.sin(t * 9) * 0.6 };
   }
 }

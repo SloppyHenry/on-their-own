@@ -28,14 +28,15 @@ export function Overlays({ bridge }: { bridge: WorldBridge }) {
   const world = useSimStore((s) => s.world);
   const root = useRef<HTMLDivElement>(null);
   const select = useUiStore((s) => s.select);
-  const [interior, setInterior] = useState<{ i: number; rooms: string[] }>({ i: -1, rooms: [] });
+  const [interior, setInterior] = useState<{ i: number; rooms: string[]; room: string | null }>({ i: -1, rooms: [], room: null });
 
   useEffect(() => {
-    let cur = -1;
+    let cur = "";
     return bridge.onFrame((f) => {
       const el = root.current;
       if (!el) return;
-      if (f.interior !== cur) { cur = f.interior; setInterior({ i: f.interior, rooms: f.interiorRooms }); }
+      const key = `${f.interior}|${f.room ?? ""}`;
+      if (key !== cur) { cur = key; setInterior({ i: f.interior, rooms: f.room ? [f.room] : f.interiorRooms, room: f.room ?? null }); }
       el.dataset.houses = f.houses.map((h) => (h.occupants.length ? "besetzt" : "leer")).join(",");
       el.dataset.interior = String(f.interior);
       const bubbles = bridge.bubbles(), pulses = useSimStore.getState().pulses, now = Date.now(), W = el.clientWidth, H = el.clientHeight;
@@ -74,7 +75,7 @@ export function Overlays({ bridge }: { bridge: WorldBridge }) {
     });
   }, [bridge]);
 
-  const inHouse = interior.i >= 0 ? Object.values(world?.agents ?? {}).filter((a) => interior.rooms.includes(a.location_id)).map((a) => a.name) : [];
+  const inHouse = interior.i >= 0 && !interior.room ? Object.values(world?.agents ?? {}).filter((a) => interior.rooms.includes(a.location_id)).map((a) => a.name) : [];
   return (
     <div ref={root} className="pointer-events-none absolute inset-0 overflow-hidden" data-testid="overlays"
       onClick={(e) => { const b = (e.target as HTMLElement).closest<HTMLElement>("[data-bubble]"); if (b?.dataset.seq) select({ kind: "event", id: b.dataset.seq }); }}>
@@ -82,7 +83,7 @@ export function Overlays({ bridge }: { bridge: WorldBridge }) {
       {interior.i >= 0 && (
         <button type="button" data-testid="leave-house" onClick={() => bridge.commands.leaveInterior?.()}
           className="pointer-events-auto absolute left-3 top-3 z-[4] rounded-full border-2 border-[#3b2c3d] bg-[#fff8ec] px-4 py-1.5 text-sm font-semibold text-[#3b2c3d] shadow">
-          ← Haus{inHouse.length ? ` · ${inHouse.join(", ")}` : ""} <span className="font-normal opacity-70">(Esc: zurück ins Dorf)</span>
+          {interior.room ? <>← ganzes Haus <span className="font-normal opacity-70">(Esc)</span></> : <>← Haus{inHouse.length ? ` · ${inHouse.join(", ")}` : ""} <span className="font-normal opacity-70">(Esc: zurück ins Dorf)</span></>}
         </button>
       )}
       {interior.rooms.map((id) => (

@@ -69,7 +69,7 @@ Jeder Aufruf liefert `EditResult(events, value)`.
 
 ## Übergänge und Darstellung (AP14)
 - **`links`** in der Weltdatei: Liste von Kachelpaaren `[[x, y], [x, y]]`, die wie Nachbarn verbunden sind (in beide Richtungen), z. B. die Haustür draußen und der Flur im Innenbereich. Beide Kacheln müssen begehbar sein. Wegsuche (Backend und Vorschau im Browser) und Bewegung gehen hindurch; Hören und Sehen bleiben getrennt (Ort und Hörweite).
-- **`look`** beschreibt, wie die Welt aussieht (`style: "mockup-a"`): Lage des Dorfs auf der Karte (`origin`), Formen von Wegen, Platz, See, Garten, Beeten, Steg, die Deko (`decor`, wie `wObjects`), Lichter, die Bildstelle einzelner Objekte (`place`), Haustür und Innenbereich. Die Startwelt wird mit `node scripts/startwelt_a.mjs` aus `docs/mockups/welt-optik/world.js` erzeugt.
+- **`look`** beschreibt, wie die Welt aussieht (`style: "mockup-a"`): Lage des Dorfs auf der Karte (`origin`), Formen von Wegen, Platz, See, Garten, Beeten, Steg, die Deko (`decor`, wie `wObjects`), Lichter, die Bildstelle einzelner Objekte (`place`), Haustür und Innenbereich. `look.interior` gestaltet die Innenansicht (Puppenhaus): `rect` (Innenbereich), `rooms` (je Ort-ID Tapete `paper`, Boden `floor`, Vorhangfarbe `curtain`), `wall` (Wandschmuck an der Rückwand: Art, Kachel x, Ort-ID, Pixel unter der Wandoberkante), `decor` (Einrichtung auf dem Boden: Art, Kachel x, y), `rugs` (Teppiche). Stellplätze großer Einrichtung sind als Kachelart „Möbel“ (`m`, nicht begehbar) gesperrt. Die Startwelt wird mit `node scripts/startwelt_a.mjs` aus `docs/mockups/welt-optik/world.js` erzeugt.
 
 ## Alte Spielstände
 - Datenbanken von vor den Kachelarten werden beim Öffnen automatisch migriert (Migration 002).

@@ -42,7 +42,7 @@ Was SIMULACRA bewusst vereinfacht, was gemessen nicht ideal ist und was als Näc
 - **Deko ohne Zustand:** Laternen, Briefkasten, Fässer, Büsche am Haus, Schilf, Steine, Boot, Vogelscheuche und Sonnenblumen sind bis AP14 nur gezeichnet; Agenten kennen sie nicht.
 - **Ohne Grafikkarte** (Software-Rendering, z. B. Browser in einer VM): Die Dorfansicht (AP14) hält 60 fps. In der Ansicht für Welten ohne `look` kostet die Tilt-Shift-Unschärfe viel: gemessen 25–30 fps in „Tiefe“, 58 fps in „Flach“. Abhilfe: „Flach“ wählen oder reduzierte Bewegung einschalten (dann ohne Tilt-Shift und Teilchen). Mit Grafikkarte überall 60 fps (`docs/status/messung/ap13-leistung-gpu.json`).
 - **Ferne Böden** werden in gröberen Stufen gelesen; feine Muster (Pflaster) erscheinen in der Gesamtansicht als ruhige Fläche.
-- **Innenansicht** zeigt immer das ganze Gebäude; sehr breite Gebäude werden links und rechts beschnitten (Ziehen hilft).
+- **Innenansicht** (Puppenhaus) ordnet Räume nach ihrer oberen Kante in Reihen; Räume, die eine Reihe nur teilweise überdecken, bekommen keine eigene Rückwand. Wandschmuck und Einrichtung stehen fest in `look.interior` der Weltdatei und wandern nicht mit, wenn Agenten Möbel bauen oder abreißen. Der Kamin leuchtet nur, wenn er in der Simulation brennt (im Mockup nach Tageszeit).
 - **Mitspieler-Vorschau** sendet nichts; die Vorschau-Figur bewegt sich nicht, gesperrte Kacheln aus Regeln (`forbidden`) kennt die Wegsuche im Browser nicht.
 - Beim Wechsel in den Gedächtnis-Inspektor wird die Welt neu aufgebaut (Kameraposition geht verloren).
 - Nebenfiguren und Tiere haben eine aus der Kennung abgeleitete Figur.

@@ -8,7 +8,8 @@ import { silhouette } from "../view/pieces";
 import type { Target } from "../view/scene";
 import type { Caster } from "./boden";
 import type { Thing } from "./bild";
-import type { InnenThing } from "./innen";
+import * as D from "../art/rooms";
+import { decorLight, decorSprite as hausDecor, type HausThing } from "./haus/bild";
 import { T, isInside, type Look } from "./look";
 import { decorSprite } from "./sprites";
 
@@ -77,27 +78,34 @@ export function outdoor(c: Ctx): Thing[] {
   return out;
 }
 
-/** Drinnen: Möbel, Vorräte, Figuren (Weltpixel). */
-export function indoor(c: Ctx): InnenThing[] {
-  const { w, L } = c, out: InnenThing[] = [], minute = w.clock.minute;
+/** Drinnen: Möbel, Vorräte, Einrichtung aus `look.interior`, Figuren (Weltpixel), wie im Mockup innen2. */
+export function indoor(c: Ctx): HausThing[] {
+  const { w, L } = c, out: HausThing[] = [], minute = w.clock.minute;
   const hov = (spr: HTMLCanvasElement, t: Target) => (same(t, c.hover) ? silhouette(spr) : null);
+  const foot = (x: number, y: number) => ({ x: x * T + 8, y: (y + 1) * T - 1 });
   for (const o of Object.values(w.objects)) {
     if (o.holder || o.x == null || o.y == null || !isInside(L, o.x, o.y) || (o.kind === "door" && !o.state.locked)) continue;
     const spr = objectSprite(objectKey(o, minute)), target: Target = { kind: "object", id: o.id };
-    out.push({ x: o.x * T + 8, y: (o.y + 1) * T - 1, spr, target, hover: hov(spr, target) });
+    out.push({ ...foot(o.x, o.y), spr, target, hover: hov(spr, target), licht: (o.kind === "fireplace" || o.kind === "stove") && o.state.lit ? (o.kind === "fireplace" ? 1.3 : 0.6) : undefined });
   }
   for (const n of Object.values(w.resources)) {
     if (n.amount < 1 || n.x == null || n.y == null || !isInside(L, n.x, n.y) || n.resource === "water") continue;
-    const spr = resourceSprite(resourceKey(n)), target: Target = { kind: "resource", id: n.id };
-    out.push({ x: n.x * T + 8, y: (n.y + 1) * T - 1.1, spr, target, hover: hov(spr, target) });
+    const spr = n.resource === "food" ? D.korb : resourceSprite(resourceKey(n)), target: Target = { kind: "resource", id: n.id };
+    out.push({ ...foot(n.x, n.y), spr, target, hover: hov(spr, target) });
+  }
+  for (const [kind, x, y] of L.interior.decor ?? []) {
+    const spr = hausDecor(kind, c.lit, ["#6cb7f3", "#cfefff"], "#b04a4a"), light = decorLight(kind);
+    if (spr) out.push({ ...foot(x, y), spr, licht: c.lit && light ? light : undefined });
   }
   for (const a of Object.values(w.agents) as AgentInfo[]) {
     const pos = c.figures.position(a.id);
     if (!pos || !isInside(L, Math.floor(pos.x / T), Math.floor(pos.y / T))) continue;
     const p = c.figures.pose(a, c.t, kindAt(w));
     if (!p) continue;
-    const target: Target = { kind: "agent", id: a.id };
-    out.push({ x: p.x, y: p.inBed ? p.y - 2 : p.y + 0.3, spr: p.spr, target, hover: hov(p.spr, target), ring: a.id === c.selected ? accentOf(a.id) : null, lift: p.lift, tool: p.toolSpr, toolAngle: p.toolAngle });
+    const target: Target = { kind: "agent", id: a.id }, ring = a.id === c.selected ? accentOf(a.id) : null;
+    if (p.inBed) out.push({ x: p.x, y: p.y + 0.5, spr: p.spr, target, hover: hov(p.spr, target), ring });
+    else if (p.sitting) out.push({ x: p.x, y: (a.y + 1) * T - 0.5, hoch: 5, spr: p.spr, target, hover: hov(p.spr, target), ring });   // vor dem Sofa einsortiert, angehoben
+    else out.push({ x: p.x, y: p.y, hoch: p.lift, spr: p.spr, target, hover: hov(p.spr, target), ring, tool: p.toolSpr, toolAngle: p.toolAngle });
   }
   return out;
 }

@@ -24,8 +24,15 @@ export interface Look {
   /** Lage im Bild (Dorfkoordinaten) für Dinge aus dem Zustand; `sprite: "none"` = im Bild schon enthalten (Beete, Steg …). */
   place: Record<string, { at: [number, number]; sprite?: string }>;
   door: { outside: [number, number]; inside: [number, number]; at: [number, number] };
-  /** Innenbereich des Hauses in Kacheln [x, y, w, h]. */
-  interior: { rect: [number, number, number, number] };
+  /** Innenbereich des Hauses in Kacheln [x, y, w, h] und seine Einrichtung (Mockup innen2): Stil je Raum, Wanddeko
+   *  [Art, Kachel-x, Raum, Abstand von oben], Möbel [Art, x, y], Teppiche. */
+  interior: {
+    rect: [number, number, number, number];
+    rooms?: Record<string, { paper: string; floor: string; curtain: string }>;
+    wall?: [string, number, string, number][];
+    decor?: [string, number, number][];
+    rugs?: (string | number)[][];
+  };
 }
 
 export const lookOf = (w: World | null): Look | null => ((w?.look as unknown as Look | null | undefined)?.style === "mockup-a" ? (w!.look as unknown as Look) : null);

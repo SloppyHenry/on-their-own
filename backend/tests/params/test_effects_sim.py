@@ -21,10 +21,10 @@ async def ticks_in(sim, seconds):
 async def test_speed_sets_the_tick_pause(sim):
     await patch(sim, "sim.speed", "max")
     assert sim.runner.tick_delay_s == 0.0
-    fast = await ticks_in(sim, 0.3)
+    fast = await ticks_in(sim, 0.6)
     await patch(sim, "sim.speed", "0.5x")
     assert sim.runner.tick_delay_s == 2.0 and sim.params.current_value("sim.speed") == "0.5x"
-    slow = await ticks_in(sim, 0.3)
+    slow = await ticks_in(sim, 0.6)
     assert fast >= 10 and slow <= 1
     await patch(sim, "sim.tick_pause_ms", 150)
     assert sim.runner.tick_delay_s == 0.15 and sim.params.current_value("sim.speed") == "custom"

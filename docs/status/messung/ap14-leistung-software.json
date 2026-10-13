@@ -7,55 +7,62 @@
   "bild_ms_median": 16.7,
   "bild_ms_95": 16.7,
   "rechen_ms_median": 0.1,
-  "rechen_ms_95": 12
+  "rechen_ms_95": 10.9
  },
  "dorf_tiefe_2x_verschieben": {
-  "fps": 59.8,
+  "fps": 59.9,
   "bild_ms_median": 16.7,
-  "bild_ms_95": 16.8,
+  "bild_ms_95": 16.7,
   "rechen_ms_median": 0.1,
-  "rechen_ms_95": 11.9
+  "rechen_ms_95": 11
  },
  "dorf_tiefe_2x_ohne_tiltshift": {
-  "fps": 60,
-  "bild_ms_median": 16.7,
-  "bild_ms_95": 16.7,
-  "rechen_ms_median": 0.1,
-  "rechen_ms_95": 5.8
- },
- "dorf_flach_1x": {
-  "fps": 60.2,
+  "fps": 60.1,
   "bild_ms_median": 16.7,
   "bild_ms_95": 16.8,
   "rechen_ms_median": 0.1,
-  "rechen_ms_95": 5.4
- },
- "dorf_haus_innen": {
-  "fps": 60,
-  "bild_ms_median": 16.7,
-  "bild_ms_95": 16.7,
-  "rechen_ms_median": 0.3,
-  "rechen_ms_95": 0.3
- },
- "gross_tiefe_zoom1_kamerafahrt": {
-  "fps": 30.1,
-  "bild_ms_median": 33.3,
-  "bild_ms_95": 50,
-  "rechen_ms_median": 1.9,
-  "rechen_ms_95": 5
- },
- "gross_tiefe_gesamt": {
-  "fps": 28.6,
-  "bild_ms_median": 33.3,
-  "bild_ms_95": 50,
-  "rechen_ms_median": 2.6,
   "rechen_ms_95": 5.1
  },
- "gross_tiefe_gesamt_kamerafahrt": {
-  "fps": 31,
+ "dorf_flach_1x": {
+  "fps": 60.1,
+  "bild_ms_median": 16.7,
+  "bild_ms_95": 16.7,
+  "rechen_ms_median": 0.1,
+  "rechen_ms_95": 4.9
+ },
+ "dorf_haus_innen": {
+  "fps": 60.1,
+  "bild_ms_median": 16.7,
+  "bild_ms_95": 16.8,
+  "rechen_ms_median": 0.5,
+  "rechen_ms_95": 0.7
+ },
+ "dorf_haus_raum": {
+  "fps": 60.1,
+  "bild_ms_median": 16.7,
+  "bild_ms_95": 16.8,
+  "rechen_ms_median": 0.5,
+  "rechen_ms_95": 0.6
+ },
+ "gross_tiefe_zoom1_kamerafahrt": {
+  "fps": 32.9,
+  "bild_ms_median": 33.3,
+  "bild_ms_95": 33.4,
+  "rechen_ms_median": 1.7,
+  "rechen_ms_95": 4.3
+ },
+ "gross_tiefe_gesamt": {
+  "fps": 33.5,
   "bild_ms_median": 33.3,
   "bild_ms_95": 33.4,
   "rechen_ms_median": 2.5,
+  "rechen_ms_95": 2.9
+ },
+ "gross_tiefe_gesamt_kamerafahrt": {
+  "fps": 33.5,
+  "bild_ms_median": 33.3,
+  "bild_ms_95": 33.4,
+  "rechen_ms_median": 2.4,
   "rechen_ms_95": 4.8
  }
 }

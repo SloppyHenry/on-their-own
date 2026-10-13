@@ -33,6 +33,8 @@ export interface Frame {
   /** Innenansicht eines Gebäudes (Index) oder -1. */
   interior: number;
   interiorRooms: string[];
+  /** Innenansicht: ein Raum groß (Ort) statt des ganzen Hauses. */
+  room?: string | null;
   /** Ziel der Wegvorschau (Mitspieler-Vorschau) in Bildschirmpixeln. */
   goal: { x: number; y: number } | null;
 }

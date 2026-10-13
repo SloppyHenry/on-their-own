@@ -2,7 +2,7 @@
 // Bildes (nichts wird neu abgetastet, darum flimmert nichts), Verschieben mit WASD, Pfeilen und Ziehen, Klick aufs Haus zeigt
 // es von innen. Bildaufbau im Takt von A (alle 40 ms), Anzeige in jedem Bild.
 import type { World } from "../../store/types";
-import { css, moodAt, weatherMood, type Mood } from "../art/palette";
+import { moodAt, weatherMood, type Mood } from "../art/palette";
 import type { PlayerHooks } from "../view/WorldView";
 import { Figures } from "../view/figures";
 import { hitTest, locationAt } from "../view/picking";
@@ -12,7 +12,8 @@ import type { Target } from "../view/scene";
 import type { WorldBridge } from "../worldBridge";
 import { unproject, type Mode } from "./abbild";
 import { Dorfbild, type Drawn } from "./bild";
-import { drawInnen, floorTexture, wallPieces, type Piece } from "./innen";
+import { Hausbild, type HausOut, type Tageszeit } from "./haus/bild";
+import { makePlan } from "./haus/plan";
 import { T, isInside, lookOf, type Look } from "./look";
 import { casters, indoor, occupants, outdoor } from "./szene";
 
@@ -43,9 +44,11 @@ export class DorfView {
   private lastCompose = 0;
   private lastT = 0;
   private raf = 0;
-  private floor: HTMLCanvasElement | null = null;
-  private walls: Piece[] = [];
-  private innen = { z: 1, ox: 0, oy: 0 };
+  private haus: Hausbild | null = null;
+  private hausKey = "";
+  private innen: HausOut | null = null;
+  /** Innenansicht: ganzes Haus (null) oder ein Raum groß (Ort). */
+  room: string | null = null;
   private off: (() => void)[] = [];
 
   constructor(private canvas: HTMLCanvasElement, private host: HTMLElement, private bridge: WorldBridge, look: Look) {
@@ -60,7 +63,7 @@ export class DorfView {
     on(window, "keydown", (e) => { if (!(e.target as HTMLElement)?.closest?.("input, textarea, select, [contenteditable]")) this.keys.add(e.code); });
     on(window, "keyup", (e) => this.keys.delete(e.code));
     on(window, "blur", () => this.keys.clear());
-    bridge.commands.fit = () => { this.leaveInterior(); this.Z = 1; this.o = this.base(); };
+    bridge.commands.fit = () => { this.leaveInterior(true); this.Z = 1; this.o = this.base(); };
     bridge.commands.focusTile = (x, y) => this.focusTile(x, y);
     bridge.commands.leaveInterior = () => { bridge.setFollow(null); this.leaveInterior(); };
     bridge.commands.toggleFollow = () => { const sel = bridge.selection(), f = bridge.follow(), id = sel?.kind === "agent" ? sel.id : bridge.lastAgent(); if (f) bridge.setFollow(null); else if (id) bridge.setFollow(id); };
@@ -121,7 +124,13 @@ export class DorfView {
 
   private tileAt(sx: number, sy: number): { x: number; y: number } | null {
     const L = this.look;
-    if (this.interior >= 0) return { x: Math.floor((sx - this.innen.ox) / this.innen.z / T), y: Math.floor((sy - this.innen.oy) / this.innen.z / T) };
+    if (this.interior >= 0) {
+      const h = this.innen, P = this.haus?.plan;
+      if (!h || !P) return null;
+      const bx = h.box.x + (sx - h.ox) / h.z, by = h.box.y + (sy - h.oy) / h.z;
+      if (bx < h.box.x || by < h.box.y || bx >= h.box.x + h.box.w || by >= h.box.y + h.box.h) return { x: -1, y: -1 };   // neben dem Bild
+      return { x: Math.floor((bx + P.rect[0] * T) / T), y: Math.floor(P.Yinv(by) / T) };
+    }
     const b = this.toBuffer(sx, sy), v = unproject(this.bild.frame, b.x, b.y);
     return v ? { x: Math.floor((v.x + L.origin[0]) / T), y: Math.floor((v.y + L.origin[1]) / T) } : null;
   }
@@ -169,6 +178,7 @@ export class DorfView {
     if (!t) return;
     if (this.interior >= 0 && !isInside(L, t.x, t.y)) { this.bridge.select(null); this.bridge.setFollow(null); this.leaveInterior(); return; }
     const loc = locationAt(w, t.x, t.y);
+    if (this.interior >= 0 && loc && isInside(L, loc.rect[0], loc.rect[1])) this.room = loc.id;      // Klick auf einen Raum: Raum groß
     this.bridge.select(loc ? { kind: "location", id: loc.id } : null);
   }
 
@@ -181,18 +191,21 @@ export class DorfView {
   enterInterior(i: number) {
     if (i !== 0 || this.interior === 0 || !this.world) return;
     this.interior = 0;
-    this.floor = floorTexture(this.world, this.look);
-    this.walls = wallPieces(this.world, this.look);
+    this.room = null;
   }
 
-  leaveInterior() { this.interior = -1; }
+  /** Schritt zurück: aus dem Raum ins ganze Haus, aus dem Haus ins Dorf (`all`: gleich ins Dorf). */
+  leaveInterior(all = false) {
+    if (this.room && !all) { this.room = null; return; }
+    this.interior = -1; this.room = null;
+  }
 
   /** Kachel vor der Haustür (Ziel für „hingehen“). */
   doorOf(i: number): { x: number; y: number } | null { return i === 0 ? { x: this.look.door.outside[0], y: this.look.door.outside[1] } : null; }
 
   private focusTile(x: number, y: number) {
-    if (isInside(this.look, x, y)) { this.enterInterior(0); return; }
-    this.leaveInterior();
+    if (isInside(this.look, x, y)) { this.enterInterior(0); const l = this.world && locationAt(this.world, x, y); this.room = l && isInside(this.look, l.rect[0], l.rect[1]) ? l.id : null; return; }
+    this.leaveInterior(true);
     if (this.Z === 1) this.zoomTo(2);
     this.centerOn((x * T + 8 - this.look.origin[0]), (y * T + 8 - this.look.origin[1]));
   }
@@ -209,7 +222,7 @@ export class DorfView {
     if (!w || !lookOf(w) || !this.resize()) return;
     const dt = Math.min(0.1, this.lastT ? (now - this.lastT) / 1000 : 0.016), t = now / 1000, t0 = performance.now();
     this.lastT = now;
-    if (w !== this.world) { this.world = w; if (this.interior >= 0) { this.floor = floorTexture(w, this.look); this.walls = wallPieces(w, this.look); } }
+    if (w !== this.world) this.world = w;
     this.figures.update(w, dt);
     this.keysPan(dt);
     this.follow(w);
@@ -217,10 +230,11 @@ export class DorfView {
     const ctx = { w, L: this.look, figures: this.figures, t, lit: m.lights > 0.5, selected: sel?.kind === "agent" ? sel.id : null, hover: this.hover };
     const g = this.canvas.getContext("2d")!;
     if (this.interior >= 0) {
-      const [, , rw, rh] = this.look.interior.rect, z = Math.max(1, Math.floor(Math.min(this.W / (rw * T * 1.04), this.H / (rh * T + 40))));
-      const grade = m.lights > 0.5 ? css(m.grade.map((c, i) => c + ([255, 236, 210][i] - c) * 0.55) as Mood["grade"]) : null;
-      const r = drawInnen(g, this.W, this.H, z, this.look, this.floor!, this.walls, indoor(ctx), grade, t);
-      this.drawn = r.drawn; this.innen = { z, ox: r.ox, oy: r.oy };
+      const key = `${w.map.rows.join("")}|${Object.keys(w.locations).length}`;
+      if (!this.haus || key !== this.hausKey) { this.haus = new Hausbild(makePlan(w, this.look), this.look.interior.rugs ?? []); this.hausKey = key; }
+      const zeit: Tageszeit = m.stars > 0.5 ? "Nacht" : m.glowA > 0.2 ? "Abend" : w.clock.minute % 1440 < 600 ? "Morgen" : "Mittag";
+      this.innen = this.haus.render(g, this.W, this.H, { things: indoor(ctx), wall: this.look.interior.wall ?? [], zeit, lit: m.lights > 0.5, mood: m, room: this.room, top: Math.round(76 * this.dpr) });
+      this.drawn = this.innen.drawn;
     } else {
       const mode: Mode = this.bridge.mode() === "flach" ? "flach" : "tiefe", { lw, lh } = this.bufferSize();
       this.bild.layout(mode, lw, lh, this.S);
@@ -261,7 +275,8 @@ export class DorfView {
     if (!f || !p || !w.agents[f]) return;
     const inside = isInside(this.look, Math.floor(p.x / T), Math.floor(p.y / T));
     if (inside && this.interior < 0) this.enterInterior(0);
-    else if (!inside && this.interior >= 0) this.leaveInterior();
+    else if (!inside && this.interior >= 0) this.leaveInterior(true);
+    if (inside && this.world) { const l = locationAt(this.world, Math.floor(p.x / T), Math.floor(p.y / T)); if (l && isInside(this.look, l.rect[0], l.rect[1])) this.room = l.id; }
     if (!inside && this.Z > 1) this.centerOn(p.x - this.look.origin[0], p.y - 8 - this.look.origin[1]);
   }
 
@@ -282,14 +297,17 @@ export class DorfView {
       const pos = this.figures.position(a.id), inside = !!pos && isInside(L, Math.floor(pos.x / T), Math.floor(pos.y / T));
       if (!pos) return { id: a.id, x: 0, y: 0, scale: 1, visible: false, house: -1 };
       if (this.interior >= 0) {
-        const z = this.innen.z;
-        return { id: a.id, x: (this.innen.ox + pos.x * z) / d, y: (this.innen.oy + pos.y * z) / d, scale: z / d, visible: inside, house: inside ? -1 : 0 };
+        const h = this.innen, P = this.haus?.plan;
+        if (!h || !P) return { id: a.id, x: 0, y: 0, scale: 1, visible: false, house: -1 };
+        const x = h.ox + (P.X(pos.x) - h.box.x) * h.z, y = h.oy + (P.Y(pos.y) - h.box.y) * h.z;
+        const shown = inside && x >= h.ox && x <= h.ox + h.box.w * h.z && y >= h.oy && y <= h.oy + h.box.h * h.z;
+        return { id: a.id, x: x / d, y: y / d, scale: h.z / d, visible: shown, house: inside ? -1 : 0 };
       }
       const p = this.bild.p(pos.x - L.origin[0], pos.y - L.origin[1]), c = toCss(p);
       return { id: a.id, x: c.x, y: c.y, scale: (p.sc * k) / d, visible: !inside && c.x > -20 && c.x < this.W / d + 20 && c.y > 0 && c.y < this.H / d + 30, house: inside ? 0 : -1 };
     });
-    const rooms = this.interior >= 0 ? Object.values(w.locations).filter((l) => isInside(L, l.rect[0], l.rect[1]) && !l.props.fallback).map((l) => ({ id: l.id, x: (this.innen.ox + (l.rect[0] + l.rect[2] / 2) * T * this.innen.z) / d, y: (this.innen.oy + ((l.rect[1] + l.rect[3]) * T - 2) * this.innen.z) / d })) : [];
+    const rooms = this.interior >= 0 && this.innen ? this.innen.labels.map((r) => ({ id: r.id, x: r.x / d, y: r.y / d - 6 })) : [];
     const goal = this.player && this.bridge.playerPreview() ? this.player.preview().goal : null, gp = goal && !isInside(L, goal[0], goal[1]) ? toCss(this.bild.p(goal[0] * T + 8 - L.origin[0], goal[1] * T + 8 - L.origin[1])) : null;
-    this.bridge.emitFrame({ agents, houses: [{ i: 0, x: top.x, y: top.y, cy: mid.y, occupants: inHouse }], rooms, interior: this.interior, interiorRooms: rooms.map((r) => r.id), goal: gp });
+    this.bridge.emitFrame({ agents, houses: [{ i: 0, x: top.x, y: top.y, cy: mid.y, occupants: inHouse }], rooms, interior: this.interior, interiorRooms: this.haus?.plan.rooms.map((r) => r.id) ?? [], room: this.interior >= 0 ? this.room : null, goal: gp });
   }
 }

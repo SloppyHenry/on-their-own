@@ -43,6 +43,10 @@ test("Bilder AP14", async ({ page, request }) => {
   await page.keyboard.press("0");
   await openHouse(page);
   await world(page, "haus-innen");
+  const l = await settled(page, '[data-room="house.living"]');
+  await page.mouse.click(l.x + l.width / 2, l.y - 25);                    // Raum groß
+  await world(page, "haus-raum");
+  await page.keyboard.press("Escape");
   await page.keyboard.press("Escape");
   await page.setViewportSize({ width: 1440, height: 900 });
   await shot(page, "app-mittag");
@@ -50,6 +54,9 @@ test("Bilder AP14", async ({ page, request }) => {
   await page.setViewportSize({ width: 1660, height: 930 });
   await page.reload(); await openApp(page); await clear(page); await settled(page, '[data-house="0"]');
   await world(page, "dorf-abend");
+  await openHouse(page);
+  await world(page, "haus-abend");
+  await page.keyboard.press("Escape");
   await until(request, 23 * 60 + 10);
   await page.reload(); await openApp(page); await clear(page); await settled(page, '[data-house="0"]');
   await world(page, "dorf-nacht");
