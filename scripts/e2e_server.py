@@ -56,10 +56,12 @@ def prepare(sim: Simulation) -> Simulation:
     eng = sim.engine
     if eng.state.get_meta("e2e_prepared"):          # Neustart auf vorhandener Welt: nichts verändern (Abnahme Nr. 7)
         return sim
-    with eng.db.transaction():                       # Mira neben Alex in dessen Zimmer
-        a = eng.state.agent("mira")
-        a.x, a.y, a.location_id = 8, 7, eng.state.location_at(8, 7)
-        eng.state.save_agent(a)
+    with eng.db.transaction():                       # Ausgangslage der Browser-Tests: Alex und Mira nebeneinander in Alex' Zimmer
+        rx, ry, _, _ = eng.state.locations["house.bedroom_a"].rect
+        for aid, (x, y) in (("alex", (rx + 2, ry + 2)), ("mira", (rx + 3, ry + 2))):
+            a = eng.state.agent(aid)
+            a.x, a.y, a.location_id = x, y, eng.state.location_at(x, y)
+            eng.state.save_agent(a)
         eng.state.set_meta("e2e_prepared", True)
     return sim
 

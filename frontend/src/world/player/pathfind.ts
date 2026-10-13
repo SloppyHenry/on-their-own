@@ -1,10 +1,11 @@
 // Wegsuche für die Mitspieler-Vorschau: A* auf dem Kachelraster wie backend/simulacra/world/pathfinding.py
-// (4er-Nachbarschaft, Kosten je Kachelart, blockierende Objekte und verschlossene Türen sperren). Nur Vorschau, das Backend entscheidet später.
+// (4er-Nachbarschaft plus Übergänge wie die Haustür, Kosten je Kachelart, blockierende Objekte und verschlossene Türen sperren).
+// Nur Vorschau, das Backend entscheidet später.
 import type { World } from "../../store/types";
 import { OBJECT_KINDS } from "../../types/generated";
 
 export type Tile = [number, number];
-export interface PathGrid { w: number; h: number; open(x: number, y: number): boolean; cost(x: number, y: number): number }
+export interface PathGrid { w: number; h: number; open(x: number, y: number): boolean; cost(x: number, y: number): number; links?: Map<number, Tile[]> }
 
 // wie weather.MOVE_MULT im Backend
 const MOVE_MULT: Record<string, number> = { clear: 1, cloudy: 1, rain: 1.25, storm: 1.6, fog: 1.1, snow: 1.5 };
@@ -16,9 +17,12 @@ export function gridOf(w: World): PathGrid {
     if (o.holder || o.x == null || o.y == null) continue;
     if (OBJECT_KINDS[o.kind]?.blocks || (o.kind === "door" && o.state.locked)) blocked.add(`${o.x},${o.y}`);
   }
-  const h = rows.length, wd = rows[0]?.length ?? 0;
+  const h = rows.length, wd = rows[0]?.length ?? 0, links = new Map<number, Tile[]>();
+  for (const [a, b] of w.links ?? []) {
+    for (const [p, q] of [[a, b], [b, a]]) { const k = p[1] * wd + p[0]; links.set(k, [...(links.get(k) ?? []), [q[0], q[1]]]); }
+  }
   return {
-    w: wd, h,
+    w: wd, h, links,
     open: (x, y) => x >= 0 && y >= 0 && x < wd && y < h && !!type(x, y)?.walkable && !blocked.has(`${x},${y}`),
     cost: (x, y) => type(x, y)?.cost ?? 1,
   };
@@ -29,7 +33,12 @@ export function findPath(g: PathGrid, start: Tile, goal: Tile): Tile[] | null {
   if (start[0] === goal[0] && start[1] === goal[1]) return [];
   if (!g.open(goal[0], goal[1])) return null;
   const key = (x: number, y: number) => y * g.w + x, best = new Map<number, number>([[key(...start), 0]]), came = new Map<number, number>();
-  const heap = new Heap();
+  const heap = new Heap(), ends = [...(g.links?.keys() ?? [])].map((k) => [k % g.w, Math.floor(k / g.w)]);
+  const est = (x: number, y: number) => {                         // zulässige Schätzung, auch über einen Übergang (wie im Backend)
+    let d = Math.abs(x - goal[0]) + Math.abs(y - goal[1]);
+    if (ends.length) d = Math.min(d, Math.min(...ends.map(([a, b]) => Math.abs(x - a) + Math.abs(y - b))) + 1 + Math.min(...ends.map(([a, b]) => Math.abs(a - goal[0]) + Math.abs(b - goal[1]))));
+    return d;
+  };
   heap.push(0, 0, key(...start));
   let counter = 0;
   const goalK = key(...goal);
@@ -41,11 +50,10 @@ export function findPath(g: PathGrid, start: Tile, goal: Tile): Tile[] | null {
       return path.reverse();
     }
     const cx = cur % g.w, cy = Math.floor(cur / g.w);
-    for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
-      const nx = cx + dx, ny = cy + dy;
+    for (const [nx, ny] of [[cx + 1, cy], [cx - 1, cy], [cx, cy + 1], [cx, cy - 1], ...(g.links?.get(cur) ?? [])]) {
       if (!g.open(nx, ny)) continue;
       const nk = key(nx, ny), cost = best.get(cur)! + g.cost(nx, ny);
-      if (cost < (best.get(nk) ?? Infinity)) { best.set(nk, cost); came.set(nk, cur); heap.push(cost + Math.abs(nx - goal[0]) + Math.abs(ny - goal[1]), ++counter, nk); }
+      if (cost < (best.get(nk) ?? Infinity)) { best.set(nk, cost); came.set(nk, cur); heap.push(cost + est(nx, ny), ++counter, nk); }
     }
   }
   return null;

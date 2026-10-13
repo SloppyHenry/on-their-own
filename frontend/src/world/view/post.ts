@@ -49,7 +49,7 @@ export function drawAtmo(ctx: CanvasRenderingContext2D, a: Atmo) {
   ctx.fillRect(0, 0, w, h);
 }
 
-function weather(ctx: CanvasRenderingContext2D, a: Atmo) {
+export function weather(ctx: CanvasRenderingContext2D, a: Atmo) {
   const { w, h, dt } = a;
   if (a.weather === "rain" || a.weather === "storm" || a.weather === "snow") {
     const snow = a.weather === "snow";

@@ -68,6 +68,7 @@ export class Figures {
     let left = speed * dt;
     while (left > 0 && v.queue.length) {
       const q = v.queue[0], dx = q.x - v.px, dy = q.y - v.py, d = Math.hypot(dx, dy);
+      if (d > T * 1.6) { v.px = q.x; v.py = q.y; v.queue.shift(); continue; }   // durch einen Übergang (Haustür): springen, nicht gleiten
       if (d > 0.01) v.dir = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? "right" : "left") : dy > 0 ? "down" : "up";
       if (d <= left) { v.px = q.x; v.py = q.y; v.queue.shift(); left -= d; v.walked += d; } else { v.px += (dx / d) * left; v.py += (dy / d) * left; v.walked += left; left = 0; }
     }

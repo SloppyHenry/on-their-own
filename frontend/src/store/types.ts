@@ -40,6 +40,10 @@ export interface World {
   weather: WeatherInfo;
   simulation: SimStatus;
   rules: StateSnapshot["rules"];
+  /** Übergänge zwischen Kacheln, die nicht nebeneinander liegen (Haustür ↔ Innenbereich). */
+  links?: number[][][];
+  /** Darstellung der Welt (Mockup A); fehlt bei Welten ohne eigene Gestaltung (alte Spielstände). */
+  look?: StateSnapshot["look"];
   /** Ein Ereignis war unvollständig (z. B. abgeschnittene Kachelliste): Zustand neu laden. */
   stale: boolean;
 }

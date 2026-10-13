@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { clickFigure, freshWorld, openApp, openHouse, post, settled, settledTag, setView } from "./helpers";
+import { clickFigure, freshWorld, moveAgent, openApp, openHouse, post, settled, settledTag, setView } from "./helpers";
 
 test.beforeEach(async ({ request }) => { await freshWorld(request); });
 
@@ -26,33 +26,48 @@ for (const view of ["Tiefe", "Flach"] as const) {
   });
 }
 
-test("Namensschild sitzt unter der Figur und folgt ihr beim Zoomen", async ({ page }) => {
+test("Dorf wie Mockup A: Zoom nur in ganzen Stufen um den Zeiger, Schild bleibt unter der Figur, 0 zeigt wieder alles", async ({ page, request }) => {
+  await moveAgent(request, "Bewege Alex in den Garten");
   await openApp(page);
-  await openHouse(page);
+  await expect(page.getByTestId("world-pixels")).toHaveAttribute("data-view", "dorf");
   const before = await settledTag(page, "alex");
-  const view = (await page.getByTestId("world-canvas").boundingBox())!;
   await page.mouse.move(before.x + before.width / 2, before.y - 22);
-  await page.mouse.wheel(0, -400);
+  await page.mouse.wheel(0, -100);                                                            // eine Raste = eine Stufe (2×)
   const after = await settledTag(page, "alex");
-  expect(Math.abs(after.x + after.width / 2 - (before.x + before.width / 2))).toBeLessThan(12);  // Zoom um den Zeiger: die Figur bleibt stehen
-  await clickFigure(page, "alex");
+  expect(Math.abs(after.x + after.width / 2 - (before.x + before.width / 2))).toBeLessThan(12);  // die Figur unter dem Zeiger bleibt stehen
+  const z = await page.evaluate(() => (window as unknown as { __welt: { Z: number } }).__welt.Z);
+  expect(z).toBe(2);
+  await page.keyboard.down("KeyD"); await page.waitForTimeout(120); await page.keyboard.up("KeyD");   // WASD verschiebt den Ausschnitt
+  const moved = await settledTag(page, "alex");
+  expect(moved.x).toBeLessThan(after.x - 20);
+  await page.mouse.click(moved.x + moved.width / 2, moved.y - 60);                           // 2×: die Figur ist doppelt so groß
   await expect(page.getByTestId("drawer")).toContainText("Alex");
-  expect(after.y).toBeLessThan(view.y + view.height);
+  await page.getByRole("button", { name: "Schließen" }).first().click();
+  await page.keyboard.press("0");
+  await expect.poll(async () => Math.round((await page.locator('[data-tag="alex"]').boundingBox())!.x)).toBe(Math.round(before.x));
 });
 
-test("Taste F folgt dem gewählten Agenten (auch ins Haus), Taste 0 zeigt die ganze Welt", async ({ page, request }) => {
+test("Taste F folgt dem gewählten Agenten (auch ins Haus und im Dorf), Taste 0 zeigt die ganze Welt", async ({ page, request }) => {
   await openApp(page);
   await page.getByTestId("agent-card-mira").click();
   await page.getByRole("button", { name: "Schließen" }).first().click();
-  const before = await settledTag(page, "mira");
-  await page.keyboard.press("0");
-  await expect.poll(async () => Math.round((await page.locator('[data-tag="mira"]').boundingBox())!.y)).not.toBe(Math.round(before.y));
   await page.keyboard.press("f");
-  await expect(page.getByTestId("overlays")).toHaveAttribute("data-interior", "0");
-  await post(request, "/api/sim/step", { n: 8 });
-  const m = page.locator('[data-tag="mira"]');
+  await expect(page.getByTestId("overlays")).toHaveAttribute("data-interior", "0");          // Mira ist im Haus: die Ansicht geht mit hinein
+  await page.keyboard.press("f");
+  await page.keyboard.press("0");
+  await expect(page.getByTestId("overlays")).toHaveAttribute("data-interior", "-1");
+  await moveAgent(request, "Bewege Alex zum See");
+  await page.getByTestId("agent-card-alex").click();
+  await page.getByRole("button", { name: "Schließen" }).first().click();
   const v = (await page.getByTestId("world-canvas").boundingBox())!;
-  await expect.poll(async () => { const b = (await m.boundingBox())!; return Math.abs(b.x + b.width / 2 - (v.x + v.width / 2)); }, { timeout: 8000 }).toBeLessThan(40);
+  await page.mouse.move(v.x + 40, v.y + v.height - 40);
+  await page.mouse.wheel(0, -100);
+  const a = page.locator('[data-tag="alex"]');
+  await expect(a).toBeHidden();                                                               // gezoomt in die linke untere Ecke: Alex am See ist nicht im Bild
+  await page.keyboard.press("f");                                                             // der Ausschnitt folgt Alex (am Rand so weit es geht)
+  await expect(a).toBeVisible();
+  const b = (await a.boundingBox())!;
+  expect(b.x).toBeGreaterThan(v.x); expect(b.x + b.width).toBeLessThan(v.x + v.width); expect(b.y).toBeLessThan(v.y + v.height);
 });
 
 test("Haus zeigt, wer drin ist; leer ohne Anzeige; Esc führt aus der Innenansicht zurück", async ({ page, request }) => {

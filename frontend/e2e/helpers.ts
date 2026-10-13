@@ -81,3 +81,13 @@ export async function clickFigure(page: Page, id: string) {
   const tag = await settledTag(page, id);
   await page.mouse.click(tag.x + tag.width / 2, tag.y - 22);
 }
+
+/** Versetzt einen Agenten per Eingriff an einen Ort (z. B. hinaus ins Dorf); danach wieder Beobachtermodus. */
+export async function moveAgent(req: APIRequestContext, sentence: string) {
+  const patch = (value: string) => req.patch("/api/params", { data: { changes: [{ key: "mode", value }] }, headers: { "Idempotency-Key": randomUUID() } });
+  expect((await patch("intervention")).ok()).toBeTruthy();
+  const p = await post(req, "/api/inject/parse", { text: sentence });
+  expect(["ready", "needs_confirmation"], JSON.stringify(p)).toContain(p.status);
+  expect((await post(req, "/api/inject/confirm", { proposal_id: p.id })).status).toBe("executed");
+  expect((await patch("observer")).ok()).toBeTruthy();
+}

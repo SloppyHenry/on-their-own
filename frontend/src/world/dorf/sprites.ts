@@ -1,0 +1,42 @@
+// Sprites der Deko wie wSpriteFor in Mockup A; die Zeichnungen selbst sind die 1:1-Übertragungen in art/.
+import { bush, pine, reed, rock, sunflower, tomato, tree } from "../art/nature";
+import { WP } from "../art/palette";
+import { barrel, bench, board, boat, fence, house, lamp, mailbox, post, scarecrow, sign, well } from "../art/village";
+
+const cache = new Map<string, HTMLCanvasElement>();
+
+export function decorSprite(kind: string, extra: number, lit: boolean): HTMLCanvasElement | null {
+  const e = extra || 0, key = `${kind}:${e % 7}:${lit ? 1 : 0}`;
+  const hit = cache.get(key);
+  if (hit) return hit;
+  let c: HTMLCanvasElement | null;
+  switch (kind) {
+    case "house": c = house(lit); break;
+    case "tree": c = tree(0, (e % 7) + 1); break;
+    case "treeF": c = tree(1, (e % 7) + 1); break;
+    case "treeB": c = tree(2, (e % 7) + 1); break;
+    case "pine": c = pine(e % 7); break;
+    case "bush": c = bush(e + 3, null); break;
+    case "bushP": c = bush(5, WP.fP); break;
+    case "bushY": c = bush(6, WP.fY); break;
+    case "bushW": c = bush(7, WP.fW); break;
+    case "well": c = well(); break;
+    case "bench": c = bench(); break;
+    case "lamp": c = lamp(lit); break;
+    case "board": c = board(); break;
+    case "fence": c = fence(); break;
+    case "post": c = post(); break;
+    case "sun": c = sunflower(); break;
+    case "tomato": c = tomato(e); break;
+    case "scare": c = scarecrow(); break;
+    case "sign": c = sign(); break;
+    case "mailbox": c = mailbox(); break;
+    case "rock": c = rock(e); break;
+    case "reed": c = reed(); break;
+    case "barrel": c = barrel(); break;
+    case "boat": c = boat(); break;
+    default: c = null;
+  }
+  if (c) cache.set(key, c);
+  return c;
+}

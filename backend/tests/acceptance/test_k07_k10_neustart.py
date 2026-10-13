@@ -45,9 +45,7 @@ def test_k07_erinnerungen_ueberleben_einen_harten_neustart(server: Server):
     assert server.get("/api/state")["clock"]["minute"] == state["minute"] + 5
 
 
-# Rückfragen beantwortet wie ein Benutzer. In der Startwelt nach Mockup A sind Alex (Garten) und Mira (Platz) anfangs draußen
-# und an verschiedenen Orten, darum fragt die Eingabe bei „im Haus“ und „Beide …“ nach dem Ort.
-ANSWERS = {"wann": "morgen um 18 Uhr", "Haus: welcher Ort": "house.bedroom_a", "an verschiedenen Orten": "garden"}
+ANSWERS = {"wann": "morgen um 18 Uhr"}                                                    # Rückfragen beantwortet wie ein Benutzer
 
 
 def _execute(server: Server, text: str) -> dict:

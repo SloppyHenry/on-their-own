@@ -1,12 +1,12 @@
 // Oberfläche der Mitspieler-Vorschau: Hinweis „nichts wird gesendet“, Kontextmenü, Feld „Sagen …“, Dauer am Ziel des Weges.
 import { useEffect, useRef } from "react";
 import { useSimStore } from "../../store/simStore";
-import type { WorldView } from "../view/WorldView";
+import type { ViewLike } from "../view/WorldView";
 import type { WorldBridge } from "../worldBridge";
 import { choicesFor, nameOf, type Choice } from "./actions";
 import { SAY_MAX, usePlayer, type PlayerController } from "./PlayerController";
 
-export function PlayerLayer({ bridge, view, pc }: { bridge: WorldBridge; view: WorldView | null; pc: PlayerController }) {
+export function PlayerLayer({ bridge, view, pc }: { bridge: WorldBridge; view: ViewLike | null; pc: PlayerController }) {
   const { menu, say, intents, minutes, goal, path } = usePlayer();
   const world = useSimStore((s) => s.world);
   const label = useRef<HTMLDivElement>(null);

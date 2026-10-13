@@ -23,6 +23,16 @@ export interface PlayerHooks {
   preview(): PreviewIn;
 }
 
+/** Was die Oberfläche von einer Weltansicht braucht (alte Ansicht oder Dorf nach Mockup A). */
+export interface ViewLike {
+  interior: number;
+  player: PlayerHooks | null;
+  readonly perf: number[];
+  enterInterior(i: number): void;
+  doorOf(i: number): { x: number; y: number } | null;
+  destroy(): void;
+}
+
 export interface ViewElements { host: HTMLElement; canvas: HTMLCanvasElement; glow: HTMLCanvasElement; atmo: HTMLCanvasElement; grade: HTMLElement; tilt: HTMLElement }
 
 const reducedMotion = () => typeof matchMedia === "function" && matchMedia("(prefers-reduced-motion: reduce)").matches;

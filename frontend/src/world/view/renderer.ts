@@ -70,7 +70,7 @@ export class Renderer {
     } else { g.fillStyle = "#1c2a1a"; g.fillRect(0, 0, vp.w, vp.h); }
     g.drawImage(this.pass.render(this.ground, this.data, cam, vp, mood, f.t, interior, f.budgetMs), 0, 0);
 
-    if (f.preview) drawPreviewGround(g, cam, vp, f.preview, f.t);
+    if (f.preview) drawPreviewGround(g, (x, y) => project(cam, vp, x, y), f.preview, f.t);
 
     // Wer ist in welchem Gebäude?
     const bs = this.data.buildings, inB = new Map<string, number>(), occupants: string[][] = bs.map(() => []);
@@ -104,7 +104,7 @@ export class Renderer {
     const drawn: Drawn[] = [], lights: FrameOut["lights"] = [];
     for (const e of list) {
       if (e.wall) { wallPiece(g, cam, vp, e.wall); continue; }
-      if (e.ghost) { drawGhost(g, cam, vp, e.ghost); continue; }
+      if (e.ghost) { drawGhost(g, (x, y) => project(cam, vp, x, y), e.ghost); continue; }
       if (e.pose) { drawPose(g, cam, vp, e.pose, f.t, e.pose.id === f.selected, drawn); continue; }
       const it = e.item!, lit = it.lit === "house" ? occupants[Number(it.target?.id)]?.length > 0 : it.lit === "lamp" ? lampsOn : false;
       const spr = it.lit === "house" ? HOUSE[lit ? 1 : 0] : it.spr(lit), p = project(cam, vp, it.x, it.y);

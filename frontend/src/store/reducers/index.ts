@@ -30,6 +30,8 @@ export function applySnapshot(s: StateSnapshot): World {
     weather: s.weather,
     simulation: s.simulation,
     rules: s.rules,
+    links: s.links ?? [],
+    look: s.look ?? null,
     stale: false,
   };
 }
