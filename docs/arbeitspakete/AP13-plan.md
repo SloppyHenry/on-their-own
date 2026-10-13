@@ -16,6 +16,9 @@ Auftrag: [AP13-weltoptik.md](AP13-weltoptik.md). Offene Fragen dazu: Nr. 18–21
 - **Leistung:** Messanzeige (fps, Bildzeit) hinter `?messen`; Playwright-Messlauf mit Startwelt (1440 × 900) und einer erzeugten 256 × 256-Testwelt mit 20 Figuren und 500 Objekten (nur als Testdatei, kein Spielstand).
 
 ## Schritte (je ein Commit, Tests grün)
+
+**Umsetzung (13.10.2026):** Der Wechsel auf den neuen Renderer ließ sich nicht sinnvoll teilen; die Schritte 2–7 stecken in einem Commit („Schritt 2“), danach Mitspieler-Vorschau („Schritt 3“), Leistung („Schritt 4“), Doku. Technik-Abweichung (Canvas2D statt Shader, Phaser entfernt): siehe [Statusbericht](../status/AP13.md).
+
 0. Plan, offene Fragen, Mockups (erledigt).
 1. Projektion und Kamera für beide Ansichten, Vitest hin und zurück; „Flach“ läuft schon über die neue Projektion, alle bisherigen Tests grün.
 2. Tiefe: Puffer mit Pixelfaktor, Boden nach `wTexel` (Grasbüschel, Blumen, weiche Ufer, runder Platzrand) in Blöcken, Boden-Shader, Himmel, Wolken, Hügel, Dunst; Ansicht umschaltbar.

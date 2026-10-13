@@ -1,7 +1,7 @@
 // Himmel, Sterne, Mond, ziehende Wolken und Hügel am Horizont wie in Mockup A; Farben aus der Stimmung, Bewölkung aus dem Wetter.
 import { css, type Mood } from "../art/palette";
 import { canvas, noise, rng } from "../art/pen";
-import { horizon, type Viewport } from "./projection";
+import { horizon, type Camera, type Viewport } from "./projection";
 
 const COVER: Record<string, number> = { cloudy: 0.12, rain: 0.2, storm: 0.26, fog: 0.08, snow: 0.16 };
 
@@ -10,7 +10,7 @@ export class Sky {
   private hills: HTMLCanvasElement | null = null;
   private key = "";
 
-  private rebuild(vp: Viewport, m: Mood, weather: string) {
+  private rebuild(cam: Camera, vp: Viewport, m: Mood, weather: string) {
     const night = m.stars > 0.5, cover = COVER[weather] ?? 0, ch = Math.round(vp.h * 0.2);
     const cl = canvas(vp.w * 2, ch), cg = cl.getContext("2d")!, img = cg.createImageData(cl.width, ch), d = img.data;
     const light = night ? [74, 82, 136] : m.stars > 0 ? [255, 255, 255].map((v, i) => v + ([74, 82, 136][i] - v) * m.stars) : [255, 255, 255];
@@ -26,7 +26,7 @@ export class Sky {
     cg.putImageData(img, 0, 0);
     const hl = canvas(vp.w, Math.ceil(vp.h * 0.35)), hg = hl.getContext("2d")!, hc = m.haze, hc2 = m.skyBot;
     for (let x = 0; x < vp.w; x++) {
-      const yh = horizon(vp, x), k = 200 / vp.h, top1 = yh - (9 + 7 * noise(x * sx * 0.025, 0, 3)) / k, top2 = yh - (4 + 4 * noise(x * sx * 0.05, 1, 4)) / k;
+      const yh = horizon(cam, vp, x), k = 200 / vp.h, top1 = yh - (9 + 7 * noise(x * sx * 0.025, 0, 3)) / k, top2 = yh - (4 + 4 * noise(x * sx * 0.05, 1, 4)) / k;
       hg.fillStyle = css([hc[0] * 0.78 + hc2[0] * 0.1, hc[1] * 0.86 + hc2[1] * 0.08, hc[2] * 0.95]); hg.fillRect(x, Math.round(top1), 1, hl.height);
       hg.fillStyle = css([hc[0] * 0.62, hc[1] * 0.78, hc[2] * 0.8]); hg.fillRect(x, Math.round(top2), 1, hl.height);
     }
@@ -35,9 +35,9 @@ export class Sky {
   }
 
   /** Zeichnet den Hintergrund oberhalb des Bodens; `t` in Sekunden (Wolkenzug). */
-  draw(g: CanvasRenderingContext2D, vp: Viewport, m: Mood, weather: string, t: number, minuteBucket: number) {
-    const key = `${vp.w}x${vp.h}|${minuteBucket}|${weather}`;
-    if (key !== this.key) { this.rebuild(vp, m, weather); this.key = key; }
+  draw(g: CanvasRenderingContext2D, cam: Camera, vp: Viewport, m: Mood, weather: string, t: number, minuteBucket: number) {
+    const key = `${vp.w}x${vp.h}|${cam.curve ?? 1}|${minuteBucket}|${weather}`;
+    if (key !== this.key) { this.rebuild(cam, vp, m, weather); this.key = key; }
     const skyH = Math.ceil(vp.h * 0.35), grad = g.createLinearGradient(0, 0, 0, vp.h * 0.3);
     grad.addColorStop(0, css(m.skyTop)); grad.addColorStop(1, css(m.skyBot));
     g.fillStyle = grad;

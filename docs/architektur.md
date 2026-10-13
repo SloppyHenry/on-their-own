@@ -1,11 +1,11 @@
 # Architektur
 
-SIMULACRA ist ein Prozess (FastAPI + asyncio) mit einer SQLite-Datenbank und einer Browser-Oberfläche (React + Phaser). Das Sprachmodell läuft getrennt davon hinter einer OpenAI-kompatiblen Schnittstelle (llama.cpp-Router). Diese Seite zeigt das Zusammenspiel; Einzelheiten stehen in den verlinkten Dokumenten.
+SIMULACRA ist ein Prozess (FastAPI + asyncio) mit einer SQLite-Datenbank und einer Browser-Oberfläche (React, Weltansicht als eigener Canvas2D-Renderer). Das Sprachmodell läuft getrennt davon hinter einer OpenAI-kompatiblen Schnittstelle (llama.cpp-Router). Diese Seite zeigt das Zusammenspiel; Einzelheiten stehen in den verlinkten Dokumenten.
 
 ```mermaid
 flowchart LR
   subgraph Browser
-    UI[React-Oberfläche] --- PH[Phaser-Welt]
+    UI[React-Oberfläche] --- PH[Weltansicht]
   end
   subgraph Prozess["simulacra (ein Prozess, ein Worker)"]
     API[api/: REST + /ws] --> RUN[simulation/runner]
@@ -91,10 +91,10 @@ sequenceDiagram
 
 ```
 Backend ──/ws──▶ net/wsClient ──▶ store/simStore (Snapshot + Reducer) ──▶ React-Komponenten
-                                         └──▶ world/worldBridge ──▶ Phaser-Szene (liest nur)
+                                         └──▶ world/worldBridge ──▶ WorldView (liest nur)
 ```
 
-`net/` Verbindung und REST (jeder verändernde Aufruf mit Idempotency-Key) · `store/` Zustand aus Snapshot und Ereignissen (reine Reducer) · `world/` Phaser-Szene, Zeichnung aus Code, DOM-Overlays für Namen und Sprechblasen · `timeline/` Protokoll und Ereignisdetail · `panels/` Agenten- und Ortsdetail · `memory/` Gedächtnis-Inspektor · `settings/` Parameter und Presets · `composer/` freie Eingabe · `saves/`, `history/`, `stats/`. Die TypeScript-Typen (`types/generated.ts`) werden aus den Pydantic-Modellen erzeugt (`scripts/gen_types.sh`). Einzelheiten: [frontend.md](frontend.md).
+`net/` Verbindung und REST (jeder verändernde Aufruf mit Idempotency-Key) · `store/` Zustand aus Snapshot und Ereignissen (reine Reducer) · `world/` Weltansicht (Projektion, Renderer, Mitspieler-Vorschau), Zeichnung aus Code im Stil von Mockup A, DOM-Overlays für Namen und Sprechblasen · `timeline/` Protokoll und Ereignisdetail · `panels/` Agenten- und Ortsdetail · `memory/` Gedächtnis-Inspektor · `settings/` Parameter und Presets · `composer/` freie Eingabe · `saves/`, `history/`, `stats/`. Die TypeScript-Typen (`types/generated.ts`) werden aus den Pydantic-Modellen erzeugt (`scripts/gen_types.sh`). Einzelheiten: [frontend.md](frontend.md).
 
 ## Daten
 

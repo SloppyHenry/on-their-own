@@ -65,7 +65,7 @@ export class Renderer {
     g.clearRect(0, 0, vp.w, vp.h);
     const mood = weatherMood(moodAt(w.clock.minute % 1440), w.weather.kind), lampsOn = mood.lights > 0.5;
     if (cam.mode === "tiefe") {
-      this.sky.draw(g, vp, mood, w.weather.kind, f.t, Math.floor((w.clock.minute % 1440) / 10));
+      this.sky.draw(g, cam, vp, mood, w.weather.kind, f.t, Math.floor((w.clock.minute % 1440) / 10));
       if (interior >= 0) { g.fillStyle = "rgba(14,10,22,0.8)"; g.fillRect(0, 0, vp.w, vp.h * 0.4); }
     } else { g.fillStyle = "#1c2a1a"; g.fillRect(0, 0, vp.w, vp.h); }
     g.drawImage(this.pass.render(this.ground, this.data, cam, vp, mood, f.t, interior, f.budgetMs), 0, 0);
@@ -108,6 +108,7 @@ export class Renderer {
       if (e.pose) { drawPose(g, cam, vp, e.pose, f.t, e.pose.id === f.selected, drawn); continue; }
       const it = e.item!, lit = it.lit === "house" ? occupants[Number(it.target?.id)]?.length > 0 : it.lit === "lamp" ? lampsOn : false;
       const spr = it.lit === "house" ? HOUSE[lit ? 1 : 0] : it.spr(lit), p = project(cam, vp, it.x, it.y);
+      if (p.t > 1.02) continue;                                                  // hinter dem Horizont
       const sw = spr.width * p.sc, sh = spr.height * p.sc, dx = Math.round(p.x - sw / 2), dy = Math.round(p.y - sh);
       if (dx > vp.w || dx + sw < 0 || dy > vp.h || dy + sh < 0) continue;
       let alpha = 1;

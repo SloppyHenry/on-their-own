@@ -2,19 +2,23 @@
 
 Alle Grafiken der Oberfläche und der Welt entstehen **im Projekt aus Code**. Es gibt keine Bilddateien, keine heruntergeladenen Pakete und keine fremde Lizenz.
 
+Seit AP13 gilt der Stil von Mockup A (`docs/mockups/welt-optik/world.js`, von Henry gewählt); die Zeichenfunktionen sind daraus 1:1 übertragen.
+
 | Was | Wo | Hinweis |
 |---|---|---|
-| Gelände, Wände, Böden, Wasser | `frontend/src/world/draw/terrain.ts` | je Kachel aus Pixelbefehlen; Kachelarten mit unbekanntem Namen werden einfarbig gezeichnet |
-| Bäume | `draw/vegetation.ts` | sechs Varianten (Eichen, Kiefern) |
-| Möbel, Außenobjekte, Pflanzen, Türen, Baustellen, Quellen | `draw/furniture.ts`, `draw/outdoor.ts`, `draw/objects.ts` | je Art eine Zeichenfunktion mit Zustand; unbekannte Arten erscheinen als neutrale Kiste |
-| Dächer, Fassadenfenster | `draw/roof.ts`, `draw/terrain.ts` | aus den Räumen der Gebäude abgeleitet |
-| Zäune | `draw/fences.ts` | aus `props.style.fence` des Ortes |
-| Figuren (vier Richtungen, zwei Laufbilder) | `draw/characters.ts` | Aussehen aus einer Palette je Agent; für unbekannte Agenten aus der Kennung abgeleitet |
-| Werkzeuge, Schatten, Schlafzeichen | `draw/tools.ts` | |
+| Hilfen (Sprite, Umriss, Rauschen) | `frontend/src/world/art/pen.ts` | wie `wSprite`, `wHash`, `wNoise`, `wRng` |
+| Farben und Tageszeiten | `art/palette.ts` | `WP`, `W_TIMES`; Tageszeiten nach der Uhr gemischt, Wetter dämpft |
+| Bäume, Büsche, Sonnenblume, Tomate, Stein, Schilf | `art/nature.ts` | 1:1 aus dem Mockup |
+| Haus, Brunnen, Bank, Laterne, Brett, Zaun, Pfosten, Vogelscheuche, Wegweiser, Briefkasten, Fass, Boot | `art/village.ts` | 1:1; das Brett zeigt so viele Zettel wie der Zustand |
+| Figuren | `art/people.ts` | Vorderansicht wie `wPerson`, dazu hinten, Seite, vier Laufbilder, Sitzen, Schlafen, Werkzeug; Palette je Agent, unbekannte aus der Kennung |
+| Möbel, Pflanzen nach Stufe, Baustelle, Vorräte, Kleinkram | `art/things.ts` | im Stil des Mockups; unbekannte Arten als neutrale Kiste |
+| Boden (Gras, Wege, Pflaster, Wasser, Ufer, Steg, Beete, Böden innen) | `world/view/ground.ts` | wie `wTexel`, aus Kacheln und Orten; Grasbüschel, Blumen, Schatten |
+| Himmel, Wolken, Sterne, Mond, Hügel | `view/sky.ts` | wie im Mockup |
+| Lichtschein, Teilchen, Regen, Schnee, Nebel, Vignette | `view/post.ts` | Farbstimmung und Tilt-Shift per CSS (`WorldCanvas.tsx`) |
+| Wände der Innenansicht, Rauch, Schlafzeichen | `view/pieces.ts` | |
 | Icons der Oberfläche | `lib/px.ts` | 8 × 8 Pixel, einfarbig |
-| Licht, Regen, Nebel | `draw/effects.ts` | |
 
-Der Stil (gemütliches Farmdorf, 16-Pixel-Kacheln, dunkle Konturen, warme Farben) ist an das Genre angelehnt, **ohne Material aus einem bestehenden Spiel zu verwenden**.
+Der Stil (gemütliches Farmdorf, 16-Pixel-Kacheln, dunkle Konturen, warme Farben, gewölbter Horizont) ist an das Genre angelehnt, **ohne Material aus einem bestehenden Spiel zu verwenden**.
 
 ## Parametrisch, damit die Welt wächst
 Die Bausteine werden aus Weltdaten gezeichnet, nicht aus festen Bildern. Stilangaben stehen in den Daten (`props.style` am Ort: `floor` = `planks|tile|workshop`, `rug`, `surface` = `cobble`, `fence`), Objektzustand in `state` (z. B. `stage` einer Pflanze, `lit` eines Kamins, `locked` einer Tür). Neue Orte und Objekte aus Patches oder dem späteren Generator (AP12) erscheinen deshalb ohne neue Grafik.

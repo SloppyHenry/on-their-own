@@ -37,9 +37,14 @@ Was SIMULACRA bewusst vereinfacht, was gemessen nicht ideal ist und was als Näc
 
 ## Oberfläche
 
-- **Optik** ist noch nicht abgenommen (offene Frage 16, u. a. das geschlossene Haus wirkt zu groß); vorgemerkt für nach den Funktionspaketen.
+- **Optik „Mischung“ (AP13)** übernimmt Mockup A 1:1, der **Grundriss** der Startwelt aber nicht: Sie ist drei- bis fünfmal größer und eckiger als das Mockup-Dorf (Haus 24 × 13 Kacheln, Garten 17 × 12, Platz 15 × 9, See 18 × 19), darum liegen die Dinge weiter auseinander. Draußen steht das kleine Mockup-Haus an der Haustür, der übrige Grundriss des Hauses ist Garten, auf dem nie jemand läuft. Behebt AP14 (Startwelt nach Mockup A, Häuser mit Innenbereichen).
+- **Deko ohne Zustand:** Laternen, Briefkasten, Fässer, Büsche am Haus, Schilf, Steine, Boot, Vogelscheuche und Sonnenblumen sind bis AP14 nur gezeichnet; Agenten kennen sie nicht.
+- **Ohne Grafikkarte** (Software-Rendering, z. B. Browser in einer VM) kostet die Tilt-Shift-Unschärfe viel: gemessen 25–30 fps in „Tiefe“, 58 fps in „Flach“. Abhilfe: „Flach“ wählen oder reduzierte Bewegung einschalten (dann ohne Tilt-Shift und Teilchen). Mit Grafikkarte überall 60 fps (`docs/status/messung/ap13-leistung-gpu.json`).
+- **Ferne Böden** werden in gröberen Stufen gelesen; feine Muster (Pflaster) erscheinen in der Gesamtansicht als ruhige Fläche.
+- **Innenansicht** zeigt immer das ganze Gebäude; sehr breite Gebäude werden links und rechts beschnitten (Ziehen hilft).
+- **Mitspieler-Vorschau** sendet nichts; die Vorschau-Figur bewegt sich nicht, gesperrte Kacheln aus Regeln (`forbidden`) kennt die Wegsuche im Browser nicht.
 - Beim Wechsel in den Gedächtnis-Inspektor wird die Welt neu aufgebaut (Kameraposition geht verloren).
-- Nebenfiguren und Tiere haben eine Standardfigur.
+- Nebenfiguren und Tiere haben eine aus der Kennung abgeleitete Figur.
 
 ## Ideen (nicht beauftragt)
 

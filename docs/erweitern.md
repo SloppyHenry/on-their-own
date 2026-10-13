@@ -21,7 +21,7 @@ Das Modell kann jede registrierte Aktion auch frei wählen (`option_id: "other"`
 
 1. **Eintrag** in `world/object_kinds.py`: Eigenschaften (tragbar, blockiert, Gewicht …) und Zustandsschema (Pydantic). Die Engine lehnt Objekte mit unbekannter Art oder ungültigem Zustand ab.
 2. **Verhalten** beim Benutzen in `world/actions/use_modes.py`: je (Objektart, Modus) Prüfung, Wirkung, Dauer.
-3. **Zeichnung** im Frontend in `frontend/src/world/draw/` (`objects.ts`, `furniture.ts`; Pixelgrafik aus Code, siehe [assets.md](assets.md)). Ohne eigene Zeichnung erscheint ein neutrales Symbol.
+3. **Zeichnung** im Frontend in `frontend/src/world/art/things.ts` (Tabelle `ART` und `objectKey` für den sichtbaren Zustand; Pixelgrafik aus Code im Stil von Mockup A, siehe [assets.md](assets.md)). Ohne eigene Zeichnung erscheint eine neutrale Kiste. Die Typen samt Objektkatalog neu erzeugen: `scripts/gen_types.sh`.
 4. **Platzieren** über die Weltdatei, einen Patch oder `engine.edit.spawn_object` ([welt-erweitern.md](welt-erweitern.md)); für Bauvorlagen `backend/simulacra/data/blueprints.json`.
 5. Objektarten nur hinzufügen, nicht entfernen: alte Spielstände laden unbekannte Arten als passive Objekte.
 

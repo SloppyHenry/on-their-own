@@ -1,13 +1,13 @@
 // Kamerabewegungen als reine Funktionen auf der eigenen Kamera: Zoom um den Mauszeiger, Ziehen, Folgen, Gesamtansicht.
 // Die Abbildung ist in Weltkoordinaten eine reine Verschiebung des Fokus; darum sind Zoom und Ziehen in einem Schritt exakt.
-import { bottomY, FOCUS_T, horizon, unproject, type Camera, type ViewMode, type Viewport } from "./projection";
+import { horizon, project, unproject, type Camera, type ViewMode, type Viewport } from "./projection";
 
 export const ZOOM: Record<ViewMode, [number, number]> = { tiefe: [0.3, 3], flach: [0.12, 2.5] };
 const clampZoom = (mode: ViewMode, z: number) => Math.min(ZOOM[mode][1], Math.max(ZOOM[mode][0], z));
 
 /** Bodenpunkt unter einem Bildpunkt; im Himmel der Punkt knapp unter dem Horizont derselben Spalte. */
 function groundAt(cam: Camera, vp: Viewport, x: number, y: number) {
-  return unproject(cam, vp, x, y) ?? unproject(cam, vp, x, horizon(vp, x) + 1)!;
+  return unproject(cam, vp, x, y) ?? unproject(cam, vp, x, horizon(cam, vp, x) + 1)!;
 }
 
 /** Zoomt so, dass der Bodenpunkt unter (x, y) an derselben Bildstelle bleibt. */
@@ -33,12 +33,19 @@ export function focusOn(cam: Camera, x: number, y: number, zoom = cam.zoom): Cam
   return { ...cam, fx: x, fy: y, zoom: clampZoom(cam.mode, zoom) };
 }
 
-/** Gesamtansicht: Flach zeigt die ganze Karte; Tiefe legt den Südrand an den unteren Rand und den Nordrand vor den Horizont. */
+/** Gesamtansicht: Flach zeigt die ganze Karte; Tiefe legt den Südrand an den unteren Rand und sucht den größten Zoom, bei dem
+ * der Nordrand vor dem Horizont liegt und die Karte in der Mitte in die Breite passt. */
 export function fit(cam: Camera, vp: Viewport, mapW: number, mapH: number): Camera {
   if (cam.mode === "flach") return { ...cam, fx: mapW / 2, fy: mapH / 2, zoom: clampZoom("flach", Math.min(vp.w / mapW, vp.h / mapH)) };
-  const byDepth = (vp.h * 1.44) / (mapH * 1.08), byWidth = (vp.w * 1.07) / mapW, zoom = clampZoom("tiefe", Math.min(byDepth, byWidth));
-  const next = { ...cam, zoom, fx: mapW / 2, fy: 0 };
-  return { ...next, fy: mapH + 8 - (bottomY(next, vp) - next.fy) };
+  let best: Camera | null = null;
+  for (let z = ZOOM.tiefe[1]; z >= ZOOM.tiefe[0]; z *= 0.94) {
+    const c0 = { ...cam, curve: 1, zoom: z, fx: mapW / 2, fy: 0 }, bottom = unproject(c0, vp, vp.w / 2, vp.h - 0.5);
+    if (!bottom) continue;
+    const c = { ...c0, fy: mapH + 8 - bottom.y }, north = project(c, vp, mapW / 2, 0), w = project(c, vp, 0, mapH / 2), e = project(c, vp, mapW, mapH / 2);
+    best = c;
+    if (north.t < 0.88 && w.x >= -2 && e.x <= vp.w + 2) break;
+  }
+  return best ?? cam;
 }
 
 /** Hält den Fokus in der Nähe der Karte, damit man sich nicht ins Leere zieht. */
@@ -51,10 +58,4 @@ export function switchMode(cam: Camera, mode: ViewMode): Camera {
   if (mode === cam.mode) return cam;
   const zoom = mode === "flach" ? cam.zoom * 0.75 : cam.zoom / 0.75;
   return { ...cam, mode, zoom: clampZoom(mode, zoom) };
-}
-
-/** Bild-y der Fokustiefe (Tiefe) bzw. Bildmitte (Flach): dort steht eine verfolgte Figur. */
-export function focusRow(cam: Camera, vp: Viewport): number {
-  if (cam.mode === "flach") return vp.h / 2;
-  return vp.h - FOCUS_T * (vp.h - horizon(vp, vp.w / 2));
 }

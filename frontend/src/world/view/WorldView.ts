@@ -63,7 +63,7 @@ export class WorldView {
     on("pointerup", (e) => this.up(e));
     on("pointerleave", () => { this.drag = null; this.hover = null; this.player?.hover(null); });
     on("contextmenu", (e) => { e.preventDefault(); this.click(this.point(e), true); });
-    bridge.commands.fit = () => { this.leaveInterior(); this.animateTo(fit(this.cam, this.vp, (this.data?.w ?? 64) * T, (this.data?.h ?? 40) * T)); };
+    bridge.commands.fit = () => { this.leaveInterior(); this.animateTo(fit({ ...this.cam, curve: 1 }, this.vp, (this.data?.w ?? 64) * T, (this.data?.h ?? 40) * T)); };
     bridge.commands.focusTile = (x, y) => this.focusTile(x, y);
     bridge.commands.leaveInterior = () => { this.bridge.setFollow(null); this.leaveInterior(); };
     bridge.commands.toggleFollow = () => {
@@ -130,7 +130,7 @@ export class WorldView {
   private interiorCam(b: Building): Camera {
     const bw = (b.bbox.x1 - b.bbox.x0 + 1) * T, bh = (b.bbox.y1 - b.bbox.y0 + 1) * T, cx = (b.bbox.x0 * T + (b.bbox.x1 + 1) * T) / 2, cy = (b.bbox.y0 * T + (b.bbox.y1 + 1) * T) / 2;
     if (this.cam.mode === "flach") return focusOn(this.cam, cx, cy, Math.min(this.vp.w / (bw * 1.1), this.vp.h / (bh * 1.3)));
-    return focusOn(this.cam, cx, cy + bh * 0.08, Math.min((this.vp.w * 1.12) / bw, (this.vp.h * 1.44) / (bh * 1.55)));
+    return { ...focusOn(this.cam, cx, cy + bh * 0.1, Math.min((this.vp.w * 1.08) / bw, (this.vp.h * 1.3) / bh)), curve: 0 };      // innen ohne Krümmung
   }
 
   enterInterior(i: number) {
@@ -148,7 +148,7 @@ export class WorldView {
     this.interior = -1;
     this.ground!.setInterior(-1);
     this.renderer!.setWalls([]);
-    this.animateTo(this.outdoorCam ?? focusOn(this.cam, b.door.x * T + 8, (b.door.y + 1) * T - 40, 1));
+    this.animateTo({ ...(this.outdoorCam ?? focusOn(this.cam, b.door.x * T + 8, (b.door.y + 1) * T - 40, 1)), curve: 1 });
     this.outdoorCam = null;
   }
 
@@ -158,7 +158,8 @@ export class WorldView {
     return b ? { x: b.door.x, y: b.door.y + 1 } : null;
   }
 
-  private animateTo(to: Camera) { this.anim = { from: this.cam, to: { ...to, mode: this.cam.mode }, k: 0 }; }
+  /** Weiche Kamerafahrt; draußen gewölbt, innen eben. */
+  private animateTo(to: Camera) { this.anim = { from: this.cam, to: { ...to, mode: this.cam.mode, curve: this.interior >= 0 ? 0 : 1 }, k: 0 }; }
 
   private focusTile(x: number, y: number) {
     const b = this.data ? buildingAt(this.data.buildings, x, y) : null;
@@ -232,13 +233,18 @@ export class WorldView {
     this.lastT = now;
     if (w !== this.world) this.sync(w);
     const data = this.data!;
-    if (this.bridge.mode() !== this.cam.mode) { this.cam = switchMode(this.cam, this.bridge.mode()); this.anim = null; if (this.interior >= 0) this.cam = this.interiorCam(data.buildings[this.interior]); }
+    if (this.bridge.mode() !== this.cam.mode) {                    // Ansicht gewechselt: laufende Fahrt in der neuen Ansicht fortsetzen
+      this.cam = switchMode(this.cam, this.bridge.mode());
+      if (this.interior >= 0) this.cam = this.interiorCam(data.buildings[this.interior]);
+      if (this.anim) this.anim = { ...this.anim, from: this.cam, to: { ...this.anim.to, mode: this.cam.mode } };
+    }
     this.figures.update(w, dt);
     this.followAndSelect(w, dt);
     if (this.anim) {
       const a = this.anim; a.k = Math.min(1, a.k + dt / 0.6);
       const e = a.k * a.k * (3 - 2 * a.k);
-      this.cam = { ...this.cam, fx: lerp(a.from.fx, a.to.fx, e), fy: lerp(a.from.fy, a.to.fy, e), zoom: Math.exp(lerp(Math.log(a.from.zoom), Math.log(a.to.zoom), e)) };
+      const c0 = a.from.curve ?? 1, c1 = a.to.curve ?? 1;
+      this.cam = { ...this.cam, fx: lerp(a.from.fx, a.to.fx, e), fy: lerp(a.from.fy, a.to.fy, e), zoom: Math.exp(lerp(Math.log(a.from.zoom), Math.log(a.to.zoom), e)), curve: Math.round(lerp(c0, c1, e) * 20) / 20 };
       if (a.k >= 1) this.anim = null;
     }
     this.cam = clampToMap(this.cam, data.w * T, data.h * T);
