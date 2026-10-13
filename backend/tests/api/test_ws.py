@@ -98,9 +98,9 @@ def test_disconnect_does_not_disturb_the_simulation():
             hello(ws)
             post(c, "/api/sim/start")
             ws.receive_json()
-        m = c.sim.engine.minute
+        m = c.sim.engine.committed_minute                                               # nicht engine.minute: der Test-Thread darf die DB-Verbindung nicht mitbenutzen
         time.sleep(0.3)
-        assert c.sim.engine.minute > m and c.sim.runner.state.value == "running"       # läuft ohne Zuschauer weiter
+        assert c.sim.engine.committed_minute > m and c.sim.runner.state.value == "running"       # läuft ohne Zuschauer weiter
         post(c, "/api/sim/pause")
 
 

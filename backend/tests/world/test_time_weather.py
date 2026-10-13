@@ -1,3 +1,5 @@
+import pytest
+
 from simulacra.world import clock, weather
 
 from .conftest import ok, reject, types
@@ -62,3 +64,39 @@ def test_unknown_weather_rejected(eng):
 def test_every_weather_has_effects_defined():
     for k in weather.KINDS:
         assert k in weather.MOVE_MULT and k in weather._NEXT
+
+
+async def test_committed_minute_is_readable_from_other_threads_while_ticking(tmp_path):
+    """`committed_minute` braucht keine Datenbankverbindung: der Test-Thread liest, während der DB-Thread tickt."""
+    import threading
+    from simulacra.db.connection import Database
+    from simulacra.world.engine import WorldEngine
+    eng = WorldEngine.create(Database(tmp_path / "t.db"))
+    start, seen, failures, stop = eng.committed_minute, [], [], threading.Event()
+
+    def watch():
+        while not stop.is_set():
+            try:
+                seen.append(eng.committed_minute)
+            except Exception as exc:                                  # noqa: BLE001
+                failures.append(exc)
+    t = threading.Thread(target=watch)
+    t.start()
+    for _ in range(200):
+        await eng.tick_async()
+    stop.set()
+    t.join()
+    assert not failures and seen == sorted(seen) and eng.committed_minute == start + 200 == eng.minute
+    eng.db.close()
+
+
+def test_committed_minute_ignores_rolled_back_ticks(eng):
+    before = eng.committed_minute
+    with pytest.raises(RuntimeError):
+        with eng.db.transaction():
+            eng.state.set_minute(before + 5)
+            assert eng.minute == before + 5 and eng.committed_minute == before    # uncommittet nur auf dem DB-Thread sichtbar
+            raise RuntimeError("abbrechen")
+    assert eng.committed_minute == before == eng.minute
+    eng.tick()
+    assert eng.committed_minute == before + 1

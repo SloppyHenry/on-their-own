@@ -175,7 +175,7 @@ class SimulationRunner:
             tick = await self.engine.tick_async()
             extra = await self.engine.db.run(lambda t=tick: self._after_tick(t))
             events += tick + extra
-        self.engine.bus.clock(self.engine.minute)
+        self.engine.bus.clock(self.engine.committed_minute)
         await self._housekeeping(events, force)
         self.stats.ticks += 1
         return 1
@@ -200,7 +200,7 @@ class SimulationRunner:
                 continue
             self._postponed[aid] = 0
             await mem.reflector.run(aid, reason)
-        await self.autonomy.housekeeping(self.engine.minute, waiting)
+        await self.autonomy.housekeeping(self.engine.committed_minute, waiting)
 
     async def _decisions(self, force: bool) -> bool:
         ids = await self.engine.db.run(self._due_agents)

@@ -70,7 +70,13 @@ class WorldEngine:
 
     @property
     def minute(self) -> int:
+        """Nur auf dem DB-Thread (liest die Datenbank, sieht auch uncommittete Stände der laufenden Transaktion)."""
         return self.state.minute
+
+    @property
+    def committed_minute(self) -> int:
+        """Thread-sicher aus dem Speicher: für Event-Loop, REST-Handler und alles außerhalb von `db.run`."""
+        return self.state.committed_minute
 
     # --- Transaktionsrahmen --------------------------------------------------------------
     def _run(self, fn) -> list[Event]:

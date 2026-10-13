@@ -155,7 +155,7 @@ class Simulation:
         fresh = Simulation.create(self.settings, self.db_path, self.provider)
         fresh.store.ensure_all()
         self._swap_in(fresh)
-        self.engine.emit_event("simulation.loaded", data={"save_id": save_id, "name": entry["name"], "minute": self.engine.minute, "backup": backup["name"]})
+        self.engine.emit_event("simulation.loaded", data={"save_id": save_id, "name": entry["name"], "minute": self.engine.committed_minute, "backup": backup["name"]})
         return entry
 
     def close(self) -> None:

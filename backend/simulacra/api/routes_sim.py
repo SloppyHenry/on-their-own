@@ -9,7 +9,7 @@ router = APIRouter(prefix="/api/sim")
 
 
 def _result(sim, **extra) -> SimCommandResult:
-    return SimCommandResult(state=sim.runner.state.value, minute=sim.engine.minute, tick_delay_s=sim.runner.tick_delay_s,
+    return SimCommandResult(state=sim.runner.state.value, minute=sim.engine.committed_minute, tick_delay_s=sim.runner.tick_delay_s,
                             speed_level=speed_level(sim.runner.tick_delay_s), **extra)
 
 

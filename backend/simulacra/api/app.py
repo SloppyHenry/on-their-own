@@ -68,7 +68,7 @@ def create_app(sim: Simulation | None = None, settings: Settings | None = None) 
         out = {"status": "ok", "version": __version__, "data_dir": str(settings.data_dir.resolve()), "llm": llm}
         current = getattr(app.state, "sim", None)
         if current is not None:
-            out["simulation"] = {"state": current.runner.state.value, "minute": current.engine.minute, "decisions": current.runner.stats.decisions}
+            out["simulation"] = {"state": current.runner.state.value, "minute": current.engine.committed_minute, "decisions": current.runner.stats.decisions}
         return out
 
     app.include_router(routes_state.router)

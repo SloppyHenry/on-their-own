@@ -80,5 +80,6 @@ def seed_world(db: Database, world: dict[str, Any] | None = None, seed: int = 1)
         start = world["start"]
         minute = (start["day"] - 1) * 1440 + start["minute_of_day"]
         c.execute("INSERT INTO clock(id, minute) VALUES(1, ?)", (minute,))
+        state.note_committed_minute(minute)
         c.execute("INSERT INTO weather(id, kind, since, until) VALUES(1, ?, ?, ?)", (start["weather"], minute, minute + 360))
     return state

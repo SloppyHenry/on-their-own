@@ -60,3 +60,27 @@ async def test_async_writes_are_serialized(tmp_path):
     await asyncio.gather(*(db.write(add(i)) for i in range(20)))
     vals = sorted(int(r[0]) for r in db.conn.execute("SELECT value FROM meta"))
     assert vals == list(range(20))  # jeder Schreiber sah den Stand des Vorgängers
+
+
+def test_one_connection_is_not_safe_across_threads(tmp_path):
+    """Belegt die Ursache des Flackerns (test_ws): zwei Threads mit derselben SQL-Anfrage auf einer Verbindung bekommen leere Treffer.
+    Darum liest alles außerhalb des DB-Threads nur `committed_minute` oder geht über `db.run`."""
+    import threading
+    db = Database(tmp_path / "t.db")
+    db.conn.execute("INSERT INTO clock(id, minute) VALUES(1, 0)")
+    stop, misses = threading.Event(), []
+
+    def read():
+        while not stop.is_set():
+            if db.conn.execute("SELECT minute FROM clock").fetchone() is None:
+                misses.append(1)
+    threads = [threading.Thread(target=read) for _ in range(2)]
+    [t.start() for t in threads]
+    for _ in range(50):
+        if misses:
+            break
+        stop.wait(0.1)
+    stop.set()
+    [t.join() for t in threads]
+    assert misses, "gleichzeitige Nutzung einer Verbindung ging diesmal gut – Annahme prüfen"
+    db.close()
