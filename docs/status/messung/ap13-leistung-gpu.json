@@ -1,0 +1,54 @@
+{
+ "fenster": "1440 × 900",
+ "browser": "Chromium (headless, GPU/Metal)",
+ "gpu": "ANGLE (Apple, ANGLE Metal Renderer: Apple M1, Unspecified Version)",
+ "startwelt_tiefe_ruhig": {
+  "fps": 60.2,
+  "bild_ms_median": 16.7,
+  "bild_ms_95": 16.7,
+  "rechen_ms_median": 1.9,
+  "rechen_ms_95": 2.5
+ },
+ "startwelt_tiefe_kamerafahrt": {
+  "fps": 60.1,
+  "bild_ms_median": 16.7,
+  "bild_ms_95": 16.7,
+  "rechen_ms_median": 2,
+  "rechen_ms_95": 3.9
+ },
+ "startwelt_tiefe_ohne_tiltshift_kamerafahrt": {
+  "fps": 60.2,
+  "bild_ms_median": 16.7,
+  "bild_ms_95": 16.8,
+  "rechen_ms_median": 2.1,
+  "rechen_ms_95": 2.7
+ },
+ "startwelt_flach_kamerafahrt": {
+  "fps": 60,
+  "bild_ms_median": 16.7,
+  "bild_ms_95": 16.7,
+  "rechen_ms_median": 1.8,
+  "rechen_ms_95": 2.1
+ },
+ "gross_tiefe_zoom1_kamerafahrt": {
+  "fps": 60.1,
+  "bild_ms_median": 16.7,
+  "bild_ms_95": 16.7,
+  "rechen_ms_median": 2.4,
+  "rechen_ms_95": 5.7
+ },
+ "gross_tiefe_gesamt": {
+  "fps": 60.1,
+  "bild_ms_median": 16.7,
+  "bild_ms_95": 16.7,
+  "rechen_ms_median": 2.9,
+  "rechen_ms_95": 3.6
+ },
+ "gross_tiefe_gesamt_kamerafahrt": {
+  "fps": 60.1,
+  "bild_ms_median": 16.7,
+  "bild_ms_95": 16.8,
+  "rechen_ms_median": 3,
+  "rechen_ms_95": 4.9
+ }
+}

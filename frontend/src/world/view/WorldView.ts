@@ -242,11 +242,16 @@ export class WorldView {
       if (a.k >= 1) this.anim = null;
     }
     this.cam = clampToMap(this.cam, data.w * T, data.h * T);
-    const sel = this.bridge.selection(), budget = this.frames++ < 3 ? 400 : 10;
+    const sel = this.bridge.selection(), budget = this.frames++ < 3 ? 400 : 10, t0 = performance.now();
     this.last = this.renderer!.render({ w, cam: this.cam, vp: this.vp, t, interior: this.interior, selected: sel?.kind === "agent" ? sel.id : null, follow: this.bridge.follow(), hover: this.hover, budgetMs: budget, preview: this.bridge.playerPreview() && this.player ? this.player.preview() : null });
     this.post(w, t, dt);
     this.emit();
+    this.perf.push(performance.now() - t0);
+    if (this.perf.length > 600) this.perf.shift();
   };
+
+  /** Rechenzeit der letzten Bilder in ms (Bildaufbau, Effekte, Schilder) – für die Leistungsmessung. */
+  readonly perf: number[] = [];
 
   private followAndSelect(w: World, dt: number) {
     const data = this.data!, f = this.bridge.follow();

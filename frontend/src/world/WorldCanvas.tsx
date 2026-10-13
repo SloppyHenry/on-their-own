@@ -1,6 +1,7 @@
 // Weltfläche: Pixelbild im kleinen Puffer (hochskaliert ohne Glättung), darüber Farbstimmung, Lichtschein, Tilt-Shift, Teilchen
 // und die DOM-Schilder. Gezeichnet wird von WorldView; Daten kommen über die Brücke.
 import { useEffect, useRef, useState } from "react";
+import { useSimStore } from "../store/simStore";
 import { useUiStore } from "../store/uiStore";
 import { Overlays } from "./Overlays";
 import { isTyping, PlayerController, usePlayer } from "./player/PlayerController";
@@ -23,7 +24,7 @@ export function WorldCanvas() {
   useEffect(() => {
     const v = new WorldView({ host: host.current!, canvas: canvas.current!, glow: glow.current!, atmo: atmo.current!, grade: grade.current!, tilt: tilt.current! }, bridge);
     setView(v);
-    if (import.meta.env.DEV || location.search.includes("messen")) (window as unknown as { __welt?: WorldView }).__welt = v;   // Prüf- und Messzugang
+    if (import.meta.env.DEV || location.search.includes("messen")) Object.assign(window, { __welt: v, __sim: useSimStore });   // Prüf- und Messzugang
     const onKey = (e: KeyboardEvent) => {
       if (isTyping(e.target as Element | null) || e.metaKey || e.ctrlKey || e.altKey || e.defaultPrevented) return;
       if (e.key === "Enter" && bridge.playerPreview()) { e.preventDefault(); const sel = bridge.selection(); usePlayer.setState({ say: { open: true, to: sel?.kind === "agent" ? sel.id : null }, menu: null }); return; }
