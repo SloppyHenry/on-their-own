@@ -7,7 +7,7 @@ from simulacra.config import Settings
 from simulacra.llm.providers import FakeProvider
 from simulacra.simulation.builder import Simulation
 
-from .conftest import api, post, wait_one_minute
+from .conftest import api, minute, post, wait_one_minute
 
 
 def test_state_snapshot_is_complete_and_consistent():
@@ -97,7 +97,7 @@ def test_step_start_pause_resume_flow():
             if c.get("/api/state").json()["simulation"]["state"] == "stopped":
                 break
             time.sleep(0.05)
-        assert c.sim.engine.minute == 427
+        assert minute(c) == 427                                                        # „stopped“ steht schon, bevor das Ereignis geschrieben ist
         post(c, "/api/sim/speed", {"tick_delay_s": 0.05})
         post(c, "/api/sim/start")
         time.sleep(0.2)
