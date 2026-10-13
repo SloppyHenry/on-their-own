@@ -16,8 +16,8 @@ DEFAULT_WORLD = DATA_DIR / "world_default.json"
 BLUEPRINTS = DATA_DIR / "blueprints.json"
 
 
-def load_world_file(path: Path = DEFAULT_WORLD) -> dict[str, Any]:
-    return json.loads(Path(path).read_text())
+def load_world_file(path: Path | None = None) -> dict[str, Any]:
+    return json.loads(Path(path or DEFAULT_WORLD).read_text())
 
 
 def load_blueprints() -> dict[str, dict[str, Any]]:

@@ -1,122 +1,2468 @@
 {
  "schema": 1,
- "home": [15, 10],
+ "home": [
+  7,
+  10
+ ],
  "tile_types": {
-  "grass": {"char": ".", "walkable": true, "cost": 2, "color": "#5f8f4b", "label": "Gras"},
-  "path": {"char": ",", "walkable": true, "cost": 1, "color": "#b59a6a", "label": "Weg"},
-  "floor": {"char": "_", "walkable": true, "cost": 1, "color": "#9c7b57", "label": "Boden"},
-  "wall": {"char": "#", "walkable": false, "cost": 0, "color": "#4a4a52", "label": "Wand"},
-  "water": {"char": "~", "walkable": false, "cost": 0, "color": "#3f6fa8", "label": "Wasser"},
-  "tree": {"char": "T", "walkable": false, "cost": 0, "color": "#2f5d34", "label": "Baum"},
-  "door": {"char": "+", "walkable": true, "cost": 1, "color": "#7a5230", "label": "Tür"},
-  "sand": {"char": "s", "walkable": true, "cost": 2, "color": "#d8c48a", "label": "Sand"}
+  "grass": {
+   "char": ".",
+   "walkable": true,
+   "cost": 2,
+   "color": "#5f8f4b",
+   "label": "Gras"
+  },
+  "path": {
+   "char": ",",
+   "walkable": true,
+   "cost": 1,
+   "color": "#b59a6a",
+   "label": "Weg"
+  },
+  "floor": {
+   "char": "_",
+   "walkable": true,
+   "cost": 1,
+   "color": "#9c7b57",
+   "label": "Boden"
+  },
+  "wall": {
+   "char": "#",
+   "walkable": false,
+   "cost": 0,
+   "color": "#4a4a52",
+   "label": "Wand"
+  },
+  "water": {
+   "char": "~",
+   "walkable": false,
+   "cost": 0,
+   "color": "#3f6fa8",
+   "label": "Wasser"
+  },
+  "tree": {
+   "char": "T",
+   "walkable": false,
+   "cost": 0,
+   "color": "#2f5d34",
+   "label": "Baum"
+  },
+  "door": {
+   "char": "+",
+   "walkable": true,
+   "cost": 1,
+   "color": "#7a5230",
+   "label": "Tür"
+  },
+  "sand": {
+   "char": "s",
+   "walkable": true,
+   "cost": 2,
+   "color": "#d8c48a",
+   "label": "Sand"
+  },
+  "fence": {
+   "char": "f",
+   "walkable": false,
+   "cost": 0,
+   "color": "#a96f42",
+   "label": "Zaun"
+  }
  },
  "name": "Dorf am See",
- "size": [64, 40],
+ "size": [
+  51,
+  19
+ ],
  "tiles": [
-  "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
-  "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
-  "TT.............................T..............................TT",
-  "TTT................T.................................T........TT",
-  "TT..########################..................................TT",
-  "TT..#______#______#________#..................................TT",
-  "TT..#______#______#________#..................................TT",
-  "TT..#______#______#________+,,................................TT",
-  "TT..#______#______#________#..................................TT",
-  "TT..#______#______#________#.............................T....TT",
-  "TT..####+####+########+#####..................................TT",
-  "TT..#_________#____________#..................................TT",
-  "TT..#_________#____________#..................................TT",
-  "TT..#_________+____________#..................................TT",
-  "TT..#_________#____________#..................................TT",
-  "TT..#_________#____________#..................................TT",
-  "TT..################+#######........,.........................TT",
-  "TT..................,...............,..........T..............TT",
-  "TT....T.............,...............,................T..T.....TT",
-  "TTTT.T.TT.T.TT..TT..,...............,.........................TT",
-  "TT...T.TTTT.T..T.TTT,...............,.........................TT",
-  "TT..T..T..T....T.T..,.....,,,,,,,,,,,,,,,.T.........sssssss..TTT",
-  "TTT.T....T........T.,.....,,,,,,,,,,,,,,,.....T...ss~~~~~~~ss.TT",
-  "TT...T..T.TTT.TT..T.,.....,,,,,,,,,,,,,,,........s~~~~~~~~~~~sTT",
-  "TT..........TTT..TT.,.....,,,,,,,,,,,,,,,.......s~~~~~~~~~~~~~TT",
-  "TTT.............T.TT,,,,,,,,,,,,,,,,,,,,,,,,,,,s~~~~~~~~~~~~~~TT",
-  "TTTTTT,,,,,,,,,,,,,,,.....,,,,,,,,,,,,,,,......s~~~~~~~~~~~~~~TT",
-  "TT.TTT......TTTT.TT.......,,,,,,,,,,,,,,,.....ss~~~~~~~~~~~~~~TT",
-  "TT.T.T......T...TT........,,,,,,,,,,,,,,,....._______~~~~~~~~~TT",
-  "TT..........T......T......,,,,,,,,,,,,,,,.....ss~~~~~~~~~~~~~~TT",
-  "TTTTTT......T.....T............................s~~~~~~~~~~~~~~TT",
-  "TTT......TTT..T...T............................s~~~~~~~~~~~~~~TT",
-  "TTTT.......TTTT.T.T...............T.............s~~~~~~~~~~~~~TT",
-  "TTT........T.TT.T.....................T.....T....s~~~~~~~~~~~sTT",
-  "TTT...T.TT......................................T.ss~~~~~~~ss.TT",
-  "TT.......T...TT.TTT.................................sssssss...TT",
-  "TT..T..T..T.....T..T..........................................TT",
-  "TTTT.T..TT..T...TTT....T......................................TT",
-  "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
-  "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT"
+  "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+  "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+  "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+  "TTTTTTTTTTTTTTTTTTTTTTTTTT########################T",
+  "TTTTTTTTTTTTTTTTTTTTTTTTTT#______#______#________#T",
+  "TTTTTTTTTTTTTTTTTTTTTTTTTT#______#______#________#T",
+  "TTT..................TTTTT#______#______#________#T",
+  "TTT..................TTTTT#______#______#________#T",
+  "TTT..######..T.T...T.TTTTT#______#______#________#T",
+  "TTT..######..........TTTTT####+####+########+#####T",
+  "TTT..##+###T...T~~~~.TTTTT#_________#____________#T",
+  "TTT.....,.......~~~~~TTTTT#_________#____________#T",
+  "TTT...T..,,,,,,_~~~~~TTTTT#_________+____________#T",
+  "TTTT.fffff.,,,..~~~~.TTTTT#_________#____________#T",
+  "TTT.f....f,,,........TTTTT#_________#____________#T",
+  "TTT.f....,.....T.....TTTTT################+#######T",
+  "TTT.f....f...........TTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+  "TTT..fffff.........T.TTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+  "TTTTT......TT.....T..TTTTTTTTTTTTTTTTTTTTTTTTTTTTTT"
  ],
  "locations": [
-  {"id": "house.bedroom_a", "name": "Zimmer Alex", "rect": [5, 5, 6, 5], "entrances": [[8, 10]], "extra_tiles": [[8, 10]], "props": {"style": {"floor": "planks"}, "to": "in Alex' Zimmer", "at": "in Alex' Zimmer", "themes": ["rest"]}},
-  {"id": "house.bedroom_b", "name": "Zimmer Mira", "rect": [12, 5, 6, 5], "entrances": [[13, 10]], "extra_tiles": [[13, 10]], "props": {"style": {"floor": "planks"}, "to": "in Miras Zimmer", "at": "in Miras Zimmer", "themes": ["rest"]}},
-  {"id": "house.workshop", "name": "Werkstatt", "rect": [19, 5, 8, 5], "entrances": [[22, 10], [27, 7]], "extra_tiles": [[22, 10], [27, 7]], "props": {"style": {"floor": "workshop"}, "to": "in die Werkstatt", "at": "in der Werkstatt", "themes": ["craft", "wood"]}},
-  {"id": "house.kitchen", "name": "Küche", "rect": [5, 11, 9, 5], "entrances": [[8, 10], [14, 13]], "extra_tiles": [], "props": {"style": {"floor": "tile"}, "to": "in die Küche", "at": "in der Küche", "themes": ["food"]}},
-  {"id": "house.living", "name": "Wohnzimmer", "rect": [15, 11, 12, 5], "entrances": [[14, 13], [20, 16], [22, 10]], "extra_tiles": [[14, 13], [20, 16]], "props": {"style": {"floor": "planks", "rug": true}, "to": "ins Wohnzimmer", "at": "im Wohnzimmer", "themes": ["social", "rest"]}},
-  {"id": "garden", "name": "Garten", "rect": [30, 4, 17, 12], "entrances": [[29, 7], [36, 16]], "extra_tiles": [], "props": {"style": {"fence": true}, "beds": 6, "to": "in den Garten", "at": "im Garten", "themes": ["garden", "plants"]}},
-  {"id": "square", "name": "Zentraler Platz", "rect": [26, 21, 15, 9], "entrances": [[20, 25], [36, 20], [41, 25]], "extra_tiles": [], "props": {"style": {"surface": "cobble"}, "market_area": [28, 23, 10, 5], "to": "zum zentralen Platz", "at": "auf dem zentralen Platz", "themes": ["social"]}},
-  {"id": "lake", "name": "See", "rect": [44, 19, 18, 19], "entrances": [[47, 25], [46, 28]], "extra_tiles": [], "props": {"fishing": true, "to": "zum See", "at": "am See", "themes": ["water", "calm", "nature"]}},
-  {"id": "forest", "name": "Wald", "rect": [2, 19, 18, 19], "entrances": [[20, 26], [20, 25]], "extra_tiles": [], "props": {"clearing": [6, 24, 6, 6], "unexplored": true, "to": "in den Wald", "at": "im Wald", "themes": ["nature", "wood"]}},
-  {"id": "paths", "name": "Wege und Wiesen", "rect": [0, 0, 64, 40], "entrances": [], "extra_tiles": [], "props": {"fallback": true, "to": "auf die Wege", "at": "auf den Wegen", "themes": []}}
+  {
+   "id": "house.bedroom_a",
+   "name": "Zimmer Alex",
+   "rect": [
+    27,
+    4,
+    6,
+    5
+   ],
+   "entrances": [
+    [
+     30,
+     9
+    ]
+   ],
+   "extra_tiles": [
+    [
+     30,
+     9
+    ]
+   ],
+   "props": {
+    "style": {
+     "floor": "planks"
+    },
+    "to": "in Alex' Zimmer",
+    "at": "in Alex' Zimmer",
+    "themes": [
+     "rest"
+    ]
+   }
+  },
+  {
+   "id": "house.bedroom_b",
+   "name": "Zimmer Mira",
+   "rect": [
+    34,
+    4,
+    6,
+    5
+   ],
+   "entrances": [
+    [
+     35,
+     9
+    ]
+   ],
+   "extra_tiles": [
+    [
+     35,
+     9
+    ]
+   ],
+   "props": {
+    "style": {
+     "floor": "planks"
+    },
+    "to": "in Miras Zimmer",
+    "at": "in Miras Zimmer",
+    "themes": [
+     "rest"
+    ]
+   }
+  },
+  {
+   "id": "house.workshop",
+   "name": "Werkstatt",
+   "rect": [
+    41,
+    4,
+    8,
+    5
+   ],
+   "entrances": [
+    [
+     44,
+     9
+    ]
+   ],
+   "extra_tiles": [
+    [
+     44,
+     9
+    ]
+   ],
+   "props": {
+    "style": {
+     "floor": "workshop"
+    },
+    "to": "in die Werkstatt",
+    "at": "in der Werkstatt",
+    "themes": [
+     "craft",
+     "wood"
+    ]
+   }
+  },
+  {
+   "id": "house.kitchen",
+   "name": "Küche",
+   "rect": [
+    27,
+    10,
+    9,
+    5
+   ],
+   "entrances": [
+    [
+     30,
+     9
+    ],
+    [
+     36,
+     12
+    ]
+   ],
+   "extra_tiles": [],
+   "props": {
+    "style": {
+     "floor": "tile"
+    },
+    "to": "in die Küche",
+    "at": "in der Küche",
+    "themes": [
+     "food"
+    ]
+   }
+  },
+  {
+   "id": "house.living",
+   "name": "Wohnzimmer",
+   "rect": [
+    37,
+    10,
+    12,
+    5
+   ],
+   "entrances": [
+    [
+     36,
+     12
+    ],
+    [
+     42,
+     15
+    ],
+    [
+     44,
+     9
+    ]
+   ],
+   "extra_tiles": [
+    [
+     36,
+     12
+    ],
+    [
+     42,
+     15
+    ]
+   ],
+   "props": {
+    "style": {
+     "floor": "planks",
+     "rug": true
+    },
+    "to": "ins Wohnzimmer",
+    "at": "im Wohnzimmer",
+    "themes": [
+     "social",
+     "rest"
+    ]
+   }
+  },
+  {
+   "id": "garden",
+   "name": "Garten",
+   "rect": [
+    5,
+    14,
+    4,
+    3
+   ],
+   "entrances": [
+    [
+     9,
+     15
+    ]
+   ],
+   "extra_tiles": [],
+   "props": {
+    "style": {
+     "fence": true
+    },
+    "beds": 6,
+    "to": "in den Garten",
+    "at": "im Garten",
+    "themes": [
+     "garden",
+     "plants"
+    ]
+   }
+  },
+  {
+   "id": "square",
+   "name": "Zentraler Platz",
+   "rect": [
+    11,
+    12,
+    3,
+    3
+   ],
+   "entrances": [],
+   "extra_tiles": [],
+   "props": {
+    "style": {
+     "surface": "cobble"
+    },
+    "market_area": [
+     11,
+     12,
+     3,
+     3
+    ],
+    "to": "zum zentralen Platz",
+    "at": "auf dem zentralen Platz",
+    "themes": [
+     "social"
+    ]
+   }
+  },
+  {
+   "id": "lake",
+   "name": "See",
+   "rect": [
+    15,
+    9,
+    6,
+    6
+   ],
+   "entrances": [],
+   "extra_tiles": [],
+   "props": {
+    "fishing": true,
+    "to": "zum See",
+    "at": "am See",
+    "themes": [
+     "water",
+     "calm",
+     "nature"
+    ]
+   }
+  },
+  {
+   "id": "forest",
+   "name": "Wald",
+   "rect": [
+    0,
+    0,
+    25,
+    7
+   ],
+   "entrances": [],
+   "extra_tiles": [],
+   "props": {
+    "clearing": [
+     4,
+     6,
+     17,
+     1
+    ],
+    "unexplored": true,
+    "to": "in den Wald",
+    "at": "im Wald",
+    "themes": [
+     "nature",
+     "wood"
+    ]
+   }
+  },
+  {
+   "id": "paths",
+   "name": "Wege und Wiesen",
+   "rect": [
+    0,
+    0,
+    51,
+    19
+   ],
+   "entrances": [],
+   "extra_tiles": [],
+   "props": {
+    "fallback": true,
+    "to": "auf die Wege",
+    "at": "auf den Wegen",
+    "themes": []
+   }
+  }
  ],
  "objects": [
-  {"id": "bed_alex", "kind": "bed", "name": "Bett (Alex)", "tile": [6, 6], "state": {}, "owner": "alex"},
-  {"id": "chest_alex", "kind": "chest", "name": "Truhe", "tile": [10, 6], "state": {}},
-  {"id": "bed_mira", "kind": "bed", "name": "Bett (Mira)", "tile": [13, 6], "state": {}, "owner": "mira"},
-  {"id": "desk_mira", "kind": "desk", "name": "Schreibtisch", "tile": [16, 6], "state": {"notes": []}},
-  {"id": "workbench", "kind": "workbench", "name": "Werkbank", "tile": [20, 6], "state": {}},
-  {"id": "axe", "kind": "axe", "name": "Axt", "tile": [22, 6], "state": {}, "portable": true},
-  {"id": "pickaxe", "kind": "pickaxe", "name": "Spitzhacke", "tile": [23, 6], "state": {}, "portable": true},
-  {"id": "stove", "kind": "stove", "name": "Herd", "tile": [6, 12], "state": {}},
-  {"id": "kitchen_tap", "kind": "tap", "name": "Wasserhahn", "tile": [10, 15], "state": {}},
-  {"id": "sofa", "kind": "sofa", "name": "Sofa", "tile": [17, 13], "state": {}},
-  {"id": "table_living", "kind": "table", "name": "Tisch", "tile": [21, 13], "state": {}},
-  {"id": "bookshelf", "kind": "bookshelf", "name": "Bücherregal", "tile": [25, 11], "state": {"books": ["Pilzkunde", "Alte Dorfchronik", "Gartenjahr"]}},
-  {"id": "fireplace", "kind": "fireplace", "name": "Kamin", "tile": [26, 13], "state": {"lit": false}},
-  {"id": "door_ba", "kind": "door", "name": "Tür Zimmer Alex", "tile": [8, 10], "state": {"locked": false}},
-  {"id": "door_bb", "kind": "door", "name": "Tür Zimmer Mira", "tile": [13, 10], "state": {"locked": false}},
-  {"id": "door_ws", "kind": "door", "name": "Tür Werkstatt", "tile": [22, 10], "state": {"locked": false}},
-  {"id": "door_kl", "kind": "door", "name": "Tür Küche", "tile": [14, 13], "state": {"locked": false}},
-  {"id": "door_front", "kind": "door", "name": "Haustür", "tile": [20, 16], "state": {"locked": false}},
-  {"id": "door_back", "kind": "door", "name": "Hintertür", "tile": [27, 7], "state": {"locked": false}},
-  {"id": "seedbed_1", "kind": "seedbed", "name": "Beet 1", "tile": [32, 7], "state": {}},
-  {"id": "seedbed_2", "kind": "seedbed", "name": "Beet 2", "tile": [34, 7], "state": {}},
-  {"id": "seedbed_3", "kind": "seedbed", "name": "Beet 3", "tile": [36, 7], "state": {}},
-  {"id": "seedbed_4", "kind": "seedbed", "name": "Beet 4", "tile": [32, 10], "state": {}},
-  {"id": "seedbed_5", "kind": "seedbed", "name": "Beet 5", "tile": [34, 10], "state": {}},
-  {"id": "seedbed_6", "kind": "seedbed", "name": "Beet 6", "tile": [36, 10], "state": {}},
-  {"id": "well_garden", "kind": "well", "name": "Gartenbrunnen", "tile": [40, 9], "state": {}},
-  {"id": "bench_garden", "kind": "bench", "name": "Gartenbank", "tile": [40, 12], "state": {}},
-  {"id": "well_square", "kind": "well", "name": "Dorfbrunnen", "tile": [33, 25], "state": {}},
-  {"id": "bench_square", "kind": "bench", "name": "Bank am Platz", "tile": [30, 23], "state": {}},
-  {"id": "board_square", "kind": "board", "name": "Anschlagtafel", "tile": [38, 22], "state": {"notes": ["Willkommen im Dorf."]}},
-  {"id": "fishing_spot", "kind": "fishing_spot", "name": "Angelplatz", "tile": [52, 28], "state": {}},
-  {"id": "old_key", "kind": "key", "name": "Rostiger Schlüssel", "tile": [9, 27], "state": {}, "portable": true, "hidden": true}
+  {
+   "id": "bed_alex",
+   "kind": "bed",
+   "name": "Bett (Alex)",
+   "tile": [
+    28,
+    5
+   ],
+   "state": {},
+   "owner": "alex"
+  },
+  {
+   "id": "chest_alex",
+   "kind": "chest",
+   "name": "Truhe",
+   "tile": [
+    32,
+    5
+   ],
+   "state": {}
+  },
+  {
+   "id": "bed_mira",
+   "kind": "bed",
+   "name": "Bett (Mira)",
+   "tile": [
+    35,
+    5
+   ],
+   "state": {},
+   "owner": "mira"
+  },
+  {
+   "id": "desk_mira",
+   "kind": "desk",
+   "name": "Schreibtisch",
+   "tile": [
+    38,
+    5
+   ],
+   "state": {
+    "notes": []
+   }
+  },
+  {
+   "id": "workbench",
+   "kind": "workbench",
+   "name": "Werkbank",
+   "tile": [
+    42,
+    5
+   ],
+   "state": {}
+  },
+  {
+   "id": "axe",
+   "kind": "axe",
+   "name": "Axt",
+   "tile": [
+    44,
+    5
+   ],
+   "state": {},
+   "portable": true
+  },
+  {
+   "id": "pickaxe",
+   "kind": "pickaxe",
+   "name": "Spitzhacke",
+   "tile": [
+    45,
+    5
+   ],
+   "state": {},
+   "portable": true
+  },
+  {
+   "id": "stove",
+   "kind": "stove",
+   "name": "Herd",
+   "tile": [
+    28,
+    11
+   ],
+   "state": {}
+  },
+  {
+   "id": "kitchen_tap",
+   "kind": "tap",
+   "name": "Wasserhahn",
+   "tile": [
+    32,
+    14
+   ],
+   "state": {}
+  },
+  {
+   "id": "sofa",
+   "kind": "sofa",
+   "name": "Sofa",
+   "tile": [
+    39,
+    12
+   ],
+   "state": {}
+  },
+  {
+   "id": "table_living",
+   "kind": "table",
+   "name": "Tisch",
+   "tile": [
+    43,
+    12
+   ],
+   "state": {}
+  },
+  {
+   "id": "bookshelf",
+   "kind": "bookshelf",
+   "name": "Bücherregal",
+   "tile": [
+    47,
+    10
+   ],
+   "state": {
+    "books": [
+     "Pilzkunde",
+     "Alte Dorfchronik",
+     "Gartenjahr"
+    ]
+   }
+  },
+  {
+   "id": "fireplace",
+   "kind": "fireplace",
+   "name": "Kamin",
+   "tile": [
+    48,
+    12
+   ],
+   "state": {
+    "lit": false
+   }
+  },
+  {
+   "id": "door_ba",
+   "kind": "door",
+   "name": "Tür Zimmer Alex",
+   "tile": [
+    30,
+    9
+   ],
+   "state": {
+    "locked": false
+   }
+  },
+  {
+   "id": "door_bb",
+   "kind": "door",
+   "name": "Tür Zimmer Mira",
+   "tile": [
+    35,
+    9
+   ],
+   "state": {
+    "locked": false
+   }
+  },
+  {
+   "id": "door_ws",
+   "kind": "door",
+   "name": "Tür Werkstatt",
+   "tile": [
+    44,
+    9
+   ],
+   "state": {
+    "locked": false
+   }
+  },
+  {
+   "id": "door_kl",
+   "kind": "door",
+   "name": "Tür Küche",
+   "tile": [
+    36,
+    12
+   ],
+   "state": {
+    "locked": false
+   }
+  },
+  {
+   "id": "door_front",
+   "kind": "door",
+   "name": "Haustür",
+   "tile": [
+    42,
+    15
+   ],
+   "state": {
+    "locked": false
+   }
+  },
+  {
+   "id": "seedbed_1",
+   "kind": "seedbed",
+   "name": "Beet 1",
+   "tile": [
+    6,
+    14
+   ],
+   "state": {}
+  },
+  {
+   "id": "seedbed_2",
+   "kind": "seedbed",
+   "name": "Beet 2",
+   "tile": [
+    7,
+    14
+   ],
+   "state": {}
+  },
+  {
+   "id": "seedbed_3",
+   "kind": "seedbed",
+   "name": "Beet 3",
+   "tile": [
+    8,
+    14
+   ],
+   "state": {}
+  },
+  {
+   "id": "seedbed_4",
+   "kind": "seedbed",
+   "name": "Beet 4",
+   "tile": [
+    6,
+    16
+   ],
+   "state": {}
+  },
+  {
+   "id": "seedbed_5",
+   "kind": "seedbed",
+   "name": "Beet 5",
+   "tile": [
+    7,
+    16
+   ],
+   "state": {}
+  },
+  {
+   "id": "seedbed_6",
+   "kind": "seedbed",
+   "name": "Beet 6",
+   "tile": [
+    8,
+    16
+   ],
+   "state": {}
+  },
+  {
+   "id": "well_square",
+   "kind": "well",
+   "name": "Dorfbrunnen",
+   "tile": [
+    12,
+    13
+   ],
+   "state": {}
+  },
+  {
+   "id": "bench_square",
+   "kind": "bench",
+   "name": "Bank am Platz",
+   "tile": [
+    9,
+    13
+   ],
+   "state": {}
+  },
+  {
+   "id": "board_square",
+   "kind": "board",
+   "name": "Anschlagtafel",
+   "tile": [
+    13,
+    11
+   ],
+   "state": {
+    "notes": [
+     "Willkommen im Dorf."
+    ]
+   }
+  },
+  {
+   "id": "fishing_spot",
+   "kind": "fishing_spot",
+   "name": "Angelplatz",
+   "tile": [
+    16,
+    12
+   ],
+   "state": {}
+  },
+  {
+   "id": "old_key",
+   "kind": "key",
+   "name": "Rostiger Schlüssel",
+   "tile": [
+    3,
+    6
+   ],
+   "state": {},
+   "portable": true,
+   "hidden": true
+  }
  ],
  "resource_nodes": [
-  {"id": "pantry", "location_id": "house.kitchen", "tile": [12, 12], "resource": "food", "amount": 10, "cap": 16, "regen_per_hour": 0.4, "requires_tool": null, "gather_minutes": 3},
-  {"id": "tap_kitchen", "location_id": "house.kitchen", "tile": [10, 15], "resource": "water", "amount": 999, "cap": 999, "regen_per_hour": 999, "requires_tool": null, "gather_minutes": 2},
-  {"id": "woodpile", "location_id": "house.workshop", "tile": [25, 6], "resource": "wood", "amount": 6, "cap": 12, "regen_per_hour": 0.0, "requires_tool": null, "gather_minutes": 3},
-  {"id": "seed_box", "location_id": "house.workshop", "tile": [25, 8], "resource": "seeds", "amount": 6, "cap": 6, "regen_per_hour": 0.0, "requires_tool": null, "gather_minutes": 2},
-  {"id": "well_garden_water", "location_id": "garden", "tile": [40, 9], "resource": "water", "amount": 999, "cap": 999, "regen_per_hour": 999, "requires_tool": null, "gather_minutes": 2},
-  {"id": "well_square_water", "location_id": "square", "tile": [33, 25], "resource": "water", "amount": 999, "cap": 999, "regen_per_hour": 999, "requires_tool": null, "gather_minutes": 2},
-  {"id": "lake_water", "location_id": "lake", "tile": [50, 28], "resource": "water", "amount": 999, "cap": 999, "regen_per_hour": 999, "requires_tool": null, "gather_minutes": 2},
-  {"id": "shore_rocks", "location_id": "lake", "tile": [46, 31], "resource": "stone", "amount": 15, "cap": 15, "regen_per_hour": 0.2, "requires_tool": "pickaxe", "gather_minutes": 10},
-  {"id": "forest_wood", "location_id": "forest", "tile": [10, 22], "resource": "wood", "amount": 40, "cap": 40, "regen_per_hour": 1.5, "requires_tool": "axe", "gather_minutes": 8},
-  {"id": "forest_mushrooms", "location_id": "forest", "tile": [8, 28], "resource": "food", "amount": 8, "cap": 8, "regen_per_hour": 0.3, "requires_tool": null, "gather_minutes": 5},
-  {"id": "forest_seeds", "location_id": "forest", "tile": [14, 30], "resource": "seeds", "amount": 6, "cap": 10, "regen_per_hour": 0.1, "requires_tool": null, "gather_minutes": 4}
+  {
+   "id": "pantry",
+   "location_id": "house.kitchen",
+   "tile": [
+    34,
+    11
+   ],
+   "resource": "food",
+   "amount": 10,
+   "cap": 16,
+   "regen_per_hour": 0.4,
+   "requires_tool": null,
+   "gather_minutes": 3
+  },
+  {
+   "id": "tap_kitchen",
+   "location_id": "house.kitchen",
+   "tile": [
+    32,
+    14
+   ],
+   "resource": "water",
+   "amount": 999,
+   "cap": 999,
+   "regen_per_hour": 999,
+   "requires_tool": null,
+   "gather_minutes": 2
+  },
+  {
+   "id": "woodpile",
+   "location_id": "house.workshop",
+   "tile": [
+    47,
+    5
+   ],
+   "resource": "wood",
+   "amount": 6,
+   "cap": 12,
+   "regen_per_hour": 0,
+   "requires_tool": null,
+   "gather_minutes": 3
+  },
+  {
+   "id": "seed_box",
+   "location_id": "house.workshop",
+   "tile": [
+    47,
+    7
+   ],
+   "resource": "seeds",
+   "amount": 6,
+   "cap": 6,
+   "regen_per_hour": 0,
+   "requires_tool": null,
+   "gather_minutes": 2
+  },
+  {
+   "id": "well_square_water",
+   "location_id": "square",
+   "tile": [
+    12,
+    13
+   ],
+   "resource": "water",
+   "amount": 999,
+   "cap": 999,
+   "regen_per_hour": 999,
+   "requires_tool": null,
+   "gather_minutes": 2
+  },
+  {
+   "id": "lake_water",
+   "location_id": "lake",
+   "tile": [
+    15,
+    12
+   ],
+   "resource": "water",
+   "amount": 999,
+   "cap": 999,
+   "regen_per_hour": 999,
+   "requires_tool": null,
+   "gather_minutes": 2
+  },
+  {
+   "id": "shore_rocks",
+   "location_id": "lake",
+   "tile": [
+    17,
+    15
+   ],
+   "resource": "stone",
+   "amount": 15,
+   "cap": 15,
+   "regen_per_hour": 0.2,
+   "requires_tool": "pickaxe",
+   "gather_minutes": 10
+  },
+  {
+   "id": "forest_wood",
+   "location_id": "forest",
+   "tile": [
+    8,
+    5
+   ],
+   "resource": "wood",
+   "amount": 40,
+   "cap": 40,
+   "regen_per_hour": 1.5,
+   "requires_tool": "axe",
+   "gather_minutes": 8
+  },
+  {
+   "id": "forest_mushrooms",
+   "location_id": "forest",
+   "tile": [
+    14,
+    5
+   ],
+   "resource": "food",
+   "amount": 8,
+   "cap": 8,
+   "regen_per_hour": 0.3,
+   "requires_tool": null,
+   "gather_minutes": 5
+  },
+  {
+   "id": "forest_seeds",
+   "location_id": "forest",
+   "tile": [
+    19,
+    5
+   ],
+   "resource": "seeds",
+   "amount": 6,
+   "cap": 10,
+   "regen_per_hour": 0.1,
+   "requires_tool": null,
+   "gather_minutes": 4
+  }
  ],
  "agents": [
-  {"id": "alex", "name": "Alex", "tile": [7, 7], "capacity": 10, "needs": {"energy": 85, "hunger": 25, "thirst": 20}},
-  {"id": "mira", "name": "Mira", "tile": [14, 7], "capacity": 10, "needs": {"energy": 85, "hunger": 25, "thirst": 20}}
+  {
+   "id": "alex",
+   "name": "Alex",
+   "tile": [
+    7,
+    15
+   ],
+   "capacity": 10,
+   "needs": {
+    "energy": 85,
+    "hunger": 25,
+    "thirst": 20
+   }
+  },
+  {
+   "id": "mira",
+   "name": "Mira",
+   "tile": [
+    11,
+    14
+   ],
+   "capacity": 10,
+   "needs": {
+    "energy": 85,
+    "hunger": 25,
+    "thirst": 20
+   }
+  }
  ],
- "start": {"day": 1, "minute_of_day": 420, "weather": "clear"}
+ "start": {
+  "day": 1,
+  "minute_of_day": 420,
+  "weather": "clear"
+ },
+ "links": [
+  [
+   [
+    7,
+    10
+   ],
+   [
+    42,
+    15
+   ]
+  ]
+ ],
+ "look": {
+  "style": "mockup-a",
+  "origin": [
+   66,
+   104
+  ],
+  "texture": {
+   "offset": [
+    64,
+    96
+   ],
+   "size": [
+    384,
+    288
+   ]
+  },
+  "shapes": {
+   "paths": [
+    [
+     [
+      60,
+      60
+     ],
+     [
+      60,
+      80
+     ],
+     [
+      104,
+      100
+     ]
+    ],
+    [
+     [
+      152,
+      102
+     ],
+     [
+      174,
+      97
+     ],
+     [
+      186,
+      93
+     ]
+    ],
+    [
+     [
+      110,
+      120
+     ],
+     [
+      86,
+      146
+     ]
+    ],
+    [
+     [
+      128,
+      130
+     ],
+     [
+      126,
+      160
+     ],
+     [
+      130,
+      200
+     ]
+    ]
+   ],
+   "square": {
+    "x": 128,
+    "y": 106,
+    "r": 27
+   },
+   "lake": {
+    "x": 222,
+    "y": 90,
+    "rx": 40,
+    "ry": 37
+   },
+   "garden": {
+    "x0": 14,
+    "y0": 120,
+    "x1": 84,
+    "y1": 176
+   },
+   "beds": [
+    [
+     22,
+     127,
+     54,
+     9
+    ],
+    [
+     22,
+     141,
+     54,
+     9
+    ],
+    [
+     22,
+     155,
+     54,
+     9
+    ]
+   ],
+   "house": {
+    "x": 60,
+    "y": 60
+   },
+   "dock": {
+    "x0": 180,
+    "y0": 88,
+    "x1": 202,
+    "y1": 97
+   }
+  },
+  "decor": [
+   [
+    "house",
+    60,
+    60,
+    0
+   ],
+   [
+    "mailbox",
+    86,
+    66,
+    0
+   ],
+   [
+    "barrel",
+    26,
+    62,
+    0
+   ],
+   [
+    "barrel",
+    33,
+    64,
+    0
+   ],
+   [
+    "bushP",
+    44,
+    68,
+    0
+   ],
+   [
+    "bushY",
+    76,
+    68,
+    0
+   ],
+   [
+    "bush",
+    98,
+    58,
+    0
+   ],
+   [
+    "bushW",
+    20,
+    84,
+    0
+   ],
+   [
+    "lamp",
+    103,
+    86,
+    0
+   ],
+   [
+    "lamp",
+    154,
+    128,
+    0
+   ],
+   [
+    "lamp",
+    200,
+    88,
+    0
+   ],
+   [
+    "sign",
+    138,
+    142,
+    0
+   ],
+   [
+    "fence",
+    21,
+    176,
+    0
+   ],
+   [
+    "fence",
+    21,
+    120,
+    0
+   ],
+   [
+    "fence",
+    33,
+    176,
+    0
+   ],
+   [
+    "fence",
+    33,
+    120,
+    0
+   ],
+   [
+    "fence",
+    45,
+    176,
+    0
+   ],
+   [
+    "fence",
+    45,
+    120,
+    0
+   ],
+   [
+    "fence",
+    57,
+    176,
+    0
+   ],
+   [
+    "fence",
+    57,
+    120,
+    0
+   ],
+   [
+    "fence",
+    69,
+    176,
+    0
+   ],
+   [
+    "fence",
+    69,
+    120,
+    0
+   ],
+   [
+    "fence",
+    81,
+    176,
+    0
+   ],
+   [
+    "fence",
+    81,
+    120,
+    0
+   ],
+   [
+    "post",
+    14,
+    128,
+    0
+   ],
+   [
+    "post",
+    84,
+    128,
+    0
+   ],
+   [
+    "post",
+    14,
+    136,
+    0
+   ],
+   [
+    "post",
+    84,
+    136,
+    0
+   ],
+   [
+    "post",
+    14,
+    144,
+    0
+   ],
+   [
+    "post",
+    14,
+    152,
+    0
+   ],
+   [
+    "post",
+    14,
+    160,
+    0
+   ],
+   [
+    "post",
+    84,
+    160,
+    0
+   ],
+   [
+    "post",
+    14,
+    168,
+    0
+   ],
+   [
+    "post",
+    84,
+    168,
+    0
+   ],
+   [
+    "sun",
+    26,
+    124,
+    0
+   ],
+   [
+    "sun",
+    34,
+    123,
+    0
+   ],
+   [
+    "sun",
+    42,
+    124,
+    0
+   ],
+   [
+    "tomato",
+    32,
+    136,
+    1
+   ],
+   [
+    "tomato",
+    48,
+    136,
+    2
+   ],
+   [
+    "tomato",
+    64,
+    136,
+    3
+   ],
+   [
+    "scare",
+    78,
+    128,
+    0
+   ],
+   [
+    "boat",
+    230,
+    106,
+    0
+   ],
+   [
+    "reed",
+    186,
+    74,
+    0
+   ],
+   [
+    "reed",
+    189,
+    108,
+    0
+   ],
+   [
+    "reed",
+    206,
+    124,
+    0
+   ],
+   [
+    "reed",
+    244,
+    122,
+    0
+   ],
+   [
+    "reed",
+    254,
+    70,
+    0
+   ],
+   [
+    "rock",
+    150,
+    172,
+    0
+   ],
+   [
+    "rock",
+    6,
+    102,
+    0
+   ],
+   [
+    "rock",
+    150,
+    66,
+    0
+   ],
+   [
+    "tree",
+    20,
+    30,
+    0
+   ],
+   [
+    "tree",
+    104,
+    32,
+    1
+   ],
+   [
+    "treeF",
+    118,
+    58,
+    2
+   ],
+   [
+    "tree",
+    176,
+    40,
+    3
+   ],
+   [
+    "tree",
+    246,
+    36,
+    4
+   ],
+   [
+    "tree",
+    8,
+    150,
+    5
+   ],
+   [
+    "tree",
+    244,
+    170,
+    6
+   ],
+   [
+    "treeF",
+    176,
+    152,
+    7
+   ],
+   [
+    "treeB",
+    182,
+    64,
+    8
+   ],
+   [
+    "treeB",
+    30,
+    100,
+    9
+   ],
+   [
+    "tree",
+    234,
+    186,
+    10
+   ],
+   [
+    "tree",
+    8,
+    186,
+    11
+   ],
+   [
+    "tree",
+    150,
+    36,
+    12
+   ],
+   [
+    "tree",
+    134,
+    -47,
+    100
+   ],
+   [
+    "tree",
+    164,
+    -19,
+    101
+   ],
+   [
+    "tree",
+    -30,
+    -47,
+    102
+   ],
+   [
+    "tree",
+    111,
+    -52,
+    103
+   ],
+   [
+    "tree",
+    100,
+    -35,
+    104
+   ],
+   [
+    "pine",
+    1,
+    -78,
+    105
+   ],
+   [
+    "tree",
+    90,
+    -61,
+    106
+   ],
+   [
+    "tree",
+    -12,
+    -41,
+    107
+   ],
+   [
+    "tree",
+    99,
+    -20,
+    108
+   ],
+   [
+    "tree",
+    232,
+    -66,
+    109
+   ],
+   [
+    "tree",
+    36,
+    -89,
+    110
+   ],
+   [
+    "pine",
+    312,
+    -68,
+    111
+   ],
+   [
+    "tree",
+    223,
+    -63,
+    112
+   ],
+   [
+    "pine",
+    159,
+    -20,
+    113
+   ],
+   [
+    "pine",
+    263,
+    -22,
+    114
+   ],
+   [
+    "tree",
+    -50,
+    -87,
+    115
+   ],
+   [
+    "pine",
+    129,
+    -48,
+    116
+   ],
+   [
+    "pine",
+    131,
+    -29,
+    117
+   ],
+   [
+    "pine",
+    185,
+    -90,
+    118
+   ],
+   [
+    "pine",
+    181,
+    -7,
+    119
+   ],
+   [
+    "pine",
+    117,
+    -63,
+    120
+   ],
+   [
+    "tree",
+    219,
+    -57,
+    121
+   ],
+   [
+    "pine",
+    54,
+    -45,
+    122
+   ],
+   [
+    "pine",
+    260,
+    -80,
+    123
+   ],
+   [
+    "pine",
+    179,
+    -39,
+    124
+   ],
+   [
+    "tree",
+    80,
+    -61,
+    125
+   ],
+   [
+    "pine",
+    264,
+    -39,
+    126
+   ],
+   [
+    "pine",
+    289,
+    -42,
+    127
+   ],
+   [
+    "pine",
+    57,
+    -49,
+    128
+   ],
+   [
+    "pine",
+    275,
+    -67,
+    129
+   ],
+   [
+    "tree",
+    -13,
+    -87,
+    130
+   ],
+   [
+    "pine",
+    147,
+    -49,
+    131
+   ],
+   [
+    "tree",
+    153,
+    -39,
+    132
+   ],
+   [
+    "tree",
+    305,
+    -41,
+    133
+   ],
+   [
+    "pine",
+    158,
+    -51,
+    134
+   ],
+   [
+    "tree",
+    188,
+    -37,
+    135
+   ],
+   [
+    "pine",
+    210,
+    -82,
+    136
+   ],
+   [
+    "pine",
+    186,
+    -8,
+    137
+   ],
+   [
+    "tree",
+    292,
+    -61,
+    138
+   ],
+   [
+    "pine",
+    188,
+    -88,
+    139
+   ],
+   [
+    "tree",
+    192,
+    -51,
+    140
+   ],
+   [
+    "pine",
+    26,
+    -31,
+    141
+   ],
+   [
+    "pine",
+    -25,
+    -45,
+    142
+   ],
+   [
+    "tree",
+    9,
+    -22,
+    143
+   ],
+   [
+    "pine",
+    225,
+    -94,
+    144
+   ],
+   [
+    "tree",
+    263,
+    -44,
+    145
+   ],
+   [
+    "tree",
+    179,
+    -94,
+    146
+   ],
+   [
+    "tree",
+    127,
+    -80,
+    147
+   ],
+   [
+    "tree",
+    -36,
+    -87,
+    148
+   ],
+   [
+    "tree",
+    173,
+    -32,
+    149
+   ],
+   [
+    "pine",
+    289,
+    -8,
+    150
+   ],
+   [
+    "pine",
+    4,
+    -42,
+    151
+   ],
+   [
+    "pine",
+    99,
+    -47,
+    152
+   ],
+   [
+    "pine",
+    -37,
+    -53,
+    153
+   ],
+   [
+    "pine",
+    99,
+    -30,
+    154
+   ],
+   [
+    "pine",
+    68,
+    -42,
+    155
+   ],
+   [
+    "pine",
+    311,
+    -68,
+    156
+   ],
+   [
+    "pine",
+    33,
+    -34,
+    157
+   ],
+   [
+    "pine",
+    154,
+    -37,
+    158
+   ],
+   [
+    "tree",
+    -10,
+    -79,
+    159
+   ],
+   [
+    "pine",
+    -8,
+    -22,
+    160
+   ],
+   [
+    "tree",
+    180,
+    -21,
+    161
+   ],
+   [
+    "pine",
+    249,
+    -85,
+    162
+   ],
+   [
+    "pine",
+    223,
+    -75,
+    163
+   ],
+   [
+    "tree",
+    70,
+    -85,
+    164
+   ],
+   [
+    "tree",
+    183,
+    -31,
+    165
+   ],
+   [
+    "pine",
+    227,
+    -32,
+    166
+   ],
+   [
+    "pine",
+    230,
+    -74,
+    167
+   ],
+   [
+    "pine",
+    -7,
+    -39,
+    168
+   ],
+   [
+    "tree",
+    154,
+    -9,
+    169
+   ],
+   [
+    "pine",
+    138,
+    -17,
+    170
+   ],
+   [
+    "pine",
+    141,
+    -26,
+    171
+   ],
+   [
+    "tree",
+    313,
+    -82,
+    172
+   ],
+   [
+    "tree",
+    119,
+    -12,
+    173
+   ],
+   [
+    "pine",
+    88,
+    -53,
+    174
+   ],
+   [
+    "pine",
+    -22,
+    -77,
+    175
+   ],
+   [
+    "tree",
+    -26,
+    -12,
+    176
+   ],
+   [
+    "tree",
+    157,
+    -74,
+    177
+   ],
+   [
+    "pine",
+    -31,
+    -20,
+    178
+   ],
+   [
+    "pine",
+    -36,
+    -55,
+    179
+   ],
+   [
+    "pine",
+    -7,
+    -61,
+    180
+   ],
+   [
+    "tree",
+    281,
+    -43,
+    181
+   ],
+   [
+    "tree",
+    317,
+    -63,
+    182
+   ],
+   [
+    "tree",
+    147,
+    -71,
+    183
+   ],
+   [
+    "tree",
+    299,
+    -67,
+    184
+   ],
+   [
+    "pine",
+    95,
+    -83,
+    185
+   ],
+   [
+    "pine",
+    180,
+    -92,
+    186
+   ],
+   [
+    "pine",
+    222,
+    -80,
+    187
+   ],
+   [
+    "tree",
+    104,
+    -25,
+    188
+   ],
+   [
+    "pine",
+    170,
+    -35,
+    189
+   ],
+   [
+    "pine",
+    228,
+    -13,
+    190
+   ],
+   [
+    "pine",
+    210,
+    -87,
+    191
+   ],
+   [
+    "pine",
+    139,
+    -34,
+    192
+   ],
+   [
+    "pine",
+    290,
+    -14,
+    193
+   ],
+   [
+    "tree",
+    281,
+    -60,
+    194
+   ],
+   [
+    "tree",
+    -19,
+    189,
+    300
+   ],
+   [
+    "pine",
+    278,
+    63,
+    400
+   ],
+   [
+    "tree",
+    -23,
+    10,
+    301
+   ],
+   [
+    "tree",
+    272,
+    84,
+    401
+   ],
+   [
+    "tree",
+    -37,
+    186,
+    302
+   ],
+   [
+    "tree",
+    272,
+    19,
+    402
+   ],
+   [
+    "pine",
+    -57,
+    185,
+    303
+   ],
+   [
+    "pine",
+    300,
+    57,
+    403
+   ],
+   [
+    "pine",
+    -22,
+    148,
+    304
+   ],
+   [
+    "tree",
+    317,
+    108,
+    404
+   ],
+   [
+    "tree",
+    -31,
+    77,
+    305
+   ],
+   [
+    "pine",
+    313,
+    20,
+    405
+   ],
+   [
+    "tree",
+    -36,
+    132,
+    306
+   ],
+   [
+    "tree",
+    276,
+    131,
+    406
+   ],
+   [
+    "pine",
+    -43,
+    19,
+    307
+   ],
+   [
+    "tree",
+    287,
+    19,
+    407
+   ],
+   [
+    "tree",
+    -36,
+    39,
+    308
+   ],
+   [
+    "pine",
+    269,
+    77,
+    408
+   ],
+   [
+    "tree",
+    -37,
+    177,
+    309
+   ],
+   [
+    "pine",
+    284,
+    119,
+    409
+   ],
+   [
+    "pine",
+    -40,
+    108,
+    310
+   ],
+   [
+    "tree",
+    303,
+    123,
+    410
+   ],
+   [
+    "tree",
+    -27,
+    32,
+    311
+   ],
+   [
+    "pine",
+    273,
+    43,
+    411
+   ],
+   [
+    "tree",
+    -50,
+    26,
+    312
+   ],
+   [
+    "pine",
+    309,
+    146,
+    412
+   ],
+   [
+    "pine",
+    -39,
+    2,
+    313
+   ],
+   [
+    "pine",
+    308,
+    93,
+    413
+   ],
+   [
+    "pine",
+    -56,
+    6,
+    314
+   ],
+   [
+    "pine",
+    292,
+    3,
+    414
+   ],
+   [
+    "tree",
+    -12,
+    48,
+    315
+   ],
+   [
+    "pine",
+    272,
+    31,
+    415
+   ],
+   [
+    "pine",
+    -37,
+    149,
+    316
+   ],
+   [
+    "tree",
+    287,
+    168,
+    416
+   ],
+   [
+    "pine",
+    -42,
+    122,
+    317
+   ],
+   [
+    "tree",
+    301,
+    77,
+    417
+   ],
+   [
+    "tree",
+    -35,
+    79,
+    318
+   ],
+   [
+    "pine",
+    316,
+    60,
+    418
+   ],
+   [
+    "tree",
+    -55,
+    124,
+    319
+   ],
+   [
+    "pine",
+    299,
+    44,
+    419
+   ],
+   [
+    "tree",
+    -22,
+    39,
+    320
+   ],
+   [
+    "tree",
+    287,
+    70,
+    420
+   ],
+   [
+    "pine",
+    -57,
+    173,
+    321
+   ],
+   [
+    "pine",
+    293,
+    168,
+    421
+   ],
+   [
+    "tree",
+    -50,
+    178,
+    322
+   ],
+   [
+    "pine",
+    295,
+    69,
+    422
+   ],
+   [
+    "pine",
+    -53,
+    6,
+    323
+   ],
+   [
+    "pine",
+    269,
+    58,
+    423
+   ],
+   [
+    "tree",
+    -35,
+    48,
+    324
+   ],
+   [
+    "tree",
+    299,
+    149,
+    424
+   ],
+   [
+    "tree",
+    -48,
+    86,
+    325
+   ],
+   [
+    "pine",
+    302,
+    62,
+    425
+   ]
+  ],
+  "lights": [
+   [
+    43,
+    60,
+    32,
+    1
+   ],
+   [
+    77,
+    60,
+    32,
+    1
+   ],
+   [
+    60,
+    60,
+    59,
+    0.8
+   ],
+   [
+    69,
+    60,
+    31,
+    0.7
+   ],
+   [
+    103,
+    86,
+    24,
+    1
+   ],
+   [
+    154,
+    128,
+    24,
+    1
+   ],
+   [
+    200,
+    88,
+    24,
+    1
+   ]
+  ],
+  "place": {
+   "well_square": {
+    "at": [
+     128,
+     109
+    ]
+   },
+   "bench_square": {
+    "at": [
+     92,
+     112
+    ]
+   },
+   "board_square": {
+    "at": [
+     152,
+     86
+    ]
+   },
+   "fishing_spot": {
+    "at": [
+     200,
+     92
+    ],
+    "sprite": "none"
+   },
+   "seedbed_1": {
+    "at": [
+     42,
+     131
+    ],
+    "sprite": "none"
+   },
+   "seedbed_2": {
+    "at": [
+     56,
+     131
+    ],
+    "sprite": "none"
+   },
+   "seedbed_3": {
+    "at": [
+     70,
+     131
+    ],
+    "sprite": "none"
+   },
+   "seedbed_4": {
+    "at": [
+     42,
+     159
+    ],
+    "sprite": "none"
+   },
+   "seedbed_5": {
+    "at": [
+     56,
+     159
+    ],
+    "sprite": "none"
+   },
+   "seedbed_6": {
+    "at": [
+     70,
+     159
+    ],
+    "sprite": "none"
+   },
+   "shore_rocks": {
+    "at": [
+     210,
+     150
+    ],
+    "sprite": "rock"
+   },
+   "well_square_water": {
+    "at": [
+     128,
+     109
+    ],
+    "sprite": "none"
+   },
+   "lake_water": {
+    "at": [
+     186,
+     92
+    ],
+    "sprite": "none"
+   },
+   "forest_wood": {
+    "at": [
+     0,
+     0
+    ],
+    "sprite": "none"
+   },
+   "forest_mushrooms": {
+    "at": [
+     0,
+     0
+    ],
+    "sprite": "none"
+   },
+   "forest_seeds": {
+    "at": [
+     0,
+     0
+    ],
+    "sprite": "none"
+   }
+  },
+  "door": {
+   "outside": [
+    7,
+    10
+   ],
+   "inside": [
+    42,
+    15
+   ],
+   "at": [
+    60,
+    60
+   ]
+  },
+  "interior": {
+   "rect": [
+    26,
+    3,
+    24,
+    13
+   ]
+  }
+ }
 }

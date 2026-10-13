@@ -98,6 +98,8 @@ class MoveTo(Action):
         cands, label = res
         grid = ctx.state.grid
         cands = [c for c in cands if grid.in_bounds(*c)]
+        free = [c for c in cands if grid.walkable(*c) and c not in grid.blocked]   # Wasser, Wände, Möbel sind kein Ziel
+        cands = free or cands
         if not cands:
             return rej(RejectCode.NOT_REACHABLE, f"{label} liegt außerhalb der Karte oder ist nicht erreichbar.")
         if all(c in grid.forbidden for c in cands):
