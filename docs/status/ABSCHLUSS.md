@@ -1,6 +1,6 @@
 # Abschlussbericht SIMULACRA (AP11)
 
-Stand: 13.10.2026 · Branch `ap/11-abnahme` · Freigabe zum Zusammenführen: **offen**
+Stand: 13.10.2026 · Branch `ap/11-abnahme` · Freigabe zum Zusammenführen: **erteilt (13.10.2026, Henry)**
 
 ## Ergebnis in Kürze
 

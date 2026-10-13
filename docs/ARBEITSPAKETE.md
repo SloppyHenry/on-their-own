@@ -18,6 +18,7 @@ Jedes Paket hat eine eigene Datei unter [arbeitspakete/](arbeitspakete/) mit Zie
 | AP10 | [AP10-container.md](arbeitspakete/AP10-container.md) | Docker-Container, Betrieb auf maintux | §2, §19 | AP04 (Probe), AP09 (final) | M |
 | AP11 | [AP11-abnahme.md](arbeitspakete/AP11-abnahme.md) | Stabilisierung, Abnahme, Dokumentation | §15, §17, §19 | alle | M |
 | AP12 | [AP12-weltgenerator.md](arbeitspakete/AP12-weltgenerator.md) | Weltgenerator: Straßen, Gebäude, Vegetation im Stil der Startwelt (Zusatz, nach AP11) | Zusatz Henry | AP04, AP08, AP09 | L |
+| AP13 | [AP13-weltoptik.md](arbeitspakete/AP13-weltoptik.md) | Weltoptik „Mischung“ (Pixelwelt mit Tiefe) und Vorbereitung der Mitspieler-Steuerung (Point-and-Click, Spracheingabe) | Zusatz Henry | AP04, AP11 | L |
 
 Umfang: S = etwa eine Sitzung, M = zwei bis drei, L = drei bis fünf.
 
