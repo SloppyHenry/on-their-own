@@ -1,0 +1,72 @@
+Stand: 2026-10-13 02:40
+
+Running 49 tests using 1 worker
+
+  ✓   1 e2e/acceptance/abnahme.spec.ts:21:1 › K01 zwei Agenten in einer Welt: beide mit Position im Zustand und als Figur im Canvas (2.3s)
+  ✓   2 e2e/acceptance/abnahme.spec.ts:32:1 › K05 Dialoge live: Sprechblase und Protokollzeile binnen 2 s nach dem Ereignis (2.0s)
+  ✓   3 e2e/acceptance/abnahme.spec.ts:45:1 › K06 Ortswechsel sichtbar: die Figur folgt dem Fahrplan aus agent.walking (4.6s)
+  ✓   4 e2e/acceptance/abnahme.spec.ts:77:1 › K12 Pause, Fortsetzen und Einzelschritt über die Bedienleiste (4.4s)
+  ✓   5 e2e/acceptance/abnahme.spec.ts:94:1 › K13 Neu laden stellt den Zustand her, auch mitten auf einem Weg (5.4s)
+  ✓   6 e2e/auth.spec.ts:5:1 › Mit aktivem Schutz zuerst die Anmeldung; falsches Token bleibt auf der Seite, richtiges öffnet die Leitstelle (1.6s)
+  ✓   7 e2e/auth.spec.ts:25:1 › Läuft die Anmeldung ab (401 mitten im Betrieb), erscheint wieder die Anmeldung (1.5s)
+[WebServer] 2:41:00 AM [vite] (client) [Unhandled error] TypeError: Cannot read properties of null (reading 'style')
+[WebServer]  > ScaleManager.updateScale node_modules/phaser/dist/phaser.js:195709:32
+[WebServer]  > ScaleManager.refresh node_modules/phaser/dist/phaser.js:195649:13
+[WebServer]  > src/world/WorldCanvas.tsx:31:79
+[WebServer]     29 |      const el = host.current!;
+[WebServer]     30 |      const remeasure = () => game.scale.updateBounds();
+[WebServer]     31 |      const ro = new ResizeObserver(() => requestAnimationFrame(() => game.scale.refresh()));
+[WebServer]        |                                                                                 ^
+[WebServer]     32 |      ro.observe(el);
+[WebServer]     33 |      for (const ev of ["pointerdown", "pointermove", "wheel"]) el.addEventListener(ev, remeasure, { capture: true, pas...
+[WebServer] 
+  ✓   8 e2e/autonomy.spec.ts:6:1 › Agentenübersicht zeigt Ziel, Stimmung und Bedürfnisse aus den echten Daten (1.9s)
+  ✓   9 e2e/autonomy.spec.ts:19:1 › Agenten-Detail: Ziele mit Plan, Beziehung, Fehlschläge und „Warum?“ aus echten Daten (2.7s)
+[WebServer] 2:41:07 AM [vite] (client) [Unhandled error] Error: ResizeObserver loop completed with undelivered notifications.
+[WebServer]  > ../../../../../@vite/client:363:50
+[WebServer] 
+  ✓  10 e2e/autonomy.spec.ts:39:1 › Protokoll: „Warum?“ klappt Erklärung und Faktoren auf, Filter „Fehlschläge“ zeigt nur Fehlschläge (2.1s)
+  ✓  11 e2e/autonomy.spec.ts:52:1 › Entscheidungsdetail im Ereignis zeigt Optionen mit Faktoren und das aktive Ziel (2.2s)
+  ✓  12 e2e/autonomy.spec.ts:62:1 › Zielwechsel und Beziehungsänderungen erscheinen im Protokoll mit Grund (1.9s)
+  ✓  13 e2e/composer.spec.ts:15:1 › Regen per Texteingabe: Status „ausgeführt ✓“, Wetter wirklich geändert, Protokolleintrag (§17 Nr. 10) (2.0s)
+  ✓  14 e2e/composer.spec.ts:25:1 › Alex findet eine Karte: sie existiert, nur Alex weiß davon (§17 Nr. 11) (1.9s)
+  ✓  15 e2e/composer.spec.ts:36:1 › Mehrdeutig: Rückfrage statt Vermutung, danach ausgeführt; nur Mira bekommt die Einladung (2.1s)
+  ✓  16 e2e/composer.spec.ts:48:1 › Nebenfigur: Vorschau mit Klartext, erst nach Bestätigung entsteht sie (§10.4) (2.1s)
+  ✓  17 e2e/composer.spec.ts:60:1 › Unklare Eingabe: das Modell fragt nach, nichts ändert sich; Antwort führt zum Ergebnis (2.4s)
+  ✓  18 e2e/composer.spec.ts:75:1 › Zeitpunkt und Verlauf: geplantes Ereignis steht im Verlauf, Eingabe zu lang oder ungültig wird abgelehnt (2.5s)
+  ✓  19 e2e/composer.spec.ts:94:1 › Vorschläge erscheinen beim Fokussieren und lassen sich übernehmen (2.2s)
+  ✓  20 e2e/composer.spec.ts:105:1 › „Er findet etwas“: das Pronomen wird erfragt, nicht geraten (2.2s)
+  ✓  21 e2e/memory.spec.ts:11:1 › Inspektor zeigt die Erinnerungen des gewählten Agenten und nur diese (§17 Nr. 2) (2.1s)
+  ✓  22 e2e/memory.spec.ts:29:1 › Filter, Suche und Detail mit Herkunft (2.2s)
+  ✓  23 e2e/memory.spec.ts:49:1 › Wissen und Abrufe sind einsehbar (2.1s)
+  ✓  24 e2e/memory.spec.ts:66:1 › Speichern und Abrufen leuchten am Agenten auf (2.0s)
+  ✓  25 e2e/memory.spec.ts:73:1 › Das Agentendetail zeigt die letzten Erinnerungen und öffnet den Inspektor (2.2s)
+  ✓  26 e2e/saves.spec.ts:10:1 › Speichern, weiterlaufen, Laden: der Browser zeigt den gespeicherten Stand; vorher wird gesichert (§17 Nr. 7) (4.1s)
+  ✓  27 e2e/saves.spec.ts:36:1 › Gleicher Name überschreibt nichts ohne ausdrückliche Bestätigung (3.0s)
+  ✓  28 e2e/saves.spec.ts:53:1 › Löschen fragt nach; Export und Import als ZIP legen einen neuen Stand an (3.4s)
+  ✓  29 e2e/saves.spec.ts:78:1 › Zurücksetzen sichert vorher als Spielstand und lässt die Profile behalten (2.4s)
+  ✓  30 e2e/saves.spec.ts:91:1 › Verlauf: Filter nach Kategorie, Text und Zeitraum, Export als CSV und JSON (3.3s)
+  ✓  31 e2e/saves.spec.ts:121:1 › Statistik zeigt echte Zahlen und Verläufe aus dem laufenden Tag (§14) (3.1s)
+  ✓  32 e2e/settings.spec.ts:14:1 › Regler Knappheit: Status „übernommen“ und die Welt schrumpft wirklich (§17 Nr. 8) (2.7s)
+  ✓  33 e2e/settings.spec.ts:32:1 › Wirkung erst später: Gedächtnisregler zeigt „ab nächster Entscheidung“, ein falscher Wert wird abgelehnt (2.5s)
+  ✓  34 e2e/settings.spec.ts:45:1 › Agenten nebeneinander: Persönlichkeit je Figur und Charaktertext (§17 Nr. 8) (4.6s)
+  ✓  35 e2e/settings.spec.ts:62:1 › Presets: Vorschau mit alt und neu, Laden, eigenes Preset speichern und löschen (§17 Nr. 8) (2.8s)
+  ✓  36 e2e/settings.spec.ts:83:1 › Tempo, Modus und Status sind erreichbar; das Modell lässt sich im Lauf nicht ändern (2.9s)
+  ✓  37 e2e/settings.spec.ts:98:1 › Suche findet Einstellungen über alle Bereiche (2.0s)
+  ✓  38 e2e/simulation.spec.ts:6:1 › Start: eine Figur bewegt sich sichtbar im Canvas (§17 Nr. 6) (2.1s)
+  ✓  39 e2e/simulation.spec.ts:15:1 › Dialog erscheint als Sprechblase und als Protokolleintrag (§17 Nr. 5) (2.2s)
+  ✓  40 e2e/simulation.spec.ts:28:1 › Pause hält an, Einzelschritt macht genau einen Tick (§17 Nr. 12) (4.1s)
+  ✓  41 e2e/simulation.spec.ts:46:1 › Neu laden stellt Uhrzeit, Positionen und Protokoll wieder her (§17 Nr. 13) (4.0s)
+  ✓  42 e2e/simulation.spec.ts:61:1 › Verbindung kurz getrennt: „Verbinde neu“, danach vollständiger Stand (2.6s)
+  ✓  43 e2e/simulation.spec.ts:80:1 › Zurücksetzen verlangt die Bestätigung durch Eingabe (2.9s)
+[WebServer] 2:42:36 AM [vite] (client) [Unhandled error] Error: ResizeObserver loop completed with undelivered notifications.
+[WebServer]  > ../../../../../@vite/client:363:50
+[WebServer] 
+  ✓  44 e2e/simulation.spec.ts:95:1 › Klick auf Agent und Ereignis öffnet Details mit echten Daten (2.8s)
+  ✓  45 e2e/simulation.spec.ts:111:1 › Tag und Nacht: abends ist die Welt sichtbar dunkler (7.6s)
+  ✓  46 e2e/world.spec.ts:6:1 › Klick auf die Figur im Canvas öffnet das Agentendetail (2.1s)
+  ✓  47 e2e/world.spec.ts:14:1 › Klick auf einen Raum im Canvas zeigt den Ort mit Objekten (2.1s)
+  ✓  48 e2e/world.spec.ts:24:1 › Taste F folgt dem gewählten Agenten, Taste 0 zeigt die ganze Welt (2.8s)
+  ✓  49 e2e/world.spec.ts:39:1 › Dach ist offen, solange jemand im Haus ist, und schließt sich, wenn alle draußen sind (2.3s)
+
+  49 passed (2.3m)
