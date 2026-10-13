@@ -60,7 +60,7 @@ export class Kamera {
   }
 
   /** Je Bild: Tasten (WASD, Pfeile), Gleiten, Zoomstufen. `dt` in Sekunden. */
-  update(dt: number, keys: Set<string>) {
+  update(dt: number, keys: Set<string>, unproj: (sx: number, sy: number) => { x: number; y: number } | null = (sx, sy) => this.toWorldF(sx, sy)) {
     const k = (a: string, b: string) => (keys.has(a) || keys.has(b) ? 1 : 0);
     const kx = k("KeyD", "ArrowRight") - k("KeyA", "ArrowLeft"), ky = k("KeyS", "ArrowDown") - k("KeyW", "ArrowUp");
     if (kx || ky) {
@@ -77,9 +77,9 @@ export class Kamera {
     }
     this.stepWait -= dt;
     if (this.z !== this.zt && this.stepWait <= 0) {
-      const [ax, ay] = this.anchor ?? [this.W / 2, this.H / 2], w = this.toWorldF(ax, ay), z = this.z + Math.sign(this.zt - this.z);
-      this.z = z;
-      if (this.anchor) { this.x = w.x - (ax - this.W / 2) / z; this.y = w.y - (ay - this.H / 2) / z; }
+      const [ax, ay] = this.anchor ?? [this.W / 2, this.H / 2], w0 = unproj(ax, ay) ?? this.toWorldF(ax, ay);
+      this.z += Math.sign(this.zt - this.z);
+      if (this.anchor) { const w1 = unproj(ax, ay) ?? this.toWorldF(ax, ay); this.x += w0.x - w1.x; this.y += w0.y - w1.y; }   // Punkt unter der Maus bleibt stehen
       this.stepWait = 0.035;
     }
     this.clamp();

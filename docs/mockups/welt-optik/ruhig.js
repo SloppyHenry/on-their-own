@@ -1742,6 +1742,140 @@
 		g.fillRect(x, top - cap, 16 * z, z);
 	}
 	//#endregion
+	//#region ../docs/mockups/welt-optik/ruhig/effekte.ts
+	var Himmel = class {
+		clouds = canvas(1, 1);
+		key = "";
+		build(W, H, m) {
+			const night = m.stars > .5, u = H / 200, ch = Math.round(42 * u), cl = canvas(W * 2, ch), cg = cl.getContext("2d"), img = cg.createImageData(cl.width, ch), d = img.data;
+			const light = night ? [
+				74,
+				82,
+				136
+			] : [
+				255,
+				255,
+				255
+			], shade = night ? [
+				58,
+				64,
+				116
+			] : m.skyBot;
+			for (let y = 0; y < ch; y++) for (let x = 0; x < cl.width; x++) {
+				const yy = y / u, xx = x / u, nv = noise(xx * .035, yy * .11, 8) * .7 + noise(xx * .09, yy * .25, 9) * .3 - Math.abs(yy - 14) / 30, o = (y * cl.width + x) * 4;
+				if (nv <= .5) continue;
+				const c = nv < .56 || yy > 17 ? shade : light;
+				d[o] = c[0];
+				d[o + 1] = c[1];
+				d[o + 2] = c[2];
+				d[o + 3] = 235;
+			}
+			cg.putImageData(img, 0, 0);
+			this.clouds = cl;
+		}
+		/** Himmel bis zum Horizont yH; `pan` = Kameraversatz in Pixeln (Wolken und Hügel ziehen langsamer mit). */
+		draw(g, W, H, yH, m, zeit, t, pan) {
+			const key = `${W}x${H}|${zeit}`;
+			if (key !== this.key) {
+				this.build(W, H, m);
+				this.key = key;
+			}
+			const u = H / 200, grad = g.createLinearGradient(0, 0, 0, yH);
+			grad.addColorStop(0, css(m.skyTop));
+			grad.addColorStop(1, css(m.skyBot));
+			g.fillStyle = grad;
+			g.fillRect(0, 0, W, yH + 2);
+			if (m.stars > .05) {
+				const R = rng(3);
+				g.globalAlpha = m.stars;
+				for (let i = 0; i < 70 * W / (320 * u); i++) {
+					g.fillStyle = R() < .2 ? "#fff6c8" : "#dfe6ff";
+					g.fillRect(Math.floor(R() * W), Math.floor(R() * yH * .8), Math.ceil(u), Math.ceil(u));
+				}
+				const mx = W * .78, my = H * .07, r = H * .03;
+				g.fillStyle = "#fff4d6";
+				g.beginPath();
+				g.arc(mx, my, r, 0, 7);
+				g.fill();
+				g.fillStyle = css(m.skyTop);
+				g.beginPath();
+				g.arc(mx + r * .5, my - r * .33, r * .92, 0, 7);
+				g.fill();
+				g.globalAlpha = 1;
+			}
+			const cw = this.clouds.width, off = ((t * 3 * u + pan * .08) % cw + cw) % cw;
+			g.drawImage(this.clouds, -off, Math.round(2 * u));
+			g.drawImage(this.clouds, cw - off, Math.round(2 * u));
+			const hc = m.haze, hc2 = m.skyBot, c1 = css([
+				hc[0] * .78 + hc2[0] * .1,
+				hc[1] * .86 + hc2[1] * .08,
+				hc[2] * .95
+			]), c2 = css([
+				hc[0] * .62,
+				hc[1] * .78,
+				hc[2] * .8
+			]);
+			const step = Math.max(1, Math.round(u));
+			for (let x = 0; x < W; x += step) {
+				const xx = (x + pan * .25) / u;
+				g.fillStyle = c1;
+				g.fillRect(x, Math.round(yH - (9 + 7 * noise(xx * .025, 0, 3)) * u), step, Math.round(20 * u));
+				g.fillStyle = c2;
+				g.fillRect(x, Math.round(yH - (4 + 4 * noise(xx * .05, 1, 4)) * u), step, Math.round(20 * u));
+			}
+		}
+	};
+	var TEILE = (() => {
+		const R = rng(21);
+		return Array.from({ length: 26 }, () => ({
+			x: R(),
+			y: R(),
+			p: R() * 6.28,
+			sp: .3 + R() * .6,
+			c: R()
+		}));
+	})();
+	/** Teilchen wie in Mockup A: tags Schmetterlinge, abends Blütenblätter, nachts Glühwürmchen. Ein Block = ein Weltpixel (z). */
+	function teilchen(g, W, H, yTop, m, zeit, t, panX, panY, z, dpr) {
+		const top = yTop + 20 * dpr, span = H - top - 40 * dpr;
+		if (span <= 0) return;
+		for (let i = 0; i < TEILE.length; i++) {
+			const a = TEILE[i], ax = a.x * W + Math.sin(t * a.sp + a.p) * 30 * dpr + t * 6 * dpr - panX, ay = a.y * span + Math.cos(t * a.sp * 1.3 + a.p) * 18 * dpr - panY;
+			const x = Math.round((ax % W + W) % W / z) * z, y = top + Math.round((ay % span + span) % span / z) * z;
+			if (m.stars > .5) {
+				const f = .5 + .5 * Math.sin(t * 2 + a.p * 3);
+				g.fillStyle = `rgba(214,255,140,${f})`;
+				g.fillRect(x, y, z, z);
+				g.fillStyle = `rgba(214,255,140,${f * .25})`;
+				g.fillRect(x - z, y - z, 3 * z, 3 * z);
+			} else if (zeit === "Abend") {
+				g.fillStyle = a.c < .5 ? "#ffc2d6" : "#fff0f5";
+				g.fillRect(x, y, z, z);
+			} else if (i < 6) {
+				const wh = Math.sin(t * 14 + a.p) > 0 ? z : Math.ceil(z / 2);
+				g.fillStyle = a.c < .5 ? "#ffffff" : "#ffd94f";
+				g.fillRect(x - z, y, z, wh);
+				g.fillRect(x + z, y, z, wh);
+				g.fillStyle = WP.outline;
+				g.fillRect(x, y, z, z);
+			}
+		}
+	}
+	function vignette(g, W, H, m) {
+		const vg = g.createRadialGradient(W / 2, H * .55, H * .45, W / 2, H * .55, H * .95);
+		vg.addColorStop(0, "rgba(30,20,40,0)");
+		vg.addColorStop(1, m.stars > .5 ? "rgba(5,8,25,0.55)" : "rgba(40,25,40,0.28)");
+		g.fillStyle = vg;
+		g.fillRect(0, 0, W, H);
+	}
+	/** Tilt-Shift als Unschärfe-Ebene über dem Bild (wie in der App): scharf in der Mitte, weich zum Rand. */
+	function tiltMask(el, mode) {
+		el.style.display = mode === "aus" ? "none" : "";
+		const m = mode === "tiefe" ? "linear-gradient(to bottom, #000 0%, rgba(0,0,0,.85) 14%, rgba(0,0,0,.35) 32%, transparent 48%, transparent 86%, rgba(0,0,0,.6) 100%)" : "linear-gradient(to bottom, #000 0%, rgba(0,0,0,.85) 12%, transparent 30%, transparent 84%, rgba(0,0,0,.75) 100%)";
+		el.style.maskImage = m;
+		el.style.setProperty("-webkit-mask-image", m);
+	}
+	//#endregion
 	//#region ../docs/mockups/welt-optik/ruhig/figuren.ts
 	var SPEED = 42;
 	var R = rng(7);
@@ -1883,7 +2017,7 @@
 			this.clamp();
 		}
 		/** Je Bild: Tasten (WASD, Pfeile), Gleiten, Zoomstufen. `dt` in Sekunden. */
-		update(dt, keys) {
+		update(dt, keys, unproj = (sx, sy) => this.toWorldF(sx, sy)) {
 			const k = (a, b) => keys.has(a) || keys.has(b) ? 1 : 0;
 			const kx = k("KeyD", "ArrowRight") - k("KeyA", "ArrowLeft"), ky = k("KeyS", "ArrowDown") - k("KeyW", "ArrowUp");
 			if (kx || ky) {
@@ -1903,11 +2037,12 @@
 			}
 			this.stepWait -= dt;
 			if (this.z !== this.zt && this.stepWait <= 0) {
-				const [ax, ay] = this.anchor ?? [this.W / 2, this.H / 2], w = this.toWorldF(ax, ay), z = this.z + Math.sign(this.zt - this.z);
-				this.z = z;
+				const [ax, ay] = this.anchor ?? [this.W / 2, this.H / 2], w0 = unproj(ax, ay) ?? this.toWorldF(ax, ay);
+				this.z += Math.sign(this.zt - this.z);
 				if (this.anchor) {
-					this.x = w.x - (ax - this.W / 2) / z;
-					this.y = w.y - (ay - this.H / 2) / z;
+					const w1 = unproj(ax, ay) ?? this.toWorldF(ax, ay);
+					this.x += w0.x - w1.x;
+					this.y += w0.y - w1.y;
 				}
 				this.stepWait = .035;
 			}
@@ -1926,10 +2061,147 @@
 		}
 	};
 	//#endregion
+	//#region ../docs/mockups/welt-optik/ruhig/tiefe.ts
+	var A = 29;
+	var HOR = .13;
+	var DROOP = .035;
+	var Tiefe = class {
+		ground;
+		yF = 0;
+		yH = 0;
+		dW = /* @__PURE__ */ new Float64Array(0);
+		sc = /* @__PURE__ */ new Float64Array(0);
+		drop = /* @__PURE__ */ new Int16Array(0);
+		key = "";
+		levels = [];
+		tmp = canvas(1, 1);
+		constructor(ground) {
+			this.ground = ground;
+			let src = ground;
+			this.levels = [ground];
+			for (let i = 0; i < 3; i++) {
+				const c = canvas(Math.ceil(src.width / 2), Math.ceil(src.height / 2)), g = c.getContext("2d");
+				g.imageSmoothingEnabled = true;
+				g.imageSmoothingQuality = "high";
+				g.drawImage(src, 0, 0, c.width, c.height);
+				this.levels.push(c);
+				src = c;
+			}
+		}
+		setup(W, H, z) {
+			const key = `${W}x${H}x${z}`;
+			if (key === this.key) return;
+			this.key = key;
+			this.yF = Math.round(H / 2);
+			this.yH = Math.round(H * HOR);
+			this.dW = new Float64Array(this.yF + 1);
+			this.sc = new Float64Array(this.yF + 1);
+			this.sc[this.yF] = 1;
+			for (let y = this.yF - 1; y >= 0; y--) {
+				const d = (this.yF - y - .5) / H, s = 1 / (1 + A * d * d);
+				this.sc[y] = s;
+				this.dW[y] = this.dW[y + 1] - 1 / (z * s);
+			}
+			this.drop = new Int16Array(W);
+			for (let x = 0; x < W; x++) {
+				const u = (x + .5 - W / 2) / (W / 2);
+				this.drop[x] = Math.round(DROOP * H * u * u);
+			}
+			this.tmp.width = W;
+			this.tmp.height = H;
+		}
+		droop = (x) => this.drop[Math.max(0, Math.min(this.drop.length - 1, Math.round(x)))] ?? 0;
+		/** Welt → Bild (ohne seitliches Absinken). ox/oy wie in der ebenen Ansicht, z ganzzahlig. */
+		project(wx, wy, ox, oy, z, W) {
+			const sy = oy + wy * z;
+			if (sy >= this.yF) return {
+				x: ox + wx * z,
+				y: sy,
+				s: 1
+			};
+			const d = wy - (this.yF - oy) / z;
+			if (d < this.dW[this.yH]) return null;
+			let lo = this.yH, hi = this.yF;
+			while (hi - lo > 1) {
+				const m = lo + hi >> 1;
+				if (this.dW[m] <= d) lo = m;
+				else hi = m;
+			}
+			const f = (d - this.dW[lo]) / (this.dW[lo + 1] - this.dW[lo]), s = this.sc[lo], cx = (W / 2 - ox) / z;
+			return {
+				x: W / 2 + (wx - cx) * z * s,
+				y: lo + f,
+				s
+			};
+		}
+		/** Bild → Welt (mit seitlichem Absinken); im Himmel null. */
+		unproject(sx, sy, ox, oy, z, W) {
+			const y = sy - this.droop(sx);
+			if (y >= this.yF) return {
+				x: (sx - ox) / z,
+				y: (y - oy) / z
+			};
+			if (y < this.yH) return null;
+			const r = Math.floor(y), f = y - r, s = this.sc[r];
+			return {
+				x: (W / 2 - ox) / z + (sx - W / 2) / (z * s),
+				y: (this.yF - oy) / z + this.dW[r] + f * (this.dW[r + 1] - this.dW[r])
+			};
+		}
+		/** Ferner Boden: je Zeile ein gefilterter Streifen aus der passenden Stufe, darüber Dunst. */
+		drawFar(g, ox, oy, z, W, haze) {
+			const cx = (W / 2 - ox) / z, wyF = (this.yF - oy) / z, far = this.dW[this.yH];
+			g.imageSmoothingEnabled = true;
+			g.imageSmoothingQuality = "low";
+			for (let y = this.yH; y < this.yF; y++) {
+				const k = z * this.sc[y], L = k >= 1 ? 0 : k >= .5 ? 1 : k >= .25 ? 2 : 3, img = this.levels[L], f = 1 / (1 << L);
+				const w0 = cx - W / 2 / k, sy = (wyF + this.dW[y] + 320) * f, sh = (this.dW[y + 1] - this.dW[y]) * f;
+				let sx = (w0 + 320) * f, sw = W / k * f, dx = 0, dw = W;
+				if (sx < 0) {
+					const cut = -sx;
+					dx += cut / sw * W;
+					dw -= cut / sw * W;
+					sw -= cut;
+					sx = 0;
+				}
+				const maxW = GW * f - sx;
+				if (sw > maxW) {
+					dw *= maxW / sw;
+					sw = maxW;
+				}
+				if (sw > 0 && dw > 0 && sy >= 0 && sy + sh <= GH * f) g.drawImage(img, sx, sy, sw, sh, dx, y, dw, 1);
+				const t = this.dW[y] / far, fog = Math.pow(t, 2.2) * .55;
+				if (fog > .01) {
+					g.fillStyle = `rgba(${haze[0] | 0},${haze[1] | 0},${haze[2] | 0},${fog})`;
+					g.fillRect(0, y, W, 1);
+				}
+			}
+			g.imageSmoothingEnabled = false;
+		}
+		/** Seitliches Absinken: das fertige Bild spaltenweise um ganze Pixel nach unten schieben; oben scheint der Himmel nach. */
+		bend(g, W, H, skyTop) {
+			const t = this.tmp.getContext("2d");
+			t.clearRect(0, 0, W, H);
+			t.drawImage(g.canvas, 0, 0);
+			g.fillStyle = skyTop;
+			g.fillRect(0, 0, W, H);
+			for (let x = 0; x < W;) {
+				const d = this.drop[x];
+				let e = x + 1;
+				while (e < W && this.drop[e] === d) e++;
+				g.drawImage(this.tmp, x, 0, e - x, H - d, x, d, e - x, H - d);
+				x = e;
+			}
+		}
+	};
+	//#endregion
 	//#region ../docs/mockups/welt-optik/ruhig/main.ts
 	var dpr = Math.max(1, Math.round(window.devicePixelRatio || 1));
 	var cv = document.getElementById("welt");
 	var g = cv.getContext("2d");
+	var tiltEl = document.getElementById("tilt");
+	var sc = document.getElementById("schilder");
+	var lg = sc.getContext("2d");
 	var OUT = {
 		x0: -96,
 		y0: -96,
@@ -1951,6 +2223,8 @@
 		w: i.spr(false).width
 	})));
 	var floor = floorTexture();
+	var tiefe = new Tiefe(ground);
+	var himmel = new Himmel();
 	var figs = [makeFig("alex", "Alex", 33, 9, false, 4), makeFig("mira", "Mira", 14, 7, true, 9)];
 	var shadowSpr = (() => {
 		const c = canvas(11, 4), s = c.getContext("2d");
@@ -1964,62 +2238,124 @@
 	var interior = false;
 	var selected = "alex";
 	var saved = null;
+	var ansicht = "tiefe";
+	var effekte = true;
 	var mark = null;
 	var hoverAt = null;
 	var keys = /* @__PURE__ */ new Set();
 	var cam = new Kamera(1, 1, dpr, dpr * 7, OUT);
+	var deep = () => ansicht === "tiefe" && !interior;
 	function resize() {
 		cv.width = Math.round(innerWidth * dpr);
 		cv.height = Math.round(innerHeight * dpr);
 		cv.style.width = `${innerWidth}px`;
 		cv.style.height = `${innerHeight}px`;
+		sc.width = cv.width;
+		sc.height = cv.height;
+		sc.style.width = cv.style.width;
+		sc.style.height = cv.style.height;
 		cam.W = cv.width;
 		cam.H = cv.height;
 		cam.zMin = Math.max(1, Math.min(dpr, cam.fitZoom(OUT)));
 		cam.clamp();
 	}
-	var picks = [];
-	function blit(spr, wx, wy, ox, oy, z, round = true) {
-		const lx = round ? Math.round(wx - spr.width / 2) : wx - spr.width / 2, ty = round ? Math.round(wy - spr.height) : wy - spr.height;
-		const x = Math.round(ox + lx * z), y = Math.round(oy + ty * z);
-		g.drawImage(spr, x, y, spr.width * z, spr.height * z);
-		return [x, y];
+	/** Welt → Bild vor dem seitlichen Absinken (zum Zeichnen). */
+	function place(wx, wy) {
+		const z = cam.z, { ox, oy } = cam.offset();
+		if (!deep()) return {
+			x: ox + wx * z,
+			y: oy + wy * z,
+			s: 1
+		};
+		tiefe.setup(cv.width, cv.height, z);
+		return tiefe.project(wx, wy, ox, oy, z, cv.width);
 	}
-	function drawFig(f, ox, oy, z) {
-		blit(shadowSpr, f.x + 1, f.y + 2, ox, oy, z, false);
-		if (f.id === selected) {
-			g.strokeStyle = accentOf(f.id);
-			g.lineWidth = Math.max(2, z * .75);
-			g.beginPath();
-			g.ellipse(Math.round(ox + f.x * z), Math.round(oy + (f.y + .5) * z), 7 * z, 2.6 * z, 0, 0, 7);
-			g.stroke();
+	/** Welt → Bild, fertig (für Schilder, Marken). */
+	function screen(wx, wy) {
+		const p = place(wx, wy);
+		return p && {
+			x: p.x,
+			y: p.y + (deep() ? tiefe.droop(p.x) : 0),
+			s: p.s
+		};
+	}
+	/** Bild → Welt (Klick, Zoom-Anker). */
+	function worldAt(sx, sy) {
+		if (!deep()) return cam.toWorld(sx, sy);
+		const { ox, oy } = cam.offset();
+		tiefe.setup(cv.width, cv.height, cam.z);
+		return tiefe.unproject(sx, sy, ox, oy, cam.z, cv.width);
+	}
+	var picks = [];
+	/** Sprite mit Fußpunkt (wx, wy). Im ebenen Teil ganzzahlig und pixelgenau, in der Ferne gleichmäßig verkleinert und gefiltert. */
+	function blit(spr, wx, wy, round = true) {
+		const ox = cam.offset().ox, oy = cam.offset().oy, z = cam.z;
+		if (!deep() || oy + wy * z >= tiefe.yF) {
+			const lx = round ? Math.round(wx - spr.width / 2) : wx - spr.width / 2, ty = round ? Math.round(wy - spr.height) : wy - spr.height;
+			const x = Math.round(ox + lx * z), y = Math.round(oy + ty * z);
+			if (x > cv.width || y > cv.height || x + spr.width * z < 0) return null;
+			g.drawImage(spr, x, y, spr.width * z, spr.height * z);
+			return [
+				x,
+				y,
+				z
+			];
 		}
-		const spr = figure(f.id, f.dir, frameOf(f)), [x, y] = blit(spr, f.x, f.y, ox, oy, z, false);
-		picks.push({
-			kind: "fig",
-			id: f.id,
+		const p = place(wx, wy);
+		if (!p) return null;
+		const k = z * p.s, x = p.x - spr.width / 2 * k, y = p.y - spr.height * k;
+		if (x > cv.width || x + spr.width * k < 0) return null;
+		g.imageSmoothingEnabled = true;
+		g.drawImage(spr, x, y, spr.width * k, spr.height * k);
+		g.imageSmoothingEnabled = false;
+		return [
 			x,
 			y,
-			w: spr.width * z,
-			h: spr.height * z,
+			k
+		];
+	}
+	function pick(kind, id, spr, r) {
+		if (!r) return;
+		const [x, y, k] = r, w = spr.width * k;
+		picks.push({
+			kind,
+			id,
+			x,
+			y: y + (deep() ? tiefe.droop(x + w / 2) : 0),
+			w,
+			h: spr.height * k,
 			spr
 		});
 	}
-	function tag(text, accent, cx, y, up, strong = false) {
-		g.font = `600 ${11 * dpr}px ui-rounded, system-ui, sans-serif`;
-		const w = g.measureText(text).width + 12 * dpr, h = 16 * dpr, x = Math.round(cx - w / 2), top = Math.round(up ? y - h : y);
-		g.fillStyle = strong ? "rgba(43,34,51,0.95)" : "rgba(43,34,51,0.78)";
-		g.strokeStyle = accent;
-		g.lineWidth = dpr;
-		g.beginPath();
-		g.roundRect(x, top, w, h, 5 * dpr);
-		g.fill();
-		g.stroke();
-		g.fillStyle = "#fff8ec";
-		g.textBaseline = "middle";
-		g.fillText(text, x + 6 * dpr, top + h / 2 + .5);
+	function drawFig(f) {
+		blit(shadowSpr, f.x + 1, f.y + 2, false);
+		const p = place(f.x, f.y + .5);
+		if (f.id === selected && p) {
+			const k = cam.z * p.s;
+			g.strokeStyle = accentOf(f.id);
+			g.lineWidth = Math.max(2, k * .75);
+			g.beginPath();
+			g.ellipse(Math.round(p.x), Math.round(p.y), 7 * k, 2.6 * k, 0, 0, 7);
+			g.stroke();
+		}
+		const spr = figure(f.id, f.dir, frameOf(f));
+		pick("fig", f.id, spr, blit(spr, f.x, f.y, false));
 	}
-	function lights(m, ox, oy, z) {
+	function tag(text, accent, cx, y, up, strong = false) {
+		lg.font = `600 ${11 * dpr}px ui-rounded, system-ui, sans-serif`;
+		const w = lg.measureText(text).width + 12 * dpr, h = 16 * dpr, x = Math.round(cx - w / 2), top = Math.round(up ? y - h : y);
+		lg.fillStyle = strong ? "rgba(43,34,51,0.95)" : "rgba(43,34,51,0.78)";
+		lg.strokeStyle = accent;
+		lg.lineWidth = dpr;
+		lg.beginPath();
+		lg.roundRect(x, top, w, h, 5 * dpr);
+		lg.fill();
+		lg.stroke();
+		lg.fillStyle = "#fff8ec";
+		lg.textBaseline = "middle";
+		lg.fillText(text, x + 6 * dpr, top + h / 2 + .5);
+	}
+	function lights(m) {
 		if (m.glowA <= 0) return;
 		const L = [];
 		if (!interior) {
@@ -2043,7 +2379,9 @@
 		]);
 		g.globalCompositeOperation = "lighter";
 		for (const [x, y, h, s] of L) {
-			const gx = ox + x * z, gy = oy + (y - h) * z, r = 16 * z * s, rg = g.createRadialGradient(gx, gy, 0, gx, gy, r);
+			const p = place(x, y);
+			if (!p) continue;
+			const k = cam.z * p.s, gx = p.x, gy = p.y - h * k, r = 16 * k * s, rg = g.createRadialGradient(gx, gy, 0, gx, gy, r);
 			rg.addColorStop(0, `rgba(255,205,120,${m.glowA})`);
 			rg.addColorStop(.35, `rgba(255,170,90,${m.glowA * .4})`);
 			rg.addColorStop(1, "rgba(255,150,80,0)");
@@ -2052,38 +2390,41 @@
 		}
 		g.globalCompositeOperation = "source-over";
 	}
-	function render() {
-		const m = TIMES[zeit], lit = m.lights > .5, z = cam.z, { ox, oy } = cam.offset(), W = cv.width, H = cv.height;
-		picks = [];
-		g.imageSmoothingEnabled = false;
+	function drawGround(m, t) {
+		const z = cam.z, { ox, oy } = cam.offset(), W = cv.width, H = cv.height, top = deep() ? tiefe.yF : 0;
 		g.fillStyle = "#437c40";
 		g.fillRect(0, 0, W, H);
-		const sx = Math.max(0, Math.floor(-ox / z + 320)), sy = Math.max(0, Math.floor(-oy / z + 320));
-		const sw = Math.min(GW - sx, Math.ceil(W / z) + 2), sh = Math.min(GH - sy, Math.ceil(H / z) + 2);
-		if (sw > 0 && sh > 0) g.drawImage(ground, sx, sy, sw, sh, ox + (sx - 320) * z, oy + (sy - 320) * z, sw * z, sh * z);
-		const inHouse = figs.filter((f) => f.inside), vw = {
-			x0: -ox / z - 48,
-			x1: (W - ox) / z + 48,
-			y0: -oy / z - 16,
-			y1: (H - oy) / z + 64
-		};
-		const list = [...items.filter((i) => i.x > vw.x0 && i.x < vw.x1 && i.y > vw.y0 && i.y < vw.y1), ...figs.filter((f) => !f.inside)];
+		if (deep()) {
+			himmel.draw(g, W, H, tiefe.yH, m, zeit, t, -ox);
+			tiefe.drawFar(g, ox, oy, z, W, m.haze);
+		}
+		const sx = Math.max(0, Math.floor(-ox / z + 320)), sy = Math.max(0, Math.floor((top - oy) / z + 320) - 1);
+		const sw = Math.min(GW - sx, Math.ceil(W / z) + 2), sh = Math.min(GH - sy, Math.ceil((H - top) / z) + 2);
+		if (sw <= 0 || sh <= 0) return;
+		g.save();
+		g.beginPath();
+		g.rect(0, top, W, H - top);
+		g.clip();
+		g.drawImage(ground, sx, sy, sw, sh, ox + (sx - 320) * z, oy + (sy - 320) * z, sw * z, sh * z);
+		g.restore();
+	}
+	function render(t) {
+		const m = TIMES[zeit], lit = m.lights > .5, z = cam.z, { ox, oy } = cam.offset(), W = cv.width, H = cv.height;
+		picks = [];
+		lg.clearRect(0, 0, W, H);
+		g.imageSmoothingEnabled = false;
+		if (deep()) tiefe.setup(W, H, z);
+		drawGround(m, t);
+		const inHouse = figs.filter((f) => f.inside), vy0 = deep() ? -Infinity : -oy / z - 16, vy1 = (H - oy) / z + 64;
+		const list = [...items.filter((i) => i.y > vy0 && i.y < vy1), ...figs.filter((f) => !f.inside)];
 		list.sort((a, b) => a.y - b.y);
 		for (const it of list) {
 			if ("name" in it) {
-				drawFig(it, ox, oy, z);
+				drawFig(it);
 				continue;
 			}
-			const spr = it.spr(lit || it.kind === "house" && inHouse.length > 0), [x, y] = blit(spr, it.x, it.y, ox, oy, z);
-			if (it.kind === "house") picks.push({
-				kind: "house",
-				id: "house",
-				x,
-				y,
-				w: spr.width * z,
-				h: spr.height * z,
-				spr
-			});
+			const spr = it.spr(lit || it.kind === "house" && inHouse.length > 0), r = blit(spr, it.x, it.y);
+			if (it.kind === "house") pick("house", "house", spr, r);
 		}
 		if (interior) {
 			const bx = ox + BLD.x0 * 16 * z, by = oy + BLD.y0 * 16 * z, bw = (BLD.x1 - BLD.x0) * 16 * z, bh = (BLD.y1 - BLD.y0) * 16 * z;
@@ -2101,12 +2442,12 @@
 				...indoor.map((it) => ({
 					y: it.y,
 					draw: () => {
-						blit(it.spr(lit), it.x, it.y, ox, oy, z);
+						blit(it.spr(lit), it.x, it.y);
 					}
 				})),
 				...inHouse.map((f) => ({
 					y: f.y,
-					draw: () => drawFig(f, ox, oy, z)
+					draw: () => drawFig(f)
 				}))
 			].sort((a, b) => a.y - b.y).forEach((p) => p.draw());
 		}
@@ -2121,21 +2462,31 @@
 			g.fillRect(0, 0, W, H);
 			g.globalCompositeOperation = "source-over";
 		}
-		lights(m, ox, oy, z);
+		lights(m);
+		if (deep()) tiefe.bend(g, W, H, css(m.skyTop));
+		if (effekte) {
+			if (!interior) teilchen(g, W, H, deep() ? tiefe.yH : 0, m, zeit, t, -ox, -oy, z, dpr);
+			vignette(g, W, H, m);
+		}
 		if (mark) {
-			const a = Math.max(0, 1 - (performance.now() - mark.t) / 1600), cx = ox + mark.x * z, cy = oy + mark.y * z;
-			g.strokeStyle = `rgba(255,248,236,${a})`;
-			g.lineWidth = Math.max(2, z * .6);
-			g.beginPath();
-			g.ellipse(cx, cy, 6 * z, 2.5 * z, 0, 0, 7);
-			g.stroke();
+			const a = Math.max(0, 1 - (performance.now() - mark.t) / 1600), p = screen(mark.x, mark.y);
+			if (p) {
+				const k = z * p.s;
+				g.strokeStyle = `rgba(255,248,236,${a})`;
+				g.lineWidth = Math.max(2, k * .6);
+				g.beginPath();
+				g.ellipse(p.x, p.y, 6 * k, 2.5 * k, 0, 0, 7);
+				g.stroke();
+			}
 			if (a <= 0) mark = null;
 		}
 		for (const f of figs) {
 			if (f.inside !== interior) continue;
-			tag(`${f.name} · ${doing(f)}`, accentOf(f.id), ox + f.x * z, oy + (f.y + 3) * z, false, f.id === selected);
+			const p = screen(f.x, f.y + 3);
+			if (p) tag(`${f.name} · ${doing(f)}`, accentOf(f.id), p.x, p.y, false, f.id === selected);
 		}
-		if (!interior) inHouse.forEach((f, i) => tag(`${f.name} · im Haus`, accentOf(f.id), ox + DOOR.x * z, oy + (DOOR.y - 82) * z - i * 20 * dpr, true, f.id === selected));
+		const roof = screen(DOOR.x, DOOR.y);
+		if (!interior && roof) inHouse.forEach((f, i) => tag(`${f.name} · im Haus`, accentOf(f.id), roof.x, roof.y - 82 * z * roof.s - i * 20 * dpr, true, f.id === selected));
 		if (interior) for (const r of ROOMS) tag(r.name, "#fff8ec", ox + (r.r[0] + r.r[2] / 2) * 16 * z, oy + (r.r[1] + .3) * 16 * z, true);
 		if (hoverAt && !interior && hit(hoverAt[0], hoverAt[1])?.kind === "house") tag(inHouse.length ? `Haus · ${inHouse.map((f) => f.name).join(", ")} drin – Klick: hineinsehen` : "Haus · leer – Klick: hineinsehen", "#fff8ec", hoverAt[0], hoverAt[1] - 14 * dpr, true, true);
 	}
@@ -2183,7 +2534,9 @@
 			enter();
 			return;
 		}
-		const w = cam.toWorld(sx, sy), tx = Math.floor(w.x / 16), ty = Math.floor(w.y / 16), f = figs.find((x) => x.id === selected);
+		const w = worldAt(sx, sy);
+		if (!w) return;
+		const tx = Math.floor(w.x / 16), ty = Math.floor(w.y / 16), f = figs.find((x) => x.id === selected);
 		if (interior && !inBld(tx, ty)) {
 			leave();
 			return;
@@ -2263,12 +2616,26 @@
 		ui();
 		b.blur();
 	}));
+	document.querySelectorAll("[data-ansicht]").forEach((b) => b.addEventListener("click", () => {
+		ansicht = b.dataset.ansicht;
+		ui();
+		b.blur();
+	}));
+	var fxEl = document.getElementById("effekte");
+	fxEl.addEventListener("click", () => {
+		effekte = !effekte;
+		ui();
+		fxEl.blur();
+	});
 	leaveEl.addEventListener("click", () => {
 		leave();
 		leaveEl.blur();
 	});
 	function ui() {
 		document.querySelectorAll("[data-zeit]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.zeit === zeit)));
+		document.querySelectorAll("[data-ansicht]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.ansicht === ansicht)));
+		fxEl.setAttribute("aria-pressed", String(effekte));
+		tiltMask(tiltEl, !effekte || interior ? "aus" : deep() ? "tiefe" : "eben");
 		leaveEl.hidden = !interior;
 		document.body.dataset.innen = interior ? "1" : "";
 	}
@@ -2276,9 +2643,9 @@
 	function frame(now) {
 		const dt = Math.min(.05, (now - last) / 1e3);
 		last = now;
-		cam.update(dt, keys);
+		cam.update(dt, keys, worldAt);
 		for (const f of figs) stepFig(f, dt);
-		render();
+		render(now / 1e3);
 		zoomEl.textContent = `Zoom ${cam.z / dpr}× · ${interior ? "im Haus" : "Dorf"}`;
 		requestAnimationFrame(frame);
 	}
@@ -2301,6 +2668,14 @@
 		},
 		select: (id) => {
 			selected = id;
+		},
+		setAnsicht: (a) => {
+			ansicht = a;
+			ui();
+		},
+		setEffekte: (on) => {
+			effekte = on;
+			ui();
 		}
 	};
 	//#endregion

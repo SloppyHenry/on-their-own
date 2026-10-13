@@ -12,6 +12,10 @@
   .leiste b { margin-right: 6px; }
   button { font: inherit; color: #3b2c3d; background: #fff8ec; border: 2px solid #3b2c3d; border-radius: 999px; padding: 2px 10px; cursor: pointer; }
   button[aria-pressed="true"] { background: #ffd36e; }
+  #schilder { position: fixed; inset: 0; pointer-events: none; }
+  #tilt { position: fixed; inset: 0; pointer-events: none; backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); }
+  @media (prefers-reduced-motion: reduce) { #tilt { display: none !important; } }
+  .trenn { width: 1px; align-self: stretch; background: rgba(255, 248, 236, 0.3); margin: 0 4px; }
   #zoom { margin-left: 6px; opacity: 0.8; font-variant-numeric: tabular-nums; }
   #raus { position: fixed; left: 12px; top: 60px; font-weight: 600; padding: 5px 14px; }
   .hilfe { position: fixed; left: 12px; bottom: 12px; right: 12px; padding: 6px 10px; border-radius: 10px; background: rgba(43, 34, 51, 0.78); font-size: 13px; line-height: 1.5; color: #e9dccb; width: fit-content; }
@@ -19,11 +23,16 @@
 </style>
 </head>
 <body>
-<!-- Mockup: Startwelt mit den Grafiken der App, aber eben und ruhig (keine Wölbung, kein Dunst, kein Tilt-Shift). Kein Produktionscode. -->
+<!-- Mockup: Startwelt mit den Grafiken der App, Zoom in ganzen Pixelstufen; „Eben“ oder „Tiefe“ (Wölbung), Effekte aus Mockup A schaltbar. Kein Produktionscode. -->
 <canvas id="welt"></canvas>
+<div id="tilt"></div>
+<canvas id="schilder"></canvas>
 <div class="leiste">
   <b>Ruhige Ansicht · Mockup</b>
   <button data-zeit="Morgen">Morgen</button><button data-zeit="Mittag">Mittag</button><button data-zeit="Abend">Abend</button><button data-zeit="Nacht">Nacht</button>
+  <span class="trenn"></span>
+  <button data-ansicht="eben">Eben</button><button data-ansicht="tiefe">Tiefe</button>
+  <button id="effekte">Effekte</button>
   <span id="zoom"></span>
 </div>
 <button id="raus" hidden>← zurück ins Dorf (Esc)</button>
