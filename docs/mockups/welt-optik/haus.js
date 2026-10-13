@@ -11,7 +11,7 @@ var H_EAVE = 26, H_RIDGE = 15, H_STUB = 5, H_BACK = 22;      // Höhen in Weltpi
 // ---- Projektion mit Kamera: Fokuspunkt (Weltpixel) und Zoom; Hin- und Rückweg aus denselben Formeln ----
 function hCam(fx, fy, z) { var D = H_LH * 1.44 / z; return { fx: fx, fy: fy, z: z, D: D, yb: fy + D * Math.pow(0.42, H_G) }; }
 function hHor(xs) { var k = (xs - H_LW / 2) / (H_LW / 2); return H_LH * (0.17 + 0.07 * k * k); }
-function hRow(c, wy) { var f = Math.max(0, c.yb - wy), t = Math.pow(f / c.D, 1 / H_G); return { t: t, s: (0.62 + 0.9 * t) / c.z }; }
+function hRow(c, wy) { var f = c.yb - wy, t = (f < 0 ? -1 : 1) * Math.pow(Math.abs(f) / c.D, 1 / H_G); return { t: t, s: Math.max(0.2, 0.62 + 0.9 * t) / c.z }; }   // unter dem Bildrand gespiegelt fortgesetzt
 function hProj(c, wx, wy, h) {
   var r = hRow(c, wy), xs = H_LW / 2 + (wx - c.fx) / r.s, yg = H_LH - r.t * (H_LH - hHor(xs));
   return { x: xs, y: yg - (h || 0) / r.s, sc: 1 / r.s, t: r.t };
