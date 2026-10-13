@@ -47,7 +47,7 @@ export function clampToMap(cam: Camera, mapW: number, mapH: number, margin = 160
 }
 
 /** Wechsel der Ansicht: derselbe Fokuspunkt, ein Zoom mit ähnlichem Bildausschnitt. */
-export function switchMode(cam: Camera, vp: Viewport, mode: ViewMode): Camera {
+export function switchMode(cam: Camera, mode: ViewMode): Camera {
   if (mode === cam.mode) return cam;
   const zoom = mode === "flach" ? cam.zoom * 0.75 : cam.zoom / 0.75;
   return { ...cam, mode, zoom: clampZoom(mode, zoom) };
