@@ -2,7 +2,7 @@ import { METRIC_LABEL } from "../lib/autonomyText";
 import { clockOf } from "../lib/clock";
 import { api } from "../net/api";
 import { useSimStore } from "../store/simStore";
-import { accentOf } from "../world/draw/characters";
+import { accentOf } from "../world/art/people";
 import { useDetail } from "./useDetail";
 
 const METRICS = ["trust", "sympathy", "tension", "familiarity"] as const;

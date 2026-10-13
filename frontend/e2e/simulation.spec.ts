@@ -1,10 +1,11 @@
 import { expect, test } from "@playwright/test";
-import { freshWorld, openApp, post, state, tagBox } from "./helpers";
+import { freshWorld, openApp, openHouse, post, state, tagBox } from "./helpers";
 
 test.beforeEach(async ({ request }) => { await freshWorld(request); });
 
 test("Start: eine Figur bewegt sich sichtbar im Canvas (§17 Nr. 6)", async ({ page, request }) => {
   await openApp(page);
+  await openHouse(page);                                              // beide beginnen im Haus
   await expect.poll(() => tagBox(page, "alex")).not.toBeNull();
   const before = { alex: await tagBox(page, "alex"), mira: await tagBox(page, "mira") };
   await page.getByRole("button", { name: "Start" }).click();

@@ -30,7 +30,7 @@ export interface Projected {
 export const GAMMA = 1.45;            // Wölbung (W_GAMMA im Mockup)
 export const DEPTH = 1.44;            // sichtbare Tiefe in Bildhöhen bei Zoom 1 (288 / 200 im Mockup)
 export const FOCUS_T = 0.42;          // Tiefe, in der der Fokuspunkt liegt
-const S_NEAR = 0.62, S_FAR = 0.9, S_MIN = 0.2;   // Weltpixel je Bildpixel: unten 0,62, am Horizont 1,52 (Mockup)
+const S_NEAR = 0.62, S_FAR = 0.9;   // Weltpixel je Bildpixel: unten 0,62, am Horizont 1,52 (Mockup)
 const FOCUS_F = Math.pow(FOCUS_T, GAMMA);
 
 /** Horizontlinie (Bild-y) an der Spalte x: in der Mitte am höchsten, zu den Rändern hin tiefer (Mockup: 34 + 14·k² bei Höhe 200). */
@@ -44,7 +44,8 @@ export const depthSpan = (cam: Camera, vp: Viewport) => (vp.h * DEPTH) / cam.zoo
 /** Welt-y am unteren Bildrand (Tiefe). */
 export const bottomY = (cam: Camera, vp: Viewport) => cam.fy + depthSpan(cam, vp) * FOCUS_F;
 
-const scaleAt = (t: number, zoom: number) => Math.max(S_MIN, S_NEAR + S_FAR * t) / zoom;
+// Unter dem Bildrand (t < 0) bleibt der Maßstab wie am Rand, damit Dinge davor nicht riesig hereinragen.
+const scaleAt = (t: number, zoom: number) => (S_NEAR + S_FAR * Math.max(0, t)) / zoom;
 
 /** Welt → Bild. `height` hebt den Punkt senkrecht an (Weltpixel), z. B. für Köpfe, Lampen, Rauch. */
 export function project(cam: Camera, vp: Viewport, wx: number, wy: number, height = 0): Projected {

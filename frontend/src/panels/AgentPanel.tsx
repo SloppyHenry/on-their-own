@@ -1,7 +1,7 @@
 import { Icon } from "../lib/Icon";
 import { Portrait } from "../lib/Portrait";
 import { ACTIVITIES, resourceName, statusName } from "../lib/names";
-import { accentOf } from "../world/draw/characters";
+import { accentOf } from "../world/art/people";
 import { useSimStore } from "../store/simStore";
 import { useUiStore } from "../store/uiStore";
 import { useOverview } from "../net/useOverview";

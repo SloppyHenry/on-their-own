@@ -3,7 +3,7 @@ import { api } from "../net/api";
 import { useNames } from "../lib/useNames";
 import { useDetail } from "../panels/useDetail";
 import { useSimStore } from "../store/simStore";
-import { accentOf } from "../world/draw/characters";
+import { accentOf } from "../world/art/people";
 
 const when = (min: number | null | undefined) => (min == null ? "–" : `Tag ${clockOf(min).day}, ${clockOf(min).time}`);
 

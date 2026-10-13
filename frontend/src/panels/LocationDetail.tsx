@@ -5,7 +5,7 @@ import { useNames } from "../lib/useNames";
 import { api } from "../net/api";
 import { describeEvent } from "../timeline/describeEvent";
 import { useUiStore } from "../store/uiStore";
-import { accentOf } from "../world/draw/characters";
+import { accentOf } from "../world/art/people";
 import { Drawer } from "./Drawer";
 import { useDetail } from "./useDetail";
 

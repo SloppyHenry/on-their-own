@@ -6,7 +6,7 @@ import { useNames } from "../lib/useNames";
 import { useSimStore } from "../store/simStore";
 import { useUiStore } from "../store/uiStore";
 import type { EventCategory, EventOut } from "../types/generated";
-import { accentOf } from "../world/draw/characters";
+import { accentOf } from "../world/art/people";
 import { describeEvent } from "./describeEvent";
 import { FactorBars } from "./FactorBars";
 import { matchesFilters } from "./filter";

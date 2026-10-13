@@ -1,5 +1,5 @@
 import { useNames } from "../lib/useNames";
-import { accentOf } from "../world/draw/characters";
+import { accentOf } from "../world/art/people";
 import { ParamControl } from "./ParamControl";
 import { idOf, useParamStore } from "./paramStore";
 import type { Spec } from "./labels";

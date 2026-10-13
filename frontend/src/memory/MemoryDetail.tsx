@@ -5,7 +5,7 @@ import { useNames } from "../lib/useNames";
 import { useDetail } from "../panels/useDetail";
 import { useUiStore } from "../store/uiStore";
 import type { MemoryOut } from "../types/generated";
-import { accentOf } from "../world/draw/characters";
+import { accentOf } from "../world/art/people";
 import { INTENTION_LABEL, KIND_COLOR, KIND_LABEL } from "./labels";
 
 const when = (min: number) => { const c = clockOf(min); return `Tag ${c.day}, ${c.time}`; };

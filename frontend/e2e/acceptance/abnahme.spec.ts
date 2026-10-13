@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { freshWorld, openApp, post, settledTag, state, steps, tagBox } from "../helpers";
+import { freshWorld, openApp, openHouse, post, settledTag, state, steps, tagBox } from "../helpers";
 
 /** Abnahme (§17, AP11): je Kriterium mit Browseranteil ein benannter Test. Die Backend-Seite steht in backend/tests/acceptance/. */
 
@@ -46,13 +46,21 @@ test("K06 Ortswechsel sichtbar: die Figur folgt dem Fahrplan aus agent.walking",
   test.setTimeout(120_000);
   const seen = watchEvents(page);
   await openApp(page);
-  await page.keyboard.press("0");                                      // ganze Welt, die Kamera bleibt stehen
+  const st = await state(request), locs = Array.isArray(st.locations) ? st.locations : Object.values(st.locations);
+  const rooms = (locs as { rect: number[]; props: { style?: { floor?: string } } }[]).filter((l) => l.props?.style?.floor);
+  const inRoom = ([x, y]: number[]) => rooms.some((l) => x >= l.rect[0] && y >= l.rect[1] && x < l.rect[0] + l.rect[2] && y < l.rect[1] + l.rect[3]);
   await page.getByRole("button", { name: "Start" }).click();
-  // ein Weg von mindestens drei Kacheln, damit die Richtung auf dem Bildschirm eindeutig ist
-  const walk = () => seen.find((e) => e.type === "agent.walking" && (e.data.path as number[][]).length >= 3);
+  // ein Weg von mindestens drei Kacheln, ganz im Haus oder ganz draußen (durch die Haustür wechselt die Figur die Ansicht)
+  const walk = () => seen.find((e) => {
+    if (e.type !== "agent.walking") return false;
+    const p = e.data.path as number[][], from = e.data.from as number[], inside = inRoom(from);
+    return p.length >= 3 && inRoom(p[p.length - 1]) === inside && (inside || !p.some(inRoom));
+  });
   await expect.poll(() => Boolean(walk()), { timeout: 60_000 }).toBe(true);
   const w = walk()!, id = w.agents[0];
   await post(request, "/api/sim/pause");
+  if (inRoom(w.data.from as number[])) await openHouse(page);          // Innenansicht, die Kamera bleibt stehen
+  else await page.keyboard.press("0");                                  // ganze Welt
   const from = w.data.from as number[], path = w.data.path as number[][], arrive = w.data.arrive as number[];
   const start = await settledTag(page, id);
   // bis zur Ankunft weiterlaufen, dann anhalten: Figur und Engine stehen auf der letzten Kachel

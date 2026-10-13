@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNames } from "../lib/useNames";
 import { useSimStore } from "../store/simStore";
-import { accentOf } from "../world/draw/characters";
+import { accentOf } from "../world/art/people";
 import { ClarifyCard, InjectHistory, PreviewCard } from "./Cards";
 import { atMinute, useComposer, type When } from "./composerStore";
 import { suggest } from "./suggestions";

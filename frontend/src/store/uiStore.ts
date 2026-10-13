@@ -1,6 +1,13 @@
 // Zustand der Oberfläche: Auswahl, Kamera-Folgen, Protokollfilter. Nichts davon gehört in die Simulation.
 import { create } from "zustand";
 import type { EventCategory } from "../types/generated";
+import type { ViewMode } from "../world/view/projection";
+
+// Darstellungs-Einstellungen bleiben im Browser (je Gerät), nicht in der Simulation (offene Frage 21).
+const load = <T,>(key: string, fallback: T): T => {
+  try { const v = localStorage.getItem(key); return v == null ? fallback : (JSON.parse(v) as T); } catch { return fallback; }
+};
+const keep = (key: string, value: unknown) => { try { localStorage.setItem(key, JSON.stringify(value)); } catch { /* ohne Speicher gilt der Standard */ } };
 
 export type Selection = { kind: "agent" | "location" | "event"; id: string } | null;
 
@@ -48,6 +55,12 @@ interface UiStore {
   select: (s: Selection) => void;
   setFollow: (id: string | null) => void;
   setFilters: (patch: Partial<Filters>) => void;
+  /** Weltansicht „Tiefe“ (gewölbt, Mockup A) oder „Flach“. */
+  worldMode: ViewMode;
+  setWorldMode: (m: ViewMode) => void;
+  /** Mitspieler-Steuerung als Vorschau (AP13): Klick geht/handelt, schickt aber nichts an die Simulation. */
+  playerPreview: boolean;
+  setPlayerPreview: (on: boolean) => void;
 }
 
 export const useUiStore = create<UiStore>((set) => ({
@@ -70,4 +83,8 @@ export const useUiStore = create<UiStore>((set) => ({
   select: (selection) => set((s) => ({ selection, lastAgent: selection?.kind === "agent" ? selection.id : s.lastAgent })),
   setFollow: (follow) => set({ follow }),
   setFilters: (patch) => set((s) => ({ filters: { ...s.filters, ...patch } })),
+  worldMode: load<ViewMode>("simulacra.ansicht", "tiefe") === "flach" ? "flach" : "tiefe",
+  setWorldMode: (worldMode) => { keep("simulacra.ansicht", worldMode); set({ worldMode }); },
+  playerPreview: load<boolean>("simulacra.mitspieler", false) === true,
+  setPlayerPreview: (playerPreview) => { keep("simulacra.mitspieler", playerPreview); set({ playerPreview }); },
 }));

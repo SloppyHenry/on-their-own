@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { accentOf, portrait } from "../world/draw/characters";
+import { accentOf, portrait } from "../world/art/people";
 
 export function Portrait({ id, size = 44 }: { id: string; size?: number }) {
   const host = useRef<HTMLSpanElement>(null);

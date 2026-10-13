@@ -2,18 +2,37 @@
 import { useSimStore } from "../store/simStore";
 import type { Bubble, World } from "../store/types";
 import { useUiStore, type Selection } from "../store/uiStore";
+import type { ViewMode } from "./view/projection";
 
 export interface AgentFrame {
   id: string;
+  /** Fußpunkt in Bildschirmpixeln (relativ zur Weltfläche). */
   x: number;
   y: number;
+  /** Bildschirmpixel je Weltpixel an dieser Stelle (Tiefe: hinten kleiner). */
+  scale: number;
   visible: boolean;
+  /** Im Haus (Index) und draußen nicht zu sehen: Schild steht dann über dem Dach; sonst -1. */
+  house: number;
+}
+
+export interface HouseFrame {
+  i: number;
+  /** Dachspitze (dort stehen die Schilder der Bewohner darin) und Mitte des Hauses, in Bildschirmpixeln. */
+  x: number;
+  y: number;
+  cy: number;
+  occupants: string[];
 }
 
 export interface Frame {
   agents: AgentFrame[];
-  roofs: { id: string; closed: boolean }[];
-  zoom: number;
+  houses: HouseFrame[];
+  /** Raumnamen der Innenansicht (Bildschirmpunkt am vorderen Rand des Raums). */
+  rooms: { id: string; x: number; y: number }[];
+  /** Innenansicht eines Gebäudes (Index) oder -1. */
+  interior: number;
+  interiorRooms: string[];
 }
 
 export interface WorldBridge {
@@ -24,13 +43,13 @@ export interface WorldBridge {
   lastAgent(): string | null;
   follow(): string | null;
   select(s: Selection): void;
+  mode(): ViewMode;
+  playerPreview(): boolean;
   setFollow(id: string | null): void;
   emitFrame(f: Frame): void;
   onFrame(fn: ((f: Frame) => void) | null): void;
-  /** Eigene 2D-Fläche über der Szene für Licht und Wetter (vom Container gesetzt). */
-  fx: HTMLCanvasElement | null;
   /** Befehle der Oberfläche an die Szene (Taste 0, Taste F). */
-  commands: { fit?: () => void; toggleFollow?: () => void; focusTile?: (x: number, y: number) => void };
+  commands: { fit?: () => void; toggleFollow?: () => void; focusTile?: (x: number, y: number) => void; leaveInterior?: () => void };
 }
 
 export function createBridge(): WorldBridge {
@@ -47,10 +66,11 @@ export function createBridge(): WorldBridge {
     lastAgent: () => ui.getState().lastAgent,
     follow: () => ui.getState().follow,
     select: (s) => ui.getState().select(s),
+    mode: () => ui.getState().worldMode,
+    playerPreview: () => ui.getState().playerPreview,
     setFollow: (id) => ui.getState().setFollow(id),
     emitFrame: (f) => listener?.(f),
     onFrame: (fn) => { listener = fn; },
-    fx: null,
     commands: {},
   };
 }

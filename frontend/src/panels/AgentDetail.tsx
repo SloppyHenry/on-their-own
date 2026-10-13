@@ -5,7 +5,7 @@ import { DIRECTIONS, resourceName } from "../lib/names";
 import { api } from "../net/api";
 import { useSimStore } from "../store/simStore";
 import { useUiStore } from "../store/uiStore";
-import { accentOf } from "../world/draw/characters";
+import { accentOf } from "../world/art/people";
 import { KIND_LABEL } from "../memory/labels";
 import { activityOf } from "./AgentPanel";
 import { Drawer } from "./Drawer";

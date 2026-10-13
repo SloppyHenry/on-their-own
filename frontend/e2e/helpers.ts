@@ -20,7 +20,7 @@ export async function openApp(page: Page) {
   await page.goto("/");
   await expect(page.getByTestId("conn")).toContainText("Verbunden");
   await expect(page.getByTestId("agent-card-alex")).toBeVisible();
-  await expect(page.locator("[data-testid=world-canvas] canvas")).toBeVisible();
+  await expect(page.getByTestId("world-pixels")).toBeVisible();
 }
 
 export const tagBox = async (page: Page, id: string) => {
@@ -45,4 +45,39 @@ export async function settledTag(page: Page, id: string) {
 /** Viele Einzelschritte in Paketen (die API erlaubt je Aufruf nur eine begrenzte Zahl). */
 export async function steps(req: APIRequestContext, n: number) {
   for (let left = n; left > 0; left -= 50) await post(req, "/api/sim/step", { n: Math.min(50, left) });
+}
+
+/** Wartet, bis ein Element zweimal an derselben Stelle steht (Kamerafahrt beendet), und liefert seine Fläche. */
+export async function settled(page: Page, selector: string) {
+  const loc = page.locator(selector).first();
+  let last = "";
+  await expect.poll(async () => {
+    const b = await loc.boundingBox();
+    const now = b ? `${Math.round(b.x)},${Math.round(b.y)}` : "";
+    const same = now !== "" && now === last;
+    last = now;
+    return same;
+  }, { intervals: [200] }).toBe(true);
+  return (await loc.boundingBox())!;
+}
+
+/** Klick aufs Haus: die Kamera fährt hinein, die Innenansicht zeigt Räume und Figuren (Frage 18). */
+export async function openHouse(page: Page) {
+  const m = await settled(page, '[data-house="0"]');
+  await page.mouse.click(m.x, m.y);
+  await expect(page.getByTestId("leave-house")).toBeVisible();
+  await expect(page.getByTestId("overlays")).toHaveAttribute("data-interior", "0");
+}
+
+/** Ansicht „Tiefe“ oder „Flach“ über den Schalter an der Welt. */
+export async function setView(page: Page, name: "Tiefe" | "Flach") {
+  const b = page.getByTestId("view-menu").getByRole("button", { name, exact: true });
+  await b.click();
+  await expect(b).toHaveAttribute("aria-pressed", "true");
+}
+
+/** Klick auf die Figur selbst: das Schild steht unter den Füßen, die Figur darüber. */
+export async function clickFigure(page: Page, id: string) {
+  const tag = await settledTag(page, id);
+  await page.mouse.click(tag.x + tag.width / 2, tag.y - 22);
 }

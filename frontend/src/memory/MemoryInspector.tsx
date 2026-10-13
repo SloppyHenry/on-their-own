@@ -5,7 +5,7 @@ import { api } from "../net/api";
 import { useDetail } from "../panels/useDetail";
 import { useSimStore } from "../store/simStore";
 import { useUiStore } from "../store/uiStore";
-import { accentOf } from "../world/draw/characters";
+import { accentOf } from "../world/art/people";
 import { KnowledgeView } from "./KnowledgeView";
 import { KIND_COLOR, KIND_LABEL, KINDS, SORTS } from "./labels";
 import { MemoryDetail } from "./MemoryDetail";
