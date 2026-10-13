@@ -5593,11 +5593,36 @@
     "clock": {
      "$ref": "#/$defs/ClockInfo"
     },
+    "links": {
+     "default": [],
+     "items": {
+      "items": {
+       "items": {
+        "type": "integer"
+       },
+       "type": "array"
+      },
+      "type": "array"
+     },
+     "type": "array"
+    },
     "locations": {
      "items": {
       "$ref": "#/$defs/LocationInfo"
      },
      "type": "array"
+    },
+    "look": {
+     "anyOf": [
+      {
+       "additionalProperties": true,
+       "type": "object"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
     },
     "map": {
      "$ref": "#/$defs/MapData"
@@ -5650,7 +5675,9 @@
     "clock",
     "weather",
     "simulation",
-    "rules"
+    "rules",
+    "links",
+    "look"
    ],
    "title": "StateSnapshot",
    "type": "object"

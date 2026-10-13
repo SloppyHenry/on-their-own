@@ -70,6 +70,7 @@ class WorldState:
         for r in self.conn.execute("SELECT x, y, type FROM tiles"):
             cells[r["y"]][r["x"]] = r["type"]
         self.grid = Grid(w, h, cells, self.tile_types)
+        self.grid.set_links(self.get_meta("links") or [])
         self.pathfinder = Pathfinder(self.grid)
         self.locations = {}
         for r in self.conn.execute("SELECT * FROM locations ORDER BY sort"):

@@ -65,3 +65,36 @@ def test_cache_invalidated_when_world_changes():
 
 def test_start_equals_goal():
     assert Pathfinder(grid()).find((7, 7), (7, 7)) == []
+
+
+def _small(rows: list[str]):
+    from simulacra.world.grid import Grid, TileType
+    types = {"g": TileType("g", True, 1, "."), "w": TileType("w", False, 0, "#")}
+    return Grid.from_rows(rows, types)
+
+
+def test_uebergang_verbindet_getrennte_bereiche():
+    g = _small(["...#...", "...#...", "...#..."])
+    assert Pathfinder(g).find((0, 1), (6, 1)) is None
+    g.set_links([[[2, 0], [4, 2]]])
+    p = Pathfinder(g).find((0, 1), (6, 1))
+    assert p is not None and (2, 0) in p and (4, 2) in p
+    assert p[p.index((2, 0)) + 1] == (4, 2)                 # direkt durch den Übergang
+    assert g.adjacent((2, 0), (4, 2)) and g.adjacent((4, 2), (2, 0))
+
+
+def test_uebergang_nur_wenn_kuerzer():
+    g = _small([".......", ".......", "......."])
+    g.set_links([[[0, 0], [6, 2]]])
+    assert len(Pathfinder(g).find((0, 0), (6, 2))) == 1      # Abkürzung
+    assert len(Pathfinder(g).find((1, 1), (3, 1))) == 2      # ohne Umweg über den Übergang
+
+
+def test_uebergang_ungueltig_in_weltdatei():
+    import pytest
+    from simulacra.db.connection import Database
+    from simulacra.world.loader import load_world_file, seed_world
+    w = load_world_file()
+    w["links"] = [[[0, 0], [1, 1]]]                          # Ecke ist Wald, nicht begehbar
+    with pytest.raises(ValueError):
+        seed_world(Database(":memory:"), w)

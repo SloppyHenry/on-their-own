@@ -1614,7 +1614,11 @@ export interface StartRequest {
 export interface StateSnapshot {
   agents: AgentInfo[];
   clock: ClockInfo;
+  links: number[][][];
   locations: LocationInfo[];
+  look: {
+    [k: string]: unknown;
+  } | null;
   map: MapData;
   objects: ObjectInfo[];
   resources: ResourceInfo[];

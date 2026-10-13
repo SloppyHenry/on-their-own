@@ -137,6 +137,8 @@ class StateSnapshot(Out):
     weather: WeatherInfo
     simulation: SimStatus
     rules: dict[str, Any] = {}
+    links: list[list[list[int]]] = []      # Übergänge zwischen Kacheln, die nicht nebeneinander liegen (z. B. Haustür ↔ Innenbereich)
+    look: dict[str, Any] | None = None     # Darstellung der Welt (Formen, Bäume, Deko), z. B. die Startwelt nach Mockup A; None = aus den Kacheln
 
 
 class DecisionBrief(Out):

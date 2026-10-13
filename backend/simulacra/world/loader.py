@@ -27,7 +27,9 @@ def load_blueprints() -> dict[str, dict[str, Any]]:
 def grid_from_world(world: dict[str, Any]) -> Grid:
     """Raster direkt aus einer Weltdatei (ohne Datenbank), z. B. für Werkzeuge und Tests."""
     types = {n: TileType(n, t["walkable"], t["cost"], t.get("char"), t.get("color"), t.get("label", n)) for n, t in world["tile_types"].items()}
-    return Grid.from_rows(world["tiles"], types)
+    grid = Grid.from_rows(world["tiles"], types)
+    grid.set_links(world.get("links", []))
+    return grid
 
 
 def seed_world(db: Database, world: dict[str, Any] | None = None, seed: int = 1) -> WorldState:
@@ -45,8 +47,14 @@ def seed_world(db: Database, world: dict[str, Any] | None = None, seed: int = 1)
     w, h = len(rows[0]), len(rows)
     if [w, h] != world["size"] or any(len(r) != w for r in rows):
         raise ValueError("Kartengröße passt nicht zu 'size'")
+    for pair in world.get("links", []):
+        for x, y in pair:
+            if not (0 <= x < w and 0 <= y < h) or not types[by_char[rows[y][x]]]["walkable"]:
+                raise ValueError(f"Übergang an Kachel {x},{y} liegt nicht auf begehbarem Boden")
     with db.transaction() as c:
         state.set_meta("size", [w, h])
+        state.set_meta("links", world.get("links", []))
+        state.set_meta("look", world.get("look"))
         state.set_meta("seed", seed)
         state.set_meta("world_name", world["name"])
         state.set_meta("home", world.get("home", [w // 2, h // 4]))

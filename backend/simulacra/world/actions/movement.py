@@ -152,7 +152,8 @@ class MoveTo(Action):
         actor.move_budget -= need
         old, old_loc = actor.pos, actor.location_id
         actor.x, actor.y = nx, ny
-        actor.facing = facing(old, (nx, ny))
+        if abs(nx - old[0]) + abs(ny - old[1]) == 1:  # durch einen Übergang (Haustür): Blickrichtung bleibt
+            actor.facing = facing(old, (nx, ny))
         actor.location_id = ctx.state.location_at(nx, ny)
         for key in ("path", "arrive", "needs"):
             act.data[key].pop(0)

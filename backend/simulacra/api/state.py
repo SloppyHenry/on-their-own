@@ -61,7 +61,8 @@ def snapshot(sim: Simulation) -> StateSnapshot:
         objects=[ObjectInfo(**o.model_dump(exclude={"created_by", "created_at"})) for o in st.all_objects()],
         resources=[ResourceInfo(**n.model_dump(include={"id", "location_id", "x", "y", "resource", "amount", "cap", "requires_tool"})) for n in st.all_nodes()],
         agents=[agent_info(sim, a) for a in st.agents()], clock=ClockInfo(**clock.snapshot(st.minute)),
-        weather=WeatherInfo(**w), simulation=sim_status(sim), rules=st.rules.model_dump())
+        weather=WeatherInfo(**w), simulation=sim_status(sim), rules=st.rules.model_dump(),
+        links=st.get_meta("links") or [], look=st.get_meta("look"))
 
 
 def agent_detail(sim: Simulation, agent_id: str) -> AgentDetail | None:

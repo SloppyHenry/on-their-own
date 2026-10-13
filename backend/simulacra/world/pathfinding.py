@@ -1,4 +1,4 @@
-"""A* auf dem Kachelraster (4er-Nachbarschaft) mit Ergebnis-Cache je Rasterversion."""
+"""A* auf dem Kachelraster (4er-Nachbarschaft plus Übergänge) mit Ergebnis-Cache je Rasterversion."""
 
 import heapq
 
@@ -34,6 +34,17 @@ class Pathfinder:
             return []
         if not g.is_open(*goal):
             return None
+        ends = list(g.links)                          # Übergangskacheln: Abkürzungen für die Schätzung
+
+        def h(p: Pos) -> int:
+            """Zulässige Schätzung (Mindestkosten je Kachel = 1): direkt oder über einen Übergang."""
+            d = abs(p[0] - goal[0]) + abs(p[1] - goal[1])
+            if ends:
+                near = min(abs(p[0] - a[0]) + abs(p[1] - a[1]) for a in ends)
+                far = min(abs(b[0] - goal[0]) + abs(b[1] - goal[1]) for b in ends)
+                d = min(d, near + 1 + far)
+            return d
+
         open_heap: list[tuple[int, int, Pos]] = [(0, 0, start)]
         best = {start: 0}
         came: dict[Pos, Pos] = {}
@@ -46,8 +57,7 @@ class Pathfinder:
                     path.append(came[path[-1]])
                 path.reverse()
                 return path[1:]
-            for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
-                nx, ny = cur[0] + dx, cur[1] + dy
+            for nx, ny in g.neighbors(*cur):
                 if not g.is_open(nx, ny):
                     continue
                 cost = best[cur] + g.cost(nx, ny)
@@ -55,6 +65,5 @@ class Pathfinder:
                     best[(nx, ny)] = cost
                     came[(nx, ny)] = cur
                     counter += 1
-                    h = abs(nx - goal[0]) + abs(ny - goal[1])  # zulässig: Mindestkosten je Kachel = 1
-                    heapq.heappush(open_heap, (cost + h, counter, (nx, ny)))
+                    heapq.heappush(open_heap, (cost + h((nx, ny)), counter, (nx, ny)))
         return None
