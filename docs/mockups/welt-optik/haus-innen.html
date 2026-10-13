@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>SIMULACRA Häuser innen (Mockup AP13)</title>
+<style>
+  body { margin: 0; background: #2b2233; color: #fff8ec; font: 500 15px ui-rounded, system-ui, sans-serif; }
+  section { padding: 18px 16px 8px; }
+  h2 { margin: 0 0 4px; font-size: 20px; }
+  p { margin: 0 0 10px; max-width: 1280px; color: #e9dccb; line-height: 1.4; }
+  canvas { display: block; max-width: 100%; height: auto; image-rendering: pixelated; border-radius: 6px; }
+</style>
+</head>
+<body>
+<!-- Mockup für die offene Frage „Häuser innen“ (AP13). Echte Startwelt (Haus 24 × 13 Kacheln), Projektion mit Kamera wie geplant. Kein Produktionscode. -->
+<section data-panel="zu"><h2>1 · Geschlossen (niemand drin)</h2><p>Dach als angehobene Fläche über dem Grundriss, Fassade 1,6 Kacheln hoch. Durch die Tiefe wird das Dach verkürzt; das Haus steht im Dorf statt es zu überdecken (Frage 16).</p><canvas width="1280" height="800"></canvas></section>
+<section data-panel="offen"><h2>2 · Wände runter (Vorschlag)</h2><p>Jemand ist drin oder ein Raum ist gewählt: Dach und Fassade verschwinden, Innenwände bleiben als niedrige Sockel, die hintere Außenwand bleibt stehen. Alle Räume, Möbel und Figuren sind lesbar und klickbar.</p><canvas width="1280" height="800"></canvas></section>
+<section data-panel="raum"><h2>3 · Nur der Raum offen</h2><p>Nur der Raum, in dem jemand ist (hier Wohnzimmer), öffnet sich; der Rest bleibt gedeckt. Ruhiger, aber Mira in der Küche ist verdeckt, und bei Wegen durchs Haus springt die Öffnung von Raum zu Raum.</p><canvas width="1280" height="800"></canvas></section>
+<section data-panel="durchsicht"><h2>4 · Durchsichtig</h2><p>Dach und Fassade bleiben als blasser Umriss stehen, das Innere scheint durch. Form des Hauses bleibt erhalten, das Innere wirkt aber unruhiger und weniger klar.</p><canvas width="1280" height="800"></canvas></section>
+<section data-panel="figuren"><h2>5 · Figuren 16 × 24</h2><p>Vorn, hinten, links, rechts (gespiegelt); Stehen und vier Laufbilder; Sitzen, Schlafen im Bett, Arbeiten mit Werkzeug in zwei Bildern. Heute: 12 × 17, zwei Laufbilder.</p><canvas width="1280" height="500"></canvas></section>
+<script src="world.js"></script>
+<script src="figuren.js"></script>
+<script src="haus.js"></script>
+<script>
+  var cams = { zu: hCam(16 * 16, 13 * 16, 0.62), offen: hCam(16 * 16, 12 * 16, 0.86), raum: hCam(16 * 16, 12 * 16, 0.86), durchsicht: hCam(16 * 16, 12 * 16, 0.86) };
+  document.querySelectorAll('section[data-panel]').forEach(function (s) {
+    var v = s.dataset.panel, cv = s.querySelector('canvas');
+    if (v === 'figuren') fSheet(cv); else hRender(cv, v, cams[v], [14, 10, 28, 17]);
+  });
+  document.body.dataset.ready = '1';
+</script>
+</body>
+</html>
