@@ -132,7 +132,7 @@ class Autonomy:
     async def housekeeping(self, minute: int, waiting: bool) -> None:
         """Ziele setzen, festgefahrene Pläne auflösen (Neuplanung, Alternativziel, Ruhemodus); mit niedriger Priorität wie Reflexionen."""
         db, gp = self.engine.db, self.planner.params
-        for aid in self.agents.ai_agent_ids():
+        for aid in await db.run(self.agents.ai_agent_ids):
             g = await db.run(lambda a=aid: self.goals.active_short(a))
             model = await db.run(lambda a=aid: self.agents.get(a))
             trigger = self.triggers.pop(aid, None)
@@ -157,7 +157,7 @@ class Autonomy:
                         await db.run(lambda a=aid: self.guards.start_rest(a, minute, "mehrere Ziele hintereinander aufgegeben"))
                 else:
                     await self.planner.run(aid, reason, previous=g)
-            elif not waiting and (r := self.planner.due(aid, minute, busy=False)):
+            elif not waiting and (r := await db.run(lambda a=aid: self.planner.due(a, minute, busy=False))):
                 await self.planner.run(aid, r)
 
     def explain_json(self, trace: dict[str, Any] | None) -> str | None:

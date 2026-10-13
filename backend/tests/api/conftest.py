@@ -29,6 +29,12 @@ def post(client, path, json_body=None, key="auto"):
     return client.post(path, json=json_body, headers=headers)
 
 
+def minute(client) -> int:
+    """Simulationsminute über die API (gelesen auf dem DB-Thread). Nie `client.sim.engine.minute`, solange die Simulation läuft:
+    zwei Threads auf der Schreibverbindung lassen `fetchone()` gelegentlich `None` liefern."""
+    return client.get("/api/state").json()["clock"]["minute"]
+
+
 def recv_until(ws, pred, limit=500):
     """Liest Nachrichten, bis `pred` zutrifft; gibt alle gelesenen zurück."""
     got = []

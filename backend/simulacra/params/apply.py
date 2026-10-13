@@ -84,7 +84,7 @@ class ParamService:
         valid: list[tuple[ParamSpec, str | None, Any]] = []
         for c in changes:
             agent = c.get("agent")
-            spec, value, err = self.check(str(c.get("key")), c.get("value"), agent)
+            spec, value, err = await self.sim.engine.db.run(lambda c=c, a=agent: self.check(str(c.get("key")), c.get("value"), a))
             if err is None and spec is not None and spec.check is not None:
                 err = await spec.check(self.sim, value)
             if err:
@@ -98,15 +98,17 @@ class ParamService:
 
     async def reset(self, keys: list[str] | None = None, group: str | None = None, agent: str | None = None) -> list[dict[str, Any]]:
         """Zurück auf den Standard (einzeln, je Gruppe oder alles)."""
-        changes = []
-        for s in SPEC_LIST:
-            if (keys and s.key not in keys) or (group and s.group != group) or s.locked:
-                continue
-            for a in (self.agents() if s.scope == "agent" else [None]):
-                if agent and a != agent:
+        def collect() -> list[dict[str, Any]]:
+            changes = []
+            for s in SPEC_LIST:
+                if (keys and s.key not in keys) or (group and s.group != group) or s.locked:
                     continue
-                changes.append({"key": s.key, "agent": a, "value": s.default_value(self.sim, a)})
-        return await self.patch(changes)
+                for a in (self.agents() if s.scope == "agent" else [None]):
+                    if agent and a != agent:
+                        continue
+                    changes.append({"key": s.key, "agent": a, "value": s.default_value(self.sim, a)})
+            return changes
+        return await self.patch(await self.sim.engine.db.run(collect))
 
     # --- Neustart und Zurücksetzen der Welt ---------------------------------------------------------------------
     def export(self) -> list[tuple[str, str | None, Any]]:
