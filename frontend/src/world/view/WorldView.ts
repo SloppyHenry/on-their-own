@@ -12,8 +12,16 @@ import { wallPieces } from "./pieces";
 import { hitTest, locationAt } from "./picking";
 import { drawAtmo, drawGlow } from "./post";
 import { unproject, type Camera, type Viewport } from "./projection";
+import type { PreviewIn } from "./previewDraw";
 import { Renderer, type FrameOut } from "./renderer";
 import { castersOf, decoItems, fenceItems, houseItems, stateItems, treeItems, type Item, type Target } from "./scene";
+
+export interface PlayerHooks {
+  /** true: der Klick war eine Absicht (gehen, Menü), nicht Auswahl. `sx`, `sy` in Bildschirmpixeln. */
+  click(t: Target | null, tile: { x: number; y: number } | null, sx: number, sy: number): boolean;
+  hover(tile: { x: number; y: number } | null): void;
+  preview(): PreviewIn;
+}
 
 export interface ViewElements { host: HTMLElement; canvas: HTMLCanvasElement; glow: HTMLCanvasElement; atmo: HTMLCanvasElement; grade: HTMLElement; tilt: HTMLElement }
 
@@ -45,7 +53,7 @@ export class WorldView {
   private selKey = "";
   private off: (() => void)[] = [];
   /** Mitspieler-Vorschau hängt sich hier ein (Klick und Zeiger, wenn der Schalter an ist). */
-  player: { click(t: Target | null, tile: { x: number; y: number } | null, sx: number, sy: number): boolean; hover(tile: { x: number; y: number } | null): void } | null = null;
+  player: PlayerHooks | null = null;
 
   constructor(private els: ViewElements, private bridge: WorldBridge) {
     const h = els.host, on = <K extends keyof HTMLElementEventMap>(ev: K, fn: (e: HTMLElementEventMap[K]) => void, opt?: AddEventListenerOptions) => { h.addEventListener(ev, fn as EventListener, opt); this.off.push(() => h.removeEventListener(ev, fn as EventListener, opt)); };
@@ -144,6 +152,12 @@ export class WorldView {
     this.outdoorCam = null;
   }
 
+  /** Kachel vor der Haustür eines Gebäudes (Ziel für „hingehen“). */
+  doorOf(i: number): { x: number; y: number } | null {
+    const b = this.data?.buildings[i];
+    return b ? { x: b.door.x, y: b.door.y + 1 } : null;
+  }
+
   private animateTo(to: Camera) { this.anim = { from: this.cam, to: { ...to, mode: this.cam.mode }, k: 0 }; }
 
   private focusTile(x: number, y: number) {
@@ -229,7 +243,7 @@ export class WorldView {
     }
     this.cam = clampToMap(this.cam, data.w * T, data.h * T);
     const sel = this.bridge.selection(), budget = this.frames++ < 3 ? 400 : 10;
-    this.last = this.renderer!.render({ w, cam: this.cam, vp: this.vp, t, interior: this.interior, selected: sel?.kind === "agent" ? sel.id : null, follow: this.bridge.follow(), hover: this.hover, budgetMs: budget });
+    this.last = this.renderer!.render({ w, cam: this.cam, vp: this.vp, t, interior: this.interior, selected: sel?.kind === "agent" ? sel.id : null, follow: this.bridge.follow(), hover: this.hover, budgetMs: budget, preview: this.bridge.playerPreview() && this.player ? this.player.preview() : null });
     this.post(w, t, dt);
     this.emit();
   };
@@ -268,6 +282,7 @@ export class WorldView {
       rooms: out.rooms.map((r) => ({ ...r, x: r.x * pf, y: r.y * pf })),
       interior: this.interior,
       interiorRooms: this.interior >= 0 ? this.data!.buildings[this.interior].rooms : [],
+      goal: out.goal ? { x: out.goal.x * pf, y: out.goal.y * pf } : null,
     });
   }
 }

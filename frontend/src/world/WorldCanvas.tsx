@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import { useUiStore } from "../store/uiStore";
 import { Overlays } from "./Overlays";
+import { isTyping, PlayerController, usePlayer } from "./player/PlayerController";
+import { PlayerLayer } from "./player/PlayerLayer";
 import { WorldView } from "./view/WorldView";
 import { createBridge } from "./worldBridge";
 
@@ -12,14 +14,19 @@ export function WorldCanvas() {
   const host = useRef<HTMLDivElement>(null), canvas = useRef<HTMLCanvasElement>(null), glow = useRef<HTMLCanvasElement>(null);
   const atmo = useRef<HTMLCanvasElement>(null), grade = useRef<HTMLDivElement>(null), tilt = useRef<HTMLDivElement>(null);
   const [bridge] = useState(createBridge);
+  const [pc] = useState(() => new PlayerController(() => bridge.world()));
+  const [view, setView] = useState<WorldView | null>(null);
+  const player = useUiStore((s) => s.playerPreview);
   const focus = useUiStore((s) => s.focusRequest);
   useEffect(() => { if (focus) bridge.commands.focusTile?.(focus.x, focus.y); }, [focus, bridge]);
 
   useEffect(() => {
     const v = new WorldView({ host: host.current!, canvas: canvas.current!, glow: glow.current!, atmo: atmo.current!, grade: grade.current!, tilt: tilt.current! }, bridge);
+    setView(v);
+    if (import.meta.env.DEV || location.search.includes("messen")) (window as unknown as { __welt?: WorldView }).__welt = v;   // Prüf- und Messzugang
     const onKey = (e: KeyboardEvent) => {
-      const el = e.target as HTMLElement | null, tag = el?.tagName;
-      if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || el?.isContentEditable || e.metaKey || e.ctrlKey || e.altKey || e.defaultPrevented) return;
+      if (isTyping(e.target as Element | null) || e.metaKey || e.ctrlKey || e.altKey || e.defaultPrevented) return;
+      if (e.key === "Enter" && bridge.playerPreview()) { e.preventDefault(); const sel = bridge.selection(); usePlayer.setState({ say: { open: true, to: sel?.kind === "agent" ? sel.id : null }, menu: null }); return; }
       if (e.key === "0") bridge.commands.fit?.();
       if (e.key === "f" || e.key === "F") bridge.commands.toggleFollow?.();
       if (e.key === "Escape" && v.interior >= 0) bridge.commands.leaveInterior?.();
@@ -27,6 +34,23 @@ export function WorldCanvas() {
     window.addEventListener("keydown", onKey);
     return () => { window.removeEventListener("keydown", onKey); v.destroy(); };
   }, [bridge]);
+
+  // Mitspieler-Vorschau hinter dem Schalter: Klick geht/handelt, Umschalt- oder Rechtsklick wählt aus (wie bisher)
+  useEffect(() => {
+    if (!view) return;
+    if (!player) { view.player = null; pc.clear(); usePlayer.setState({ ghost: null }); return; }
+    let hover: [number, number] | null = null;
+    view.player = {
+      click: (hit, tile, sx, sy) => {
+        if (hit) { usePlayer.setState({ menu: { x: sx, y: sy, target: hit } }); return true; }
+        usePlayer.setState({ menu: null });
+        if (tile) pc.moveTo([tile.x, tile.y]);
+        return !!tile;
+      },
+      hover: (t) => { hover = t ? [t.x, t.y] : null; },
+      preview: () => { const s = usePlayer.getState(); return { ghost: s.ghost ?? pc.place(), path: s.path, goal: s.goal, hover }; },
+    };
+  }, [player, view, pc]);
 
   return (
     <div className="absolute inset-0 overflow-hidden bg-[#0e1115]">
@@ -38,6 +62,7 @@ export function WorldCanvas() {
         <canvas ref={atmo} className="pointer-events-none absolute inset-0 size-full" />
       </div>
       <Overlays bridge={bridge} />
+      {player && <PlayerLayer bridge={bridge} view={view} pc={pc} />}
       <ViewMenu />
     </div>
   );

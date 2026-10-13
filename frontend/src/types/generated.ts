@@ -2195,3 +2195,36 @@ export const EVENT_CATEGORY: Record<EventType, EventCategory> = {
 
 /** Noch nicht erzeugte, für spätere Pakete vorgesehene Typen. */
 export const PLANNED_EVENT_TYPES: EventType[] = [];
+
+/** Objektarten aus der Registry (Bezeichnung, tragbar, Modi von `use`): Grundlage für das Kontextmenü der Mitspieler-Vorschau. */
+export const OBJECT_KINDS: Record<string, { label: string; portable: boolean; blocks: boolean; modes: string[] }> = {
+  "bed": { label: "Bett", portable: false, blocks: false, modes: ["sleep"] },
+  "chest": { label: "Truhe", portable: false, blocks: true, modes: [] },
+  "desk": { label: "Schreibtisch", portable: false, blocks: true, modes: ["write", "read"] },
+  "workbench": { label: "Werkbank", portable: false, blocks: true, modes: [] },
+  "axe": { label: "Axt", portable: true, blocks: false, modes: [] },
+  "pickaxe": { label: "Spitzhacke", portable: true, blocks: false, modes: [] },
+  "key": { label: "Schlüssel", portable: true, blocks: false, modes: [] },
+  "stove": { label: "Herd", portable: false, blocks: true, modes: ["cook"] },
+  "tap": { label: "Wasserhahn", portable: false, blocks: true, modes: [] },
+  "sofa": { label: "Sofa", portable: false, blocks: false, modes: ["sit"] },
+  "table": { label: "Tisch", portable: false, blocks: true, modes: [] },
+  "bookshelf": { label: "Bücherregal", portable: false, blocks: true, modes: ["read"] },
+  "fireplace": { label: "Kamin", portable: false, blocks: true, modes: ["light", "extinguish"] },
+  "door": { label: "Tür", portable: false, blocks: false, modes: ["lock", "unlock"] },
+  "seedbed": { label: "Beet", portable: false, blocks: false, modes: [] },
+  "plant": { label: "Pflanze", portable: false, blocks: false, modes: ["harvest"] },
+  "well": { label: "Brunnen", portable: false, blocks: true, modes: [] },
+  "bench": { label: "Bank", portable: false, blocks: false, modes: ["sit"] },
+  "board": { label: "Anschlagtafel", portable: false, blocks: true, modes: ["read", "write"] },
+  "fishing_spot": { label: "Angelplatz", portable: false, blocks: false, modes: ["fish"] },
+  "birdhouse": { label: "Vogelhaus", portable: false, blocks: false, modes: [] },
+  "fence": { label: "Zaun", portable: false, blocks: true, modes: [] },
+  "firepit": { label: "Feuerstelle", portable: false, blocks: false, modes: ["light", "extinguish"] },
+  "pier_plank": { label: "Steg-Planke", portable: false, blocks: false, modes: [] },
+  "construction_site": { label: "Baustelle", portable: false, blocks: false, modes: [] },
+  "meal": { label: "Mahlzeit", portable: true, blocks: false, modes: [] },
+  "map": { label: "Karte", portable: true, blocks: false, modes: [] },
+  "note": { label: "Notiz", portable: true, blocks: false, modes: [] },
+  "item": { label: "Gegenstand", portable: true, blocks: false, modes: [] },
+};

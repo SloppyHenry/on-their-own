@@ -32,7 +32,7 @@ export function Overlays({ bridge }: { bridge: WorldBridge }) {
 
   useEffect(() => {
     let cur = -1;
-    bridge.onFrame((f) => {
+    return bridge.onFrame((f) => {
       const el = root.current;
       if (!el) return;
       if (f.interior !== cur) { cur = f.interior; setInterior({ i: f.interior, rooms: f.interiorRooms }); }
@@ -72,7 +72,6 @@ export function Overlays({ bridge }: { bridge: WorldBridge }) {
       }
       for (const r of f.rooms) { const lab = el.querySelector<HTMLElement>(`[data-room="${r.id}"]`); if (lab) lab.style.transform = `translate(${r.x}px, ${r.y}px) translate(-50%, -100%)`; }
     });
-    return () => bridge.onFrame(null);
   }, [bridge]);
 
   const inHouse = interior.i >= 0 ? Object.values(world?.agents ?? {}).filter((a) => interior.rooms.includes(a.location_id)).map((a) => a.name) : [];

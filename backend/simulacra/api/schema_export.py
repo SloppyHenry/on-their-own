@@ -14,6 +14,7 @@ from pydantic.json_schema import models_json_schema
 from ..events import models as event_models
 from ..events.schema import EventOut, SimTime
 from ..events.types import REGISTRY
+from ..world.object_kinds import KINDS
 from . import auth
 from . import models as api
 from . import models_memory as mm
@@ -84,6 +85,10 @@ def ts_extra() -> str:
     lines += [f'  "{name}": "{t.category}",' for name, t in REGISTRY.items()]
     lines += ["};", "", "/** Noch nicht erzeugte, für spätere Pakete vorgesehene Typen. */",
               "export const PLANNED_EVENT_TYPES: EventType[] = [" + ", ".join(f'"{n}"' for n, t in REGISTRY.items() if t.planned) + "];", ""]
+    lines += ["/** Objektarten aus der Registry (Bezeichnung, tragbar, Modi von `use`): Grundlage für das Kontextmenü der Mitspieler-Vorschau. */",
+              "export const OBJECT_KINDS: Record<string, { label: string; portable: boolean; blocks: boolean; modes: string[] }> = {"]
+    lines += [f'  "{k.kind}": {{ label: "{k.label}", portable: {str(k.portable).lower()}, blocks: {str(k.blocks).lower()}, modes: [{", ".join(chr(34) + m + chr(34) for m in k.modes)}] }},' for k in KINDS.values()]
+    lines += ["};", ""]
     return "\n".join(lines)
 
 

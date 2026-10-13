@@ -13,6 +13,7 @@ import { drawPose, drawSmoke, silhouette, wallPiece, type WallPiece } from "./pi
 import { project, visibleWorld, type Camera, type Viewport } from "./projection";
 import type { Item, Target } from "./scene";
 import { Sky } from "./sky";
+import { drawGhost, drawPreviewGround, type PreviewIn } from "./previewDraw";
 
 export interface Drawn { x: number; y: number; w: number; h: number; spr: HTMLCanvasElement; target?: Target }
 export interface AgentSpot { id: string; x: number; y: number; sc: number; visible: boolean; house: number }
@@ -22,6 +23,8 @@ export interface FrameOut {
   agents: AgentSpot[];
   houses: { i: number; x: number; y: number; cy: number; occupants: string[] }[];
   rooms: { id: string; x: number; y: number }[];
+  /** Ziel der Wegvorschau im Bild (für die Dauer-Anzeige). */
+  goal: { x: number; y: number } | null;
   mood: Mood;
 }
 export interface FrameIn {
@@ -34,6 +37,8 @@ export interface FrameIn {
   follow: string | null;
   hover: Target | null;
   budgetMs: number;
+  /** Mitspieler-Vorschau (nur wenn der Schalter an ist). */
+  preview: PreviewIn | null;
 }
 
 const HOUSE = [house(false), house(true)];
@@ -65,12 +70,14 @@ export class Renderer {
     } else { g.fillStyle = "#1c2a1a"; g.fillRect(0, 0, vp.w, vp.h); }
     g.drawImage(this.pass.render(this.ground, this.data, cam, vp, mood, f.t, interior, f.budgetMs), 0, 0);
 
+    if (f.preview) drawPreviewGround(g, cam, vp, f.preview, f.t);
+
     // Wer ist in welchem Gebäude?
     const bs = this.data.buildings, inB = new Map<string, number>(), occupants: string[][] = bs.map(() => []);
     for (const a of Object.values(w.agents)) { const i = bs.findIndex((b) => contains(b, a.x, a.y)); inB.set(a.id, i); if (i >= 0) occupants[i].push(a.id); }
 
     const vis = visibleWorld(cam, vp, 120), m = 48;
-    const list: { y: number; item?: Item; pose?: Pose; wall?: WallPiece }[] = [];
+    const list: { y: number; item?: Item; pose?: Pose; wall?: WallPiece; ghost?: [number, number] }[] = [];
     for (const it of this.statics) {
       if (interior >= 0 ? it.inside !== interior : it.inside !== -1) continue;
       if (it.x < vis.x0 - m || it.x > vis.x1 + m || it.y < vis.y0 - 8 || it.y > vis.y1) continue;
@@ -86,6 +93,8 @@ export class Renderer {
       agents.push({ id: a.id, x: sp.x, y: sp.y, sc: sp.sc, visible: shown && sp.x > -20 && sp.x < vp.w + 20 && sp.y > 0 && sp.y < vp.h + 30, house: shown ? -1 : hb });
       if (shown) list.push({ y: p.y + (p.inBed ? 0.3 : 0), pose: p });
     }
+    const gh = f.preview?.ghost, ghIn = gh ? bs.findIndex((b) => contains(b, gh[0], gh[1])) : -1;
+    if (gh && ghIn === interior) list.push({ y: gh[1] * 16 + 14, ghost: gh });
     list.sort((a, b) => a.y - b.y);
 
     // Halb durchsichtig, was vor der gewählten oder verfolgten Figur steht
@@ -95,6 +104,7 @@ export class Renderer {
     const drawn: Drawn[] = [], lights: FrameOut["lights"] = [];
     for (const e of list) {
       if (e.wall) { wallPiece(g, cam, vp, e.wall); continue; }
+      if (e.ghost) { drawGhost(g, cam, vp, e.ghost); continue; }
       if (e.pose) { drawPose(g, cam, vp, e.pose, f.t, e.pose.id === f.selected, drawn); continue; }
       const it = e.item!, lit = it.lit === "house" ? occupants[Number(it.target?.id)]?.length > 0 : it.lit === "lamp" ? lampsOn : false;
       const spr = it.lit === "house" ? HOUSE[lit ? 1 : 0] : it.spr(lit), p = project(cam, vp, it.x, it.y);
@@ -116,7 +126,8 @@ export class Renderer {
     this.marks(g, f, agents, drawn);
     const rooms = interior >= 0 ? bs[interior].rooms.map((id) => { const l = w.locations[id], [rx, ry, rw, rh] = l.rect, p = project(cam, vp, (rx + rw / 2) * 16, (ry + rh) * 16 - 2); return { id, x: p.x, y: p.y }; }) : [];
     const houses = bs.map((b, i) => { const p = project(cam, vp, b.door.x * 16 + 8, (b.door.y + 1) * 16, 84), c = project(cam, vp, b.door.x * 16 + 8, (b.door.y + 1) * 16, 40); return { i, x: p.x, y: p.y, cy: c.y, occupants: occupants[i] }; });
-    return { drawn, lights, agents, houses, rooms, mood };
+    const gl = f.preview?.goal ? project(cam, vp, f.preview.goal[0] * 16 + 8, f.preview.goal[1] * 16 + 8) : null;
+    return { drawn, lights, agents, houses, rooms, goal: gl ? { x: gl.x, y: gl.y } : null, mood };
   }
 
   /** Rauch, wenn im Gebäude ein Kamin brennt. */

@@ -33,6 +33,8 @@ export interface Frame {
   /** Innenansicht eines Gebäudes (Index) oder -1. */
   interior: number;
   interiorRooms: string[];
+  /** Ziel der Wegvorschau (Mitspieler-Vorschau) in Bildschirmpixeln. */
+  goal: { x: number; y: number } | null;
 }
 
 export interface WorldBridge {
@@ -47,13 +49,14 @@ export interface WorldBridge {
   playerPreview(): boolean;
   setFollow(id: string | null): void;
   emitFrame(f: Frame): void;
-  onFrame(fn: ((f: Frame) => void) | null): void;
+  /** Meldet sich für den Bildtakt an; liefert die Abmeldung. */
+  onFrame(fn: (f: Frame) => void): () => void;
   /** Befehle der Oberfläche an die Szene (Taste 0, Taste F). */
   commands: { fit?: () => void; toggleFollow?: () => void; focusTile?: (x: number, y: number) => void; leaveInterior?: () => void };
 }
 
 export function createBridge(): WorldBridge {
-  let listener: ((f: Frame) => void) | null = null;
+  const listeners = new Set<(f: Frame) => void>();
   const sim = useSimStore, ui = useUiStore;
   return {
     world: () => sim.getState().world,
@@ -69,8 +72,8 @@ export function createBridge(): WorldBridge {
     mode: () => ui.getState().worldMode,
     playerPreview: () => ui.getState().playerPreview,
     setFollow: (id) => ui.getState().setFollow(id),
-    emitFrame: (f) => listener?.(f),
-    onFrame: (fn) => { listener = fn; },
+    emitFrame: (f) => listeners.forEach((fn) => fn(f)),
+    onFrame: (fn) => { listeners.add(fn); return () => { listeners.delete(fn); }; },
     commands: {},
   };
 }
