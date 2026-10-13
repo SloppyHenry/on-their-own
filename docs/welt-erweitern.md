@@ -67,6 +67,10 @@ eng.edit.apply_patch(patch_dict)
 ```
 Jeder Aufruf liefert `EditResult(events, value)`.
 
+## Übergänge und Darstellung (AP14)
+- **`links`** in der Weltdatei: Liste von Kachelpaaren `[[x, y], [x, y]]`, die wie Nachbarn verbunden sind (in beide Richtungen), z. B. die Haustür draußen und der Flur im Innenbereich. Beide Kacheln müssen begehbar sein. Wegsuche (Backend und Vorschau im Browser) und Bewegung gehen hindurch; Hören und Sehen bleiben getrennt (Ort und Hörweite).
+- **`look`** beschreibt, wie die Welt aussieht (`style: "mockup-a"`): Lage des Dorfs auf der Karte (`origin`), Formen von Wegen, Platz, See, Garten, Beeten, Steg, die Deko (`decor`, wie `wObjects`), Lichter, die Bildstelle einzelner Objekte (`place`), Haustür und Innenbereich. Die Startwelt wird mit `node scripts/startwelt_a.mjs` aus `docs/mockups/welt-optik/world.js` erzeugt.
+
 ## Alte Spielstände
 - Datenbanken von vor den Kachelarten werden beim Öffnen automatisch migriert (Migration 002).
 - Objektarten, die es im Code nicht mehr gibt, laden als passive, unbekannte Objekte (blockieren nichts, lassen sich ansehen); neue Objekte solcher Arten werden abgelehnt. Objektarten sollten trotzdem nur dazukommen, nicht entfallen.

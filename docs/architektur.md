@@ -91,7 +91,7 @@ sequenceDiagram
 
 ```
 Backend ──/ws──▶ net/wsClient ──▶ store/simStore (Snapshot + Reducer) ──▶ React-Komponenten
-                                         └──▶ world/worldBridge ──▶ WorldView (liest nur)
+                                         └──▶ world/worldBridge ──▶ DorfView / WorldView (liest nur)
 ```
 
 `net/` Verbindung und REST (jeder verändernde Aufruf mit Idempotency-Key) · `store/` Zustand aus Snapshot und Ereignissen (reine Reducer) · `world/` Weltansicht (Projektion, Renderer, Mitspieler-Vorschau), Zeichnung aus Code im Stil von Mockup A, DOM-Overlays für Namen und Sprechblasen · `timeline/` Protokoll und Ereignisdetail · `panels/` Agenten- und Ortsdetail · `memory/` Gedächtnis-Inspektor · `settings/` Parameter und Presets · `composer/` freie Eingabe · `saves/`, `history/`, `stats/`. Die TypeScript-Typen (`types/generated.ts`) werden aus den Pydantic-Modellen erzeugt (`scripts/gen_types.sh`). Einzelheiten: [frontend.md](frontend.md).

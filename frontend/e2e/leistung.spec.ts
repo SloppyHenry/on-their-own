@@ -2,7 +2,8 @@ import { test, type Page } from "@playwright/test";
 import { writeFileSync } from "node:fs";
 import { freshWorld, openApp, settled } from "./helpers";
 
-/** Leistungsmessung AP13 (nur mit SIM_MESSEN=1): Bildrate und Rechenzeit je Bild, Startwelt und große Testwelt (256 × 256, 20 Figuren, 500 Objekte). */
+/** Leistungsmessung (nur mit SIM_MESSEN=1): Bildrate und Rechenzeit je Bild. Startwelt nach Mockup A (Dorfansicht, AP14) und große
+ *  Testwelt ohne eigene Gestaltung (256 × 256, 20 Figuren, 500 Objekte, Ansicht aus AP13). */
 test.skip(!process.env.SIM_MESSEN, "nur mit SIM_MESSEN=1");
 // SIM_MESSEN=gpu: vollständiges Chromium im neuen Headless-Modus mit Grafikkarte (Metal), sonst Software-Rendering
 if (process.env.SIM_MESSEN === "gpu") test.use({ channel: "chromium", launchOptions: { args: ["--use-angle=metal", "--enable-gpu", "--ignore-gpu-blocklist", "--enable-gpu-rasterization"] } });
@@ -36,17 +37,22 @@ function bigSnapshot(base: Record<string, unknown>) {
     objects.push({ id: `o${i}`, kind, name: kind, x, y, location_id: "paths", holder: null, state: kind === "plant" ? { stage: i % 5, crop: "carrot" } : kind === "firepit" ? { lit: i % 2 === 0 } : {}, portable: false, owner: null, hidden: false, known_by: [] });
   }
   const proto = (base.agents as Record<string, unknown>[])[0], agents = Array.from({ length: 20 }, (_, i) => ({ ...proto, id: i < 2 ? ["alex", "mira"][i] : `npc${i}`, name: `Figur ${i}`, x: 16 + (i % 8) * 32, y: 16, walk: null, action: null, status: "idle" }));
-  return { ...base, seq: (base.seq as number) + 1, map: { width: N, height: N, rows: g.map((r) => r.join("")), legend: (base.map as { legend: object }).legend }, locations, objects, resources: [], agents };
+  return { ...base, look: null, links: [], seq: (base.seq as number) + 1, map: { width: N, height: N, rows: g.map((r) => r.join("")), legend: (base.map as { legend: object }).legend }, locations, objects, resources: [], agents };
 }
 
-/** Misst `ms` Millisekunden: Kamera fährt (dx Weltpixel je Bild), Ergebnis Bildrate und Rechenzeit (Median, 95 %). */
+/** Misst `ms` Millisekunden: Ausschnitt fährt (Dorf: Gerätepixel je Bild bei 2×, sonst Weltpixel je Bild), Ergebnis Bildrate und Rechenzeit (Median, 95 %). */
 async function measure(page: Page, ms: number, pan: number) {
   return page.evaluate(async ([ms, pan]) => {
-    const v = (window as unknown as { __welt: { cam: { fx: number }; perf: number[] } }).__welt;
+    const v = (window as unknown as { __welt: { cam?: { fx: number }; o?: { x: number }; perf: number[] } }).__welt;
     v.perf.length = 0;
     const t0 = performance.now(), gaps: number[] = [];
     let last = t0, dir = 1;
-    await new Promise<void>((done) => { const f = (t: number) => { gaps.push(t - last); last = t; v.cam.fx += pan * dir; if (Math.abs(pan) > 0 && (v.cam.fx > 3500 || v.cam.fx < 300)) dir = -dir; if (t - t0 < ms) requestAnimationFrame(f); else done(); }; requestAnimationFrame(f); });
+    const step = () => {
+      if (v.cam) { v.cam.fx += pan * dir; if (Math.abs(pan) > 0 && (v.cam.fx > 3500 || v.cam.fx < 300)) dir = -dir; return; }
+      if (!v.o || !pan) return;
+      const x = v.o.x + pan * dir; v.o = { ...v.o, x: Math.max(0, x) }; if (x > 2000 || x < 0) dir = -dir;
+    };
+    await new Promise<void>((done) => { const f = (t: number) => { gaps.push(t - last); last = t; step(); if (t - t0 < ms) requestAnimationFrame(f); else done(); }; requestAnimationFrame(f); });
     const q = (a: number[], p: number) => { const s = [...a].sort((x, y) => x - y); return Math.round(s[Math.min(s.length - 1, Math.floor(s.length * p))] * 10) / 10; };
     return { fps: Math.round((gaps.length / (performance.now() - t0)) * 1000 * 10) / 10, bild_ms_median: q(gaps, 0.5), bild_ms_95: q(gaps, 0.95), rechen_ms_median: q(v.perf, 0.5), rechen_ms_95: q(v.perf, 0.95) };
   }, [ms, pan] as const);
@@ -59,14 +65,22 @@ test("Leistung: Startwelt und große Welt", async ({ page, request }) => {
   await settled(page, '[data-house="0"]');
   const out: Record<string, unknown> = { fenster: "1440 × 900", browser: process.env.SIM_MESSEN === "gpu" ? "Chromium (headless, GPU/Metal)" : "Chromium (headless, Software)" };
   out.gpu = await page.evaluate(() => { const c = document.createElement("canvas").getContext("webgl"); const d = c?.getExtension("WEBGL_debug_renderer_info"); return d ? c!.getParameter(d.UNMASKED_RENDERER_WEBGL) : "unbekannt"; });
-  out.startwelt_tiefe_ruhig = await measure(page, 4000, 0);
-  out.startwelt_tiefe_kamerafahrt = await measure(page, 4000, 3);
+  out.dorf_tiefe_1x = await measure(page, 4000, 0);
+  const box = (await page.getByTestId("world-canvas").boundingBox())!;
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+  await page.mouse.wheel(0, -100);
+  out.dorf_tiefe_2x_verschieben = await measure(page, 4000, 6);
   await page.emulateMedia({ reducedMotion: "reduce" });
-  out.startwelt_tiefe_ohne_tiltshift_kamerafahrt = await measure(page, 4000, 3);
+  out.dorf_tiefe_2x_ohne_tiltshift = await measure(page, 4000, 6);
   await page.emulateMedia({ reducedMotion: "no-preference" });
+  await page.keyboard.press("0");
   await page.getByTestId("view-menu").getByRole("button", { name: "Flach", exact: true }).click();
-  out.startwelt_flach_kamerafahrt = await measure(page, 4000, 3);
+  out.dorf_flach_1x = await measure(page, 4000, 0);
   await page.getByTestId("view-menu").getByRole("button", { name: "Tiefe", exact: true }).click();
+  await settled(page, '[data-house="0"]');
+  await page.mouse.click((await settled(page, '[data-house="0"]')).x, (await settled(page, '[data-house="0"]')).y);
+  out.dorf_haus_innen = await measure(page, 3000, 0);
+  await page.keyboard.press("Escape");
   const snap = await (await request.get("/api/state")).json();
   await page.evaluate((s) => { (window as unknown as { __sim: { getState(): { setSnapshot(x: unknown): void } } }).__sim.getState().setSnapshot(s); }, bigSnapshot(snap));
   await page.waitForTimeout(1500);

@@ -1,6 +1,6 @@
 # AP14 – Startwelt nach Mockup A und Innenbereiche
 
-**Auftrag:** Henry, 13.10.2026 („ok, machen wir so“ zum Vorschlag aus AP13) · **Abhängig von:** AP13 · **Vor:** AP12 · **Umfang:** L · **Stand:** Entwurf, Einzelheiten vor Beginn mit Henry klären
+**Auftrag:** Henry, 13.10.2026 („ok, machen wir so“ zum Vorschlag aus AP13) · **Abhängig von:** AP13 · **Vor:** AP12 · **Umfang:** L · **Stand:** vorgezogen und umgesetzt (13.10.2026, Frage 22), Plan: [AP14-plan.md](AP14-plan.md), Bericht: [../status/AP14.md](../status/AP14.md). Punkt 3 (Mockup-Dinge als echte Objekte) ist nicht Teil davon und bleibt offen.
 
 ## Ziel
 Die Welt soll auch im Grundriss aussehen wie Mockup A (`docs/mockups/welt-optik/`, Bilder `A-mischung-*.png`): ein dichtes kleines Dorf mit Haus, Garten, rundem Platz mit Brunnen, See mit Steg und Boot, Wald ringsum. AP13 übernimmt die Darstellung 1:1; die Abweichung, die bleibt, kommt aus der Startwelt (64 × 40 Kacheln, Haus 24 × 13, Garten 17 × 12, Platz 15 × 9, See 18 × 19), siehe `echt-*.png`.
