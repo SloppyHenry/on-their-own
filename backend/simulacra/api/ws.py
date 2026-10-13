@@ -49,6 +49,7 @@ async def _live(ws: WebSocket, sim, sub: Subscription, sent: int, ping_s: float,
             wait = max(0.0, last_ping + ping_s - loop.time())
             done, _ = await asyncio.wait({recv, queue, clock}, timeout=wait, return_when=asyncio.FIRST_COMPLETED)
             now = loop.time()
+            synced = False                                             # in dieser Runde ein Snapshot/Rückstand gesendet?
             if now - last_ping >= ping_s:                              # Heartbeat im festen Takt (Uhrtakte zählen nicht als Lebenszeichen des Clients)
                 if now - last_heard > 2 * ping_s:
                     await ws.close(code=4008, reason="Heartbeat ausgeblieben")
@@ -61,7 +62,7 @@ async def _live(ws: WebSocket, sim, sub: Subscription, sent: int, ping_s: float,
                 recv = asyncio.create_task(ws.receive_text())
                 if msg.get("type") in ("hello", "resync"):
                     sub.reset()
-                    awaiting_resync = False
+                    awaiting_resync, synced = False, True
                     sent = await _sync(ws, sim, msg.get("last_seq"), max_gap)
             if queue in done:
                 item = queue.result()
@@ -73,6 +74,7 @@ async def _live(ws: WebSocket, sim, sub: Subscription, sent: int, ping_s: float,
                     for e in item:
                         if e.type in ("simulation.reset", "simulation.loaded"):   # neue Welt oder geladener Stand: alle bekommen einen frischen Snapshot
                             sub.drop_clock()
+                            synced = True
                             sent = await _sync(ws, sim, None, max_gap)
                         elif e.seq > sent:
                             await ws.send_text(WsEvent(event=to_out(e)).model_dump_json())
@@ -80,7 +82,7 @@ async def _live(ws: WebSocket, sim, sub: Subscription, sent: int, ping_s: float,
             if clock in done:
                 minute = clock.result()
                 clock = asyncio.create_task(sub.next_clock(CLOCK_MIN_GAP_S))
-                if not awaiting_resync:
+                if not (awaiting_resync or synced):                     # ein schon fertiger Takt stammt womöglich aus der alten Welt; der nächste kommt
                     await ws.send_text(WsClock(minute=minute).model_dump_json())
     finally:
         recv.cancel()
