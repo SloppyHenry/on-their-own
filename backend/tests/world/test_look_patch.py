@@ -31,6 +31,12 @@ def test_alte_form_wird_zur_heutigen_weltdatei():
     assert lk.upgrade_v1(json.loads(V1.read_text())) == welt["look"]               # gleiche Umwandlung wie im Frontend (normalizeLook)
 
 
+def test_kopie_der_gestaltung_im_frontend_ist_aktuell():
+    welt = json.loads((loader.DATA_DIR / "world_default.json").read_text())
+    kopie = json.loads((ROOT / "frontend/src/world/dorf/look-v2-startwelt.json").read_text())
+    assert kopie == welt["look"], "frontend/src/world/dorf/look-v2-startwelt.json veraltet: look aus world_default.json dorthin kopieren"
+
+
 def test_gebiet_und_landstrasse_anhaengen(eng):
     r = eng.edit.apply_patch({"id": "p1", "look": {"regions": [region()], "roads": [[[200, 300], [200, 400]]]}})
     assert [e.type for e in r.events] == ["world.look_changed", "world.patch_applied"]
