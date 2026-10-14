@@ -17,7 +17,7 @@ Jedes Paket hat eine eigene Datei unter [arbeitspakete/](arbeitspakete/) mit Zie
 | AP09 | [AP09-spielstaende.md](arbeitspakete/AP09-spielstaende.md) | Speichern, Laden, Export, Statistik | §14 | AP07 | M |
 | AP10 | [AP10-container.md](arbeitspakete/AP10-container.md) | Docker-Container, Betrieb auf maintux | §2, §19 | AP04 (Probe), AP09 (final) | M |
 | AP11 | [AP11-abnahme.md](arbeitspakete/AP11-abnahme.md) | Stabilisierung, Abnahme, Dokumentation | §15, §17, §19 | alle | M |
-| AP12 | [AP12-weltgenerator.md](arbeitspakete/AP12-weltgenerator.md) | Weltgenerator: Straßen, Gebäude, Vegetation im Stil der Startwelt (Zusatz, nach AP11) | Zusatz Henry | AP04, AP08, AP09 | L |
+| AP12 | [AP12-weltgenerator.md](arbeitspakete/AP12-weltgenerator.md) | Weltgenerator: Straßen, Gebäude, Vegetation im Stil der Startwelt (Zusatz, nach AP11; neu geplant 14.10.2026 in [AP12-plan.md](arbeitspakete/AP12-plan.md), Teilpakete AP12a–c) | Zusatz Henry | AP04, AP08, AP09, AP13–AP15 | XL |
 | AP13 | [AP13-weltoptik.md](arbeitspakete/AP13-weltoptik.md) | Weltoptik „Mischung“ (Pixelwelt mit Tiefe) und Vorbereitung der Mitspieler-Steuerung (Point-and-Click, Spracheingabe) | Zusatz Henry | AP04, AP11 | L |
 | AP14 | [AP14-startwelt-innenbereiche.md](arbeitspakete/AP14-startwelt-innenbereiche.md) · [Plan](arbeitspakete/AP14-plan.md) | Welt genau wie Mockup A: Startwelt nach dem Bild, Haus innen hinter der Tür als Übergang, Dorfansicht mit Zoom in ganzen Stufen | Zusatz Henry | AP13 | L |
 | AP15 | [AP15-dinge.md](arbeitspakete/AP15-dinge.md) | Dinge im Dorf: Deko aus Mockup A und innen2 wird benutzbar (Boot, Laternen, Briefkasten, Ernte, Katze, Ablagen …) | Zusatz Henry | AP14 | L |

@@ -2,7 +2,9 @@
 
 **Auftrag:** Zusatz von Henry (11.10.2026) · **Abhängig von:** AP04 (Darstellung), AP08 (Welt zur Laufzeit ändern), AP09 (Sicherung vor dem Eingriff) · **Umfang:** L · **Meilenstein:** nach M6
 
-**Reihenfolge:** Dieses Paket wird erst nach AP11 begonnen. Es ist jetzt nur vorbereitet, damit AP04 die Weichen richtig stellt (siehe „Vorgaben für AP04“).
+**Neu geplant am 14.10.2026 nach AP13–AP15: siehe [AP12-plan.md](AP12-plan.md)** (Entscheidungen zu Frage 14, drei Teilpakete, Darstellung mit scrollender Kamera). Die Abschnitte „Vorgaben für AP04“ und „Offene Fragen“ unten sind überholt; Ziel, Grundsätze, Validierung und Tests gelten weiter.
+
+**Reihenfolge (ursprünglich):** Dieses Paket wird erst nach AP11 begonnen. Es ist jetzt nur vorbereitet, damit AP04 die Weichen richtig stellt (siehe „Vorgaben für AP04“).
 
 ## Ziel
 Ein Generator, der die Welt **im Stil des Mockups** (gemütliches Farmdorf, Top-down-Pixelgrafik) erweitert oder neu aufbaut: Straßen und Plätze, Gebäude, Gewässer, Vegetation, Gärten, Zäune, Requisiten. Er erzeugt keine Bilder, sondern **Weltdaten** (Kacheln, Orte, Objekte, Ressourcen) plus Stilangaben. Die Weltansicht zeichnet daraus alles mit denselben Bausteinen wie die Startwelt. Eine erweiterte Welt sieht deshalb nicht aufgesetzt aus und ist sofort bespielbar: Die Agenten finden die neuen Orte, Objekte und Ressourcen.
