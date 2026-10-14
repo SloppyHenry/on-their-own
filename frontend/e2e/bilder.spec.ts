@@ -74,3 +74,40 @@ test("Bilder AP14", async ({ page, request }) => {
   await shot(page, "mitspieler-vorschau");
   await page.getByTestId("player-toggle").uncheck();
 });
+
+/** Bis die Handlung angenommen wird (Figur muss erst ankommen oder frei sein): je Versuch ein paar Minuten weiter; mit `at` vorher hinsetzen. */
+async function act(req: APIRequestContext, agent: string, action: string, params: Record<string, unknown>, at?: [number, number]) {
+  await expect.poll(async () => {
+    if (at) await post(req, "/api/e2e/place", { agent, x: at[0], y: at[1] });
+    const r = await post(req, "/api/e2e/propose", { agent, action, params });
+    if (!r.ok && /bereits/.test(r.rejected?.text ?? "")) return true;           // schon erledigt (die Agenten handeln selbst)
+    if (!r.ok) await post(req, "/api/sim/step", { n: 3 });
+    return r.ok;
+  }, { timeout: 60_000 }).toBe(true);
+}
+
+test("Bilder AP15: Dinge im Dorf", async ({ page, request }) => {
+  await freshWorld(request);
+  await moveAgent(request, "Bewege Alex zum See");
+  await act(request, "alex", "use", { object_id: "boat", mode: "row", minutes: 60 });
+  await page.setViewportSize({ width: 1660, height: 930 });
+  await page.goto("/?messen");
+  await openApp(page);
+  await clear(page);
+  await settled(page, '[data-house="0"]');
+  await page.waitForTimeout(1200);
+  await page.getByTestId("world-pixels").screenshot({ path: `${OUT}/ap15-dorf-boot.png` });
+  await until(request, 20 * 60 + 30);
+  await act(request, "mira", "use", { object_id: "lantern_2", mode: "light" }, [13, 13]);
+  await post(request, "/api/sim/step", { n: 1 });                                        // Anzünden dauert eine Minute
+  await page.reload(); await openApp(page); await clear(page); await settled(page, '[data-house="0"]');
+  await page.waitForTimeout(1200);
+  await page.getByTestId("world-pixels").screenshot({ path: `${OUT}/ap15-dorf-laterne.png` });
+  await act(request, "alex", "use", { object_id: "floor_lamp_2", mode: "light" }, [38, 12]);   // Wohnzimmer, neben der Stehlampe
+  await post(request, "/api/sim/step", { n: 2 });
+  await act(request, "alex", "use", { object_id: "armchair", mode: "sit", minutes: 60 }, [44, 13]);
+  await page.reload(); await openApp(page); await clear(page);
+  await openHouse(page);
+  await page.waitForTimeout(1200);
+  await page.getByTestId("world-pixels").screenshot({ path: `${OUT}/ap15-haus-abend.png` });
+});

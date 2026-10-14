@@ -91,4 +91,15 @@ if __name__ == "__main__":
         res = await sim.engine.propose_async(body["agent"], body["action"], body.get("params") or {})
         return {"ok": res.ok, "rejected": res.rejected.model_dump() if res.rejected else None}
 
+    @app.post("/api/e2e/place")
+    async def e2e_place(body: dict):
+        """Nur Testserver: eine Figur direkt auf eine Kachel setzen (wie `put` in den Backend-Tests)."""
+        def work():
+            with sim.engine.db.transaction():
+                a = sim.engine.state.agent(body["agent"])
+                a.x, a.y, a.location_id, a.action = body["x"], body["y"], sim.engine.state.location_at(body["x"], body["y"]), None
+                sim.engine.state.save_agent(a)
+        await sim.engine.db.run(work)
+        return {"ok": True}
+
     uvicorn.run(app, host="127.0.0.1", port=args.port, log_level="warning")

@@ -87,3 +87,14 @@ def test_petting_the_cat_eases_loneliness(dorf):
     needs.tick(["mira"], dorf.engine.minute, set())
     alone = needs.params.social_rise_per_hour / 60
     assert needs.get("mira")["social"] == pytest.approx(max(0.0, before + alone - needs.params.social_relief_per_min_petting))
+
+
+def test_dark_lanterns_elsewhere_are_an_errand_in_the_evening(dorf):
+    put(dorf, "alex", 13, 13)                                          # am Platz (Laterne 2 steht hier)
+    assert not [o for o in all_opts(dorf, "alex") if o.kind == "light_errand"]          # tagsüber nicht
+    dorf.engine.advance(20 * 60 - dorf.engine.minute % 1440)
+    put(dorf, "alex", 13, 13)
+    errand = [o for o in all_opts(dorf, "alex") if o.kind == "light_errand"]
+    assert len(errand) == 1 and errand[0].params["target"] in ("lantern_1", "lantern_3") and errand[0].label.startswith("Zur Laterne")
+    put(dorf, "alex", 40, 12)                                          # drinnen: kein Gang zur Laterne
+    assert not [o for o in all_opts(dorf, "alex") if o.kind == "light_errand"]

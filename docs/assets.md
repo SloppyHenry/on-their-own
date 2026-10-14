@@ -18,6 +18,7 @@ Seit AP13 gilt der Stil von Mockup A (`docs/mockups/welt-optik/world.js`, von He
 | Lichtschein, Teilchen, Regen, Schnee, Nebel, Vignette | `view/post.ts` | Farbstimmung und Tilt-Shift per CSS (`WorldCanvas.tsx`) |
 | Haus innen als Puppenhaus (Mockup innen2): Rückwände mit Tapeten, Böden je Raumstil, Teppiche, dünne Wände, Licht | `world/dorf/haus/plan.ts`, `haus/bild.ts` | Stile, Wandschmuck und Einrichtung aus `look.interior` der Weltdatei (Frage 23) |
 | Einrichtung innen: Fenster, Bilder, Uhr, Spiegel, Regale, Pflanzen, Lampen, Schrank, Sessel, Küchenzeile, Korb, Katze … | `world/art/rooms.ts` | aus dem Mockup innen2 übernommen |
+| Dinge im Dorf (AP15): umgefallene Vogelscheuche (gekippte Vogelscheuche aus A), gelöschte Kerze | `world/dorf/sprites.ts` (`scareDown`), `world/art/rooms.ts` (`kerzeAus`) | alle übrigen Dinge mit den unveränderten Sprites aus A und innen2 |
 | Rauch, Schlafzeichen | `view/pieces.ts` | |
 | Icons der Oberfläche | `lib/px.ts` | 8 × 8 Pixel, einfarbig |
 

@@ -60,7 +60,7 @@ Jede Operation ist **eine Transaktion**: Zustandsänderung, Ereignisse und Proto
 | `rest` / `sleep` | `minutes` (5–120 / 10–600), optional `object_id` | wie angegeben | `not_here`, `forbidden_by_rules`, `invalid_target` |
 | `speak` | `to`, `text` (≤ 500 Zeichen) | 1 + Länge/80 | `not_here`, `invalid_target` |
 
-Modi von `use`: Bett `sleep`, Sofa/Bank `sit`, Herd `cook`, Regal/Schreibtisch/Tafel `read`, Schreibtisch/Tafel `write`, Kamin/Feuerstelle `light`/`extinguish`, Tür `lock`/`unlock`, Angelplatz `fish`, Pflanze `harvest`.
+Modi von `use`: Bett `sleep`, Sofa/Bank/Sessel `sit`, Herd `cook`, Regal/Schreibtisch/Tafel/Wegweiser `read`, Schreibtisch/Tafel `write`, Kamin/Feuerstelle `light`/`extinguish` (1 Holz), Laterne/Kerze/Stehlampe `light`/`extinguish` (ohne Holz), Tür `lock`/`unlock`, Angelplatz `fish`, Pflanze `harvest`. Dinge im Dorf (AP15, `world/actions/use_dinge.py`): Boot `row` (`minutes` 10–90) und `fish` (85 %; immer nur eine Person, sonst `busy`), Briefkasten `post` (`to`, `text`) und `collect` (eigene ungelesene Briefe, als `agent.read`), Wegweiser `read` (nennt die Orte mit Richtung und macht sie bekannt), Vogelscheuche `fix`, Katze `pet`, Truhe/Schrank/Kiste `store` und `retrieve` (`item` oder `resource` + `amount` 1–5, höchstens 20 Plätze). Der Korb (Bauplan `basket`, 2 Schilf an der Werkbank) gibt beim Tragen 3 Plätze mehr. Von selbst: Sturm wirft die Vogelscheuche um (je Sturmstunde 30 %), dann wachsen Pflanzen an ihrem Ort halb so schnell; die Katze wechselt alle drei Stunden ihren Platz (`state.spots`, nachts der erste).
 
 Ablehnungscodes (`RejectCode`): `not_reachable`, `not_here`, `missing_resource`, `locked`, `capacity`, `forbidden_by_rules`, `invalid_target`, `busy`. Jede Ablehnung erzeugt `agent.action_rejected`, einen Eintrag in `action_log` und (außer bei `busy`) die Folge laut Regel `failure_penalty`.
 
@@ -73,7 +73,7 @@ Schema (`Event`): `seq` (fortlaufende ID), `ts` (UTC), `sim_minute`, `type`, `ag
 | `agent.action_started` / `action_completed` / `action_failed` / `action_rejected` / `action_interrupted` | Lebenslauf einer Aktion |
 | `agent.walking` (je Weg ein Fahrplan), `agent.location_changed` (mit `at`), `agent.location_discovered`, `agent.arrived`; veraltet: `agent.moved` (je Kachel, nur in Protokollen vor AP11) | Bewegung |
 | `agent.dialogue` | `speak` ist angekommen (`speaker`, `to`, `text`) |
-| `agent.inspected`, `agent.read`, `agent.fished`, `agent.ate`, `agent.drank`, `agent.slept`, `agent.rested` | Ergebnisse der Aktionen |
+| `agent.inspected`, `agent.read`, `agent.fished`, `agent.ate`, `agent.drank`, `agent.slept`, `agent.rested`, `agent.rowed`, `agent.petted`, `agent.stored` | Ergebnisse der Aktionen (`agent.stored`: hineingelegt oder herausgenommen, `into`) |
 | `agent.item_taken` / `item_dropped` / `item_given`, `agent.inventory_changed` | Gegenstände und Inventar |
 | `world.object_created` / `object_changed` / `object_removed` / `object_discovered`, `world.tile_changed` | Weltänderungen |
 | `world.resource_changed` | Quelle gesammelt, verbraucht oder nachgewachsen |
@@ -88,7 +88,7 @@ Schema (`Event`): `seq` (fortlaufende ID), `ts` (UTC), `sim_minute`, `type`, `ag
 Tabellen: `meta`, `tile_types`, `tiles`, `locations`, `objects`, `resources`, `agents_body`, `inventory`, `clock`, `weather`, `events`, `action_log`. SQLite im WAL-Modus, Schema-Version in `PRAGMA user_version`, Migrationen als nummerierte Dateien, die beim Öffnen automatisch angewendet werden. Eine Schreibverbindung (Sperre plus Ein-Thread-Warteschlange `Database.write/run`), Leser über `Database.reader()`.
 
 ### Startwelt-Datei (`backend/simulacra/data/world_default.json`, Schema 1)
-`size` `[64,40]`, `home`, `tile_types` (Kachelart → `char`, `walkable`, `cost`, `color`, `label`), `tiles` (40 Zeilen à 64 Zeichen), `locations` (`id`, `name`, `rect` `[x,y,b,h]`, `entrances`, `extra_tiles`, `props`; der erste passende Eintrag gewinnt, `props.fallback` gilt für alle übrigen Kacheln), `objects` (`id`, `kind`, `name`, `tile`, `state`, `portable`, `owner`, `hidden`), `resource_nodes`, `agents`, `start`. Bauvorlagen: `blueprints.json`. Neue Objektarten nur in `world/object_kinds.py` ergänzen. Ausführlich: [welt-erweitern.md](welt-erweitern.md).
+`size` `[64,40]`, `home`, `tile_types` (Kachelart → `char`, `walkable`, `cost`, `color`, `label`), `tiles` (40 Zeilen à 64 Zeichen), `locations` (`id`, `name`, `rect` `[x,y,b,h]`, `entrances`, `extra_tiles`, `props`; der erste passende Eintrag gewinnt, `props.fallback` gilt für alle übrigen Kacheln), `objects` (`id`, `kind`, `name`, `tile`, `state`, `portable`, `owner`, `hidden`), `resource_nodes` (dazu optional `label`, Name im Bild und in den Optionen, und `regen_weather`, z. B. `"rain,storm"`: wächst nur bei diesem Wetter nach; Migration `010_dinge.sql`), `agents`, `start`. Bauvorlagen: `blueprints.json`. Neue Objektarten nur in `world/object_kinds.py` ergänzen. Ausführlich: [welt-erweitern.md](welt-erweitern.md).
 
 ### Entwicklungswerkzeug
 ```bash

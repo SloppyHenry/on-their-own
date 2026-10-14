@@ -68,6 +68,12 @@ def generate(engine: WorldEngine, store: AgentStore, p: Perception) -> list[Opti
             if spot and spot != p.location_id:
                 add("search", f"Nach {other.name} sehen ({'zuletzt gesehen ' + loc_at(st, spot) if other.id in p.last_seen else 'vielleicht ' + loc_at(st, spot)})",
                     "move_to", {"target": spot}, target_loc=spot, meta={"search": other.id})
+    # Abends dunkle Laternen draußen: hingehen und anzünden (am Ort selbst gibt es dann „anzünden“), AP15
+    if p.phase in ("dusk", "night") and not p.location_id.startswith("house."):
+        dark = [o for o in st.objects_of_kind("lantern") if not o.state.get("lit") and o.location_id != p.location_id and o.location_id]
+        for o in sorted(dark, key=lambda o: math.dist(body.pos, (o.x, o.y)))[:1]:
+            add("light_errand", f"Zur {o.name} {loc_at(st, o.location_id)} gehen und sie anzünden", "move_to", {"target": o.id},
+                target_loc=o.location_id, meta={"object_kind": "lantern"})
     # Dinge am Ort
     done = {r["params"].get("object_id") for r in store.recent_actions(aid, 60) if r["action"] == "inspect"}
     held = st.objects_held(aid)

@@ -101,6 +101,7 @@ test("Puppenhaus: Klick auf einen Raum zeigt ihn groß, Esc führt Schritt für 
   await expect(overlays).toHaveAttribute("data-interior", "0");
   await page.keyboard.press("Escape");
   await expect(overlays).toHaveAttribute("data-interior", "-1");
+  await expect(labels).toHaveCount(0);                                                        // draußen bleiben keine Raumschilder stehen
 });
 
 test("Namensblase: kurz über einem Ding verweilen zeigt seinen Namen, daneben und nach dem Klick verschwindet sie", async ({ page }) => {
@@ -120,9 +121,8 @@ test("Namensblase: kurz über einem Ding verweilen zeigt seinen Namen, daneben u
 });
 
 test("Dinge im Dorf: wer rudert, sitzt im Boot und das Schild sagt es", async ({ page, request }) => {
-  await moveAgent(request, "Bewege Alex zum See");
-  await expect.poll(async () => {                                                            // bis Alex am See angekommen ist
-    await post(request, "/api/sim/step", { n: 10 });
+  await expect.poll(async () => {                                                            // an den Steg setzen (nur Testserver) und rudern lassen
+    await post(request, "/api/e2e/place", { agent: "alex", x: 17, y: 12 });
     return (await post(request, "/api/e2e/propose", { agent: "alex", action: "use", params: { object_id: "boat", mode: "row", minutes: 90 } })).ok;
   }, { timeout: 30_000 }).toBe(true);
   await openApp(page);
