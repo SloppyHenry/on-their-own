@@ -91,7 +91,7 @@ function ViewMenu({ dorf }: { dorf: boolean }) {
         </label>
       </div>
       <div className="rounded-lg bg-bg/80 px-2.5 py-1.5 text-dim">
-        {player ? "Klick: gehen/handeln · Umschalt- oder Rechtsklick: auswählen · Enter: sagen · " : "Klick aufs Haus: hineinschauen · Doppelklick: folgen · "}{dorf ? "Mausrad: Zoom 1×/2×/3× · Ziehen oder WASD: verschieben" : "Mausrad: Zoom · Ziehen: verschieben"} · F: folgen · 0: Gesamtansicht
+        {player ? "Klick: gehen/handeln · Umschalt- oder Rechtsklick: auswählen · Enter: sagen · " : "Klick aufs Haus: hineinschauen · Doppelklick: folgen · "}{dorf ? "Mausrad oder + −: Zoom ¼×–3× · Ziehen oder WASD: fahren" : "Mausrad: Zoom · Ziehen: verschieben"} · F: folgen · 0: Gesamtansicht
       </div>
     </div>
   );

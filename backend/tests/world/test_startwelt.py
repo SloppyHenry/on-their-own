@@ -28,9 +28,10 @@ def start(monkeypatch):
 
 def test_grundriss_wie_mockup_a(welt):
     look = welt["look"]
-    assert look["style"] == "mockup-a" and welt["size"] == [51, 19]
-    kinds = [d[0] for d in look["decor"]]                                                   # Deko plus Dinge (AP15) mit ihren Sprites
-    for p in look["place"].values():
+    assert look["style"] == "mockup-a" and look["version"] == 2 and welt["size"] == [51, 19]
+    (dorf,) = look["regions"]                                                               # ein Gebiet mit einem Haus (AP12a)
+    kinds = [d[0] for d in dorf["decor"]] + [h["sprite"] for h in dorf["houses"]]           # Deko plus Dinge (AP15) mit ihren Sprites
+    for p in dorf["place"].values():
         kinds += [p.get("sprite")] * (1 + len(p.get("more", [])))
     assert sum(k in ("tree", "treeF", "treeB", "pine") for k in kinds) == 13 + 95 + 52   # alle Bäume aus A
     assert kinds.count("boat") == 1 and kinds.count("house") == 1 and kinds.count("lamp") == 3
@@ -45,7 +46,7 @@ def test_dinge_aus_der_deko_sind_echt(welt):
     assert {nodes[i]["label"] for i in ("tomatoes", "sunflowers", "rain_barrels", "reeds", "apple_trees", "field_rocks")} == {"Tomaten", "Sonnenblumen", "Regentonnen", "Schilf", "Apfelbäume", "Steine"}
     assert nodes["rain_barrels"]["location_id"] == "garden" and nodes["rain_barrels"]["regen_weather"] == "rain,storm"
     assert nodes["reeds"]["location_id"] == "lake" and objs["boat"]["tile"] and objs["scarecrow"]["tile"]
-    inner = [d[0].split(":")[0] for d in welt["look"]["interior"]["decor"]]
+    inner = [d[0].split(":")[0] for d in welt["look"]["regions"][0]["houses"][0]["interior"]["decor"]]
     assert not {"katze", "stehlampe", "kerze", "sessel", "schrank", "kiste"} & set(inner)          # jetzt Dinge, keine Deko mehr
     ids = {l["id"] for l in welt["locations"]}
     assert {"house.bedroom_a", "house.bedroom_b", "house.workshop", "house.kitchen", "house.living", "garden", "square", "lake", "forest", "paths"} <= ids

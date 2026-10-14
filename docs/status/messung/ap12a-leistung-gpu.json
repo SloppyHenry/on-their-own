@@ -1,0 +1,103 @@
+{
+ "fenster": "1440 × 900",
+ "browser": "Chromium (headless, GPU/Metal)",
+ "gpu": "ANGLE (Apple, ANGLE Metal Renderer: Apple M1, Unspecified Version)",
+ "dorf_tiefe_1x": {
+  "fps": 60,
+  "bild_ms_median": 16.7,
+  "bild_ms_95": 16.8,
+  "rechen_ms_median": 0.1,
+  "rechen_ms_95": 1.4
+ },
+ "dorf_tiefe_1x_kamerafahrt": {
+  "fps": 59.9,
+  "bild_ms_median": 16.7,
+  "bild_ms_95": 16.8,
+  "rechen_ms_median": 9.1,
+  "rechen_ms_95": 11.4
+ },
+ "dorf_tiefe_halb_ruhig": {
+  "fps": 60.3,
+  "bild_ms_median": 16.7,
+  "bild_ms_95": 16.8,
+  "rechen_ms_median": 0.2,
+  "rechen_ms_95": 11.2
+ },
+ "dorf_tiefe_halb_kamerafahrt": {
+  "fps": 60,
+  "bild_ms_median": 16.7,
+  "bild_ms_95": 16.7,
+  "rechen_ms_median": 9,
+  "rechen_ms_95": 11.1
+ },
+ "dorf_tiefe_viertel_ruhig": {
+  "fps": 60.3,
+  "bild_ms_median": 16.7,
+  "bild_ms_95": 16.7,
+  "rechen_ms_median": 0.2,
+  "rechen_ms_95": 11.2
+ },
+ "dorf_tiefe_viertel_kamerafahrt": {
+  "fps": 59.9,
+  "bild_ms_median": 16.7,
+  "bild_ms_95": 16.8,
+  "rechen_ms_median": 9,
+  "rechen_ms_95": 11.2
+ },
+ "dorf_tiefe_2x_verschieben": {
+  "fps": 59.8,
+  "bild_ms_median": 16.7,
+  "bild_ms_95": 16.8,
+  "rechen_ms_median": 9.1,
+  "rechen_ms_95": 10.9
+ },
+ "dorf_tiefe_2x_ohne_tiltshift": {
+  "fps": 60,
+  "bild_ms_median": 16.7,
+  "bild_ms_95": 16.8,
+  "rechen_ms_median": 9,
+  "rechen_ms_95": 9.3
+ },
+ "dorf_flach_1x": {
+  "fps": 60.2,
+  "bild_ms_median": 16.7,
+  "bild_ms_95": 16.7,
+  "rechen_ms_median": 0.1,
+  "rechen_ms_95": 12
+ },
+ "dorf_haus_innen": {
+  "fps": 60.2,
+  "bild_ms_median": 16.7,
+  "bild_ms_95": 16.8,
+  "rechen_ms_median": 0.6,
+  "rechen_ms_95": 0.8
+ },
+ "dorf_haus_raum": {
+  "fps": 60.2,
+  "bild_ms_median": 16.7,
+  "bild_ms_95": 16.8,
+  "rechen_ms_median": 0.6,
+  "rechen_ms_95": 0.8
+ },
+ "gross_tiefe_zoom1_kamerafahrt": {
+  "fps": 60.2,
+  "bild_ms_median": 16.7,
+  "bild_ms_95": 16.7,
+  "rechen_ms_median": 1.8,
+  "rechen_ms_95": 4.6
+ },
+ "gross_tiefe_gesamt": {
+  "fps": 60.2,
+  "bild_ms_median": 16.7,
+  "bild_ms_95": 16.8,
+  "rechen_ms_median": 2.8,
+  "rechen_ms_95": 2.9
+ },
+ "gross_tiefe_gesamt_kamerafahrt": {
+  "fps": 60,
+  "bild_ms_median": 16.7,
+  "bild_ms_95": 16.7,
+  "rechen_ms_median": 2.8,
+  "rechen_ms_95": 5.2
+ }
+}

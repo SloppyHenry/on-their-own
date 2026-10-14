@@ -12,7 +12,8 @@ Seit AP13 gilt der Stil von Mockup A (`docs/mockups/welt-optik/world.js`, von He
 | Haus, Brunnen, Bank, Laterne, Brett, Zaun, Pfosten, Vogelscheuche, Wegweiser, Briefkasten, Fass, Boot | `art/village.ts` | 1:1; das Brett zeigt so viele Zettel wie der Zustand |
 | Figuren | `art/people.ts` | Vorderansicht wie `wPerson`, dazu hinten, Seite, vier Laufbilder, Sitzen, Schlafen, Werkzeug; Palette je Agent, unbekannte aus der Kennung |
 | Möbel, Pflanzen nach Stufe, Baustelle, Vorräte, Kleinkram | `art/things.ts` | im Stil des Mockups; unbekannte Arten als neutrale Kiste |
-| Dorf nach Mockup A: Boden, Himmel, Effekte | `world/dorf/boden.ts`, `bild.ts` | `wTexel` und `frame()` aus `world.js` unverändert, Formen und Deko aus `look` der Weltdatei (AP14) |
+| Dorf nach Mockup A: Boden, Himmel, Effekte | `world/dorf/boden.ts`, `grund.ts`, `bild.ts` | `wTexel` und `frame()` aus `world.js`, verallgemeinert auf Listen, mehrere Gebiete und Blöcke; Formen und Deko aus `look` der Weltdatei (AP14, AP12a) |
+| Neue Bausteine: Wohnhaus in drei Breiten, sechs Dach- und fünf Wandfarben, Werkstatt, Laden, Scheune, Stall, Marktstände, Heu, Holz, Kiste | `art/bausteine.ts`, Arten `bh:Breite:Dach:Wand`, `bw`, `bs`, `bb`, `bt`, `bm:N`, `bhay`, `blog`, `bcr` in `dorf/sprites.ts` | 1:1 aus `docs/mockups/welt-optik/bausteine.js` (von Henry am 14.10.2026 freigegeben) |
 | Boden (Gras, Wege, Pflaster, Wasser, Ufer, Steg, Beete, Böden innen) für Welten ohne `look` | `world/view/ground.ts` | wie `wTexel`, aus Kacheln und Orten; Grasbüschel, Blumen, Schatten |
 | Himmel, Wolken, Sterne, Mond, Hügel | `view/sky.ts` | wie im Mockup |
 | Lichtschein, Teilchen, Regen, Schnee, Nebel, Vignette | `view/post.ts` | Farbstimmung und Tilt-Shift per CSS (`WorldCanvas.tsx`) |

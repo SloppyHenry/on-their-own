@@ -60,6 +60,9 @@ export class DorfView {
   room: string | null = null;
   private off: (() => void)[] = [];
 
+  /** Zoomstufe setzen (¼, ½, 1, 2, 3), Bildmitte bleibt (Prüf- und Messzugang, siehe WorldCanvas). */
+  zoomLevel(level: number) { this.zoomTo(level); }
+
   /** Hineinzoomen (1, 2, 3) für Tests und Hilfen. */
   get Z() { return this.kam.zoom; }
 
@@ -77,7 +80,13 @@ export class DorfView {
     on(host, "pointerup", (e) => this.up(e));
     on(host, "pointerleave", () => { this.drag = null; this.hover = null; this.hoverSince = 0; this.player?.hover(null); });
     on(host, "contextmenu", (e) => { e.preventDefault(); this.click(e, true); });
-    on(window, "keydown", (e) => { if (!(e.target as HTMLElement)?.closest?.("input, textarea, select, [contenteditable]")) this.keys.add(e.code); });
+    on(window, "keydown", (e) => {
+      if ((e.target as HTMLElement)?.closest?.("input, textarea, select, [contenteditable]")) return;
+      this.keys.add(e.code);
+      if (e.ctrlKey || e.metaKey || e.altKey || e.repeat) return;
+      if (e.key === "+" || e.key === "=" || e.code === "NumpadAdd" || e.code === "BracketRight") this.zoomTo(this.kam.next(1));         // + und − auch auf der deutschen Tastatur
+      else if (e.key === "-" || e.key === "_" || e.code === "NumpadSubtract" || e.code === "Slash") this.zoomTo(this.kam.next(-1));
+    });
     on(window, "keyup", (e) => this.keys.delete(e.code));
     on(window, "blur", () => this.keys.clear());
     bridge.commands.fit = () => { this.leaveInterior(true); this.kam.reset(); };

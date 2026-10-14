@@ -33,7 +33,7 @@ Das Paket ist größer als „L“; drei Teilpakete mit je eigener Abnahme, jewe
 - Abnahme durch dich, bevor Code im Spiel entsteht.
 - **Stand 14.10.2026: gebaut, wartet auf deine Abnahme** (Fragen 24 und 25 in [offene-fragen.md](../offene-fragen.md)). Bericht mit Bildern: [status/AP12-schritt0.md](../status/AP12-schritt0.md).
 
-### AP12a – Darstellung: scrollende Welt, verallgemeinertes `look`
+### AP12a – Darstellung: scrollende Welt, verallgemeinertes `look` (gebaut 14.10.2026, Bericht [status/AP12a.md](../status/AP12a.md), wartet auf Abnahme)
 1. **`look` Version 2:** Listen statt Einzelstücke (Gebiete mit Seen, Plätzen, Gärten, Wegen, Stegen; Häuser mit Tür, Innenbereich, Rauch; Lichter). Die Startwelt wird in diese Form umgeschrieben (`startwelt_a.mjs`), die alte Form lädt über einen Adapter weiter. Goldbild-Test grün.
 2. **Boden in Blöcken:** Dorfrand und Wildnis ergeben sich aus den Gebieten, Zufall (Gräser, Blumen, Seerosen, Keimlinge) wird je Block aus Blockkoordinaten gezogen. Der Block mit der Startwelt behält die alte Reihenfolge, damit er byte-gleich bleibt. Hintergrund (Himmel, Hügel, Wolken) bleibt wie in A.
 3. **Kamera mit Fokus:** `Frame` bekommt die Kameralage; bei der Startlage identisch zu A. WASD, Ziehen, Mausrad (ganze Stufen), „hingehen“, Folgen, Gesamtansicht; Bewegungsart **(d)** (Entscheidung Henry, 14.10.2026): weich beim Fahren, Horizontkrümmung nur im Stillstand, im Stillstand exakt Bild A. **Zoom:** 1× ist immer Standard; herauszoomen auf ½× und ¼× (Übersicht der Welt; der Boden wird dafür in gröberen Stufen vorgehalten, Blöcke je Stufe), hineinzoomen auf 2×/4× wie in AP14. Die Bildmitte bleibt beim Zoomen am Ort.

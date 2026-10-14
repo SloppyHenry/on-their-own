@@ -80,7 +80,7 @@ interface LookV1 {
 function fromV1(o: LookV1): Look {
   const S = o.shapes, H = S.house, at: Pt = [H.x, H.y];
   const region: Region = {
-    id: "dorf", frame: o.origin, bounds: { left: 0, right: 256, top: 0 },
+    id: "dorf", frame: o.origin, bounds: { left: 0, right: 256, top: 0, bottom: 232 },
     shapes: { paths: S.paths, squares: [S.square], lakes: [S.lake], gardens: [{ ...S.garden, beds: S.beds }], docks: [S.dock], streams: [], bridges: [], pads: [[H.x - 36, H.y - 30, H.x + 36, H.y]] },
     decor: o.decor.filter((d) => !(d[0] === "house" && d[1] === H.x && d[2] === H.y)),
     lights: o.lights, place: o.place,

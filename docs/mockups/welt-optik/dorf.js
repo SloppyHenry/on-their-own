@@ -180,6 +180,7 @@ function dorfWelt(seed) {
   var objsOut = O.map(function (o) { return { kind: o.kind, vx: o.vx, vy: o.vy, extra: o.extra, wx: o.vx + W_OX, wy: o.vy + W_OY, cell: 1 }; }).sort(function (a, c) { return a.wy - c.wy; });
   var names = buildings.map(function (b) { return b.m === 'house' ? 'Haus' : b.m === 'shop' ? 'Laden' : b.m === 'barn' ? 'Scheune' : b.m === 'stable' ? 'Stall' : 'Werkstatt'; });
   return {
+    data: { V: V, objects: O, buildings: buildings, extL: extL, sq: sq, east: east },
     legacy: false, cam: [192, 288], summary: (east ? 'See im Osten' : 'See im Süden mit Brücke') + ': ' + names.join(', '),
     base: function (tx, ty) { return dTexel(V, tx, ty); }, objects: function () { return objsOut; },
     spriteFor: bSpriteFor,

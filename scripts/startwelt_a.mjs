@@ -155,10 +155,23 @@ inner("sessel").forEach(([, x, y]) => objects.push({ id: "armchair", kind: "armc
 inner("schrank").forEach(([, x, y]) => objects.push({ id: "wardrobe", kind: "wardrobe", name: "Schrank", tile: [x, y] }));
 inner("kiste").forEach(([, x, y], i) => objects.push({ id: `crate_${i + 1}`, kind: "crate", name: "Kiste", tile: [x, y] }));
 
+// 7. look in Version 2 (AP12a): ein Gebiet „dorf“ mit einem Haus; frontend/src/world/dorf/look.ts (`normalizeLook`) macht aus der alten Form dasselbe
+const HS = look.shapes.house, [ox, oy] = look.texture.offset, [fx, fy] = look.origin, { size } = look.texture;
+const look2 = {
+  version: 2, style: "mockup-a", texShift: [fx - ox, fy - oy], legacy: { rect: [0, 0, size[0], size[1]], region: "dorf", plainOutside: true }, home: [size[0] / 2 + fx - ox, size[1] + fy - oy],
+  regions: [{
+    id: "dorf", frame: look.origin, bounds: { left: 0, right: 256, top: 0, bottom: 232 },
+    shapes: { paths: look.shapes.paths, squares: [look.shapes.square], lakes: [look.shapes.lake], gardens: [{ ...look.shapes.garden, beds: look.shapes.beds }], docks: [look.shapes.dock], streams: [], bridges: [], pads: [[HS.x - 36, HS.y - 30, HS.x + 36, HS.y]] },
+    decor: look.decor.filter((d) => !(d[0] === "house" && d[1] === HS.x && d[2] === HS.y)), lights: look.lights, place: look.place,
+    houses: [{ at: [HS.x, HS.y], sprite: "house", door: { outside: look.door.outside, inside: look.door.inside }, interior: look.interior, smoke: 19 }],
+  }],
+  roads: [],
+};
+
 const types = { ...old.tile_types, fence: { char: "f", walkable: false, cost: 0, color: "#a96f42", label: "Zaun" }, furniture: { char: "m", walkable: false, cost: 0, color: "#a96f42", label: "Möbel" } };
 const world = {
   ...old, name: "Dorf am See", size: [W, H], home: door, tile_types: types, tiles: grid.map((r) => r.join("")),
-  links: [[door, inDoor]], locations, objects, resource_nodes, agents, look,
+  links: [[door, inDoor]], locations, objects, resource_nodes, agents, look: look2,
 };
 writeFileSync(ROOT + "backend/simulacra/data/world_default.json", JSON.stringify(world, null, 1) + "\n");
 console.log(world.tiles.join("\n"));

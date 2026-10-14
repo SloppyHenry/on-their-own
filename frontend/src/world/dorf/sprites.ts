@@ -1,6 +1,7 @@
 // Sprites der Deko wie wSpriteFor in Mockup A; die Zeichnungen selbst sind die 1:1-Übertragungen in art/.
 import { bush, pine, reed, rock, sunflower, tomato, tree } from "../art/nature";
 import { WP } from "../art/palette";
+import { bBarn, bCrate, bHay, bHouse, bLogs, bShop, bStable, bStand, bWorkshop } from "../art/bausteine";
 import { barrel, bench, board, boat, fence, house, lamp, mailbox, post, scarecrow, sign, well } from "../art/village";
 
 const cache = new Map<string, HTMLCanvasElement>();
@@ -36,7 +37,7 @@ export function decorSprite(kind: string, extra: number, lit: boolean): HTMLCanv
     case "reed": c = reed(); break;
     case "barrel": c = barrel(); break;
     case "boat": c = boat(); break;
-    default: c = null;
+    default: c = neu(kind, lit);
   }
   if (c) cache.set(key, c);
   return c;
@@ -49,4 +50,22 @@ function lying(src: HTMLCanvasElement): HTMLCanvasElement {
   const g = c.getContext("2d")!;
   g.translate(0, c.height); g.rotate(-Math.PI / 2); g.drawImage(src, 0, 0);
   return c;
+}
+
+/** Bausteine von AP12 (von Henry freigegeben): `bh:Breite:Dach:Wand` Wohnhaus, `bw` Werkstatt, `bs` Laden, `bb` Scheune, `bt` Stall, `bm:N` Marktstand,
+ *  `bhay`, `blog`, `bcr` Heu, Holz, Kiste. Unbekanntes bleibt null (wird nicht gezeichnet). */
+function neu(kind: string, lit: boolean): HTMLCanvasElement | null {
+  const [k, a, b, c] = kind.split(":");
+  switch (k) {
+    case "bh": return bHouse({ ww: Number(a) || 66, roof: b, wall: c, lit });
+    case "bw": return bWorkshop(lit);
+    case "bs": return bShop(lit);
+    case "bb": return bBarn();
+    case "bt": return bStable();
+    case "bm": return bStand(Number(a) || 0);
+    case "bhay": return bHay();
+    case "blog": return bLogs();
+    case "bcr": return bCrate();
+    default: return null;
+  }
 }

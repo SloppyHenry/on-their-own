@@ -40,17 +40,18 @@ function bigSnapshot(base: Record<string, unknown>) {
   return { ...base, look: null, links: [], seq: (base.seq as number) + 1, map: { width: N, height: N, rows: g.map((r) => r.join("")), legend: (base.map as { legend: object }).legend }, locations, objects, resources: [], agents };
 }
 
-/** Misst `ms` Millisekunden: Ausschnitt fährt (Dorf: Gerätepixel je Bild bei 2×, sonst Weltpixel je Bild), Ergebnis Bildrate und Rechenzeit (Median, 95 %). */
+/** Misst `ms` Millisekunden: Ausschnitt fährt (Dorf: halbe Texel je Bild und Einheit `pan`, sonst Weltpixel je Bild), Ergebnis Bildrate und Rechenzeit (Median, 95 %). */
 async function measure(page: Page, ms: number, pan: number) {
   return page.evaluate(async ([ms, pan]) => {
-    const v = (window as unknown as { __welt: { cam?: { fx: number }; o?: { x: number }; perf: number[] } }).__welt;
+    const v = (window as unknown as { __welt: { cam?: { fx: number }; kam?: { x: number; y: number; bounds: number[]; set(x: number, y: number): void }; perf: number[] } }).__welt;
     v.perf.length = 0;
     const t0 = performance.now(), gaps: number[] = [];
     let last = t0, dir = 1;
     const step = () => {
       if (v.cam) { v.cam.fx += pan * dir; if (Math.abs(pan) > 0 && (v.cam.fx > 3500 || v.cam.fx < 300)) dir = -dir; return; }
-      if (!v.o || !pan) return;
-      const x = v.o.x + pan * dir; v.o = { ...v.o, x: Math.max(0, x) }; if (x > 2000 || x < 0) dir = -dir;
+      if (!v.kam || !pan) return;                                      // Dorfansicht: die Kamera fährt in Texeln je Bild hin und her
+      const x = v.kam.x + pan * 0.5 * dir; v.kam.set(x, v.kam.y);
+      if (x > v.kam.bounds[2] - 40 || x < v.kam.bounds[0] + 40) dir = -dir;
     };
     await new Promise<void>((done) => { const f = (t: number) => { gaps.push(t - last); last = t; step(); if (t - t0 < ms) requestAnimationFrame(f); else done(); }; requestAnimationFrame(f); });
     const q = (a: number[], p: number) => { const s = [...a].sort((x, y) => x - y); return Math.round(s[Math.min(s.length - 1, Math.floor(s.length * p))] * 10) / 10; };
@@ -66,6 +67,14 @@ test("Leistung: Startwelt und große Welt", async ({ page, request }) => {
   const out: Record<string, unknown> = { fenster: "1440 × 900", browser: process.env.SIM_MESSEN === "gpu" ? "Chromium (headless, GPU/Metal)" : "Chromium (headless, Software)" };
   out.gpu = await page.evaluate(() => { const c = document.createElement("canvas").getContext("webgl"); const d = c?.getExtension("WEBGL_debug_renderer_info"); return d ? c!.getParameter(d.UNMASKED_RENDERER_WEBGL) : "unbekannt"; });
   out.dorf_tiefe_1x = await measure(page, 4000, 0);
+  out.dorf_tiefe_1x_kamerafahrt = await measure(page, 4000, 8);            // Boden weich, Horizont gerade (Variante d)
+  await page.keyboard.press("Slash");                                       // ½×
+  out.dorf_tiefe_halb_ruhig = await measure(page, 3000, 0);
+  out.dorf_tiefe_halb_kamerafahrt = await measure(page, 3000, 8);
+  await page.keyboard.press("Slash");                                       // ¼×
+  out.dorf_tiefe_viertel_ruhig = await measure(page, 3000, 0);
+  out.dorf_tiefe_viertel_kamerafahrt = await measure(page, 3000, 8);
+  await page.keyboard.press("0");
   const box = (await page.getByTestId("world-canvas").boundingBox())!;
   await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
   await page.mouse.wheel(0, -100);

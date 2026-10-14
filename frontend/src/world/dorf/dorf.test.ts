@@ -5,6 +5,8 @@ import { makeSnapshot } from "../../test/fixtures";
 import { findPath, gridOf } from "../player/pathfind";
 import { frameFor, project, unproject } from "./abbild";
 import { texel } from "./boden";
+import startwelt from "../../../../backend/simulacra/data/world_default.json" with { type: "json" };
+import v1Startwelt from "./look-v1-startwelt.json" with { type: "json" };
 import { housesOf, isInside, lookOf, normalizeLook, regionAt, type Look } from "./look";
 import { boatSpot, glowing } from "./dinge";
 
@@ -35,6 +37,9 @@ describe("look Version 2", () => {
     expect(isInside(L, 10, 10)).toBe(false);
     expect(regionAt(L, ...world(100, 100))?.id).toBe("dorf");
     expect(regionAt(L, 5000, 5000)).toBeNull();
+  });
+  it("die alte Form der Startwelt wird zu genau dem, was die Weltdatei heute enthält", () => {
+    expect(normalizeLook(JSON.parse(JSON.stringify(v1Startwelt)))).toEqual(startwelt.look);
   });
   it("nimmt eine Welt in Version 2 unverändert", () => {
     const L = A();
