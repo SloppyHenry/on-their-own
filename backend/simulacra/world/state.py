@@ -25,8 +25,10 @@ class WorldState:
         self.tile_types: dict[str, TileType] = {}
         self._loc_index: dict[tuple[int, int], str] = {}
         self.rules = WorldRules()
+        self._committed_minute: int | None = None
         if self.is_seeded():
             self.reload_caches()
+            self._committed_minute = self.minute
 
     @property
     def conn(self) -> sqlite3.Connection:
@@ -45,10 +47,25 @@ class WorldState:
 
     @property
     def minute(self) -> int:
+        """Aktuelle Minute aus der Datenbank – nur auf dem DB-Thread lesen (`conn` verträgt keine zwei Threads gleichzeitig)."""
         return self.conn.execute("SELECT minute FROM clock").fetchone()["minute"]
+
+    @property
+    def committed_minute(self) -> int:
+        """Zuletzt committete Minute, aus dem Speicher: von jedem Thread (Event-Loop, REST, Test) ohne Datenbankzugriff lesbar."""
+        if self._committed_minute is None:
+            raise RuntimeError("Die Welt ist noch nicht angelegt")
+        return self._committed_minute
 
     def set_minute(self, minute: int) -> None:
         self.conn.execute("UPDATE clock SET minute=?", (minute,))
+        self.note_committed_minute(minute)
+
+    def note_committed_minute(self, minute: int) -> None:
+        """Merkt die Minute für `committed_minute` erst nach dem Commit vor (bei Rollback bleibt der alte Stand)."""
+        def publish() -> None:
+            self._committed_minute = minute
+        self.db.on_commit(publish)
 
     def weather(self) -> dict[str, Any]:
         return dict(self.conn.execute("SELECT kind, since, until FROM weather").fetchone())

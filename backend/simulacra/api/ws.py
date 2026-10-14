@@ -44,6 +44,13 @@ async def _live(ws: WebSocket, sim, sub: Subscription, sent: int, ping_s: float,
     loop = asyncio.get_running_loop()
     last_heard = last_ping = loop.time()
     awaiting_resync = False
+
+    def restart_clock() -> None:
+        """Nach einem Snapshot: auch ein schon fertiger Takt der alten Welt darf nicht mehr hinaus (`drop_clock` allein erreicht ihn nicht)."""
+        nonlocal clock
+        clock.cancel()
+        sub.drop_clock()
+        clock = asyncio.create_task(sub.next_clock())
     try:
         while True:
             wait = max(0.0, last_ping + ping_s - loop.time())
@@ -62,6 +69,7 @@ async def _live(ws: WebSocket, sim, sub: Subscription, sent: int, ping_s: float,
                 if msg.get("type") in ("hello", "resync"):
                     sub.reset()
                     awaiting_resync = False
+                    restart_clock()
                     sent = await _sync(ws, sim, msg.get("last_seq"), max_gap)
             if queue in done:
                 item = queue.result()
@@ -72,7 +80,7 @@ async def _live(ws: WebSocket, sim, sub: Subscription, sent: int, ping_s: float,
                 elif not awaiting_resync:
                     for e in item:
                         if e.type in ("simulation.reset", "simulation.loaded"):   # neue Welt oder geladener Stand: alle bekommen einen frischen Snapshot
-                            sub.drop_clock()
+                            restart_clock()
                             sent = await _sync(ws, sim, None, max_gap)
                         elif e.seq > sent:
                             await ws.send_text(WsEvent(event=to_out(e)).model_dump_json())
