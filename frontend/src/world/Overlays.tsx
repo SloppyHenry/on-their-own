@@ -71,6 +71,16 @@ export function Overlays({ bridge }: { bridge: WorldBridge }) {
         m.style.transform = `translate(${h.x}px, ${h.cy}px)`;
         m.style.display = f.interior < 0 ? "" : "none";
       }
+      const veil = el.querySelector<SVGSVGElement>("[data-testid=ghost]");
+      if (veil) {
+        const poly = veil.querySelector("polygon"), label = veil.querySelector<SVGGElement>("[data-ghost-label]");
+        veil.style.display = f.ghost ? "" : "none";
+        if (f.ghost && poly) {
+          poly.setAttribute("points", f.ghost.map((q) => q.join(",")).join(" "));
+          const top = f.ghost.reduce((a, q) => (q[1] < a[1] ? q : a), f.ghost[0]);
+          label?.setAttribute("transform", `translate(${Math.max(8, Math.min(W - 220, top[0] - 100))} ${Math.max(18, top[1] - 8)})`);
+        }
+      }
       const tip = el.querySelector<HTMLElement>("[data-testid=hover-tip]");
       if (tip) {
         tip.style.opacity = f.tip ? "1" : "0";
@@ -89,6 +99,10 @@ export function Overlays({ bridge }: { bridge: WorldBridge }) {
     <div ref={root} className="pointer-events-none absolute inset-0 overflow-hidden" data-testid="overlays"
       onClick={(e) => { const b = (e.target as HTMLElement).closest<HTMLElement>("[data-bubble]"); if (b?.dataset.seq) select({ kind: "event", id: b.dataset.seq }); }}>
       <div data-markers="" />
+      <svg data-testid="ghost" className="absolute inset-0 z-[1] size-full" style={{ display: "none" }} aria-hidden="true">
+        <polygon fill="rgba(150,120,220,0.27)" stroke="#d9c8ff" strokeWidth="2" strokeDasharray="8 6" strokeLinejoin="round" />
+        <g data-ghost-label=""><rect x="0" y="-14" width="212" height="20" rx="10" fill="#2b2233" fillOpacity="0.88" /><text x="106" y="0" textAnchor="middle" fontSize="11" fontWeight="600" fill="#fff8ec">Vorschau – noch nicht übernommen</text></g>
+      </svg>
       <div data-testid="hover-tip" className="absolute left-0 top-0 z-[5] whitespace-nowrap rounded-md bg-[#2b2233]/85 px-2 py-0.5 text-[11px] font-semibold text-[#fff8ec] shadow transition-opacity duration-150" style={{ opacity: 0 }} />
       {interior.i >= 0 && (
         <button type="button" data-testid="leave-house" onClick={() => bridge.commands.leaveInterior?.()}

@@ -278,6 +278,17 @@ Ausführlich in [spielstaende.md](spielstaende.md). Verändernde Aufrufe brauche
 
 Neue Ereignistypen: `simulation.saved`, `simulation.loaded`. Tabellen: `stats_samples` (`009_stats.sql`); die Stände selbst liegen in `data/saves/`.
 
+## Weltgenerator in der Leitstelle (AP12c)
+Beschreibung des Generators: [generator.md](generator.md). Die Vorschau ändert nichts und braucht keinen `Idempotency-Key`; Anwenden braucht ihn.
+
+| Methode und Pfad | Zweck |
+|---|---|
+| `POST /api/world/generate` | Wunsch `{kind: "extend"\|"new", seed, lake: "auto"\|"east"\|"south", mix?: {house, shop, workshop, barn, stable}}` (1 bis 10 Gebäude, höchstens 6 je Art; sonst 422). **Trockenlauf:** erzeugt das Dorf, prüft es und wendet es in einer Transaktion an, die zurückgerollt wird. Antwort `GeneratePreview`: `ok`, `error`, `report` (Prüfbericht des Generators mit allen Einzelprüfungen), `digest` (Prüfsumme des Patches beziehungsweise der Weltdatei), `village`, `seed` (der Seed, der die Prüfung bestand), `focus` (Dorfplatz als Kachel), `region` (neues Gebiet in `look`), `counts`, `snapshot` (die Welt, wie sie danach aussähe, im Format von `GET /api/state`; bei `new` die Welt einer Wegwerf-Simulation im Speicher). |
+| `POST /api/world/generate/apply` | derselbe Wunsch plus `digest` aus der Vorschau, `confirm: true`, bei `new` `keep_profiles?`. Erzeugt neu, vergleicht die Prüfsumme (andere Welt seit der Vorschau: 409), sichert („Vor dem Erweitern“ beziehungsweise „Vor der neuen Simulation“), wendet an und emittiert `world.generated`. Ohne `confirm` 400. Antwort `GenerateApplied`: `village`, `seed`, `patch`, `backup`, `counts`, `focus`. Eine laufende Simulation wird kurz angehalten und läuft danach weiter; nach `new` bleibt die neue Simulation angehalten. |
+| `POST /api/world/patch/preview` | `{patch}`: Trockenlauf für **jeden** Welt-Patch (Format: [welt-erweitern.md](welt-erweitern.md)), z. B. eine Einzeländerung. Antwort `ok`, `error` (Code und Text der Engine), `counts`, `snapshot`. Die Welt bleibt unverändert, auch Ereignisnummern und Patch-Liste. |
+
+Neuer Ereignistyp: `world.generated` (Kategorie Welt): `kind`, `seed`, `requested_seed`, `village`, `patch`, `summary` (Zähler). Fehler: 422 (Wunsch ungültig oder kein gültiges Dorf nach 8 Versuchen, mit Prüfbericht in der Vorschau), 409 (Welt hat sich geändert, Patch von der Engine abgelehnt).
+
 ## Zugangsschutz und Oberfläche (AP10)
 
 Nur mit gesetztem `SIM_ACCESS_TOKEN`. Ohne Token verhalten sich alle Pfade wie bisher.

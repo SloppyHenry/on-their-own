@@ -1,5 +1,5 @@
 // REST-Zugriff. Verändernde Aufrufe tragen einen Idempotency-Key, damit Wiederholungen nichts doppelt tun.
-import type { AgentDetail, AgentNeeds, AgentOverview, DecisionOut, FactorRegistry, FailureOut, GoalOut, RelationOut, EventDetail, EventsPage, Knowledge, LocationDetail, MemoriesPage, MemoryDetail, MemoryStats, RetrievalOut, SimCommandResult, StateSnapshot, ParamPatchOut, ParamSchema, ParamValues, PresetBrief, PresetLoadOut, PresetOut, PresetPreview, StatusOut, InjectProposal, ScheduledOut, SaveOut, StatsOut, AuthStatus } from "../types/generated";
+import type { AgentDetail, AgentNeeds, AgentOverview, DecisionOut, FactorRegistry, FailureOut, GoalOut, RelationOut, EventDetail, EventsPage, Knowledge, LocationDetail, MemoriesPage, MemoryDetail, MemoryStats, RetrievalOut, SimCommandResult, StateSnapshot, ParamPatchOut, ParamSchema, ParamValues, PresetBrief, PresetLoadOut, PresetOut, PresetPreview, StatusOut, InjectProposal, ScheduledOut, SaveOut, StatsOut, AuthStatus, GenerateRequest, GeneratePreview, GenerateApplyRequest, GenerateApplied, PatchPreview } from "../types/generated";
 
 export class ApiError extends Error {
   constructor(readonly status: number, readonly detail: string) {
@@ -124,6 +124,9 @@ export const api = {
     }
     return (await res.json()) as SaveOut;
   },
+  generate: (body: GenerateRequest) => request<GeneratePreview>("POST", "/api/world/generate", body),
+  applyGenerated: (body: GenerateApplyRequest) => request<GenerateApplied>("POST", "/api/world/generate/apply", { ...body, confirm: true }),
+  patchPreview: (patch: object) => request<PatchPreview>("POST", "/api/world/patch/preview", { patch }),
   stats: (q: { agent?: string; from_minute?: number; to_minute?: number } = {}) => {
     const p = new URLSearchParams();
     Object.entries(q).forEach(([k, v]) => v !== undefined && p.set(k, String(v)));

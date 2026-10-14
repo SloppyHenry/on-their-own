@@ -51,9 +51,10 @@ class Simulation:
     saves: SaveService | None
 
     @classmethod
-    def create(cls, settings: Settings, db_path: str | Path = ":memory:", provider: LLMProvider | None = None, seed: int = 1) -> "Simulation":
+    def create(cls, settings: Settings, db_path: str | Path = ":memory:", provider: LLMProvider | None = None, seed: int = 1,
+               world: dict | None = None) -> "Simulation":
         db = Database(db_path)
-        engine = WorldEngine.create(db, seed=seed)
+        engine = WorldEngine.create(db, world=world, seed=seed)
         if (stored := engine.state.get_meta("llm_model")):
             settings.llm_model = stored                 # das Modell gehört zur Simulation (Frage 10): gespeichert beim Anlegen, gilt nach Neustart und Laden
         else:
@@ -78,10 +79,12 @@ class Simulation:
         sim.params.restore(sim.params.export())            # gespeicherte Abweichungen (Neustart) wieder anwenden
         return sim
 
-    async def reset(self, backup_dir: Path | None = None, model: str | None = None, keep_profiles: bool = False) -> Path | None:
+    async def reset(self, backup_dir: Path | None = None, model: str | None = None, keep_profiles: bool = False, world: dict | None = None,
+                    backup_label: str = "Vor dem Zurücksetzen") -> Path | None:
         """Hält an, sichert den bisherigen Stand (nie löschen: als Spielstand „Vor dem Zurücksetzen“) und legt eine frische Welt an. Gibt den Sicherungspfad zurück.
 
         Parameter und eigene Presets bleiben erhalten; `keep_profiles` behält auch die Profile und Persönlichkeitswerte. `model` wählt das Modell der neuen Simulation.
+        `world` ist eine fertige Weltdatei (z. B. vom Weltgenerator) statt der Standardwelt.
         """
         await self.runner.stop()
         kept = [k for k in await self.db.run(self.params.export) if keep_profiles or k[1] is None]      # „komplett Standard“: auch Werte je Agent fallen weg
@@ -89,7 +92,7 @@ class Simulation:
         profiles = await self.db.run(lambda: [tuple(r) for r in self.db.conn.execute("SELECT agent_id, profile, personality FROM agent_profiles")]) if keep_profiles else []
         saved: Path | None = None
         if self.saves is not None:
-            entry = await self.db.run(lambda: self.saves.backup("Vor dem Zurücksetzen"))
+            entry = await self.db.run(lambda: self.saves.backup(backup_label))
             saved = self.saves.index.path(entry["id"])
         self.db.close()
         if self.db_path != ":memory:" and Path(self.db_path).exists():
@@ -102,7 +105,7 @@ class Simulation:
                 self._remove_live_files()
         if model:
             self.settings.llm_model = model
-        fresh = Simulation.create(self.settings, self.db_path, self.provider)
+        fresh = Simulation.create(self.settings, self.db_path, self.provider, world=world)
         fresh.store.ensure_all()                       # ohne await bis zum Austausch: kein Browser-Aufruf trifft die geschlossene alte Datenbank
         self._restore_kept(fresh, kept, presets, profiles)
         self._swap_in(fresh)

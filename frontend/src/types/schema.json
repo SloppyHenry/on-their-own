@@ -745,6 +745,28 @@
    "title": "AuthStatus",
    "type": "object"
   },
+  "CheckOut": {
+   "additionalProperties": false,
+   "properties": {
+    "detail": {
+     "default": "",
+     "type": "string"
+    },
+    "name": {
+     "type": "string"
+    },
+    "ok": {
+     "type": "boolean"
+    }
+   },
+   "required": [
+    "name",
+    "ok",
+    "detail"
+   ],
+   "title": "CheckOut",
+   "type": "object"
+  },
   "Clarification": {
    "additionalProperties": false,
    "properties": {
@@ -1822,6 +1844,338 @@
     "caught"
    ],
    "title": "Fished",
+   "type": "object"
+  },
+  "GenerateApplied": {
+   "additionalProperties": false,
+   "properties": {
+    "backup": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "counts": {
+     "additionalProperties": {
+      "type": "integer"
+     },
+     "default": {},
+     "type": "object"
+    },
+    "focus": {
+     "anyOf": [
+      {
+       "items": {
+        "type": "integer"
+       },
+       "type": "array"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "kind": {
+     "type": "string"
+    },
+    "patch": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "seed": {
+     "type": "integer"
+    },
+    "village": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "kind",
+    "village",
+    "seed",
+    "patch",
+    "backup",
+    "counts",
+    "focus"
+   ],
+   "title": "GenerateApplied",
+   "type": "object"
+  },
+  "GenerateApplyRequest": {
+   "additionalProperties": false,
+   "properties": {
+    "confirm": {
+     "default": false,
+     "type": "boolean"
+    },
+    "digest": {
+     "maxLength": 32,
+     "type": "string"
+    },
+    "keep_profiles": {
+     "default": false,
+     "type": "boolean"
+    },
+    "kind": {
+     "default": "extend",
+     "enum": [
+      "extend",
+      "new"
+     ],
+     "type": "string"
+    },
+    "lake": {
+     "default": "auto",
+     "enum": [
+      "auto",
+      "east",
+      "south"
+     ],
+     "type": "string"
+    },
+    "mix": {
+     "anyOf": [
+      {
+       "additionalProperties": {
+        "type": "integer"
+       },
+       "type": "object"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "seed": {
+     "default": 1,
+     "maximum": 2000000000,
+     "minimum": 0,
+     "type": "integer"
+    }
+   },
+   "required": [
+    "digest"
+   ],
+   "title": "GenerateApplyRequest",
+   "type": "object"
+  },
+  "GeneratePreview": {
+   "additionalProperties": false,
+   "properties": {
+    "counts": {
+     "additionalProperties": {
+      "type": "integer"
+     },
+     "default": {},
+     "type": "object"
+    },
+    "digest": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "error": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "focus": {
+     "anyOf": [
+      {
+       "items": {
+        "type": "integer"
+       },
+       "type": "array"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "kind": {
+     "type": "string"
+    },
+    "ok": {
+     "type": "boolean"
+    },
+    "region": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "report": {
+     "$ref": "#/$defs/ReportOut"
+    },
+    "seed": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "snapshot": {
+     "anyOf": [
+      {
+       "$ref": "#/$defs/StateSnapshot"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "village": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    }
+   },
+   "required": [
+    "kind",
+    "ok",
+    "error",
+    "report",
+    "digest",
+    "village",
+    "seed",
+    "focus",
+    "region",
+    "counts",
+    "snapshot"
+   ],
+   "title": "GeneratePreview",
+   "type": "object"
+  },
+  "GenerateRequest": {
+   "additionalProperties": false,
+   "description": "Was erzeugt werden soll. `extend`: ein weiteres Dorf an die laufende Welt, `new`: eine neue Simulation mit einem Dorf.",
+   "properties": {
+    "kind": {
+     "default": "extend",
+     "enum": [
+      "extend",
+      "new"
+     ],
+     "type": "string"
+    },
+    "lake": {
+     "default": "auto",
+     "enum": [
+      "auto",
+      "east",
+      "south"
+     ],
+     "type": "string"
+    },
+    "mix": {
+     "anyOf": [
+      {
+       "additionalProperties": {
+        "type": "integer"
+       },
+       "type": "object"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "seed": {
+     "default": 1,
+     "maximum": 2000000000,
+     "minimum": 0,
+     "type": "integer"
+    }
+   },
+   "title": "GenerateRequest",
+   "type": "object"
+  },
+  "Generated": {
+   "additionalProperties": false,
+   "description": "Ein Dorf wurde mit dem Weltgenerator erzeugt (Erweiterung oder neue Simulation); `seed` ist der Seed, der die Prüfung bestanden hat.",
+   "properties": {
+    "kind": {
+     "type": "string"
+    },
+    "patch": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "requested_seed": {
+     "type": "integer"
+    },
+    "seed": {
+     "type": "integer"
+    },
+    "summary": {
+     "additionalProperties": {
+      "type": "integer"
+     },
+     "type": "object"
+    },
+    "village": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "kind",
+    "seed",
+    "requested_seed",
+    "village",
+    "summary"
+   ],
+   "title": "Generated",
    "type": "object"
   },
   "GoalChanged": {
@@ -4335,6 +4689,66 @@
    "title": "PatchApplied",
    "type": "object"
   },
+  "PatchPreview": {
+   "additionalProperties": false,
+   "properties": {
+    "counts": {
+     "additionalProperties": {
+      "type": "integer"
+     },
+     "default": {},
+     "type": "object"
+    },
+    "error": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "ok": {
+     "type": "boolean"
+    },
+    "snapshot": {
+     "anyOf": [
+      {
+       "$ref": "#/$defs/StateSnapshot"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    }
+   },
+   "required": [
+    "ok",
+    "error",
+    "counts",
+    "snapshot"
+   ],
+   "title": "PatchPreview",
+   "type": "object"
+  },
+  "PatchPreviewRequest": {
+   "additionalProperties": false,
+   "description": "Beliebiger Welt-Patch (Format: docs/welt-erweitern.md) für einen Trockenlauf, z. B. eine Einzeländerung des Editors.",
+   "properties": {
+    "patch": {
+     "additionalProperties": true,
+     "type": "object"
+    }
+   },
+   "required": [
+    "patch"
+   ],
+   "title": "PatchPreviewRequest",
+   "type": "object"
+  },
   "Petted": {
    "additionalProperties": false,
    "properties": {
@@ -4858,6 +5272,35 @@
     "log"
    ],
    "title": "RelationOut",
+   "type": "object"
+  },
+  "ReportOut": {
+   "additionalProperties": false,
+   "properties": {
+    "checks": {
+     "default": [],
+     "items": {
+      "$ref": "#/$defs/CheckOut"
+     },
+     "type": "array"
+    },
+    "errors": {
+     "default": [],
+     "items": {
+      "type": "string"
+     },
+     "type": "array"
+    },
+    "ok": {
+     "type": "boolean"
+    }
+   },
+   "required": [
+    "ok",
+    "errors",
+    "checks"
+   ],
+   "title": "ReportOut",
    "type": "object"
   },
   "ResetRequest": {
@@ -6595,6 +7038,21 @@
   "Fished": {
    "$ref": "#/$defs/Fished"
   },
+  "GenerateApplied": {
+   "$ref": "#/$defs/GenerateApplied"
+  },
+  "GenerateApplyRequest": {
+   "$ref": "#/$defs/GenerateApplyRequest"
+  },
+  "GeneratePreview": {
+   "$ref": "#/$defs/GeneratePreview"
+  },
+  "GenerateRequest": {
+   "$ref": "#/$defs/GenerateRequest"
+  },
+  "Generated": {
+   "$ref": "#/$defs/Generated"
+  },
   "GoalChanged": {
    "$ref": "#/$defs/GoalChanged"
   },
@@ -6714,6 +7172,12 @@
   },
   "PatchApplied": {
    "$ref": "#/$defs/PatchApplied"
+  },
+  "PatchPreview": {
+   "$ref": "#/$defs/PatchPreview"
+  },
+  "PatchPreviewRequest": {
+   "$ref": "#/$defs/PatchPreviewRequest"
   },
   "Petted": {
    "$ref": "#/$defs/Petted"

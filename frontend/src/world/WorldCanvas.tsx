@@ -1,7 +1,8 @@
 // Weltfläche: Welten nach Mockup A zeichnet DorfView (Bild A mit allen Effekten in einer Fläche); Welten ohne eigene Gestaltung
 // (alte Spielstände) zeichnet WorldView im kleinen Puffer mit Farbstimmung, Lichtschein, Tilt-Shift und Teilchen als eigene Ebenen.
 // Darüber die DOM-Schilder. Daten kommen über die Brücke.
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useEditorStore } from "../editor/editorStore";
 import { useSimStore } from "../store/simStore";
 import { useUiStore } from "../store/uiStore";
 import { Overlays } from "./Overlays";
@@ -20,7 +21,13 @@ export function WorldCanvas() {
   const [bridge] = useState(createBridge);
   const [pc] = useState(() => new PlayerController(() => bridge.world()));
   const [view, setView] = useState<ViewLike | null>(null);
-  const lookJson = useSimStore((s) => { const l = lookOf(s.world); return l ? JSON.stringify(l) : ""; });   // stabil über neue Schnappschüsse
+  const previewWorld = useEditorStore((s) => s.preview?.world);                                        // im Welteditor zeigt die Ansicht die Vorschau statt der laufenden Welt
+  const previewKind = useEditorStore((s) => s.preview?.kind ?? "");
+  const liveLook = useSimStore((s) => { const l = lookOf(s.world); return l ? JSON.stringify(l) : ""; });   // stabil über neue Schnappschüsse
+  const lookJson = useMemo(() => { if (!previewWorld) return liveLook; const l = lookOf(previewWorld); return l ? JSON.stringify(l) : ""; }, [previewWorld, liveLook]);
+  const cam = useRef<{ key: string; x: number; y: number; level: number } | null>(null);               // Kamera über den Austausch der Ansicht hinweg (neues Gebiet in der Vorschau)
+  const viewRef = useRef<ViewLike | null>(null);
+  const fly = useEditorStore((s) => s.fly);
   const dorf = !!lookJson;
   const player = useUiStore((s) => s.playerPreview);
   const focus = useUiStore((s) => s.focusRequest);
@@ -30,6 +37,9 @@ export function WorldCanvas() {
     const v: ViewLike = lookJson ? new DorfView(canvas.current!, host.current!, bridge, JSON.parse(lookJson))
       : new WorldView({ host: host.current!, canvas: canvas.current!, glow: glow.current!, atmo: atmo.current!, grade: grade.current!, tilt: tilt.current! }, bridge);
     setView(v);
+    viewRef.current = v;
+    const key = previewKind === "new" ? "neu" : "laufend";                                              // die Welt einer neuen Simulation hat ihre eigene Kamera
+    if (v instanceof DorfView && cam.current?.key === key) { v.kam.setLevel(cam.current.level); v.kam.set(cam.current.x, cam.current.y); }
     if (import.meta.env.DEV || location.search.includes("messen")) Object.assign(window, { __welt: v, __sim: useSimStore, __ui: useUiStore });   // Prüf- und Messzugang
     const onKey = (e: KeyboardEvent) => {
       if (isTyping(e.target as Element | null) || e.metaKey || e.ctrlKey || e.altKey || e.defaultPrevented) return;
@@ -39,8 +49,19 @@ export function WorldCanvas() {
       if (e.key === "Escape" && v.interior >= 0) bridge.commands.leaveInterior?.();
     };
     window.addEventListener("keydown", onKey);
-    return () => { window.removeEventListener("keydown", onKey); v.destroy(); };
-  }, [bridge, lookJson]);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      if (v instanceof DorfView) cam.current = { key, x: v.kam.x, y: v.kam.y, level: v.kam.level };
+      v.destroy();
+    };
+  }, [bridge, lookJson]);                                                                              // previewKind gehört zum Austausch des Looks und ändert ihn nie allein
+
+  useEffect(() => {                                                                                    // Kamerafahrt zum neuen Dorf (Vorschau und nach dem Übernehmen)
+    if (!fly) return;
+    const v = viewRef.current as (ViewLike & { flyTile?: (x: number, y: number) => void }) | null;
+    v?.flyTile?.(fly.x, fly.y);
+    useEditorStore.getState().clearFly();
+  }, [fly, view]);
 
   // Mitspieler-Vorschau hinter dem Schalter: Klick geht/handelt, Umschalt- oder Rechtsklick wählt aus (wie bisher)
   useEffect(() => {

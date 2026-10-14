@@ -22,6 +22,7 @@ from . import models_autonomy as ma
 from . import models_inject as mi
 from . import models_params as mp
 from . import models_saves as ms
+from . import models_world as mw
 
 API_MODELS: list[type[BaseModel]] = [
     api.StateSnapshot, api.AgentDetail, api.LocationDetail, api.EventsPage, api.EventDetail, api.SimCommandResult,
@@ -33,6 +34,7 @@ API_MODELS: list[type[BaseModel]] = [
     mp.PresetDuplicate, mp.PresetPreview, mp.PresetLoadRequest, mp.PresetLoadOut, mp.StatusOut,
     mi.InjectParseRequest, mi.InjectConfirmRequest, mi.InjectProposal, mi.ScheduledOut,
     ms.SaveOut, ms.SaveCreate, ms.SaveLoadRequest, ms.StatsOut, auth.AuthStatus, auth.LoginRequest,
+    mw.GenerateRequest, mw.GenerateApplyRequest, mw.GeneratePreview, mw.GenerateApplied, mw.PatchPreviewRequest, mw.PatchPreview,
     EventOut, SimTime,
 ]
 
@@ -61,7 +63,7 @@ def _clean(node, top: bool = False):
     return node
 
 
-REQUESTS = {ms.SaveCreate, ms.SaveLoadRequest, mi.InjectParseRequest, mi.InjectConfirmRequest, api.StartRequest, api.StepRequest, api.ResetRequest, api.SpeedRequest, mp.ParamPatch, mp.ParamResetRequest, mp.PresetSave, mp.PresetRename,
+REQUESTS = {mw.PatchPreviewRequest, mw.GenerateRequest, mw.GenerateApplyRequest, ms.SaveCreate, ms.SaveLoadRequest, mi.InjectParseRequest, mi.InjectConfirmRequest, api.StartRequest, api.StepRequest, api.ResetRequest, api.SpeedRequest, mp.ParamPatch, mp.ParamResetRequest, mp.PresetSave, mp.PresetRename,
             mp.PresetDuplicate, mp.PresetLoadRequest, api.WsHello, api.WsResync, api.WsPong}
 
 

@@ -19,6 +19,7 @@ import { Kamera } from "./kamera";
 import { T, houseAt, housesOf, inRect, lookOf, type Look } from "./look";
 import { boatSpot, glowing } from "./dinge";
 import { casters, indoor, occupants, outdoor } from "./szene";
+import { umriss } from "./umriss";
 
 const reducedMotion = () => typeof matchMedia === "function" && matchMedia("(prefers-reduced-motion: reduce)").matches;
 const daytime = (m: Mood) => (m.stars > 0.5 ? "Nacht" : m.glowA > 0.2 ? "Abend" : "Tag");
@@ -59,6 +60,8 @@ export class DorfView {
   /** Innenansicht: ganzes Haus (null) oder ein Raum groß (Ort). */
   room: string | null = null;
   private off: (() => void)[] = [];
+  /** Kamerafahrt: Ziel (Boden in Bildmitte, Texel); jede Eingabe der Hand bricht sie ab. */
+  private flying: [number, number] | null = null;
 
   /** Zoomstufe setzen (¼, ½, 1, 2, 3), Bildmitte bleibt (Prüf- und Messzugang, siehe WorldCanvas). */
   zoomLevel(level: number) { this.zoomTo(level); }
@@ -89,6 +92,7 @@ export class DorfView {
     });
     on(window, "keyup", (e) => this.keys.delete(e.code));
     on(window, "blur", () => this.keys.clear());
+    bridge.commands.flyTile = (x, y) => this.flyTile(x, y);
     bridge.commands.fit = () => { this.leaveInterior(true); this.kam.reset(); };
     bridge.commands.focusTile = (x, y) => this.focusTile(x, y);
     bridge.commands.leaveInterior = () => { bridge.setFollow(null); this.leaveInterior(); };
@@ -171,6 +175,7 @@ export class DorfView {
       if (!this.drag.moved && Math.hypot(dx, dy) < 4) return;
       if (!this.drag.moved) {
         this.bridge.setFollow(null);
+        this.flying = null;
         const b = this.toBuffer(p.x - dx * this.dpr, p.y - dy * this.dpr), f = this.bild.frame;
         this.drag.g = this.interior < 0 && f ? unproject(f, b.x, b.y) : null;                // der Boden, der unter dem Zeiger liegt, bleibt dort
       }
@@ -255,6 +260,21 @@ export class DorfView {
     this.centerOn(x * T + 8, y * T + 8);
   }
 
+  /** Kamera fährt zur Kachel (gleitend, ohne Zoomwechsel); mit reduzierter Bewegung springt sie. */
+  flyTile(x: number, y: number) {
+    this.leaveInterior(true);
+    this.bridge.setFollow(null);
+    const tx = x * T + 8 - this.shift[0], ty = y * T + 8 - this.shift[1];
+    if (reducedMotion()) { this.flying = null; this.kam.focusAt(tx, ty); } else this.flying = [tx, ty];
+  }
+
+  private flyStep(dt: number) {
+    if (!this.flying) return;
+    const [fx, fy] = this.kam.focus, [tx, ty] = this.flying, d = Math.hypot(tx - fx, ty - fy), v = Math.max(d * 2.5, 90 * this.kam.zo) * dt;
+    if (v >= d) { this.kam.focusAt(tx, ty); this.flying = null; return; }
+    this.kam.focusAt(fx + ((tx - fx) / d) * v, fy + ((ty - fy) / d) * v);
+  }
+
   /** Kamera so, dass der Weltpunkt in Bildmitte liegt. */
   private centerOn(wx: number, wy: number) { this.kam.focusAt(wx - this.shift[0], wy - this.shift[1]); }
 
@@ -269,6 +289,7 @@ export class DorfView {
     this.figures.update(w, dt);
     this.keysPan(dt);
     this.follow(w, dt);
+    this.flyStep(dt);
     const { soft } = this.kam.tick(dt);
     const m = weatherMood(moodAt(w.clock.minute % 1440), w.weather.kind), sel = this.bridge.selection();
     const ctx = { w, L: this.look, figures: this.figures, t, lit: m.lights > 0.5, selected: sel?.kind === "agent" ? sel.id : null, hover: this.hover };
@@ -316,6 +337,7 @@ export class DorfView {
     if ((!kx && !ky) || this.interior >= 0) return;
     const v = PAN * this.kam.zo / this.kam.zoom * (this.keys.has("ShiftLeft") || this.keys.has("ShiftRight") ? 2 : 1) * dt, n = Math.hypot(kx, ky);
     this.bridge.setFollow(null);
+    this.flying = null;
     this.kam.set(this.kam.x + (kx / n) * v, this.kam.y + (ky / n) * v);
   }
 
@@ -368,6 +390,6 @@ export class DorfView {
       const roof = this.bild.p(region.frame[0] + house.at[0], region.frame[1] + house.at[1]);
       return { i: n, x: toCss({ x: roof.x, y: roof.y - 84 * roof.sc }).x, y: toCss({ x: roof.x, y: roof.y - 84 * roof.sc }).y, cy: toCss({ x: roof.x, y: roof.y - 40 * roof.sc }).y, occupants: inHouse[n] };
     });
-    this.bridge.emitFrame({ tip, agents, houses: hf, rooms, interior: this.interior, interiorRooms: this.interior >= 0 ? this.haus?.plan.rooms.map((r) => r.id) ?? [] : [], room: this.interior >= 0 ? this.room : null, goal: gp });
+    this.bridge.emitFrame({ tip, agents, houses: hf, rooms, interior: this.interior, interiorRooms: this.interior >= 0 ? this.haus?.plan.rooms.map((r) => r.id) ?? [] : [], room: this.interior >= 0 ? this.room : null, goal: gp, ghost: (() => { const g = this.bridge.ghostRegion(); return g && this.interior < 0 ? umriss(this.look, g, (x, y) => this.bild.p(x, y), toCss) : null; })() });
   }
 }

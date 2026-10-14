@@ -14,6 +14,7 @@ import { MemoryInspector } from "../memory/MemoryInspector";
 import { WorldCanvas } from "../world/WorldCanvas";
 import { EventComposer } from "../composer/EventComposer";
 import { ParameterPanel } from "../settings/ParameterPanel";
+import { WorldEditor } from "../editor/WorldEditor";
 import { Header } from "./Header";
 
 export function AppShell() {
@@ -24,16 +25,18 @@ export function AppShell() {
   const appMode = useUiStore((s) => s.appMode);
   const collapsed = useUiStore((s) => s.sidebarCollapsed);
   const hideSide = view === "memory" || view === "stats" || collapsed || appMode !== "game";        // Infoleiste: eingeklappt, in Gedächtnis und Statistik, im Editor und im Startmenü aus
+  const tools = appMode !== "game" && view === "world";                                    // Welteditor und Startmenü: Werkzeugleiste statt Infoleiste
   useEffect(() => startLive(), []);
 
   return (
     <div className="grid h-full grid-rows-[48px_1fr_auto]">
       <Header />
-      <main className={`grid min-h-0 ${hideSide ? "grid-cols-[1fr_0px]" : "grid-cols-[1fr_380px]"}`} data-sidebar={hideSide ? "zu" : "offen"}>
+      <main className={`grid min-h-0 ${hideSide && !tools ? "grid-cols-[1fr_0px]" : "grid-cols-[1fr_380px]"}`} data-sidebar={hideSide ? "zu" : "offen"}>
         <div className="relative min-w-0 overflow-hidden bg-[#0e1115]">
           {!ready ? <p className="p-6 text-dim">Verbinde mit der Simulation …</p> : view === "memory" ? <MemoryInspector /> : view === "stats" ? <StatsView /> : view === "history" ? <EventHistory /> : <WorldCanvas />}
           <ParameterPanel />
         </div>
+        {tools && ready && <WorldEditor />}
         <aside data-testid="sidebar" className={`relative grid min-h-0 grid-rows-[auto_1fr] border-l border-line bg-panel ${hideSide ? "hidden" : ""}`}>
           {ready && <><AgentPanel /><EventTimeline /></>}
           {selection?.kind === "agent" && <AgentDetail id={selection.id} />}

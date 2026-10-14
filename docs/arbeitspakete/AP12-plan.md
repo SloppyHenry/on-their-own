@@ -33,7 +33,7 @@ Das Paket ist größer als „L“; drei Teilpakete mit je eigener Abnahme, jewe
 - Abnahme durch dich, bevor Code im Spiel entsteht.
 - **Stand 14.10.2026: gebaut, wartet auf deine Abnahme** (Fragen 24 und 25 in [offene-fragen.md](../offene-fragen.md)). Bericht mit Bildern: [status/AP12-schritt0.md](../status/AP12-schritt0.md).
 
-### AP12a – Darstellung: scrollende Welt, verallgemeinertes `look` (gebaut 14.10.2026, Bericht [status/AP12a.md](../status/AP12a.md), wartet auf Abnahme)
+### AP12a – Darstellung: scrollende Welt, verallgemeinertes `look` (gebaut 14.10.2026, Bericht [status/AP12a.md](../status/AP12a.md), abgenommen 14.10.2026)
 1. **`look` Version 2:** Listen statt Einzelstücke (Gebiete mit Seen, Plätzen, Gärten, Wegen, Stegen; Häuser mit Tür, Innenbereich, Rauch; Lichter). Die Startwelt wird in diese Form umgeschrieben (`startwelt_a.mjs`), die alte Form lädt über einen Adapter weiter. Goldbild-Test grün.
 2. **Boden in Blöcken:** Dorfrand und Wildnis ergeben sich aus den Gebieten, Zufall (Gräser, Blumen, Seerosen, Keimlinge) wird je Block aus Blockkoordinaten gezogen. Der Block mit der Startwelt behält die alte Reihenfolge, damit er byte-gleich bleibt. Hintergrund (Himmel, Hügel, Wolken) bleibt wie in A.
 3. **Kamera mit Fokus:** `Frame` bekommt die Kameralage; bei der Startlage identisch zu A. WASD, Ziehen, Mausrad (ganze Stufen), „hingehen“, Folgen, Gesamtansicht; Bewegungsart **(d)** (Entscheidung Henry, 14.10.2026): weich beim Fahren, Horizontkrümmung nur im Stillstand, im Stillstand exakt Bild A. **Zoom:** 1× ist immer Standard; herauszoomen auf ½× und ¼× (Übersicht der Welt; der Boden wird dafür in gröberen Stufen vorgehalten, Blöcke je Stufe), hineinzoomen auf 2×/4× wie in AP14. Die Bildmitte bleibt beim Zoomen am Ort.
@@ -42,7 +42,7 @@ Das Paket ist größer als „L“; drei Teilpakete mit je eigener Abnahme, jewe
 6. **Leistung:** Messlauf mit 256 × 256 Welt, 50 Figuren, 1000 Dingen; Ziel 60 fps wie bisher.
 7. Neue Sprites aus Schritt 0 (1:1 übertragen), Browser-Tests, Bilder, Doku.
 
-### AP12b – Generator im Backend (gebaut 14.10.2026, Bericht [status/AP12b.md](../status/AP12b.md), wartet auf Abnahme)
+### AP12b – Generator im Backend (gebaut 14.10.2026, Bericht [status/AP12b.md](../status/AP12b.md), abgenommen 14.10.2026)
 1. **Patch-Format:** neue Abschnitte `links` (Türen) und `look` (additiv: Listen anhängen, Lage der Karte angleichen), Ereignis `world.look_changed` mit Reducer im Browser; Rückgängigmachen läuft über Spielstand (AP09), nicht über Gegenpatch.
 2. **Kern** `backend/simulacra/generator/` (je Datei höchstens 400 Zeilen): `plan.py` (Eingaben/Ergebnis), `terrain.py` (Gebiet, Wald, See), `roads.py` (Wege und Landstraßen, Anschluss), `lots.py` (Parzellen entlang der Wege), `kits/` (Garten, Seeufer, Platz, Haus als Bausteine), `interiors.py` (Räume, Einrichtung aus Zimmerart), `things.py` (Dinge aus AP15 nach Regeln), `names.py`, `tiles.py` (Kacheln aus denselben Formen wie das Bild), `validate.py`, `patch.py`. Bauplandaten in `data/gebaeude/` (JSON, neue Gebäudeart = neue Datei; `data/blueprints.json` bleibt die Liste der Bauvorlagen für die Aktion `build`).
 3. **Neue Startwelt** (`cli world new --seed N`): vollständige Weltdatei, Alex und Mira starten im Dorf, Rollen der Orte wie die Startwelt.
@@ -51,9 +51,9 @@ Das Paket ist größer als „L“; drei Teilpakete mit je eigener Abnahme, jewe
 6. **Agenten:** neue Orte sind zunächst unbekannt und werden über Wegweiser, Erkunden oder das Gespräch bekannt (Mechanik aus AP15 prüfen); lange Wege kosten Zeit, keine Sonderregel.
 7. Tests: byte-gleicher Patch, Eigenschaftstest über viele Seeds, 100 Ticks mit Fake-Modell auf erweiterter Welt, alter Spielstand.
 
-### AP12c – Bedienung in der Leitstelle
+### AP12c – Bedienung in der Leitstelle (gebaut 14.10.2026, Bericht [status/AP12c.md](../status/AP12c.md), abgenommen 14.10.2026)
 1. **API:** `POST /api/world/generate` (Trockenlauf auf einer Kopie; liefert Patch, Prüfbericht, Vorschau), `POST /api/world/generate/apply` (Idempotenz-Schlüssel, Bestätigung, automatische Sicherung), Ereignis `world.generated` mit Seed und Zusammenfassung.
-2. **Oberfläche „Welt erweitern“:** Richtung/Gebiet, Regler (Siedlungsdichte, Waldanteil, Wasseranteil, Wegedichte), Gebäudemix, Palette, Seed, „Würfeln“, Vorschau in der Weltansicht (die Kamera fährt hin, das neue Dorf erscheint unter einem Schleier mit Rahmen), Prüfbericht, „Übernehmen“. Neue Startwelt: „Neue Simulation mit Dorf …“ mit Vorschau.
+2. **Oberfläche „Welt gestalten“** (Frage 26: Regler und Palette gibt der Generator nicht her, umgesetzt sind Seed, Ufer des Sees und Gebäudemix): Seed, „Würfeln“, Vorschau in der Weltansicht (die Kamera fährt hin, das neue Dorf erscheint unter einem Schleier mit Rahmen), Prüfbericht, „Übernehmen“. Neue Startwelt: „Neue Simulation mit Dorf …“ mit Vorschau.
 3. Browser-Tests, Probelauf mit echtem Modell (besuchen die Agenten neue Orte?), Bilder mehrerer Seeds, Doku (`welt-erweitern.md`, `frontend.md`, `assets.md`, `schnittstellen.md`), Statusbericht.
 
 ## Risiken

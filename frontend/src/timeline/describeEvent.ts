@@ -82,6 +82,7 @@ const TEXT: Table = {
   "world.agent_added": (d) => `${d.name} zieht ein.`,
   "world.links_added": (d) => `${d.links.length} neue Tür${d.links.length === 1 ? "" : "en"} (Übergang${d.links.length === 1 ? "" : "e"}).`,
   "world.look_changed": (d) => `Die Darstellung wächst: ${d.regions.length} Gebiet${d.regions.length === 1 ? "" : "e"}${d.roads.length ? `, ${d.roads.length} Landstraße${d.roads.length === 1 ? "" : "n"}` : ""}.`,
+  "world.generated": (d) => (d.kind === "new" ? `Neue Simulation mit dem Dorf ${d.village} (Seed ${d.seed}).` : `Neues Dorf ${d.village} (Seed ${d.seed}): ${d.summary.locations ?? 0} Orte, ${d.summary.objects ?? 0} Objekte.`),
   "world.patch_applied": (d) => `Patch angewendet: ${d.description || d.id}.`,
   "simulation.started": () => "Simulation gestartet.",
   "simulation.paused": () => "Simulation pausiert.",
