@@ -24,6 +24,10 @@ log = logging.getLogger(__name__)
 RECOVER = "recover"  # interne Aktion: Zeitverlust nach fehlgeschlagener Aktion
 
 
+class _DryRunDone(Exception):
+    """Beendet einen Trockenlauf; die Transaktion wird dadurch zurückgerollt."""
+
+
 class WorldEditor:
     """Erweiterungen der laufenden Welt (siehe extend.py); jede Operation ist eine Transaktion mit Ereignis."""
 
@@ -48,6 +52,29 @@ class WorldEditor:
     def add_resource_node(self, id_: str, tile, resource: str, amount: float, cap: float, **kw):
         return self._do(extend.add_resource_node, id_, tile, resource, amount, cap, **kw)
     def apply_patch(self, patch: dict): return self._do(patches.apply_patch, patch)
+    def apply_generated(self, patch: dict, meta: dict):
+        """Patch eines erzeugten Dorfs und das Ereignis `world.generated` in einer Transaktion."""
+        def work(ctx):
+            counts = patches.apply_patch(ctx, patch)
+            ctx.emit("world.generated", data={**meta, "patch": patch["id"], "summary": counts})
+            return counts
+        return self._do(work)
+
+    def dry_run(self, patch: dict, inspect=None) -> dict:
+        """Trockenlauf: wendet den Patch an, schaut mit `inspect()` hinein (auf dem DB-Thread) und verwirft alles wieder (Rollback, Caches neu).
+        Liefert {"counts", "inspected"}; Fehler als `WorldEditError`, genau wie beim Anwenden."""
+        out: dict = {}
+
+        def work(ctx):
+            out["counts"] = patches.apply_patch(ctx, patch)
+            out["inspected"] = inspect() if inspect else None
+            raise _DryRunDone()
+        try:
+            self._e._run(work)
+        except _DryRunDone:
+            pass
+        return out
+
     def applied_patches(self) -> list[dict]: return self._e.state.get_meta("patches", [])
 
 

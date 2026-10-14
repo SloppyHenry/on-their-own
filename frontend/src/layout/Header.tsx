@@ -5,6 +5,7 @@ import { useHealth } from "../net/useHealth";
 import { useStatus } from "../settings/StatusPanels";
 import { useSimStore } from "../store/simStore";
 import { useUiStore } from "../store/uiStore";
+import { enterEditor, leaveEditor } from "../editor/editorStore";
 import type { Conn } from "../store/types";
 
 const CONN: Record<Conn, [string, string]> = {
@@ -47,6 +48,7 @@ export function Header() {
       <span className="min-w-0 flex-1" />
       <button className={`btn ${settingsOpen ? "on" : ""}`} onClick={() => (settingsOpen ? closeSettings() : openSettings())} aria-pressed={settingsOpen} data-testid="open-settings">Einstellungen</button>
       <button className="btn" onClick={() => setSavesOpen(true)} data-testid="open-saves">Spielstände</button>
+      <button className={`btn ${appMode !== "game" ? "on" : ""}`} onClick={() => (appMode === "game" ? (setView("world"), enterEditor()) : leaveEditor())} aria-pressed={appMode !== "game"} data-testid="open-editor">Welt gestalten</button>
       <button className={`btn ${view === "history" ? "on" : ""}`} onClick={() => setView(view === "history" ? "world" : "history")} aria-pressed={view === "history"} data-testid="open-history-view">Verlauf</button>
       <button className={`btn ${view === "stats" ? "on" : ""}`} onClick={() => setView(view === "stats" ? "world" : "stats")} aria-pressed={view === "stats"} data-testid="open-stats">Statistik</button>
       {appMode === "game" && view !== "memory" && view !== "stats" && (

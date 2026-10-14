@@ -24,6 +24,16 @@ class LookChanged(D):
     upgraded: bool
 
 
+class Generated(D):
+    """Ein Dorf wurde mit dem Weltgenerator erzeugt (Erweiterung oder neue Simulation); `seed` ist der Seed, der die Prüfung bestanden hat."""
+    kind: str
+    seed: int
+    requested_seed: int
+    village: str
+    patch: str | None = None
+    summary: dict[str, int]
+
+
 class PatchApplied(D):
     id: str
     description: str = ""

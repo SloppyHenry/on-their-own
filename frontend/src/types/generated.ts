@@ -30,6 +30,11 @@ export interface SimulacraApi {
   FactorRegistry?: FactorRegistry;
   FailureOut?: FailureOut;
   Fished?: Fished;
+  GenerateApplied?: GenerateApplied;
+  GenerateApplyRequest?: GenerateApplyRequest;
+  GeneratePreview?: GeneratePreview;
+  GenerateRequest?: GenerateRequest;
+  Generated?: Generated;
   GoalChanged?: GoalChanged;
   GoalOut?: GoalOut;
   GuardTriggered?: GuardTriggered;
@@ -70,6 +75,8 @@ export interface SimulacraApi {
   ParamValues?: ParamValues;
   ParameterChanged?: ParameterChanged;
   PatchApplied?: PatchApplied;
+  PatchPreview?: PatchPreview;
+  PatchPreviewRequest?: PatchPreviewRequest;
   Petted?: Petted;
   PhaseChanged?: PhaseChanged;
   PresetBrief?: PresetBrief;
@@ -642,6 +649,265 @@ export interface Fished {
 }
 /**
  * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "GenerateApplied".
+ */
+export interface GenerateApplied {
+  backup: string | null;
+  counts: {
+    [k: string]: number;
+  };
+  focus: number[] | null;
+  kind: string;
+  patch: string | null;
+  seed: number;
+  village: string;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "GenerateApplyRequest".
+ */
+export interface GenerateApplyRequest {
+  confirm?: boolean;
+  digest: string;
+  keep_profiles?: boolean;
+  kind?: "extend" | "new";
+  lake?: "auto" | "east" | "south";
+  mix?: {
+    [k: string]: number;
+  } | null;
+  seed?: number;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "GeneratePreview".
+ */
+export interface GeneratePreview {
+  counts: {
+    [k: string]: number;
+  };
+  digest: string | null;
+  error: string | null;
+  focus: number[] | null;
+  kind: string;
+  ok: boolean;
+  region: string | null;
+  report: ReportOut;
+  seed: number | null;
+  snapshot: StateSnapshot | null;
+  village: string | null;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "ReportOut".
+ */
+export interface ReportOut {
+  checks: CheckOut[];
+  errors: string[];
+  ok: boolean;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "CheckOut".
+ */
+export interface CheckOut {
+  detail: string;
+  name: string;
+  ok: boolean;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "StateSnapshot".
+ */
+export interface StateSnapshot {
+  agents: AgentInfo[];
+  clock: ClockInfo;
+  links: number[][][];
+  locations: LocationInfo[];
+  look: {
+    [k: string]: unknown;
+  } | null;
+  map: MapData;
+  objects: ObjectInfo[];
+  resources: ResourceInfo[];
+  rules: {
+    [k: string]: unknown;
+  };
+  seq: number;
+  simulation: SimStatus;
+  tile_types: {
+    [k: string]: TileTypeInfo;
+  };
+  weather: WeatherInfo;
+  world_name: string;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "AgentInfo".
+ */
+export interface AgentInfo {
+  action: ActionInfo | null;
+  capacity: number;
+  facing: string;
+  held: string[];
+  id: string;
+  inventory: {
+    [k: string]: number;
+  };
+  location_id: string;
+  name: string;
+  needs: {
+    [k: string]: number;
+  };
+  plan_next: string;
+  profile: ProfileBrief | null;
+  status: string;
+  walk: WalkInfo | null;
+  words: {
+    [k: string]: string;
+  };
+  x: number;
+  y: number;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "ClockInfo".
+ */
+export interface ClockInfo {
+  day: number;
+  daylight: number;
+  minute: number;
+  phase: string;
+  time: string;
+  weekday: string;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "LocationInfo".
+ */
+export interface LocationInfo {
+  discovered_by: string[];
+  entrances: number[][];
+  id: string;
+  name: string;
+  props: {
+    [k: string]: unknown;
+  };
+  rect: number[];
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "MapData".
+ */
+export interface MapData {
+  height: number;
+  legend: {
+    [k: string]: string;
+  };
+  rows: string[];
+  width: number;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "ObjectInfo".
+ */
+export interface ObjectInfo {
+  hidden: boolean;
+  holder: string | null;
+  id: string;
+  kind: string;
+  known_by: string[];
+  location_id: string | null;
+  name: string;
+  owner: string | null;
+  portable: boolean;
+  state: {
+    [k: string]: unknown;
+  };
+  x: number | null;
+  y: number | null;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "ResourceInfo".
+ */
+export interface ResourceInfo {
+  amount: number;
+  cap: number;
+  id: string;
+  label: string | null;
+  location_id: string;
+  requires_tool: string | null;
+  resource: string;
+  x: number;
+  y: number;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "SimStatus".
+ */
+export interface SimStatus {
+  llm: {
+    [k: string]: unknown;
+  };
+  speed_level: string;
+  state: "stopped" | "running" | "paused" | "stepping";
+  stats: {
+    [k: string]: unknown;
+  };
+  tick_delay_s: number;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "TileTypeInfo".
+ */
+export interface TileTypeInfo {
+  char: string | null;
+  color: string | null;
+  cost: number;
+  label: string;
+  walkable: boolean;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "WeatherInfo".
+ */
+export interface WeatherInfo {
+  kind: string;
+  since: number;
+  until: number;
+}
+/**
+ * Was erzeugt werden soll. `extend`: ein weiteres Dorf an die laufende Welt, `new`: eine neue Simulation mit einem Dorf.
+ *
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "GenerateRequest".
+ */
+export interface GenerateRequest {
+  kind?: "extend" | "new";
+  lake?: "auto" | "east" | "south";
+  mix?: {
+    [k: string]: number;
+  } | null;
+  seed?: number;
+}
+/**
+ * Ein Dorf wurde mit dem Weltgenerator erzeugt (Erweiterung oder neue Simulation); `seed` ist der Seed, der die Prüfung bestanden hat.
+ *
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "Generated".
+ */
+export interface Generated {
+  kind: string;
+  patch?: string | null;
+  requested_seed: number;
+  seed: number;
+  summary: {
+    [k: string]: number;
+  };
+  village: string;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
  * via the `definition` "GoalChanged".
  */
 export interface GoalChanged {
@@ -866,55 +1132,6 @@ export interface LocationDetail {
   objects: ObjectInfo[];
   recent_events: EventOut[];
   resources: ResourceInfo[];
-}
-/**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
- * via the `definition` "LocationInfo".
- */
-export interface LocationInfo {
-  discovered_by: string[];
-  entrances: number[][];
-  id: string;
-  name: string;
-  props: {
-    [k: string]: unknown;
-  };
-  rect: number[];
-}
-/**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
- * via the `definition` "ObjectInfo".
- */
-export interface ObjectInfo {
-  hidden: boolean;
-  holder: string | null;
-  id: string;
-  kind: string;
-  known_by: string[];
-  location_id: string | null;
-  name: string;
-  owner: string | null;
-  portable: boolean;
-  state: {
-    [k: string]: unknown;
-  };
-  x: number | null;
-  y: number | null;
-}
-/**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
- * via the `definition` "ResourceInfo".
- */
-export interface ResourceInfo {
-  amount: number;
-  cap: number;
-  id: string;
-  label: string | null;
-  location_id: string;
-  requires_tool: string | null;
-  resource: string;
-  x: number;
-  y: number;
 }
 /**
  * This interface was referenced by `SimulacraApi`'s JSON-Schema
@@ -1288,6 +1505,29 @@ export interface PatchApplied {
 }
 /**
  * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "PatchPreview".
+ */
+export interface PatchPreview {
+  counts: {
+    [k: string]: number;
+  };
+  error: string | null;
+  ok: boolean;
+  snapshot: StateSnapshot | null;
+}
+/**
+ * Beliebiger Welt-Patch (Format: docs/welt-erweitern.md) für einen Trockenlauf, z. B. eine Einzeländerung des Editors.
+ *
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "PatchPreviewRequest".
+ */
+export interface PatchPreviewRequest {
+  patch: {
+    [k: string]: unknown;
+  };
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
  * via the `definition` "Petted".
  */
 export interface Petted {
@@ -1651,119 +1891,6 @@ export interface SpeedRequest {
  */
 export interface StartRequest {
   ticks?: number | null;
-}
-/**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
- * via the `definition` "StateSnapshot".
- */
-export interface StateSnapshot {
-  agents: AgentInfo[];
-  clock: ClockInfo;
-  links: number[][][];
-  locations: LocationInfo[];
-  look: {
-    [k: string]: unknown;
-  } | null;
-  map: MapData;
-  objects: ObjectInfo[];
-  resources: ResourceInfo[];
-  rules: {
-    [k: string]: unknown;
-  };
-  seq: number;
-  simulation: SimStatus;
-  tile_types: {
-    [k: string]: TileTypeInfo;
-  };
-  weather: WeatherInfo;
-  world_name: string;
-}
-/**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
- * via the `definition` "AgentInfo".
- */
-export interface AgentInfo {
-  action: ActionInfo | null;
-  capacity: number;
-  facing: string;
-  held: string[];
-  id: string;
-  inventory: {
-    [k: string]: number;
-  };
-  location_id: string;
-  name: string;
-  needs: {
-    [k: string]: number;
-  };
-  plan_next: string;
-  profile: ProfileBrief | null;
-  status: string;
-  walk: WalkInfo | null;
-  words: {
-    [k: string]: string;
-  };
-  x: number;
-  y: number;
-}
-/**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
- * via the `definition` "ClockInfo".
- */
-export interface ClockInfo {
-  day: number;
-  daylight: number;
-  minute: number;
-  phase: string;
-  time: string;
-  weekday: string;
-}
-/**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
- * via the `definition` "MapData".
- */
-export interface MapData {
-  height: number;
-  legend: {
-    [k: string]: string;
-  };
-  rows: string[];
-  width: number;
-}
-/**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
- * via the `definition` "SimStatus".
- */
-export interface SimStatus {
-  llm: {
-    [k: string]: unknown;
-  };
-  speed_level: string;
-  state: "stopped" | "running" | "paused" | "stepping";
-  stats: {
-    [k: string]: unknown;
-  };
-  tick_delay_s: number;
-}
-/**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
- * via the `definition` "TileTypeInfo".
- */
-export interface TileTypeInfo {
-  char: string | null;
-  color: string | null;
-  cost: number;
-  label: string;
-  walkable: boolean;
-}
-/**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
- * via the `definition` "WeatherInfo".
- */
-export interface WeatherInfo {
-  kind: string;
-  since: number;
-  until: number;
 }
 /**
  * This interface was referenced by `SimulacraApi`'s JSON-Schema
@@ -2165,6 +2292,7 @@ export interface EventDataMap {
   "world.agent_added": AgentAdded;
   "world.links_added": LinksAdded;
   "world.look_changed": LookChanged;
+  "world.generated": Generated;
   "world.patch_applied": PatchApplied;
   "simulation.started": SimControl;
   "simulation.paused": SimControl;
@@ -2247,6 +2375,7 @@ export const EVENT_CATEGORY: Record<EventType, EventCategory> = {
   "world.agent_added": "world",
   "world.links_added": "world",
   "world.look_changed": "world",
+  "world.generated": "world",
   "world.patch_applied": "system",
   "simulation.started": "system",
   "simulation.paused": "system",

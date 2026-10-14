@@ -68,6 +68,8 @@ eng.edit.spawn_object("map", "Alte Karte", location_id="house.kitchen", state={"
 eng.edit.remove_object("axe")
 eng.edit.add_resource_node("clay_pit", [8, 25], "clay", 5, 5, regen_per_hour=0.5)
 eng.edit.apply_patch(patch_dict)
+eng.edit.dry_run(patch_dict, inspect=lambda: ...)  # AP12c: anwenden, hineinschauen, zurückrollen; wirft dieselben Fehler wie apply_patch
+eng.edit.apply_generated(patch_dict, {"kind": "extend", "seed": 5, "requested_seed": 5, "village": "…"})  # Patch und Ereignis world.generated in einer Transaktion
 ```
 Jeder Aufruf liefert `EditResult(events, value)`.
 

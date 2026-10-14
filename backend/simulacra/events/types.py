@@ -94,6 +94,7 @@ _ALL = [
     _t("world.agent_added", "world", m.AgentAdded, "Neue Figur in der Welt"),
     _t("world.links_added", "world", me.LinksAdded, "Neue Übergänge (Haustüren)"),
     _t("world.look_changed", "world", me.LookChanged, "Gebiete oder Landstraßen der Darstellung ergänzt"),
+    _t("world.generated", "world", me.Generated, "Dorf mit dem Weltgenerator erzeugt"),
     _t("world.patch_applied", "system", me.PatchApplied, "Welt-Patch angewendet"),
     # Simulation
     _t("simulation.started", "system", m.SimControl, "Simulation gestartet"),

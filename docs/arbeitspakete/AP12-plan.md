@@ -51,9 +51,9 @@ Das Paket ist größer als „L“; drei Teilpakete mit je eigener Abnahme, jewe
 6. **Agenten:** neue Orte sind zunächst unbekannt und werden über Wegweiser, Erkunden oder das Gespräch bekannt (Mechanik aus AP15 prüfen); lange Wege kosten Zeit, keine Sonderregel.
 7. Tests: byte-gleicher Patch, Eigenschaftstest über viele Seeds, 100 Ticks mit Fake-Modell auf erweiterter Welt, alter Spielstand.
 
-### AP12c – Bedienung in der Leitstelle
+### AP12c – Bedienung in der Leitstelle (gebaut 14.10.2026, Bericht [status/AP12c.md](../status/AP12c.md), wartet auf Abnahme)
 1. **API:** `POST /api/world/generate` (Trockenlauf auf einer Kopie; liefert Patch, Prüfbericht, Vorschau), `POST /api/world/generate/apply` (Idempotenz-Schlüssel, Bestätigung, automatische Sicherung), Ereignis `world.generated` mit Seed und Zusammenfassung.
-2. **Oberfläche „Welt erweitern“:** Richtung/Gebiet, Regler (Siedlungsdichte, Waldanteil, Wasseranteil, Wegedichte), Gebäudemix, Palette, Seed, „Würfeln“, Vorschau in der Weltansicht (die Kamera fährt hin, das neue Dorf erscheint unter einem Schleier mit Rahmen), Prüfbericht, „Übernehmen“. Neue Startwelt: „Neue Simulation mit Dorf …“ mit Vorschau.
+2. **Oberfläche „Welt gestalten“** (Frage 26: Regler und Palette gibt der Generator nicht her, umgesetzt sind Seed, Ufer des Sees und Gebäudemix): Seed, „Würfeln“, Vorschau in der Weltansicht (die Kamera fährt hin, das neue Dorf erscheint unter einem Schleier mit Rahmen), Prüfbericht, „Übernehmen“. Neue Startwelt: „Neue Simulation mit Dorf …“ mit Vorschau.
 3. Browser-Tests, Probelauf mit echtem Modell (besuchen die Agenten neue Orte?), Bilder mehrerer Seeds, Doku (`welt-erweitern.md`, `frontend.md`, `assets.md`, `schnittstellen.md`), Statusbericht.
 
 ## Risiken

@@ -21,6 +21,12 @@ Eingaben (`Params`): `seed`, `lake` (`east` wie in A, `south` mit Brücke über 
 6. **`validate.py`** – **Prüfung** (muss bestehen, sonst wird mit einem abgeleiteten Seed neu gewürfelt, höchstens 8 Versuche): Raster rechteckig, Startpunkt begehbar, jede Haustür, jede Quelle, jedes Ding und der Startplatz von Alex und Mira **vom Dorfplatz aus erreichbar** (wie die Wegsuche der Engine: Übergänge, gesperrte Möbelkacheln), Übergänge auf begehbaren Kacheln, Mengen gültig, IDs und Ortsnamen eindeutig (auch gegen den Bestand), Orte überlappen sich nicht, jedes Gebäude hat Tür und Räume, jedes Schlafzimmer ein Bett.
 7. **`generate.py`** – die Schnittstelle (`new_world`, `extension_patch`, `WorldInfo`).
 
+## Bedienung in der Leitstelle (AP12c)
+`generator/service.py` ist die Schicht zwischen Generator und API ([schnittstellen.md](schnittstellen.md)). Ein **Wunsch** (`Wish`: Art, Seed, Seeufer, Gebäudemix) ergibt auf derselben Welt immer denselben Patch; dessen Prüfsumme (`digest`) steht in der Vorschau und wird beim Anwenden verglichen, damit nur übernommen wird, was angeschaut wurde.
+- **Trockenlauf** (`WorldEditor.dry_run`): Der Patch wird in der echten Datenbank angewendet, `inspect()` baut daraus den Zustandsabzug (`GET /api/state`), dann rollt die Transaktion zurück und die Zwischenspeicher werden neu aufgebaut. Es entsteht kein Ereignis, die Ereignisnummer ändert sich nicht, die Patch-Liste bleibt leer. Er gilt für jeden Patch (`POST /api/world/patch/preview`), damit später auch Einzeländerungen des Editors ihre Vorschau bekommen.
+- **Neue Simulation:** Die Vorschau legt die Weltdatei in einer Wegwerf-Simulation im Speicher an; Anwenden ist `Simulation.reset(world=…, backup_label=…)` mit der Weltdatei statt der Standardwelt.
+- **Anwenden einer Erweiterung** (`WorldEditor.apply_generated`): Patch und `world.generated` in einer Transaktion, davor `saves.backup("Vor dem Erweitern")`.
+
 ## Regeln
 - **Der Bestand wird nie überschrieben.** Die Karte wächst nur (nach Süden), das neue Dorf liegt auf neuem Land; die Landstraße ändert im Bestand höchstens Wildnis und Wald (nur wenn die Ausfahrt mitten im Bestand liegt, nicht bei der Startwelt).
 - **Gleicher Weg wie jede Weltänderung:** Patch → `engine.edit`, ein Ereignis je Änderung (`world.look_changed`, `world.links_added` …), atomar.
