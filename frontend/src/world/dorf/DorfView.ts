@@ -230,7 +230,7 @@ export class DorfView {
     this.raf = requestAnimationFrame(this.loop);
     const w = this.bridge.world();
     if (!w || !lookOf(w) || !this.resize()) return;
-    const dt = Math.min(0.1, this.lastT ? (now - this.lastT) / 1000 : 0.016), t = now / 1000, t0 = performance.now();
+    const dt = Math.min(0.1, this.lastT ? (now - this.lastT) / 1000 : 0.016), t = (window as unknown as { __freezeT?: number }).__freezeT ?? now / 1000, t0 = performance.now();   // __freezeT: eingefrorene Zeit für die Goldbild-Tests
     this.lastT = now;
     if (w !== this.world) this.world = w;
     this.figures.update(w, dt);
