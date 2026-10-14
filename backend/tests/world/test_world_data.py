@@ -34,7 +34,7 @@ def test_all_kinds_and_blueprints_known(eng):
         object_kinds.normalize_state(o["kind"], o.get("state", {}))
     for name, bp in load_blueprints().items():
         assert bp["kind"] in object_kinds.KINDS, name
-        assert set(bp["cost"]) <= {"wood", "food", "water", "seeds", "stone"}
+        assert set(bp["cost"]) <= {"wood", "food", "water", "seeds", "stone", "reed"}
 
 
 def test_every_place_reachable_from_both_bedrooms(eng):

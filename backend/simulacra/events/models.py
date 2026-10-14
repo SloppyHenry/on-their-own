@@ -95,6 +95,24 @@ class Rested(D):
     energy: float
 
 
+class Rowed(D):
+    object: str
+    minutes: int
+
+
+class Petted(D):
+    object: str
+    name: str
+
+
+class Stored(D):
+    """Etwas in eine Ablage gelegt (`into`) oder herausgenommen."""
+    object: str
+    name: str
+    what: str
+    into: bool
+
+
 class ItemMoved(D):
     """item_taken und item_dropped."""
     object: ObjectData

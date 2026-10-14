@@ -62,6 +62,8 @@ class ResourceNode(BaseModel):
     regen_per_hour: float
     requires_tool: str | None = None
     gather_minutes: int = 5
+    regen_weather: str | None = None      # nur bei diesem Wetter nachwachsen (z. B. "rain,storm" für die Regentonne)
+    label: str | None = None              # Name im Bild und in den Optionen („Tomaten“), sonst nach dem Rohstoff
 
 
 class ActiveAction(BaseModel):

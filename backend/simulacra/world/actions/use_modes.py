@@ -100,17 +100,20 @@ class Write(Mode):
 
 
 class Light(Mode):
+    wood = 1                 # Holz je Anzünden (Laternen und Lampen: 0)
+
     def validate(self, ctx, actor, o, params):
         if o.state["lit"]:
             return rej(RejectCode.INVALID_TARGET, f"{o.name} brennt bereits.")
-        if actor.inventory.get("wood", 0) < 1:
+        if actor.inventory.get("wood", 0) < self.wood:
             return rej(RejectCode.MISSING_RESOURCE, "Zum Anzünden braucht es 1 Holz.")
-        return Accepted(duration=5)
+        return Accepted(duration=5 if self.wood else 1)
 
     def finish(self, ctx, actor, o, act):
-        if actor.inventory.get("wood", 0) < 1:
+        if actor.inventory.get("wood", 0) < self.wood:
             return rej(RejectCode.MISSING_RESOURCE, "Das Holz fehlt inzwischen.")
-        ctx.inv_add(actor, "wood", -1)
+        if self.wood:
+            ctx.inv_add(actor, "wood", -self.wood)
         o.state["lit"] = True
         ctx.state.save_object(o)
         ctx.emit("world.object_changed", [actor.id], o.location_id, {**ctx.object_data(o), "change": "lit"})
@@ -159,13 +162,15 @@ class Unlock(Mode):
 
 
 class Fish(Mode):
+    chance = 0.7
+
     def validate(self, ctx, actor, o, params):
         if ctx.free_slots(actor) < 1:
             return rej(RejectCode.CAPACITY, "Du kannst keinen Fang mehr tragen.")
         return Accepted(duration=25)
 
     def finish(self, ctx, actor, o, act):
-        if ctx.rng(actor.id, "fish").random() < 0.7:
+        if ctx.rng(actor.id, "fish").random() < self.chance:
             if ctx.free_slots(actor) < 1:
                 return rej(RejectCode.CAPACITY, "Du kannst keinen Fang mehr tragen.")
             ctx.inv_add(actor, "food", 1)
@@ -201,3 +206,9 @@ MODES: dict[tuple[str, str], Mode] = {
     ("fireplace", "extinguish"): Extinguish(), ("firepit", "extinguish"): Extinguish(),
     ("door", "lock"): Lock(), ("door", "unlock"): Unlock(), ("fishing_spot", "fish"): Fish(), ("plant", "harvest"): Harvest(),
 }
+
+
+def all_modes() -> dict[tuple[str, str], Mode]:
+    """Alle Modi einschließlich der Dinge im Dorf (AP15, eigene Datei)."""
+    from .use_dinge import MODES_DINGE
+    return {**MODES, **MODES_DINGE}

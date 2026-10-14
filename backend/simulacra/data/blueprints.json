@@ -50,5 +50,15 @@
   "where": "lake",
   "workbench": false,
   "tile_effect": "floor"
+ },
+ "basket": {
+  "name": "Korb",
+  "kind": "basket",
+  "cost": {
+   "reed": 2
+  },
+  "minutes": 30,
+  "where": "indoor",
+  "workbench": true
  }
 }

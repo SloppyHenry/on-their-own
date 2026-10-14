@@ -68,6 +68,7 @@ export interface SimulacraApi {
   ParamValues?: ParamValues;
   ParameterChanged?: ParameterChanged;
   PatchApplied?: PatchApplied;
+  Petted?: Petted;
   PhaseChanged?: PhaseChanged;
   PresetBrief?: PresetBrief;
   PresetDuplicate?: PresetDuplicate;
@@ -86,6 +87,7 @@ export interface SimulacraApi {
   ResourceChanged?: ResourceChanged;
   Rested?: Rested;
   RetrievalOut?: RetrievalOut;
+  Rowed?: Rowed;
   SaveCreate?: SaveCreate;
   SaveLoadRequest?: SaveLoadRequest;
   SaveOut?: SaveOut;
@@ -106,6 +108,7 @@ export interface SimulacraApi {
   StatusChanged?: StatusChanged;
   StatusOut?: StatusOut;
   StepRequest?: StepRequest;
+  Stored?: Stored;
   TileChanged?: TileChanged;
   TileTypeAdded?: TileTypeAdded;
   TilesChanged?: TilesChanged;
@@ -1262,6 +1265,14 @@ export interface PatchApplied {
 }
 /**
  * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "Petted".
+ */
+export interface Petted {
+  name: string;
+  object: string;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
  * via the `definition` "PhaseChanged".
  */
 export interface PhaseChanged {
@@ -1477,6 +1488,14 @@ export interface RetrievedMemory {
   };
   score: number;
   text: string;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "Rowed".
+ */
+export interface Rowed {
+  minutes: number;
+  object: string;
 }
 /**
  * This interface was referenced by `SimulacraApi`'s JSON-Schema
@@ -1901,6 +1920,18 @@ export interface StepRequest {
   n?: number;
 }
 /**
+ * Etwas in eine Ablage gelegt (`into`) oder herausgenommen.
+ *
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "Stored".
+ */
+export interface Stored {
+  into: boolean;
+  name: string;
+  object: string;
+  what: string;
+}
+/**
  * This interface was referenced by `SimulacraApi`'s JSON-Schema
  * via the `definition` "TileChanged".
  */
@@ -2065,6 +2096,9 @@ export interface EventDataMap {
   "agent.drank": Drank;
   "agent.slept": Slept;
   "agent.rested": Rested;
+  "agent.rowed": Rowed;
+  "agent.petted": Petted;
+  "agent.stored": Stored;
   "agent.item_taken": ItemMoved;
   "agent.item_dropped": ItemMoved;
   "agent.item_given": ItemGiven;
@@ -2142,6 +2176,9 @@ export const EVENT_CATEGORY: Record<EventType, EventCategory> = {
   "agent.drank": "world",
   "agent.slept": "world",
   "agent.rested": "world",
+  "agent.rowed": "world",
+  "agent.petted": "world",
+  "agent.stored": "world",
   "agent.item_taken": "world",
   "agent.item_dropped": "world",
   "agent.item_given": "world",
@@ -2203,7 +2240,7 @@ export const PLANNED_EVENT_TYPES: EventType[] = [];
 /** Objektarten aus der Registry (Bezeichnung, tragbar, Modi von `use`): Grundlage für das Kontextmenü der Mitspieler-Vorschau. */
 export const OBJECT_KINDS: Record<string, { label: string; portable: boolean; blocks: boolean; modes: string[] }> = {
   "bed": { label: "Bett", portable: false, blocks: false, modes: ["sleep"] },
-  "chest": { label: "Truhe", portable: false, blocks: true, modes: [] },
+  "chest": { label: "Truhe", portable: false, blocks: true, modes: ["store", "retrieve"] },
   "desk": { label: "Schreibtisch", portable: false, blocks: true, modes: ["write", "read"] },
   "workbench": { label: "Werkbank", portable: false, blocks: true, modes: [] },
   "axe": { label: "Axt", portable: true, blocks: false, modes: [] },
@@ -2231,4 +2268,16 @@ export const OBJECT_KINDS: Record<string, { label: string; portable: boolean; bl
   "map": { label: "Karte", portable: true, blocks: false, modes: [] },
   "note": { label: "Notiz", portable: true, blocks: false, modes: [] },
   "item": { label: "Gegenstand", portable: true, blocks: false, modes: [] },
+  "boat": { label: "Boot", portable: false, blocks: false, modes: ["row", "fish"] },
+  "lantern": { label: "Laterne", portable: false, blocks: false, modes: ["light", "extinguish"] },
+  "candle": { label: "Kerze", portable: false, blocks: false, modes: ["light", "extinguish"] },
+  "floor_lamp": { label: "Stehlampe", portable: false, blocks: false, modes: ["light", "extinguish"] },
+  "mailbox": { label: "Briefkasten", portable: false, blocks: false, modes: ["post", "collect"] },
+  "signpost": { label: "Wegweiser", portable: false, blocks: false, modes: ["read"] },
+  "scarecrow": { label: "Vogelscheuche", portable: false, blocks: false, modes: ["fix"] },
+  "cat": { label: "Katze", portable: false, blocks: false, modes: ["pet"] },
+  "armchair": { label: "Sessel", portable: false, blocks: false, modes: ["sit"] },
+  "wardrobe": { label: "Schrank", portable: false, blocks: true, modes: ["store", "retrieve"] },
+  "crate": { label: "Kiste", portable: false, blocks: true, modes: ["store", "retrieve"] },
+  "basket": { label: "Korb", portable: true, blocks: false, modes: [] },
 };

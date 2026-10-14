@@ -12,7 +12,7 @@ from typing import Any
 from ..db.connection import Database
 from ..events.bus import EventBus
 from ..events.store import EventStore
-from . import clock, extend, patches, weather
+from . import clock, dinge, extend, patches, weather
 from .actions import REGISTRY
 from .actions.base import Ctx, rej
 from .loader import load_blueprints, seed_world
@@ -181,6 +181,7 @@ class WorldEngine:
             self._weather(ctx)
             for actor in self.state.agents():
                 self._step_agent(ctx, actor)
+            dinge.tick(ctx)
             self._grow_plants(ctx)
             if ctx.minute % 60 == 0:
                 self._regen(ctx)
@@ -266,13 +267,14 @@ class WorldEngine:
     def _grow_plants(self, ctx: Ctx) -> None:
         raining = self.state.weather()["kind"] in weather.WATERS_PLANTS
         stage_minutes = int(ctx.rules.plant_hours_per_stage * 60)
+        slow = dinge.slow_growth(ctx)
         for r in self.state.conn.execute("SELECT id FROM objects WHERE kind='plant'").fetchall():
             o = self.state.obj(r["id"])
             s = o.state
             if raining:
                 s["watered_at"] = ctx.minute
             wet = s["watered_at"] is not None and ctx.minute - s["watered_at"] <= 720
-            if wet and s["stage"] < 4:
+            if wet and s["stage"] < 4 and not (o.location_id in slow and ctx.minute % 2):
                 s["growth_minutes"] += 1
                 if s["growth_minutes"] >= stage_minutes:
                     s["growth_minutes"] = 0
@@ -283,9 +285,9 @@ class WorldEngine:
             self.state.save_object(o)
 
     def _regen(self, ctx: Ctx) -> None:
-        scarcity = ctx.rules.resource_scarcity
+        scarcity, kind = ctx.rules.resource_scarcity, self.state.weather()["kind"]
         for n in self.state.all_nodes():
-            if n.regen_per_hour <= 0 or n.cap >= 900:
+            if n.regen_per_hour <= 0 or n.cap >= 900 or (n.regen_weather and kind not in n.regen_weather.split(",")):
                 continue
             cap = n.cap * scarcity * ctx.rules.resource_availability
             new = min(cap, n.amount + n.regen_per_hour * scarcity)

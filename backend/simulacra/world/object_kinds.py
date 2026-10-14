@@ -20,7 +20,7 @@ def _k(kind, label, **kw) -> ObjectKind:
 
 KINDS: dict[str, ObjectKind] = {k.kind: k for k in [
     _k("bed", "Bett", modes=("sleep",)),
-    _k("chest", "Truhe", blocks=True, schema={"contents": (list, [])}),
+    _k("chest", "Truhe", blocks=True, modes=("store", "retrieve"), schema={"contents": (list, []), "goods": (dict, {})}),
     _k("desk", "Schreibtisch", blocks=True, modes=("write", "read"), schema={"notes": (list, [])}),
     _k("workbench", "Werkbank", blocks=True),
     _k("axe", "Axt", portable=True),
@@ -51,6 +51,19 @@ KINDS: dict[str, ObjectKind] = {k.kind: k for k in [
     _k("map", "Karte", portable=True, schema={"text": (str, "")}),
     _k("note", "Notiz", portable=True, schema={"text": (str, "")}),
     _k("item", "Gegenstand", portable=True, schema={"description": (str, "")}),
+    # Dinge im Dorf (AP15): aus der Deko von Mockup A und innen2
+    _k("boat", "Boot", modes=("row", "fish")),
+    _k("lantern", "Laterne", modes=("light", "extinguish"), schema={"lit": (bool, False)}),
+    _k("candle", "Kerze", modes=("light", "extinguish"), schema={"lit": (bool, False)}),
+    _k("floor_lamp", "Stehlampe", modes=("light", "extinguish"), schema={"lit": (bool, False)}),
+    _k("mailbox", "Briefkasten", modes=("post", "collect"), schema={"letters": (list, [])}),
+    _k("signpost", "Wegweiser", modes=("read",)),
+    _k("scarecrow", "Vogelscheuche", modes=("fix",), schema={"upright": (bool, True)}),
+    _k("cat", "Katze", modes=("pet",), schema={"spots": (list, []), "spot": (int, 0)}),
+    _k("armchair", "Sessel", modes=("sit",)),
+    _k("wardrobe", "Schrank", blocks=True, modes=("store", "retrieve"), schema={"contents": (list, []), "goods": (dict, {})}),
+    _k("crate", "Kiste", blocks=True, modes=("store", "retrieve"), schema={"contents": (list, []), "goods": (dict, {})}),
+    _k("basket", "Korb", portable=True, schema={"extra_slots": (int, 4)}),
 ]}
 
 

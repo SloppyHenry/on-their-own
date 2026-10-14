@@ -162,6 +162,9 @@ class WorldState:
     def objects_held(self, agent_id: str) -> list[WorldObject]:
         return [self._obj(r) for r in self.conn.execute("SELECT * FROM objects WHERE holder=? ORDER BY id", (agent_id,))]
 
+    def objects_of_kind(self, kind: str) -> list[WorldObject]:
+        return [self._obj(r) for r in self.conn.execute("SELECT * FROM objects WHERE kind=? ORDER BY id", (kind,))]
+
     def all_objects(self) -> list[WorldObject]:
         return [self._obj(r) for r in self.conn.execute("SELECT * FROM objects ORDER BY id")]
 

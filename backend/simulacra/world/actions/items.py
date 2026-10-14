@@ -5,7 +5,9 @@ from typing import Any
 from .. import object_kinds
 from ..models import Accepted, ActiveAction, AgentBody, RejectCode, Rejected, WorldObject
 from .base import Action, Ctx, dist, find_object, held_kind, rej
-from .use_modes import MODES
+from .use_modes import all_modes
+
+MODES = all_modes()
 
 REVEAL_RADIUS = 3.0
 HEARING = 4.0

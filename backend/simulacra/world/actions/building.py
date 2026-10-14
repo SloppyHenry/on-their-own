@@ -2,7 +2,7 @@
 
 import math
 
-from .. import weather
+from .. import object_kinds, weather
 from ..models import Accepted, ActiveAction, AgentBody, RejectCode, Rejected, WorldObject
 from .base import Action, Ctx, find_object, local_objects, rej
 
@@ -100,7 +100,8 @@ class Build(Action):
         ctx.state.remove_object(site.id)
         ctx.emit("world.object_removed", [actor.id], site.location_id, {"object": ctx.object_data(site), "cause": "build_done"})
         obj = WorldObject(id=ctx.state.next_object_id(bp["kind"]), kind=bp["kind"], name=bp["name"], location_id=site.location_id,
-                          x=site.x, y=site.y, created_by=actor.id, created_at=ctx.minute)
+                          x=site.x, y=site.y, created_by=actor.id, created_at=ctx.minute, portable=object_kinds.spec(bp["kind"]).portable,
+                          state=object_kinds.normalize_state(bp["kind"], {}))
         ctx.state.save_object(obj, new=True)
         if bp.get("tile_effect"):
             ctx.state.conn.execute("UPDATE tiles SET type=? WHERE x=? AND y=?", (bp["tile_effect"], site.x, site.y))

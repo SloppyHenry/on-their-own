@@ -78,9 +78,9 @@ def seed_world(db: Database, world: dict[str, Any] | None = None, seed: int = 1)
                 portable=o.get("portable", spec.portable), owner=o.get("owner"), hidden=o.get("hidden", False)), new=True)
         for n in world["resource_nodes"]:
             x, y = n["tile"]
-            c.execute("INSERT INTO resources(id,location_id,x,y,resource,amount,cap,regen_per_hour,requires_tool,gather_minutes) "
-                      "VALUES(?,?,?,?,?,?,?,?,?,?)", (n["id"], n["location_id"], x, y, n["resource"], n["amount"], n["cap"],
-                                                       n["regen_per_hour"], n["requires_tool"], n["gather_minutes"]))
+            c.execute("INSERT INTO resources(id,location_id,x,y,resource,amount,cap,regen_per_hour,requires_tool,gather_minutes,regen_weather,label) "
+                      "VALUES(?,?,?,?,?,?,?,?,?,?,?,?)", (n["id"], n["location_id"], x, y, n["resource"], n["amount"], n["cap"],
+                                                           n["regen_per_hour"], n["requires_tool"], n["gather_minutes"], n.get("regen_weather"), n.get("label")))
         for a in world["agents"]:
             x, y = a["tile"]
             c.execute("INSERT INTO agents_body(id,name,x,y,location_id,capacity,needs) VALUES(?,?,?,?,?,?,?)",

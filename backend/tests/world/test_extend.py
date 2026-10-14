@@ -324,6 +324,7 @@ def test_database_from_before_tile_types_is_migrated(tmp_path):
                      "DROP TABLE goals; DROP TABLE agent_needs; DROP TABLE relations; DROP TABLE relation_log; DROP TABLE failed_actions; DROP TABLE action_locks; DROP TABLE params; DROP TABLE presets; DROP TABLE inject_log; DROP TABLE scheduled_events; DROP TABLE npcs; DROP TABLE stats_samples; "
                      "DROP INDEX events_event_id; DROP INDEX events_category; DROP INDEX events_location; DROP INDEX events_parent; "
                      "ALTER TABLE events DROP COLUMN event_id; ALTER TABLE events DROP COLUMN category; ALTER TABLE events DROP COLUMN visibility; "
+                     "ALTER TABLE resources DROP COLUMN regen_weather; ALTER TABLE resources DROP COLUMN label; "
                      "PRAGMA user_version = 1;")
     raw.commit()
     raw.close()

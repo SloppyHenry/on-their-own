@@ -54,7 +54,8 @@ class Ctx:
         return qty
 
     def free_slots(self, actor: AgentBody) -> int:
-        return actor.capacity - self.state.inv_load(actor)
+        extra = sum(o.state.get("extra_slots", 0) for o in self.state.objects_held(actor.id) if o.kind == "basket")   # Korb (AP15)
+        return actor.capacity + extra - self.state.inv_load(actor)
 
 
 class Action:

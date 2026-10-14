@@ -4278,6 +4278,23 @@
    "title": "PatchApplied",
    "type": "object"
   },
+  "Petted": {
+   "additionalProperties": false,
+   "properties": {
+    "name": {
+     "type": "string"
+    },
+    "object": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "object",
+    "name"
+   ],
+   "title": "Petted",
+   "type": "object"
+  },
   "PhaseChanged": {
    "additionalProperties": false,
    "properties": {
@@ -5076,6 +5093,23 @@
    "title": "RetrievedMemory",
    "type": "object"
   },
+  "Rowed": {
+   "additionalProperties": false,
+   "properties": {
+    "minutes": {
+     "type": "integer"
+    },
+    "object": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "object",
+    "minutes"
+   ],
+   "title": "Rowed",
+   "type": "object"
+  },
   "SaveCreate": {
    "additionalProperties": false,
    "properties": {
@@ -5783,6 +5817,32 @@
     }
    },
    "title": "StepRequest",
+   "type": "object"
+  },
+  "Stored": {
+   "additionalProperties": false,
+   "description": "Etwas in eine Ablage gelegt (`into`) oder herausgenommen.",
+   "properties": {
+    "into": {
+     "type": "boolean"
+    },
+    "name": {
+     "type": "string"
+    },
+    "object": {
+     "type": "string"
+    },
+    "what": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "object",
+    "name",
+    "what",
+    "into"
+   ],
+   "title": "Stored",
    "type": "object"
   },
   "SystemLoad": {
@@ -6525,6 +6585,9 @@
   "PatchApplied": {
    "$ref": "#/$defs/PatchApplied"
   },
+  "Petted": {
+   "$ref": "#/$defs/Petted"
+  },
   "PhaseChanged": {
    "$ref": "#/$defs/PhaseChanged"
   },
@@ -6578,6 +6641,9 @@
   },
   "RetrievalOut": {
    "$ref": "#/$defs/RetrievalOut"
+  },
+  "Rowed": {
+   "$ref": "#/$defs/Rowed"
   },
   "SaveCreate": {
    "$ref": "#/$defs/SaveCreate"
@@ -6638,6 +6704,9 @@
   },
   "StepRequest": {
    "$ref": "#/$defs/StepRequest"
+  },
+  "Stored": {
+   "$ref": "#/$defs/Stored"
   },
   "TileChanged": {
    "$ref": "#/$defs/TileChanged"
