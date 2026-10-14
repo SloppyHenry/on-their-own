@@ -229,7 +229,8 @@ def _free_tile_in(ctx: Ctx, location_id: str) -> tuple[int, int]:
 
 def spawn_object(ctx: Ctx, kind: str, name: str, *, tile: Any = None, location_id: str | None = None, holder: str | None = None,
                  state: dict | None = None, portable: bool | None = None, owner: str | None = None, hidden: bool = False,
-                 known_by: list[str] | None = None, id_: str | None = None, created_by: str | None = None, cause: str = "spawned") -> WorldObject:
+                 known_by: list[str] | None = None, id_: str | None = None, created_by: str | None = None, cause: str = "spawned",
+                 anywhere: bool = False) -> WorldObject:
     st = ctx.state
     try:
         spec = object_kinds.get(kind)
@@ -258,7 +259,7 @@ def spawn_object(ctx: Ctx, kind: str, name: str, *, tile: Any = None, location_i
         if st.object_count() >= ctx.rules.max_objects:
             raise WorldEditError("limit", f"Die Welt kann höchstens {ctx.rules.max_objects} Objekte aufnehmen.")
         x, y = _free_tile_in(ctx, location_id) if location_id else tile
-        if not _in_map(ctx, x, y) or not st.grid.walkable(x, y):
+        if not _in_map(ctx, x, y) or not (anywhere or st.grid.walkable(x, y)):          # `anywhere`: Dinge auf Wasser (Boot) und auf Möbelkacheln wie in der Startwelt
             raise WorldEditError("blocked", f"Auf Kachel {x},{y} kann kein Objekt stehen.")
         obj.x, obj.y, obj.location_id = x, y, st.location_at(x, y)
     try:

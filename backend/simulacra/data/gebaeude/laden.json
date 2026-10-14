@@ -1,0 +1,24 @@
+{
+ "id": "laden",
+ "name": "Laden",
+ "bands": [
+  {
+   "h": 4,
+   "rooms": [
+    {
+     "id": "laden",
+     "name": "Laden",
+     "kind": "shop",
+     "w": 8
+    },
+    {
+     "id": "lager",
+     "name": "Lager",
+     "kind": "store",
+     "w": 4
+    }
+   ]
+  }
+ ],
+ "front": "laden"
+}

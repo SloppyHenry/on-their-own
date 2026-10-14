@@ -1,0 +1,18 @@
+{
+ "id": "stall",
+ "name": "Stall",
+ "bands": [
+  {
+   "h": 4,
+   "rooms": [
+    {
+     "id": "stall",
+     "name": "Stall",
+     "kind": "stable",
+     "w": 14
+    }
+   ]
+  }
+ ],
+ "front": "stall"
+}

@@ -4,7 +4,8 @@ Ein Patch ist ein JSON-Dokument mit denselben Abschnitten wie die Weltdatei (nur
     {"id": "...", "description": "...", "tile_types": {...}, "extend_map": {"width": 80, "height": 50, "fill": "grass"},
      "tiles": [{"rect": [x, y, b, h], "type": "sand"}, {"at": [x, y], "rows": ["..s.", ".ss."]}],
      "locations": [{...}], "objects": [{...}], "resource_nodes": [{...}], "links": [[[x, y], [x, y]]], "agents": [{...}],
-     "look": {"regions": [{...}], "roads": [[[x, y], ...]]}}
+     "look": {"regions": [{...}], "roads": [[[x, y], ...]]}, "max_objects": 300}
+`max_objects` hebt die Obergrenze für Objekte an (höchstens 500), damit ein erzeugtes Dorf hineinpasst.
 Reihenfolge der Anwendung: tile_types, extend_map, tiles, locations, objects, resource_nodes, links, agents, look.
 Jede Patch-ID wird nur einmal angewendet; scheitert ein Teil, bleibt die Welt unverändert.
 """
@@ -16,7 +17,7 @@ from .actions.base import Ctx
 from .extend import WorldEditError
 
 SECTIONS = ("tile_types", "extend_map", "tiles", "locations", "objects", "resource_nodes", "links", "agents", "look")
-KNOWN_KEYS = {"id", "description", *SECTIONS}
+KNOWN_KEYS = {"id", "description", "max_objects", *SECTIONS}
 
 
 def applied(ctx: Ctx) -> list[dict[str, Any]]:
@@ -53,7 +54,7 @@ def apply_patch(ctx: Ctx, patch: dict[str, Any]) -> dict[str, int]:
         raise WorldEditError("invalid", f"Unbekannte Abschnitte im Patch: {sorted(unknown)}")
     if any(p["id"] == patch["id"] for p in applied(ctx)):
         raise WorldEditError("exists", f"Der Patch '{patch['id']}' wurde schon angewendet.")
-    counts = {s: 0 for s in SECTIONS}
+    counts = {s: 0 for s in SECTIONS if s not in ("links", "look")}                # links und look zählen nur, wenn der Patch sie nutzt
     try:
         for name, t in (patch.get("tile_types") or {}).items():
             extend.add_tile_type(ctx, name, walkable=t["walkable"], cost=t.get("cost", 1), char=t.get("char"),
@@ -67,13 +68,20 @@ def apply_patch(ctx: Ctx, patch: dict[str, Any]) -> dict[str, int]:
             changes = _tile_changes(ctx, patch["tiles"])
             extend.set_tiles(ctx, changes, cause=f"patch:{patch['id']}")
             counts["tiles"] = len(changes)
+        if "max_objects" in patch:
+            n = patch["max_objects"]
+            if not isinstance(n, int) or isinstance(n, bool) or not 20 <= n <= 500:
+                raise WorldEditError("invalid", "max_objects muss eine Zahl von 20 bis 500 sein.")
+            if n > ctx.state.rules.max_objects:
+                ctx.state.rules = ctx.state.rules.model_copy(update={"max_objects": n})
+                ctx.state.set_meta("rules", ctx.state.rules.model_dump())
         for l in patch.get("locations", []):
             extend.add_location(ctx, l["id"], l["name"], l["rect"], l.get("entrances"), l.get("extra_tiles"), l.get("props"), l.get("claim", True))
             counts["locations"] += 1
         for o in patch.get("objects", []):
             extend.spawn_object(ctx, o["kind"], o["name"], tile=o.get("tile"), location_id=o.get("location_id"), holder=o.get("holder"),
                                 state=o.get("state"), portable=o.get("portable"), owner=o.get("owner"), hidden=o.get("hidden", False),
-                                known_by=o.get("known_by"), id_=o.get("id"), cause=f"patch:{patch['id']}")
+                                known_by=o.get("known_by"), id_=o.get("id"), cause=f"patch:{patch['id']}", anywhere=bool(o.get("anywhere", False)))
             counts["objects"] += 1
         for n in patch.get("resource_nodes", []):
             extend.add_resource_node(ctx, n["id"], n["tile"], n["resource"], n["amount"], n["cap"], n.get("regen_per_hour", 0.0),

@@ -1,0 +1,18 @@
+{
+ "id": "scheune",
+ "name": "Scheune",
+ "bands": [
+  {
+   "h": 5,
+   "rooms": [
+    {
+     "id": "scheune",
+     "name": "Scheune",
+     "kind": "barn",
+     "w": 14
+    }
+   ]
+  }
+ ],
+ "front": "scheune"
+}

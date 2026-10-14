@@ -1,0 +1,47 @@
+{
+ "id": "langhaus",
+ "name": "Langhaus",
+ "bands": [
+  {
+   "h": 4,
+   "rooms": [
+    {
+     "id": "schlafzimmer",
+     "name": "Schlafzimmer",
+     "kind": "bedroom",
+     "w": 6
+    },
+    {
+     "id": "gaestezimmer",
+     "name": "Gästezimmer",
+     "kind": "bedroom",
+     "w": 6
+    },
+    {
+     "id": "kueche",
+     "name": "Küche",
+     "kind": "kitchen",
+     "w": 6
+    }
+   ]
+  },
+  {
+   "h": 4,
+   "rooms": [
+    {
+     "id": "wohnzimmer",
+     "name": "Wohnzimmer",
+     "kind": "living",
+     "w": 13
+    },
+    {
+     "id": "kammer",
+     "name": "Vorratskammer",
+     "kind": "store",
+     "w": 6
+    }
+   ]
+  }
+ ],
+ "front": "wohnzimmer"
+}

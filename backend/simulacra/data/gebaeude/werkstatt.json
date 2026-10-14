@@ -1,0 +1,24 @@
+{
+ "id": "werkstatt",
+ "name": "Werkstatt",
+ "bands": [
+  {
+   "h": 5,
+   "rooms": [
+    {
+     "id": "werkstatt",
+     "name": "Werkstatt",
+     "kind": "workshop",
+     "w": 9
+    },
+    {
+     "id": "lager",
+     "name": "Lager",
+     "kind": "store",
+     "w": 4
+    }
+   ]
+  }
+ ],
+ "front": "werkstatt"
+}

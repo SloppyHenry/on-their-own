@@ -1,0 +1,24 @@
+{
+ "id": "haus_klein",
+ "name": "Häuschen",
+ "bands": [
+  {
+   "h": 4,
+   "rooms": [
+    {
+     "id": "stube",
+     "name": "Stube",
+     "kind": "living",
+     "w": 8
+    },
+    {
+     "id": "kammer",
+     "name": "Kammer",
+     "kind": "bedroom",
+     "w": 5
+    }
+   ]
+  }
+ ],
+ "front": "stube"
+}

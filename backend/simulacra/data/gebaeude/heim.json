@@ -1,0 +1,747 @@
+{
+ "id": "heim",
+ "name": "Heimhaus",
+ "size": [
+  24,
+  13
+ ],
+ "rows": [
+  "########################",
+  "#_____m#_____m#________#",
+  "#__m___#______#________#",
+  "#______#______#________#",
+  "#______#______#___m____#",
+  "#m_____#_____m#mm______#",
+  "####+####+########+#####",
+  "#_____mmm_#____________#",
+  "#_________#m___________#",
+  "#___m_____+____________#",
+  "#_________#________m___#",
+  "#_________#m___________#",
+  "################+#######"
+ ],
+ "front": [
+  16,
+  12
+ ],
+ "locations": [
+  {
+   "id": "house.bedroom_a",
+   "name": "Zimmer Alex",
+   "rect": [
+    1,
+    1,
+    6,
+    5
+   ],
+   "entrances": [
+    [
+     4,
+     6
+    ]
+   ],
+   "extra_tiles": [
+    [
+     4,
+     6
+    ]
+   ],
+   "props": {
+    "style": {
+     "floor": "planks"
+    },
+    "to": "in Alex' Zimmer",
+    "at": "in Alex' Zimmer",
+    "themes": [
+     "rest"
+    ]
+   }
+  },
+  {
+   "id": "house.bedroom_b",
+   "name": "Zimmer Mira",
+   "rect": [
+    8,
+    1,
+    6,
+    5
+   ],
+   "entrances": [
+    [
+     9,
+     6
+    ]
+   ],
+   "extra_tiles": [
+    [
+     9,
+     6
+    ]
+   ],
+   "props": {
+    "style": {
+     "floor": "planks"
+    },
+    "to": "in Miras Zimmer",
+    "at": "in Miras Zimmer",
+    "themes": [
+     "rest"
+    ]
+   }
+  },
+  {
+   "id": "house.workshop",
+   "name": "Werkstatt",
+   "rect": [
+    15,
+    1,
+    8,
+    5
+   ],
+   "entrances": [
+    [
+     18,
+     6
+    ]
+   ],
+   "extra_tiles": [
+    [
+     18,
+     6
+    ]
+   ],
+   "props": {
+    "style": {
+     "floor": "workshop"
+    },
+    "to": "in die Werkstatt",
+    "at": "in der Werkstatt",
+    "themes": [
+     "craft",
+     "wood"
+    ]
+   }
+  },
+  {
+   "id": "house.kitchen",
+   "name": "Küche",
+   "rect": [
+    1,
+    7,
+    9,
+    5
+   ],
+   "entrances": [
+    [
+     4,
+     6
+    ],
+    [
+     10,
+     9
+    ]
+   ],
+   "extra_tiles": [],
+   "props": {
+    "style": {
+     "floor": "tile"
+    },
+    "to": "in die Küche",
+    "at": "in der Küche",
+    "themes": [
+     "food"
+    ]
+   }
+  },
+  {
+   "id": "house.living",
+   "name": "Wohnzimmer",
+   "rect": [
+    11,
+    7,
+    12,
+    5
+   ],
+   "entrances": [
+    [
+     10,
+     9
+    ],
+    [
+     16,
+     12
+    ],
+    [
+     18,
+     6
+    ]
+   ],
+   "extra_tiles": [
+    [
+     10,
+     9
+    ],
+    [
+     16,
+     12
+    ]
+   ],
+   "props": {
+    "style": {
+     "floor": "planks",
+     "rug": true
+    },
+    "to": "ins Wohnzimmer",
+    "at": "im Wohnzimmer",
+    "themes": [
+     "social",
+     "rest"
+    ]
+   }
+  }
+ ],
+ "objects": [
+  {
+   "id": "bed_alex",
+   "kind": "bed",
+   "name": "Bett (Alex)",
+   "state": {},
+   "owner": "alex",
+   "tile": [
+    2,
+    2
+   ]
+  },
+  {
+   "id": "chest_alex",
+   "kind": "chest",
+   "name": "Truhe",
+   "state": {},
+   "tile": [
+    6,
+    2
+   ]
+  },
+  {
+   "id": "bed_mira",
+   "kind": "bed",
+   "name": "Bett (Mira)",
+   "state": {},
+   "owner": "mira",
+   "tile": [
+    9,
+    2
+   ]
+  },
+  {
+   "id": "desk_mira",
+   "kind": "desk",
+   "name": "Schreibtisch",
+   "state": {
+    "notes": []
+   },
+   "tile": [
+    12,
+    2
+   ]
+  },
+  {
+   "id": "workbench",
+   "kind": "workbench",
+   "name": "Werkbank",
+   "state": {},
+   "tile": [
+    16,
+    2
+   ]
+  },
+  {
+   "id": "axe",
+   "kind": "axe",
+   "name": "Axt",
+   "state": {},
+   "portable": true,
+   "tile": [
+    18,
+    2
+   ]
+  },
+  {
+   "id": "pickaxe",
+   "kind": "pickaxe",
+   "name": "Spitzhacke",
+   "state": {},
+   "portable": true,
+   "tile": [
+    19,
+    2
+   ]
+  },
+  {
+   "id": "stove",
+   "kind": "stove",
+   "name": "Herd",
+   "state": {},
+   "tile": [
+    2,
+    8
+   ]
+  },
+  {
+   "id": "kitchen_tap",
+   "kind": "tap",
+   "name": "Wasserhahn",
+   "state": {},
+   "tile": [
+    6,
+    11
+   ]
+  },
+  {
+   "id": "sofa",
+   "kind": "sofa",
+   "name": "Sofa",
+   "state": {},
+   "tile": [
+    13,
+    9
+   ]
+  },
+  {
+   "id": "table_living",
+   "kind": "table",
+   "name": "Tisch",
+   "state": {},
+   "tile": [
+    17,
+    9
+   ]
+  },
+  {
+   "id": "bookshelf",
+   "kind": "bookshelf",
+   "name": "Bücherregal",
+   "state": {
+    "books": [
+     "Pilzkunde",
+     "Alte Dorfchronik",
+     "Gartenjahr"
+    ]
+   },
+   "tile": [
+    21,
+    7
+   ]
+  },
+  {
+   "id": "fireplace",
+   "kind": "fireplace",
+   "name": "Kamin",
+   "state": {
+    "lit": false
+   },
+   "tile": [
+    22,
+    9
+   ]
+  },
+  {
+   "id": "door_ba",
+   "kind": "door",
+   "name": "Tür Zimmer Alex",
+   "state": {
+    "locked": false
+   },
+   "tile": [
+    4,
+    6
+   ]
+  },
+  {
+   "id": "door_bb",
+   "kind": "door",
+   "name": "Tür Zimmer Mira",
+   "state": {
+    "locked": false
+   },
+   "tile": [
+    9,
+    6
+   ]
+  },
+  {
+   "id": "door_ws",
+   "kind": "door",
+   "name": "Tür Werkstatt",
+   "state": {
+    "locked": false
+   },
+   "tile": [
+    18,
+    6
+   ]
+  },
+  {
+   "id": "door_kl",
+   "kind": "door",
+   "name": "Tür Küche",
+   "state": {
+    "locked": false
+   },
+   "tile": [
+    10,
+    9
+   ]
+  },
+  {
+   "id": "door_front",
+   "kind": "door",
+   "name": "Haustür",
+   "state": {
+    "locked": false
+   },
+   "tile": [
+    16,
+    12
+   ]
+  },
+  {
+   "id": "cat",
+   "kind": "cat",
+   "name": "Katze",
+   "state": {
+    "spots": [
+     [
+      47,
+      13
+     ],
+     [
+      34,
+      8
+     ],
+     [
+      30,
+      13
+     ],
+     [
+      29,
+      7
+     ]
+    ],
+    "spot": 1
+   },
+   "tile": [
+    8,
+    5
+   ]
+  },
+  {
+   "id": "floor_lamp_1",
+   "kind": "floor_lamp",
+   "name": "Stehlampe",
+   "tile": [
+    13,
+    1
+   ]
+  },
+  {
+   "id": "floor_lamp_2",
+   "kind": "floor_lamp",
+   "name": "Stehlampe",
+   "tile": [
+    11,
+    8
+   ]
+  },
+  {
+   "id": "candle",
+   "kind": "candle",
+   "name": "Kerze",
+   "tile": [
+    18,
+    9
+   ]
+  },
+  {
+   "id": "armchair",
+   "kind": "armchair",
+   "name": "Sessel",
+   "tile": [
+    19,
+    10
+   ]
+  },
+  {
+   "id": "wardrobe",
+   "kind": "wardrobe",
+   "name": "Schrank",
+   "tile": [
+    6,
+    1
+   ]
+  },
+  {
+   "id": "crate_1",
+   "kind": "crate",
+   "name": "Kiste",
+   "tile": [
+    15,
+    5
+   ]
+  },
+  {
+   "id": "crate_2",
+   "kind": "crate",
+   "name": "Kiste",
+   "tile": [
+    16,
+    5
+   ]
+  }
+ ],
+ "resource_nodes": [
+  {
+   "id": "pantry",
+   "location_id": "house.kitchen",
+   "resource": "food",
+   "amount": 10,
+   "cap": 16,
+   "regen_per_hour": 0.4,
+   "requires_tool": null,
+   "gather_minutes": 3,
+   "tile": [
+    8,
+    8
+   ]
+  },
+  {
+   "id": "tap_kitchen",
+   "location_id": "house.kitchen",
+   "resource": "water",
+   "amount": 999,
+   "cap": 999,
+   "regen_per_hour": 999,
+   "requires_tool": null,
+   "gather_minutes": 2,
+   "tile": [
+    6,
+    11
+   ]
+  },
+  {
+   "id": "woodpile",
+   "location_id": "house.workshop",
+   "resource": "wood",
+   "amount": 6,
+   "cap": 12,
+   "regen_per_hour": 0,
+   "requires_tool": null,
+   "gather_minutes": 3,
+   "tile": [
+    21,
+    2
+   ]
+  },
+  {
+   "id": "seed_box",
+   "location_id": "house.workshop",
+   "resource": "seeds",
+   "amount": 6,
+   "cap": 6,
+   "regen_per_hour": 0,
+   "requires_tool": null,
+   "gather_minutes": 2,
+   "tile": [
+    21,
+    4
+   ]
+  }
+ ],
+ "interior": {
+  "rooms": {
+   "house.bedroom_a": {
+    "paper": "streifen",
+    "floor": "dielen",
+    "curtain": "#5d7fb0"
+   },
+   "house.bedroom_b": {
+    "paper": "blumen",
+    "floor": "dielenHell",
+    "curtain": "#d97a92"
+   },
+   "house.workshop": {
+    "paper": "bretter",
+    "floor": "werkstatt",
+    "curtain": "#a9884e"
+   },
+   "house.kitchen": {
+    "paper": "kacheln",
+    "floor": "fliesen",
+    "curtain": "#e0a458"
+   },
+   "house.living": {
+    "paper": "ranken",
+    "floor": "parkett",
+    "curtain": "#b04a4a"
+   }
+  },
+  "wall": [
+   [
+    "fenster",
+    3.3999999999999986,
+    "house.bedroom_a",
+    6
+   ],
+   [
+    "bild:see",
+    1.3000000000000007,
+    "house.bedroom_a",
+    12
+   ],
+   [
+    "fenster",
+    10.399999999999999,
+    "house.bedroom_b",
+    6
+   ],
+   [
+    "bild:blume",
+    8.399999999999999,
+    "house.bedroom_b",
+    11
+   ],
+   [
+    "wandregal:buecher",
+    12.299999999999997,
+    "house.bedroom_b",
+    12
+   ],
+   [
+    "fenster",
+    18.299999999999997,
+    "house.workshop",
+    6
+   ],
+   [
+    "werkzeugwand",
+    15.399999999999999,
+    "house.workshop",
+    9
+   ],
+   [
+    "fenster",
+    20.6,
+    "house.workshop",
+    6
+   ],
+   [
+    "toepfe",
+    1.3999999999999986,
+    "house.kitchen",
+    8
+   ],
+   [
+    "wandregal:glaeser",
+    6.600000000000001,
+    "house.kitchen",
+    10
+   ],
+   [
+    "uhr",
+    8.899999999999999,
+    "house.kitchen",
+    9
+   ],
+   [
+    "bild:portrait",
+    12.600000000000001,
+    "house.living",
+    10
+   ],
+   [
+    "spiegel",
+    15.200000000000003,
+    "house.living",
+    9
+   ],
+   [
+    "wandregal:deko",
+    19.4,
+    "house.living",
+    12
+   ]
+  ],
+  "decor": [
+   [
+    "nachttisch",
+    3,
+    2
+   ],
+   [
+    "pflanze",
+    1,
+    5
+   ],
+   [
+    "pflanze:gross",
+    13,
+    5
+   ],
+   [
+    "saegebock",
+    18,
+    4
+   ],
+   [
+    "kuechenzeile",
+    7,
+    7
+   ],
+   [
+    "objekt:table",
+    4,
+    9
+   ],
+   [
+    "pflanze:gross",
+    11,
+    11
+   ]
+  ],
+  "rugs": [
+   [
+    "oval",
+    4,
+    4.3,
+    26,
+    11,
+    "#5d7fb0",
+    "#86a6d0",
+    "#3f5f8c"
+   ],
+   [
+    "oval",
+    11,
+    4.3,
+    22,
+    11,
+    "#d97a92",
+    "#f2b0c0",
+    "#b05a72"
+   ],
+   [
+    "teppich",
+    14,
+    8,
+    46,
+    14
+   ],
+   [
+    "laeufer",
+    3,
+    9.4,
+    34
+   ]
+  ]
+ }
+}

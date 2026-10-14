@@ -1,0 +1,35 @@
+{
+ "id": "haus",
+ "name": "Wohnhaus",
+ "bands": [
+  {
+   "h": 4,
+   "rooms": [
+    {
+     "id": "schlafzimmer",
+     "name": "Schlafzimmer",
+     "kind": "bedroom",
+     "w": 6
+    },
+    {
+     "id": "kueche",
+     "name": "Küche",
+     "kind": "kitchen",
+     "w": 6
+    }
+   ]
+  },
+  {
+   "h": 4,
+   "rooms": [
+    {
+     "id": "wohnzimmer",
+     "name": "Wohnzimmer",
+     "kind": "living",
+     "w": 13
+    }
+   ]
+  }
+ ],
+ "front": "wohnzimmer"
+}
