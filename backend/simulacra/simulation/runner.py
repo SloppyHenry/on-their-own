@@ -173,10 +173,10 @@ class SimulationRunner:
         events: list[Event] = []
         for _ in range(self.minutes_per_tick):
             tick = await self.engine.tick_async()
-            extra = await self.engine.db.run(lambda t=tick: self._after_tick(t))
+            extra, minute = await self.engine.db.run(lambda t=tick: (self._after_tick(t), self.engine.minute))
             events += tick + extra
-        self.engine.bus.clock(self.engine.minute)
-        await self._housekeeping(events, force)
+        self.engine.bus.clock(minute)
+        await self._housekeeping(events, force, minute)
         self.stats.ticks += 1
         return 1
 
@@ -185,7 +185,7 @@ class SimulationRunner:
             await self._bg
         self._bg = None
 
-    async def _housekeeping(self, events: list[Event], force: bool) -> None:
+    async def _housekeeping(self, events: list[Event], force: bool, minute: int) -> None:
         """Gedächtnispflege einmal je Tag; Reflexionen mit niedriger Priorität: nur wenn kein Agent auf eine Entscheidung wartet (oder lange aufgeschoben)."""
         db, mem = self.engine.db, self.memory
         if any(e.type == "world.day_started" for e in events):
@@ -200,7 +200,7 @@ class SimulationRunner:
                 continue
             self._postponed[aid] = 0
             await mem.reflector.run(aid, reason)
-        await self.autonomy.housekeeping(self.engine.minute, waiting)
+        await self.autonomy.housekeeping(minute, waiting)
 
     async def _decisions(self, force: bool) -> bool:
         ids = await self.engine.db.run(self._due_agents)

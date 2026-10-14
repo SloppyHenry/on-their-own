@@ -190,8 +190,8 @@ class GoalPlanner:
     async def run(self, agent_id: str, reason: str, previous: Goal | None = None, switch: bool = False) -> Goal | None:
         """Ziel setzen (oder neu planen): vorbereiten (DB), Modell fragen mit Korrekturschleife, prüfen und speichern (DB). Fehler stören nie."""
         db = self.engine.db
-        job = await db.run(lambda: self.prepare(agent_id, reason, previous, switch))
-        self.last_try[agent_id] = self.engine.minute
+        job, now = await db.run(lambda: (self.prepare(agent_id, reason, previous, switch), self.engine.minute))
+        self.last_try[agent_id] = now
         if job is None or self.client is None:
             return None
         messages, error = list(job.messages), ""

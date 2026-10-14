@@ -120,7 +120,7 @@ async def cmd_sim(args) -> int:
             elif cmd == "speed":
                 sim.runner.set_speed(float(rest[0]))
             elif cmd == "status":
-                print(sim.runner.state.value, clock.fmt(sim.engine.minute), json.dumps(summary(sim)["lauf"], ensure_ascii=False))
+                print(sim.runner.state.value, clock.fmt(await sim.db.run(lambda: sim.engine.minute)), json.dumps(summary(sim)["lauf"], ensure_ascii=False))
             elif cmd in ("quit", "exit"):
                 break
             else:

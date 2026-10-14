@@ -8,8 +8,9 @@ from .state import SPEED_LEVELS, speed_level
 router = APIRouter(prefix="/api/sim")
 
 
-def _result(sim, **extra) -> SimCommandResult:
-    return SimCommandResult(state=sim.runner.state.value, minute=sim.engine.minute, tick_delay_s=sim.runner.tick_delay_s,
+async def _result(sim, **extra) -> SimCommandResult:
+    minute = await sim.engine.db.run(lambda: sim.engine.minute)        # nie vom Thread der Ereignisschleife aus lesen: die Verbindung gehört dem DB-Thread
+    return SimCommandResult(state=sim.runner.state.value, minute=minute, tick_delay_s=sim.runner.tick_delay_s,
                             speed_level=speed_level(sim.runner.tick_delay_s), **extra)
 
 
@@ -30,7 +31,7 @@ async def start(request: Request, body: StartRequest | None = None):
 
     async def action(sim):
         await sim.runner.start(ticks=body.ticks)
-        return _result(sim)
+        return await _result(sim)
     return await _command(request, body, action)
 
 
@@ -38,7 +39,7 @@ async def start(request: Request, body: StartRequest | None = None):
 async def pause(request: Request):
     async def action(sim):
         await sim.runner.pause()
-        return _result(sim)
+        return await _result(sim)
     return await _command(request, None, action)
 
 
@@ -46,7 +47,7 @@ async def pause(request: Request):
 async def resume(request: Request):
     async def action(sim):
         await sim.runner.resume()
-        return _result(sim)
+        return await _result(sim)
     return await _command(request, None, action)
 
 
@@ -56,7 +57,7 @@ async def step(request: Request, body: StepRequest | None = None):
 
     async def action(sim):
         done = await sim.runner.step(body.n)
-        return _result(sim, steps=done)
+        return await _result(sim, steps=done)
     return await _command(request, body, action)
 
 
@@ -68,7 +69,7 @@ async def reset(request: Request, body: ResetRequest | None = None):
 
     async def action(sim):
         saved = await sim.reset(model=body.model, keep_profiles=body.keep_profiles)
-        return _result(sim, backup=str(saved) if saved else None)
+        return await _result(sim, backup=str(saved) if saved else None)
     return await _command(request, body, action)
 
 
@@ -81,5 +82,5 @@ async def speed(request: Request, body: SpeedRequest):
         delay = SPEED_LEVELS[body.level] if body.level else body.tick_delay_s
         sim.runner.set_speed(delay)
         await sim.engine.db.run(lambda: sim.engine.emit_event("simulation.speed_changed", data={"tick_delay_s": delay, "level": speed_level(delay)}))
-        return _result(sim)
+        return await _result(sim)
     return await _command(request, body, action)

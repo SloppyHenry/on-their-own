@@ -6,7 +6,7 @@ from starlette.websockets import WebSocketDisconnect
 
 from simulacra.events.store import EventStore
 
-from .conftest import api, event_seqs, hello, post, recv_until
+from .conftest import api, event_seqs, hello, minute, post, recv_until
 
 
 def all_seqs(c):
@@ -98,9 +98,9 @@ def test_disconnect_does_not_disturb_the_simulation():
             hello(ws)
             post(c, "/api/sim/start")
             ws.receive_json()
-        m = c.sim.engine.minute
+        m = minute(c)
         time.sleep(0.3)
-        assert c.sim.engine.minute > m and c.sim.runner.state.value == "running"       # läuft ohne Zuschauer weiter
+        assert minute(c) > m and c.sim.runner.state.value == "running"                 # läuft ohne Zuschauer weiter
         post(c, "/api/sim/pause")
 
 
