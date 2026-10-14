@@ -1,3 +1,4 @@
+import { normalizeLook } from "../../world/dorf/look";
 import type { EventDataMap, EventType, LocationInfo } from "../../types/generated";
 import type { MapData, World } from "../types";
 import { setObject, toObjectInfo, without } from "./helpers";
@@ -31,8 +32,15 @@ export const worldHandlers: { [K in EventType]?: Handler<EventDataMap[K]> } = {
   },
   "world.resource_added": (w, d) => ({
     ...w,
-    resources: { ...w.resources, [d.node]: { id: d.node, location_id: "", x: d.tile[0], y: d.tile[1], resource: d.resource, amount: d.amount, cap: d.cap, requires_tool: null, label: null } },
+    resources: { ...w.resources, [d.node]: { id: d.node, location_id: d.location_id ?? "", x: d.tile[0], y: d.tile[1], resource: d.resource, amount: d.amount, cap: d.cap, requires_tool: d.requires_tool ?? null, label: d.label ?? null } },
   }),
+  "world.links_added": (w, d) => ({ ...w, links: [...(w.links ?? []), ...d.links] }),
+  "world.look_changed": (w, d) => {                                    // Gebiete und Landstraßen anhängen; alte Form vorher umwandeln (look.ts)
+    if (!w.look) return w;
+    const cur = normalizeLook(w.look as object);
+    const look = { ...cur, regions: [...cur.regions, ...(d.regions as unknown as typeof cur.regions)], roads: [...cur.roads, ...(d.roads as unknown as typeof cur.roads)] };
+    return { ...w, look: look as unknown as typeof w.look };
+  },
   "world.weather_changed": (w, d, ev) => ({ ...w, weather: { kind: d.to, since: ev.sim_time.total, until: d.until } }),
   "world.tile_changed": (w, d) => ({ ...w, map: paint(w.map, w, [d]) }),
   "world.tiles_changed": (w, d) => ({ ...w, map: paint(w.map, w, d.changes), stale: w.stale || !!d.truncated }),

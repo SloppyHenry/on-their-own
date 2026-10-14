@@ -80,6 +80,8 @@ const TEXT: Table = {
   "world.location_added": (d) => `Neuer Ort: ${String((d.location as { name?: string }).name ?? "?")}.`,
   "world.location_updated": (d) => `Ort geändert: ${String((d.location as { name?: string }).name ?? "?")}.`,
   "world.agent_added": (d) => `${d.name} zieht ein.`,
+  "world.links_added": (d) => `${d.links.length} neue Tür${d.links.length === 1 ? "" : "en"} (Übergang${d.links.length === 1 ? "" : "e"}).`,
+  "world.look_changed": (d) => `Die Darstellung wächst: ${d.regions.length} Gebiet${d.regions.length === 1 ? "" : "e"}${d.roads.length ? `, ${d.roads.length} Landstraße${d.roads.length === 1 ? "" : "n"}` : ""}.`,
   "world.patch_applied": (d) => `Patch angewendet: ${d.description || d.id}.`,
   "simulation.started": () => "Simulation gestartet.",
   "simulation.paused": () => "Simulation pausiert.",

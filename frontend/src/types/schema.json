@@ -2576,6 +2576,28 @@
    "title": "KnownPerson",
    "type": "object"
   },
+  "LinksAdded": {
+   "additionalProperties": false,
+   "properties": {
+    "links": {
+     "items": {
+      "items": {
+       "items": {
+        "type": "integer"
+       },
+       "type": "array"
+      },
+      "type": "array"
+     },
+     "type": "array"
+    }
+   },
+   "required": [
+    "links"
+   ],
+   "title": "LinksAdded",
+   "type": "object"
+  },
   "LlmStats": {
    "additionalProperties": false,
    "properties": {
@@ -2806,6 +2828,41 @@
     "token"
    ],
    "title": "LoginRequest",
+   "type": "object"
+  },
+  "LookChanged": {
+   "additionalProperties": false,
+   "description": "Gebiete und Landstraßen, die an die Gestaltung der Welt angehängt wurden (siehe docs/welt-erweitern.md).",
+   "properties": {
+    "regions": {
+     "items": {
+      "additionalProperties": true,
+      "type": "object"
+     },
+     "type": "array"
+    },
+    "roads": {
+     "items": {
+      "items": {
+       "items": {
+        "type": "number"
+       },
+       "type": "array"
+      },
+      "type": "array"
+     },
+     "type": "array"
+    },
+    "upgraded": {
+     "type": "boolean"
+    }
+   },
+   "required": [
+    "regions",
+    "roads",
+    "upgraded"
+   ],
+   "title": "LookChanged",
    "type": "object"
   },
   "MapData": {
@@ -4838,8 +4895,41 @@
     "cap": {
      "type": "number"
     },
+    "label": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "location_id": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
     "node": {
      "type": "string"
+    },
+    "requires_tool": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
     },
     "resource": {
      "type": "string"
@@ -6541,6 +6631,9 @@
   "Knowledge": {
    "$ref": "#/$defs/Knowledge"
   },
+  "LinksAdded": {
+   "$ref": "#/$defs/LinksAdded"
+  },
   "LocationChanged": {
    "$ref": "#/$defs/LocationChanged"
   },
@@ -6555,6 +6648,9 @@
   },
   "LoginRequest": {
    "$ref": "#/$defs/LoginRequest"
+  },
+  "LookChanged": {
+   "$ref": "#/$defs/LookChanged"
   },
   "MapExtended": {
    "$ref": "#/$defs/MapExtended"

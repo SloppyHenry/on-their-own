@@ -42,11 +42,13 @@ export interface SimulacraApi {
   ItemGiven?: ItemGiven;
   ItemMoved?: ItemMoved;
   Knowledge?: Knowledge;
+  LinksAdded?: LinksAdded;
   LocationChanged?: LocationChanged;
   LocationDetail?: LocationDetail;
   LocationDiscovered?: LocationDiscovered;
   LocationEvent?: LocationEvent;
   LoginRequest?: LoginRequest;
+  LookChanged?: LookChanged;
   MapExtended?: MapExtended;
   MemoriesPage?: MemoriesPage;
   MemoryArchived?: MemoryArchived;
@@ -840,6 +842,13 @@ export interface KnownPerson {
 }
 /**
  * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "LinksAdded".
+ */
+export interface LinksAdded {
+  links: number[][][];
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
  * via the `definition` "LocationChanged".
  */
 export interface LocationChanged {
@@ -935,6 +944,19 @@ export interface LocationEvent {
  */
 export interface LoginRequest {
   token: string;
+}
+/**
+ * Gebiete und Landstraßen, die an die Gestaltung der Welt angehängt wurden (siehe docs/welt-erweitern.md).
+ *
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "LookChanged".
+ */
+export interface LookChanged {
+  regions: {
+    [k: string]: unknown;
+  }[];
+  roads: number[][][];
+  upgraded: boolean;
 }
 /**
  * This interface was referenced by `SimulacraApi`'s JSON-Schema
@@ -1444,7 +1466,10 @@ export interface ResetRequest {
 export interface ResourceAdded {
   amount: number;
   cap: number;
+  label?: string | null;
+  location_id?: string | null;
   node: string;
+  requires_tool?: string | null;
   resource: string;
   tile: number[];
 }
@@ -2138,6 +2163,8 @@ export interface EventDataMap {
   "world.location_added": LocationEvent;
   "world.location_updated": LocationEvent;
   "world.agent_added": AgentAdded;
+  "world.links_added": LinksAdded;
+  "world.look_changed": LookChanged;
   "world.patch_applied": PatchApplied;
   "simulation.started": SimControl;
   "simulation.paused": SimControl;
@@ -2218,6 +2245,8 @@ export const EVENT_CATEGORY: Record<EventType, EventCategory> = {
   "world.location_added": "world",
   "world.location_updated": "world",
   "world.agent_added": "world",
+  "world.links_added": "world",
+  "world.look_changed": "world",
   "world.patch_applied": "system",
   "simulation.started": "system",
   "simulation.paused": "system",

@@ -32,7 +32,7 @@ class Build(Action):
         where = bp.get("where", "outdoor")
         if where == "outdoor" and actor.location_id.startswith("house."):
             return rej(RejectCode.FORBIDDEN_BY_RULES, f"{bp['name']} wird draußen gebaut, nicht im Haus.")
-        if where == "lake" and actor.location_id != "lake":
+        if where == "lake" and not ctx.state.locations[actor.location_id].props.get("fishing"):     # am See, auch in generierten Dörfern
             return rej(RejectCode.NOT_HERE, f"{bp['name']} wird am See gebaut.")
         if where != "indoor" and ctx.state.weather()["kind"] in weather.BLOCKS_OUTDOOR_BUILD and not actor.location_id.startswith("house."):
             return rej(RejectCode.FORBIDDEN_BY_RULES, "Bei Sturm wird draußen nicht gebaut.")

@@ -278,7 +278,8 @@ def remove_object(ctx: Ctx, object_id: str, cause: str = "removed") -> None:
 
 
 def add_resource_node(ctx: Ctx, id_: str, tile: Any, resource: str, amount: float, cap: float, regen_per_hour: float = 0.0,
-                      requires_tool: str | None = None, gather_minutes: int = 5, location_id: str | None = None) -> None:
+                      requires_tool: str | None = None, gather_minutes: int = 5, location_id: str | None = None,
+                      label: str | None = None, regen_weather: str | None = None) -> None:
     st = ctx.state
     if not isinstance(id_, str) or not ID_ANY.match(id_) or not isinstance(resource, str) or not ID_TYPE.match(resource):
         raise WorldEditError("invalid", "Quelle: ungültige ID oder Ressource.")
@@ -290,6 +291,50 @@ def add_resource_node(ctx: Ctx, id_: str, tile: Any, resource: str, amount: floa
     if location_id is not None and location_id != loc:
         raise WorldEditError("invalid", f"Die Kachel liegt im Ort '{loc}', nicht in '{location_id}'.")
     ensure_free_id(ctx, id_)
-    st.conn.execute("INSERT INTO resources(id,location_id,x,y,resource,amount,cap,regen_per_hour,requires_tool,gather_minutes) VALUES(?,?,?,?,?,?,?,?,?,?)",
-                    (id_, loc, tile[0], tile[1], resource, amount, cap, regen_per_hour, requires_tool, gather_minutes))
-    ctx.emit("world.resource_added", [], loc, {"node": id_, "resource": resource, "amount": amount, "cap": cap, "tile": list(tile)})
+    st.conn.execute("INSERT INTO resources(id,location_id,x,y,resource,amount,cap,regen_per_hour,requires_tool,gather_minutes,regen_weather,label) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",
+                    (id_, loc, tile[0], tile[1], resource, amount, cap, regen_per_hour, requires_tool, gather_minutes, regen_weather, label))
+    ctx.emit("world.resource_added", [], loc, {"node": id_, "resource": resource, "amount": amount, "cap": cap, "tile": list(tile),
+                                               "location_id": loc, "label": label, "requires_tool": requires_tool})
+
+
+# --- Übergänge und Darstellung ----------------------------------------------------------------------
+
+def add_links(ctx: Ctx, pairs: Any) -> None:
+    """Übergänge (Haustüren) zwischen je zwei begehbaren Kacheln, in beide Richtungen."""
+    st = ctx.state
+    if not isinstance(pairs, list) or not pairs:
+        raise WorldEditError("invalid", "links braucht eine Liste von Kachelpaaren [[x, y], [x, y]].")
+    have = {tuple(map(tuple, p)) for p in (st.get_meta("links") or [])}
+    new: list[list[list[int]]] = []
+    for pair in pairs:
+        if not (isinstance(pair, (list, tuple)) and len(pair) == 2):
+            raise WorldEditError("invalid", "Ein Übergang ist ein Paar von Kacheln [[x, y], [x, y]].")
+        a, b = _tile_list(ctx, pair, "Übergang")
+        for x, y in (a, b):
+            if not st.grid.walkable(x, y):
+                raise WorldEditError("blocked", f"Der Übergang braucht begehbare Kacheln; {x},{y} ist es nicht.")
+        if (a, b) in have or (b, a) in have:
+            continue
+        new.append([list(a), list(b)])
+    if not new:
+        return
+    st.set_meta("links", (st.get_meta("links") or []) + new)
+    st.reload_caches()
+    ctx.emit("world.links_added", data={"links": new})
+
+
+def add_look(ctx: Ctx, add: Any) -> None:
+    """Hängt Gebiete (Dörfer) und Landstraßen an die Gestaltung der Welt (siehe world/look.py)."""
+    from . import look as lk
+    st = ctx.state
+    cur = st.get_meta("look")
+    if not cur:
+        raise WorldEditError("invalid", "Die Welt hat keine Gestaltung (look); dort lässt sich kein Gebiet ergänzen.")
+    if not isinstance(add, dict):
+        raise WorldEditError("invalid", "look braucht ein Objekt mit 'regions' und/oder 'roads'.")
+    try:
+        merged = lk.merge(cur, add)
+    except ValueError as e:
+        raise WorldEditError("invalid", str(e)) from None
+    st.set_meta("look", merged)
+    ctx.emit("world.look_changed", data={"regions": add.get("regions", []), "roads": add.get("roads", []), "upgraded": not lk.is_v2(cur)})

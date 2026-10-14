@@ -3,8 +3,9 @@
 Ein Patch ist ein JSON-Dokument mit denselben Abschnitten wie die Weltdatei (nur die benötigten):
     {"id": "...", "description": "...", "tile_types": {...}, "extend_map": {"width": 80, "height": 50, "fill": "grass"},
      "tiles": [{"rect": [x, y, b, h], "type": "sand"}, {"at": [x, y], "rows": ["..s.", ".ss."]}],
-     "locations": [{...}], "objects": [{...}], "resource_nodes": [{...}], "agents": [{...}]}
-Reihenfolge der Anwendung: tile_types, extend_map, tiles, locations, objects, resource_nodes, agents.
+     "locations": [{...}], "objects": [{...}], "resource_nodes": [{...}], "links": [[[x, y], [x, y]]], "agents": [{...}],
+     "look": {"regions": [{...}], "roads": [[[x, y], ...]]}}
+Reihenfolge der Anwendung: tile_types, extend_map, tiles, locations, objects, resource_nodes, links, agents, look.
 Jede Patch-ID wird nur einmal angewendet; scheitert ein Teil, bleibt die Welt unverändert.
 """
 
@@ -14,7 +15,7 @@ from . import extend
 from .actions.base import Ctx
 from .extend import WorldEditError
 
-SECTIONS = ("tile_types", "extend_map", "tiles", "locations", "objects", "resource_nodes", "agents")
+SECTIONS = ("tile_types", "extend_map", "tiles", "locations", "objects", "resource_nodes", "links", "agents", "look")
 KNOWN_KEYS = {"id", "description", *SECTIONS}
 
 
@@ -76,11 +77,17 @@ def apply_patch(ctx: Ctx, patch: dict[str, Any]) -> dict[str, int]:
             counts["objects"] += 1
         for n in patch.get("resource_nodes", []):
             extend.add_resource_node(ctx, n["id"], n["tile"], n["resource"], n["amount"], n["cap"], n.get("regen_per_hour", 0.0),
-                                     n.get("requires_tool"), n.get("gather_minutes", 5), n.get("location_id"))
+                                     n.get("requires_tool"), n.get("gather_minutes", 5), n.get("location_id"), n.get("label"), n.get("regen_weather"))
             counts["resource_nodes"] += 1
+        if patch.get("links"):
+            extend.add_links(ctx, patch["links"])
+            counts["links"] = len(patch["links"])
         for a in patch.get("agents", []):
             extend.add_agent(ctx, a["id"], a["name"], a["tile"], a.get("capacity", 10), a.get("needs"))
             counts["agents"] += 1
+        if patch.get("look"):
+            extend.add_look(ctx, patch["look"])
+            counts["look"] = len(patch["look"].get("regions", [])) + len(patch["look"].get("roads", []))
     except KeyError as e:
         raise WorldEditError("invalid", f"Im Patch fehlt das Feld {e}.") from None
     except (TypeError, ValueError) as e:
