@@ -1,12 +1,15 @@
 import asyncio
 import json
 import time
+from types import SimpleNamespace
 
 import pytest
 from starlette.websockets import WebSocketDisconnect
 
 from agents.conftest import make_sim
+from simulacra.api import ws as ws_module
 from simulacra.api.ws import _live
+from simulacra.events.bus import EventBus
 from simulacra.events.store import EventStore
 
 from .conftest import api, event_seqs, hello, minute, post, recv_until, wait_one_minute
@@ -266,3 +269,31 @@ async def test_clock_already_fetched_before_the_reset_is_dropped_not_sent_after_
         assert [m["minute"] for m in after if m["type"] == "clock"] == [421]
     finally:
         sim.close()
+class _FakeWs:
+    def __init__(self, incoming):
+        self.incoming, self.sent = list(incoming), []
+
+    async def receive_text(self):
+        if self.incoming:
+            return self.incoming.pop(0)
+        await asyncio.Event().wait()                                                         # danach schweigt der Client
+
+    async def send_text(self, text):
+        self.sent.append(json.loads(text))
+
+
+@pytest.mark.parametrize("trigger", ["reset", "hello"])
+async def test_tick_finished_in_the_same_round_as_a_snapshot_is_dropped(monkeypatch, trigger):
+    async def fake_sync(ws, sim, last_seq, max_gap):
+        await ws.send_text(json.dumps({"type": "snapshot"}))
+        return 0
+    monkeypatch.setattr(ws_module, "_sync", fake_sync)
+    sub = EventBus().subscribe()
+    sub._clock(425)                                                                          # Takt der alten Welt liegt schon bereit …
+    if trigger == "reset":                                                                   # … und das Reset-Ereignis bzw. ein hello wird in derselben Runde fertig
+        sub._push([SimpleNamespace(type="simulation.reset", seq=1)])
+    ws = _FakeWs([json.dumps({"type": "hello", "last_seq": None})] if trigger == "hello" else [])
+    task = asyncio.create_task(ws_module._live(ws, None, sub, 0, ping_s=60, max_gap=100))
+    await asyncio.sleep(0.05)
+    task.cancel()
+    assert ws.sent == [{"type": "snapshot"}]
