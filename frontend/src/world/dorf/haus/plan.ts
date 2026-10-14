@@ -1,9 +1,9 @@
 // Innenansicht als Puppenhaus (Mockup innen2, Frage 23): Die Räume liegen in Reihen; jede Reihe bekommt oben eine hohe Rückwand mit
 // Tapete und vorn eine aufgeschnittene niedrige Wand, die Wandzeile zwischen zwei Reihen wird dafür aufgespreizt. Waagerecht bleibt
-// alles, wie es auf der Karte liegt. Grundriss, Räume und Stile kommen aus der Welt (`look.interior`, Orte, Kacheln).
+// alles, wie es auf der Karte liegt. Grundriss, Räume und Stile kommen aus der Welt (`look.houses[].interior`, Orte, Kacheln).
 import type { World } from "../../../store/types";
 import { hash, noise, type RGB } from "../../art/pen";
-import { T, type Look } from "../look";
+import { T, type Interior } from "../look";
 
 export const BW = 34, LEDGE = 7, GAP = 3;                            // Rückwand, vordere Schnittkante, Abstand (Pixel)
 
@@ -25,8 +25,8 @@ export interface Plan {
   Yinv(y: number): number;
 }
 
-export function makePlan(w: World, L: Look): Plan {
-  const [ix, iy, iw, ih] = L.interior.rect, styles = L.interior.rooms ?? {};
+export function makePlan(w: World, interior: Interior): Plan {
+  const [ix, iy, iw, ih] = interior.rect, styles = interior.rooms ?? {};
   const kind = (tx: number, ty: number) => w.map.rows[ty]?.[tx] ?? "T";
   const locs = Object.values(w.locations).filter((l) => !l.props.fallback && l.rect[0] >= ix && l.rect[1] >= iy && l.rect[0] < ix + iw && l.rect[1] < iy + ih);
   const ys = [...new Set(locs.map((l) => l.rect[1]))].sort((a, b) => a - b);
@@ -55,7 +55,7 @@ export function makePlan(w: World, L: Look): Plan {
     return z[to] + (v - z[from]);
   };
   return {
-    rect: L.interior.rect, rooms, bands, width: iw * T, height: cursor - GAP + 4, kind,
+    rect: interior.rect, rooms, bands, width: iw * T, height: cursor - GAP + 4, kind,
     roomAt: (tx, ty) => rooms.find((R) => tx >= R.r[0] && ty >= R.r[1] && tx < R.r[0] + R.r[2] && ty < R.r[1] + R.r[3]),
     X: (wx) => wx - ix * T,
     Y: (wy) => lerp(wy, pts, 0),

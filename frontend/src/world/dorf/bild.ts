@@ -1,14 +1,16 @@
 // Ein Bild wie frame() in Mockup A: Himmel, Wolken, Hügel, Boden mit Dunst und Wasserglitzern, alle Dinge nach Tiefe sortiert,
 // Rauch – im kleinen Puffer. Dann in ganzzahliger Vergrößerung S: Farbstimmung, Lichtschein, Tilt-Shift, Teilchen, Vignette.
+// AP12a: Der Boden wird aus Blöcken gelesen (`Ground`) und bei bewegter Kamera in jedem Bild neu; Dinge stehen in Weltpixeln.
 import { css, type Mood } from "../art/palette";
 import { canvas, noise, rng } from "../art/pen";
 import { WP } from "../art/palette";
 import type { Target } from "../view/scene";
-import { frameFor, groundMap, horizonA, project, type Frame, type Mode, type P } from "./abbild";
-import { buildTexture, texel, type Caster, type Texture } from "./boden";
+import { TH, frameFor, groundMap, horizonA, project, type Frame, type Mode, type P } from "./abbild";
+import { Ground, type Caster } from "./grund";
 import type { Look } from "./look";
 
 export interface Thing {
+  /** Fußpunkt in Weltpixeln. */
   vx: number;
   vy: number;
   spr: HTMLCanvasElement;
@@ -25,8 +27,7 @@ const PARTS = (() => { const R = rng(21); return Array.from({ length: 26 }, () =
 const MASK: [number, number][] = [[0, 1], [0.2, 0.85], [0.36, 0], [0.84, 0], [1, 0.75]];
 
 export class Dorfbild {
-  private texture: Texture | null = null;
-  private casterKey = "";
+  readonly ground: Ground;
   private f: Frame | null = null;
   private map: ReturnType<typeof groundMap> | null = null;
   private groundKey = "";
@@ -37,47 +38,62 @@ export class Dorfbild {
   private skyC = canvas(1, 1);
   private clouds = canvas(1, 1);
   private hills = canvas(1, 1);
+  private cam: [number, number];
   readonly low = canvas(1, 1);
   private groundC = canvas(1, 1);
   readonly out = canvas(1, 1);
   private tmp = canvas(1, 1);
 
-  constructor(readonly look: Look) {}
+  constructor(readonly look: Look) {
+    this.ground = new Ground(look);
+    this.cam = [look.home[0] - look.texShift[0], look.home[1] - look.texShift[1]];
+  }
 
   get frame() { return this.f!; }
 
-  /** Schatten wie in A: aus festen Dingen (Deko, Brunnen, Bank, Brett …) einmal in die Textur gebacken. */
-  setCasters(c: Caster[]) {
-    const key = c.map((x) => `${x.x},${x.y},${x.w}`).join(";");
-    if (key === this.casterKey && this.texture) return;
-    this.casterKey = key;
-    this.texture = buildTexture(this.look, c);
-    this.groundKey = "";
-  }
+  /** Schatten wie in A: aus festen Dingen (Deko, Brunnen, Bank, Brett …) in den Boden gebacken. */
+  setCasters(c: Caster[]) { if (this.ground.setCasters(c)) this.groundKey = ""; }
 
-  /** Puffergröße (lw × lh), Vergrößerung S (Gerätepixel je Pufferpixel) und Ansicht. */
-  layout(mode: Mode, lw: number, lh: number, S: number) {
-    if (this.f && this.f.mode === mode && this.f.lw === lw && this.f.lh === lh && this.out.width === lw * S) return;
-    this.f = frameFor(mode, lw, lh, this.look.texture);
+  /** Kamera: Boden am unteren Bildrand in der Mitte (Texelkoordinaten). */
+  setCamera(x: number, y: number) { this.cam = [x, y]; if (this.f) { this.f.cx = x; this.f.cy = y; } }
+  get camera(): [number, number] { return this.cam; }
+
+  /** Puffergröße (lw × lh), Vergrößerung S (Gerätepixel je Pufferpixel), Ansicht, Herauszoomen (1, 2, 4) und Wölbung. */
+  layout(mode: Mode, lw: number, lh: number, S: number, zo = 1, curve = 1) {
+    const f = this.f;
+    if (f && f.mode === mode && f.lw === lw && f.lh === lh && this.out.width === lw * S && f.zo === zo && f.curve === curve) { f.cx = this.cam[0]; f.cy = this.cam[1]; return; }
+    const size = !f || f.lw !== lw || f.lh !== lh || this.out.width !== lw * S;
+    this.f = frameFor(mode, lw, lh, this.look.texShift, this.cam, zo, curve);
     this.map = groundMap(this.f);
-    for (const c of [this.low, this.groundC]) { c.width = lw; c.height = lh; }
-    this.out.width = lw * S; this.out.height = lh * S;
+    if (size) {
+      for (const c of [this.low, this.groundC]) { c.width = lw; c.height = lh; }
+      this.out.width = lw * S; this.out.height = lh * S;
+    }
     this.groundKey = ""; this.skyKey = "";
   }
 
-  private ground(m: Mood) {
-    const f = this.f!, key = `${f.mode}|${f.lw}x${f.lh}|${m.haze.map(Math.round).join(",")}|${this.casterKey}`;
+  /** Boden für die aktuelle Kamera aus den Blöcken lesen (`soft` > 0: vier Texel gemischt, siehe Kamerafahrt). */
+  private readGround(m: Mood, soft: number) {
+    const f = this.f!, M = this.map!, G = this.ground, lod = f.zo, key = `${f.mode}|${f.lw}x${f.lh}|${lod}|${f.curve}|${f.cx.toFixed(4)},${f.cy.toFixed(4)}|${soft.toFixed(3)}|${m.haze.map(Math.round).join(",")}|${G.built}`;
     if (key === this.groundKey) return;
     this.groundKey = key;
-    const T = this.texture!, M = this.map!, img = new ImageData(f.lw, f.lh), d = img.data, haze = m.haze;
+    const img = new ImageData(f.lw, f.lh), d = img.data, haze = m.haze, y0 = f.cy - TH * f.zo, mix = lod > 1 ? 1 : soft;
+    let cb: Uint8ClampedArray | null = null, ck = -1e9, cj = -1e9;
+    const px = (tx: number, ty: number) => {
+      const a = tx >> 6, b = ty >> 6;
+      if (a !== ck || b !== cj) { cb = G.chunk(a, b, lod); ck = a; cj = b; }
+      return cb!.subarray((((ty & 63) << 6) + (tx & 63)) * 4);
+    };
     this.water = [];
     for (let i = 0; i < f.lw * f.lh; i++) {
-      const o = i * 4;
       if (M.sky[i]) continue;
-      const tx = M.tx[i], ty = M.ty[i], fog = M.fog[i];
-      let r: number, g: number, b: number;
-      if (tx >= 0 && tx < T.w && ty >= 0 && ty < T.h) { const q = (ty * T.w + tx) * 3; r = T.tex[q]; g = T.tex[q + 1]; b = T.tex[q + 2]; if (T.type[ty * T.w + tx] === 2) this.water.push(o, tx, ty); }
-      else { const [c] = texel(this.look, tx, Math.max(0, ty)); [r, g, b] = c; }
+      const o = i * 4, fx = (f.cx + M.ox[i]) / lod, fy = (y0 + M.oy[i]) / lod, tx = Math.floor(fx), ty = Math.floor(fy), p = px(tx, ty), fog = M.fog[i];
+      let r = p[0], g = p[1], b = p[2];
+      if (mix > 0.003) {
+        const ax = fx - tx, ay = fy - ty, p2 = px(tx + 1, ty), p3 = px(tx, ty + 1), p4 = px(tx + 1, ty + 1), w1 = (1 - ax) * (1 - ay), w2 = ax * (1 - ay), w3 = (1 - ax) * ay, w4 = ax * ay;
+        r += (p[0] * w1 + p2[0] * w2 + p3[0] * w3 + p4[0] * w4 - r) * mix; g += (p[1] * w1 + p2[1] * w2 + p3[1] * w3 + p4[1] * w4 - g) * mix; b += (p[2] * w1 + p2[2] * w2 + p3[2] * w3 + p4[2] * w4 - b) * mix;
+      }
+      if (p[3] === 2) this.water.push(o, tx * lod, ty * lod);
       d[o] = r + (haze[0] - r) * fog; d[o + 1] = g + (haze[1] - g) * fog; d[o + 2] = b + (haze[2] - b) * fog; d[o + 3] = 255;
     }
     this.gimg = img; this.base = new Uint8ClampedArray(d);
@@ -104,7 +120,7 @@ export class Dorfbild {
     this.hills.width = lw; this.hills.height = H;
     const hg = this.hills.getContext("2d")!, hc = m.haze, hc2 = m.skyBot;
     for (let x = 0; x < lw; x++) {
-      const ax = x - f.xo, yh = horizonA(ax) + f.yo, top1 = yh - 9 - 7 * noise(ax * 0.025, 0, 3), top2 = yh - 4 - 4 * noise(ax * 0.05, 1, 4);
+      const ax = x - f.xo, yh = horizonA(ax, f.curve) + f.yo, top1 = yh - 9 - 7 * noise(ax * 0.025, 0, 3), top2 = yh - 4 - 4 * noise(ax * 0.05, 1, 4);
       hg.fillStyle = css([hc[0] * 0.78 + hc2[0] * 0.1, hc[1] * 0.86 + hc2[1] * 0.08, hc[2] * 0.95]); hg.fillRect(x, Math.round(top1), 1, H);
       hg.fillStyle = css([hc[0] * 0.62, hc[1] * 0.78, hc[2] * 0.8]); hg.fillRect(x, Math.round(top2), 1, H);
     }
@@ -121,12 +137,13 @@ export class Dorfbild {
     cg.putImageData(ci, 0, 0);
   }
 
-  p(vx: number, vy: number): P { return project(this.f!, vx, vy); }
+  p(wx: number, wy: number): P { return project(this.f!, wx, wy); }
 
-  /** Kleiner Puffer: alles bis auf die Nachbearbeitung. Liefert, was gezeichnet wurde (für Klicks). */
-  drawLow(things: Thing[], m: Mood, tm: number, skyKey: string, smoke: boolean): Drawn[] {
+  /** Kleiner Puffer: alles bis auf die Nachbearbeitung. Liefert, was gezeichnet wurde (für Klicks). `soft`: Kamera fährt (Boden gemischt,
+   *  Sprites in Bruchteilen von Pixeln), `smokes`: Schornsteine (Weltpixel) für den Rauch. */
+  drawLow(things: Thing[], m: Mood, tm: number, skyKey: string, smokes: [number, number][], soft = 0): Drawn[] {
     const f = this.f!, lg = this.low.getContext("2d")!, drawn: Drawn[] = [];
-    this.ground(m);
+    this.readGround(m, soft);
     const d = this.gimg!.data, base = this.base!;
     for (let k = 0; k < this.water.length; k += 3) {
       const oi = this.water[k], sh = Math.sin(this.water[k + 1] * 0.55 + tm * 2.1) * Math.sin(this.water[k + 2] * 1.25 - tm * 1.6);
@@ -135,7 +152,7 @@ export class Dorfbild {
       else { d[oi] = base[oi]; d[oi + 1] = base[oi + 1]; d[oi + 2] = base[oi + 2]; }
     }
     this.groundC.getContext("2d")!.putImageData(this.gimg!, 0, 0);
-    lg.imageSmoothingEnabled = false;
+    lg.imageSmoothingEnabled = soft > 0.05 || f.zo > 1;
     lg.clearRect(0, 0, f.lw, f.lh);
     if (f.mode === "tiefe") {
       this.sky(m, skyKey);
@@ -145,6 +162,7 @@ export class Dorfbild {
       lg.drawImage(this.hills, 0, 0);
     }
     lg.drawImage(this.groundC, 0, 0);
+    const snap = (v: number) => { const r = Math.round(v); return r + (v - r) * soft; };      // im Stillstand ganze Pixel, beim Fahren Bruchteile
     for (const t of [...things].sort((a, b) => a.vy - b.vy)) {
       const pr = this.p(t.vx, t.vy);
       if (pr.x < -60 || pr.x > f.lw + 60 || pr.y < 0) continue;
@@ -152,12 +170,12 @@ export class Dorfbild {
       if (fig) {                                                    // Schatten wie in A, mitwandernd
         lg.globalCompositeOperation = "multiply"; lg.fillStyle = "rgb(184,188,206)";
         const rx = t.spr.width * 0.42 * pr.sc, ry = Math.max(2, t.spr.width * 0.16) * pr.sc;
-        lg.beginPath(); lg.ellipse(Math.round(pr.x + rx * 0.3), Math.round(pr.y), rx, ry, 0, 0, 7); lg.fill();
+        lg.beginPath(); lg.ellipse(snap(pr.x + rx * 0.3), snap(pr.y), rx, ry, 0, 0, 7); lg.fill();
         lg.globalCompositeOperation = "source-over";
-        if (fig.ring) { lg.strokeStyle = fig.ring; lg.lineWidth = 1; lg.globalAlpha = 0.55 + Math.sin(tm * 3) * 0.25; lg.beginPath(); lg.ellipse(Math.round(pr.x) + 0.5, Math.round(pr.y) + 0.5, 9 * pr.sc, 3.5 * pr.sc, 0, 0, 7); lg.stroke(); lg.globalAlpha = 1; }
+        if (fig.ring) { lg.strokeStyle = fig.ring; lg.lineWidth = 1; lg.globalAlpha = 0.55 + Math.sin(tm * 3) * 0.25; lg.beginPath(); lg.ellipse(snap(pr.x) + 0.5, snap(pr.y) + 0.5, 9 * pr.sc, 3.5 * pr.sc, 0, 0, 7); lg.stroke(); lg.globalAlpha = 1; }
       }
       const sw = t.spr.width * pr.sc, sh = t.spr.height * pr.sc, bob = t.bob ? Math.sin(tm * 1.8) * 0.8 * pr.sc : 0, lift = (fig?.lift ?? 0) * pr.sc;
-      const dx = Math.round(pr.x - sw / 2), dy = Math.round(pr.y - sh + bob - lift), w = Math.round(sw), h = Math.round(sh);
+      const dx = snap(pr.x - sw / 2), dy = snap(pr.y - sh + bob - lift), w = snap(sw), h = snap(sh);
       if (t.hover) { lg.globalAlpha = 0.9; for (const [ox, oy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) lg.drawImage(t.hover, dx + ox, dy + oy, w, h); }
       lg.globalAlpha = t.alpha ?? 1;
       lg.drawImage(t.spr, dx, dy, w, h);
@@ -169,15 +187,16 @@ export class Dorfbild {
       }
       if (fig?.zzz) { lg.fillStyle = "#fff8ec"; lg.globalAlpha = 0.5 + 0.5 * Math.abs(Math.sin(tm * 2)); lg.fillRect(Math.round(pr.x + 5 * pr.sc), Math.round(pr.y - 26 * pr.sc - ((tm * 4) % 3)), 3, 1); lg.globalAlpha = 1; }
     }
-    if (smoke) {
-      const H = this.look.shapes.house, ch = this.p(H.x + 19, H.y);
+    for (const [sx0, sy0] of smokes) {
+      const ch = this.p(sx0, sy0);
+      if (ch.x < -60 || ch.x > f.lw + 60) continue;
       for (let k = 0; k < 5; k++) {
         const age = (tm * 0.35 + k / 5) % 1, sx = ch.x + (Math.sin(age * 5 + k) * 3 + age * 8) * ch.sc, sy = ch.y - (78 + age * 26) * ch.sc, rad = (1.5 + age * 3.5) * ch.sc;
         lg.globalAlpha = (1 - age) * 0.75; lg.fillStyle = m.stars > 0.5 ? "#8a90b8" : "#f4f1ec";
         lg.fillRect(Math.round(sx - rad), Math.round(sy - rad), Math.round(rad * 2), Math.round(rad * 2));
       }
-      lg.globalAlpha = 1;
     }
+    lg.globalAlpha = 1;
     return drawn;
   }
 
