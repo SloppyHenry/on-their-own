@@ -319,6 +319,6 @@ export class DorfView {
     const rooms = this.interior >= 0 && this.innen ? this.innen.labels.map((r) => ({ id: r.id, x: r.x / d, y: r.y / d - 6 })) : [];
     const goal = this.player && this.bridge.playerPreview() ? this.player.preview().goal : null, gp = goal && !isInside(L, goal[0], goal[1]) ? toCss(this.bild.p(goal[0] * T + 8 - L.origin[0], goal[1] * T + 8 - L.origin[1])) : null;
     const h = this.hover, tip = h && h.kind !== "agent" && !this.drag && performance.now() - this.hoverSince >= TIP_MS ? { text: nameOf(h, w), x: this.mouse.x, y: this.mouse.y } : null;
-    this.bridge.emitFrame({ tip, agents, houses: [{ i: 0, x: top.x, y: top.y, cy: mid.y, occupants: inHouse }], rooms, interior: this.interior, interiorRooms: this.haus?.plan.rooms.map((r) => r.id) ?? [], room: this.interior >= 0 ? this.room : null, goal: gp });
+    this.bridge.emitFrame({ tip, agents, houses: [{ i: 0, x: top.x, y: top.y, cy: mid.y, occupants: inHouse }], rooms, interior: this.interior, interiorRooms: this.interior >= 0 ? this.haus?.plan.rooms.map((r) => r.id) ?? [] : [], room: this.interior >= 0 ? this.room : null, goal: gp });
   }
 }

@@ -36,7 +36,7 @@ export function Overlays({ bridge }: { bridge: WorldBridge }) {
       const el = root.current;
       if (!el) return;
       const key = `${f.interior}|${f.room ?? ""}`;
-      if (key !== cur) { cur = key; setInterior({ i: f.interior, rooms: f.room ? [f.room] : f.interiorRooms, room: f.room ?? null }); }
+      if (key !== cur) { cur = key; setInterior({ i: f.interior, rooms: f.interior < 0 ? [] : f.room ? [f.room] : f.interiorRooms, room: f.room ?? null }); }   // draußen keine Raumschilder
       el.dataset.houses = f.houses.map((h) => (h.occupants.length ? "besetzt" : "leer")).join(",");
       el.dataset.interior = String(f.interior);
       const bubbles = bridge.bubbles(), pulses = useSimStore.getState().pulses, now = Date.now(), W = el.clientWidth, H = el.clientHeight;
