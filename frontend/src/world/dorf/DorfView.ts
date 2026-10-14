@@ -263,7 +263,7 @@ export class DorfView {
     this.raf = requestAnimationFrame(this.loop);
     const w = this.bridge.world();
     if (!w || !lookOf(w) || !this.resize()) return;
-    const dt = Math.min(0.1, this.lastT ? (now - this.lastT) / 1000 : 0.016), t = (window as unknown as { __freezeT?: number }).__freezeT ?? now / 1000, t0 = performance.now();   // __freezeT: eingefrorene Zeit für die Goldbild-Tests
+    const dt = Math.max(0, Math.min(0.1, this.lastT ? (now - this.lastT) / 1000 : 0.016)), t = (window as unknown as { __freezeT?: number }).__freezeT ?? now / 1000, t0 = performance.now();   // __freezeT: eingefrorene Zeit für die Goldbild-Tests
     this.lastT = now;
     if (w !== this.world) this.world = w;
     this.figures.update(w, dt);
@@ -291,8 +291,7 @@ export class DorfView {
         this.bild.setCasters(casters(w, this.look));
         const skyKey = `${Math.floor((w.clock.minute % 1440) / 10)}|${w.weather.kind}|${lw}x${lh}|${curve}|${k.zo}`;
         const smokes = housesOf(this.look).filter((h) => h.house.smoke != null).map((h) => [h.region.frame[0] + h.house.at[0] + h.house.smoke!, h.region.frame[1] + h.house.at[1]] as [number, number]);
-        this.drawn = this.bild.drawLow(outdoor(ctx), m, t, skyKey, smokes, soft);
-        this.preview(t);
+        this.drawn = this.bild.drawLow(outdoor(ctx), m, t, skyKey, smokes, soft, this.S, (lg) => this.preview(lg, t));
         const lights = glowing(w, this.look);
         this.bild.post(m, t, this.S, lights, { tilt: !reducedMotion(), particles: !reducedMotion() && !["rain", "storm"].includes(w.weather.kind), daytime: daytime(m) });
         const out = this.bild.out, oc = out.getContext("2d")!;
@@ -337,9 +336,9 @@ export class DorfView {
   }
 
   /** Mitspieler-Vorschau: Weg, Ziel, Kachel unter dem Zeiger und die Vorschau-Figur „Du“ (nur hinter dem Schalter, nur draußen). */
-  private preview(t: number) {
+  private preview(lg: CanvasRenderingContext2D, t: number) {
     if (!this.bridge.playerPreview() || !this.player) return;
-    const pv = this.player.preview(), L = this.look, lg = this.bild.low.getContext("2d")!, out = (q: [number, number] | null) => (q && houseAt(L, q[0], q[1]) ? null : q);
+    const pv = this.player.preview(), L = this.look, out = (q: [number, number] | null) => (q && houseAt(L, q[0], q[1]) ? null : q);
     const proj = (x: number, y: number) => this.bild.p(x, y);
     drawPreviewGround(lg, proj, { ghost: out(pv.ghost), path: pv.path?.filter((q) => !houseAt(L, q[0], q[1])) ?? null, goal: out(pv.goal), hover: out(pv.hover) }, t);
     if (out(pv.ghost)) drawGhost(lg, proj, pv.ghost!);

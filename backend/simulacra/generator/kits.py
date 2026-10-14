@@ -10,6 +10,7 @@ from dataclasses import dataclass, field
 from .layout import Layout
 from .names import Naming
 from .tiles import FENCE, TREE, WALL, WATER, Outdoor
+from .validate import reachable
 
 WALKABLE = {".", ",", "_", "+", "s"}
 LANTERN_LIGHT = (24, 1)
@@ -27,16 +28,16 @@ class Kit:
     spots: dict[str, tuple[int, int]] = field(default_factory=dict)  # Start von Alex und Mira
 
 
-def _spot(out: Outdoor, x: float, y: float, blocked_ok: bool = False) -> tuple[int, int]:
+def _spot(out: Outdoor, x: float, y: float, blocked_ok: bool = False, reach: set | None = None) -> tuple[int, int]:
     """Die Kachel zu einem Punkt im Bild; steht der Punkt auf Mauer, Zaun, Baum oder Wasser, die nächste begehbare davor."""
     i, j = out.tile_of(x, y - 1)
-    if blocked_ok or out.rows[j][i] in WALKABLE:
+    if blocked_ok or (out.rows[j][i] in WALKABLE and (reach is None or (i, j) in reach)):
         return i, j
     best, bd = (i, j), 1e9
     for dj in range(-3, 4):
         for di in range(-3, 4):
             a, b = i + di, j + dj
-            if 0 <= a < out.w and 0 <= b < out.h and out.rows[b][a] in WALKABLE and abs(di) + abs(dj) + (0.5 if dj < 0 else 0) < bd:
+            if 0 <= a < out.w and 0 <= b < out.h and out.rows[b][a] in WALKABLE and (reach is None or (a, b) in reach) and abs(di) + abs(dj) + (0.5 if dj < 0 else 0) < bd:
                 best, bd = (a, b), abs(di) + abs(dj) + (0.5 if dj < 0 else 0)
     return best
 
@@ -44,6 +45,8 @@ def _spot(out: Outdoor, x: float, y: float, blocked_ok: bool = False) -> tuple[i
 def make_kit(L: Layout, out: Outdoor, nm: Naming, loc_of) -> Kit:
     """`loc_of(i, j)` nennt den Ort einer Kachel (für die Quellen). Alle Kacheln relativ zum Raster des Dorfs im Freien."""
     k = Kit()
+    reach = reachable(["".join(r) for r in out.rows], [], out.tile_of(L.sq["x"], L.sq["y"] + 10), set())
+    _sp = lambda x, y, ok=False: _spot(out, x, y, ok, reach)                      # noqa: E731  (nur Kacheln, die man vom Platz aus erreicht)
     decor = [list(d) for d in L.decor]
     sq, lake, dock, g = L.sq, L.lake, L.dock, L.garden
 
@@ -69,18 +72,18 @@ def make_kit(L: Layout, out: Outdoor, nm: Naming, loc_of) -> Kit:
 
     # Platz
     well = take("well")[0]
-    wt = _spot(out, well[1], well[2] + 0, True)
+    wt = _sp(well[1], well[2] + 0, True)
     thing("well_square", "well", "Brunnen", wt, well, sprite=PLACE_NONE)
     k.place[nm.obj("well_square")] = {"at": [well[1], well[2]]}
-    source("well_square_water", "water", None, _spot(out, well[1], well[2] + 4), [], 999, 999, 999, minutes=2)
+    source("well_square_water", "water", None, _sp(well[1], well[2] + 4), [], 999, 999, 999, minutes=2)
     k.place[nm.obj("well_square_water")] = {"at": [well[1], well[2]], "sprite": PLACE_NONE}
     for kind, oid, name in (("bench", "bench_square", "Bank"), ("board", "board_square", "Anschlagtafel")):
         d = take(kind)[0]
-        thing(oid, kind, name, _spot(out, d[1], d[2]), d, state={"notes": []} if kind == "board" else None)
+        thing(oid, kind, name, _sp(d[1], d[2]), d, state={"notes": []} if kind == "board" else None)
         k.place[nm.obj(oid)] = {"at": [d[1], d[2]]}
     # Laternen und Fenster
     for n, d in enumerate(take("lamp"), 1):
-        thing(f"lantern_{n}", "lantern", "Laterne", _spot(out, d[1], d[2]), d, state={"lit": False})
+        thing(f"lantern_{n}", "lantern", "Laterne", _sp(d[1], d[2]), d, state={"lit": False})
         k.lights.append([d[1], d[2], LANTERN_LIGHT[0], LANTERN_LIGHT[1]])
     for b in L.buildings:
         x, y, ww = b.cx, b.base, b.ww
@@ -94,38 +97,38 @@ def make_kit(L: Layout, out: Outdoor, nm: Naming, loc_of) -> Kit:
             k.lights += [[x - 14, y, 28, 1], [x + 3, y, 28, 0.6]]
     # Briefkästen (einer je Haus), Wegweiser, Vogelscheuche, Boot
     for n, d in enumerate(take("mailbox"), 1):
-        thing("mailbox" if n == 1 else f"mailbox_{n}", "mailbox", "Briefkasten", _spot(out, d[1], d[2]), d, state={"letters": []})
+        thing("mailbox" if n == 1 else f"mailbox_{n}", "mailbox", "Briefkasten", _sp(d[1], d[2]), d, state={"letters": []})
     for n, d in enumerate(take("sign"), 1):
-        thing("signpost" if n == 1 else f"signpost_{n}", "signpost", "Wegweiser", _spot(out, d[1], d[2]), d)
+        thing("signpost" if n == 1 else f"signpost_{n}", "signpost", "Wegweiser", _sp(d[1], d[2]), d)
     for d in take("scare"):
-        thing("scarecrow", "scarecrow", "Vogelscheuche", _spot(out, d[1], d[2]), d, state={"upright": True})
+        thing("scarecrow", "scarecrow", "Vogelscheuche", _sp(d[1], d[2]), d, state={"upright": True})
     for d in take("boat"):
         thing("boat", "boat", "Boot", out.tile_of(d[1], d[2]), d)
     # See: Angelplatz am Steg, Wasser, Schilf
-    fish = _spot(out, dock["x1"] - 3, dock["y0"] + 4)
+    fish = _sp(dock["x1"] - 3, dock["y0"] + 4)
     thing("fishing_spot", "fishing_spot", "Angelplatz", fish, [0, dock["x1"] - 3, dock["y0"] + 4, 0], sprite=PLACE_NONE)
-    source("lake_water", "water", None, _spot(out, dock["x0"] + 2, dock["y0"] + 4), [], 999, 999, 999, minutes=2)
+    source("lake_water", "water", None, _sp(dock["x0"] + 2, dock["y0"] + 4), [], 999, 999, 999, minutes=2)
     k.place[nm.obj("lake_water")] = {"at": [lake["x"], lake["y"]], "sprite": PLACE_NONE}
     reeds = take("reed")
     if reeds:
-        source("reeds", "reed", "Schilf", _spot(out, reeds[0][1], reeds[0][2]), reeds, 6, 8, 0.1, minutes=4)
+        source("reeds", "reed", "Schilf", _sp(reeds[0][1], reeds[0][2]), reeds, 6, 8, 0.1, minutes=4)
     # Garten: Beete, Tomaten, Sonnenblumen, Regentonnen
     for n, (bx, by) in enumerate([(b[0] + dx, b[1] + 4) for b in (g_beds(L)[0], g_beds(L)[2]) for dx in (20, 34, 48)], 1):
-        thing(f"seedbed_{n}", "seedbed", "Beet", _spot(out, bx, by + 1), [None, bx, by, 0], sprite=PLACE_NONE)
+        thing(f"seedbed_{n}", "seedbed", "Beet", _sp(bx, by + 1), [None, bx, by, 0], sprite=PLACE_NONE)
     tom, sun, bar = take("tomato"), take("sun"), take("barrel", lambda d: d[3] == 7)
     if tom:
-        source("tomatoes", "food", "Tomaten", _spot(out, tom[0][1], tom[0][2]), tom, 4, 6, 0.1)
+        source("tomatoes", "food", "Tomaten", _sp(tom[0][1], tom[0][2]), tom, 4, 6, 0.1)
     if sun:
-        source("sunflowers", "seeds", "Sonnenblumen", _spot(out, sun[0][1], sun[0][2]), sun, 3, 4, 0.05)
+        source("sunflowers", "seeds", "Sonnenblumen", _sp(sun[0][1], sun[0][2]), sun, 3, 4, 0.05)
     if bar:
-        source("rain_barrels", "water", "Regentonnen", _spot(out, bar[0][1], bar[0][2]), bar, 6, 10, 2, minutes=2, weather="rain,storm")
+        source("rain_barrels", "water", "Regentonnen", _sp(bar[0][1], bar[0][2]), bar, 6, 10, 2, minutes=2, weather="rain,storm")
     # Apfelbäume und Steine
     apples = take("treeF")
     if apples:
-        source("apple_trees", "food", "Apfelbäume", _spot(out, apples[0][1], apples[0][2]), apples, 4, 6, 0.1, minutes=4)
+        source("apple_trees", "food", "Apfelbäume", _sp(apples[0][1], apples[0][2]), apples, 4, 6, 0.1, minutes=4)
     rocks = take("rock")
     if rocks:
-        source("field_rocks", "stone", "Steine", _spot(out, rocks[0][1], rocks[0][2]), rocks, 6, 6, 0.05, tool="pickaxe", minutes=10)
+        source("field_rocks", "stone", "Steine", _sp(rocks[0][1], rocks[0][2]), rocks, 6, 6, 0.05, tool="pickaxe", minutes=10)
     # Wald: eine betretbare Reihe nördlich der Wiese mit Holz, Pilzen und Samen
     cj = out.tile_of(0, -10)[1]
     ci0, ci1 = out.tile_of(0, 0)[0], out.tile_of(L.sq["x"] * 2, 0)[0]
@@ -137,7 +140,7 @@ def make_kit(L: Layout, out: Outdoor, nm: Naming, loc_of) -> Kit:
                         "requires_tool": tool, "gather_minutes": mins, "regen_weather": None})
         k.place[nm.obj(rid)] = {"at": [0, 0], "sprite": PLACE_NONE}
     # Startplätze der Agenten
-    k.spots = {"alex": out.tile_of(g["x0"] + 36, g["y0"] + 20), "mira": out.tile_of(sq["x"] - 18, sq["y"] + 15)}
+    k.spots = {"alex": _sp(g["x0"] + 36, g["y0"] + 21), "mira": _sp(sq["x"] - 18, sq["y"] + 16)}
     k.decor = [d for d in decor if d[0] not in ("bm:0", "bm:1", "bm:2") or True]
     return k
 

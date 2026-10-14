@@ -74,6 +74,13 @@ def rasterize(L: Layout) -> Outdoor:
     for (i, j), k in decor_tiles.items():
         if 0 <= i < w and 0 <= j < h and out.rows[j][i] in (GRASS, PATH, SAND):
             out.rows[j][i] = k
+    for pl in L.paths:                                                   # Wege bleiben begehbar: dort weichen Zaun und Baum (eine Kachel ist breiter als ein Weg)
+        for a, b in zip(pl, pl[1:]):
+            n = max(1, int(math.hypot(b[0] - a[0], b[1] - a[1]) / 5))
+            for k in range(n + 1):
+                i, j = out.tile_of(a[0] + (b[0] - a[0]) * k / n, a[1] + (b[1] - a[1]) * k / n)
+                if 0 <= i < w and 0 <= j < h and out.rows[j][i] in (TREE, FENCE):
+                    out.rows[j][i] = PATH
     for b in L.buildings:                                                # Mauern und Haustür
         bx0, by0, bx1, by1 = footprint(b)
         for j in range(h):
@@ -86,10 +93,13 @@ def rasterize(L: Layout) -> Outdoor:
         out.doors.append((di, dj))
         if out.rows[dj + 1][di] not in (GRASS, PATH, SAND, FLOOR):      # vor der Tür muss man stehen können
             out.rows[dj + 1][di] = PATH
-    g = L.garden                                                         # Gartentor: Lücke im Zaun an der Ostseite
-    out.gate = out.tile_of(g["x1"], 146 + (g["y0"] - 120))
-    if out.rows[out.gate[1]][out.gate[0]] in (FENCE, TREE):
-        out.rows[out.gate[1]][out.gate[0]] = GRASS
+    g = L.garden                                                         # Gartentor: die Lücke im Zaun an der Ostseite (im Bild 16 Pixel hoch) bleibt offen
+    gy = 146 + (g["y0"] - 120)
+    out.gate = out.tile_of(g["x1"], gy)
+    for yy in (gy - 5, gy, gy + 5):
+        i, j = out.tile_of(g["x1"], yy)
+        if out.rows[j][i] in (FENCE, TREE):
+            out.rows[j][i] = GRASS
     return out
 
 

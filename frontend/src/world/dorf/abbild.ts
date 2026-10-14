@@ -42,7 +42,9 @@ export const horizonA = (ax: number, curve = 1) => { const k = (ax - 160) / 160;
 export function project(f: Frame, wx: number, wy: number): P {
   const tx = wx - f.sx, ty = wy - f.sy;
   if (f.mode === "flach") return { x: 160 + (tx - f.cx) / f.zo + f.xo, y: LH + (ty - f.cy) / f.zo + f.yo, sc: 1 / f.zo, t: 0 };
-  const t = Math.pow(Math.max(0, 1 - (ty - (f.cy - TH * f.zo)) / (TH * f.zo)), 1 / GAMMA), s = (0.62 + 0.9 * t) * f.zo;       // bei cy = TH, zo = 1: wie 1 − ty / th in A
+  // bei cy = TH, zo = 1: wie 1 − ty / th in A. Hinter der Kamera (u < 0) läuft die Abbildung gespiegelt unter den unteren Bildrand weiter,
+  // statt dort alles auf t = 0 zu stapeln; die Größe bleibt dann die vom unteren Rand.
+  const u = 1 - (ty - (f.cy - TH * f.zo)) / (TH * f.zo), t = u < 0 ? -Math.pow(-u, 1 / GAMMA) : Math.pow(u, 1 / GAMMA), s = (0.62 + 0.9 * Math.max(0, t)) * f.zo;
   const x = 160 + (tx - f.cx) / s, yh = horizonA(x, f.curve);
   return { x: x + f.xo, y: LH - t * (LH - yh) + f.yo, sc: 1 / s, t };
 }
@@ -66,7 +68,7 @@ export function camFor(f: Frame, wx: number, wy: number, x: number, y: number): 
 }
 
 /** Abstand jedes Pufferpunkts von der Kamera auf dem Boden und Dunst: genau die Schleife aus createWorld. Texel = (cx + ox, cy − TH · zo + oy); bei zo = 1 und cy = 288 ist das A. */
-export function groundMap(f: Frame): { ox: Float64Array; oy: Float64Array; fog: Float32Array; sky: Uint8Array } {
+export function groundMap(f: Frame): { ox: Float64Array; oy: Float64Array; fog: Float32Array; sky: Uint8Array; ext: [number, number, number, number] } {
   const n = f.lw * f.lh, ox = new Float64Array(n), oy = new Float64Array(n), fog = new Float32Array(n), sky = new Uint8Array(n);
   for (let y = 0; y < f.lh; y++) for (let x = 0; x < f.lw; x++) {
     const i = y * f.lw + x, ax = x - f.xo, ay = y - f.yo;
@@ -76,5 +78,7 @@ export function groundMap(f: Frame): { ox: Float64Array; oy: Float64Array; fog: 
     const t = (LH - ay) / (LH - yh), s = (0.62 + 0.9 * t) * f.zo;
     ox[i] = (ax - 160) * s; oy[i] = TH * f.zo * (1 - Math.pow(t, GAMMA)); fog[i] = Math.pow(t, 2.2) * 0.55;
   }
-  return { ox, oy, fog, sky };
+  const ext: [number, number, number, number] = [Infinity, Infinity, -Infinity, -Infinity];             // Ausdehnung von ox, oy über dem Boden
+  for (let i = 0; i < n; i++) if (!sky[i]) { ext[0] = Math.min(ext[0], ox[i]); ext[1] = Math.min(ext[1], oy[i]); ext[2] = Math.max(ext[2], ox[i]); ext[3] = Math.max(ext[3], oy[i]); }
+  return { ox, oy, fog, sky, ext };
 }

@@ -63,7 +63,7 @@ class WorldInfo:
 
 def new_world(seed: int, *, lake: str = "auto", mix: dict[str, int] | None = None, name: str | None = None) -> tuple[dict, Report]:
     """Eine komplette Weltdatei (wie `world_default.json`) mit einem Dorf: Heimhaus für Alex und Mira, Platz, Garten, See, Wald."""
-    tpl = loader.load_world_file()
+    tpl = loader.load_world_file(loader.DATA_DIR / "world_default.json")                  # Vorlage: Kachelarten, Agenten, Startzeit der Startwelt
     last = None
     for attempt in range(TRIES):
         s = seed + attempt * 1000003

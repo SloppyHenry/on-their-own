@@ -7,6 +7,9 @@ import { freshWorld, openApp, settled } from "./helpers";
 test.skip(!process.env.SIM_MESSEN, "nur mit SIM_MESSEN=1");
 // SIM_MESSEN=gpu: vollständiges Chromium im neuen Headless-Modus mit Grafikkarte (Metal), sonst Software-Rendering
 if (process.env.SIM_MESSEN === "gpu") test.use({ channel: "chromium", launchOptions: { args: ["--use-angle=metal", "--enable-gpu", "--ignore-gpu-blocklist", "--enable-gpu-rasterization"] } });
+// SIM_FENSTER=2000x1100@2: andere Fenstergröße und Pixeldichte (z. B. großes Retina-Fenster)
+const FENSTER = /^(\d+)x(\d+)(?:@(\d+))?$/.exec(process.env.SIM_FENSTER ?? "");
+if (FENSTER) test.use({ viewport: { width: Number(FENSTER[1]), height: Number(FENSTER[2]) }, deviceScaleFactor: Number(FENSTER[3] ?? 1) });
 test.setTimeout(240_000);
 
 /** Erzeugte Testwelt (kein Spielstand): Wiese mit Wegenetz, Waldstücken, See, 12 Häusern, Platz, Garten. */
@@ -64,7 +67,7 @@ test("Leistung: Startwelt und große Welt", async ({ page, request }) => {
   await page.goto("/?messen");
   await openApp(page);
   await settled(page, '[data-house="0"]');
-  const out: Record<string, unknown> = { fenster: "1440 × 900", browser: process.env.SIM_MESSEN === "gpu" ? "Chromium (headless, GPU/Metal)" : "Chromium (headless, Software)" };
+  const out: Record<string, unknown> = { fenster: FENSTER ? `${FENSTER[1]} × ${FENSTER[2]} @${FENSTER[3] ?? 1}x` : "1440 × 900", browser: process.env.SIM_MESSEN === "gpu" ? "Chromium (headless, GPU/Metal)" : "Chromium (headless, Software)" };
   out.gpu = await page.evaluate(() => { const c = document.createElement("canvas").getContext("webgl"); const d = c?.getExtension("WEBGL_debug_renderer_info"); return d ? c!.getParameter(d.UNMASKED_RENDERER_WEBGL) : "unbekannt"; });
   out.dorf_tiefe_1x = await measure(page, 4000, 0);
   out.dorf_tiefe_1x_kamerafahrt = await measure(page, 4000, 8);            // Boden weich, Horizont gerade (Variante d)

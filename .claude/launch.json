@@ -1,0 +1,28 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "welt-fake",
+      "runtimeExecutable": "bash",
+      "runtimeArgs": [
+        "-c",
+        "rm -rf /tmp/simulacra-ap13 && (backend/.venv/bin/python scripts/e2e_server.py --port 8193 --data-dir /tmp/simulacra-ap13 &) && cd frontend && SIM_BACKEND=http://127.0.0.1:8193 SIM_FRONTEND_PORT=5176 npx vite --host 127.0.0.1 --strictPort"
+      ],
+      "port": 5176
+    },
+    {
+      "name": "mockup-ruhig",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8766",
+        "--bind",
+        "127.0.0.1",
+        "--directory",
+        "docs/mockups/welt-optik"
+      ],
+      "port": 8766
+    }
+  ]
+}
