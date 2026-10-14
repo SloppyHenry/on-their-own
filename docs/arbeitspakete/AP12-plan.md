@@ -72,3 +72,6 @@ Das Paket ist größer als „L“; drei Teilpakete mit je eigener Abnahme, jewe
 - Landstraßen verbinden Dörfer; innerhalb eines Dorfs sehen Wege aus wie in A.
 - Mitspieler und Agenten sehen erzeugte Dörfer gleich (Wahrnehmung nach Ort und Hörweite wie bisher).
 - Ausrollen nur nach deiner Freigabe.
+
+## Spätere Wünsche (nicht Teil von AP12)
+Dörfer selbst gestalten, eigene Figuren, Epochen, Baustein-Editor mit Funktionen für die KI: [ausblick.md](../ausblick.md). In AP12c darauf achten: Vorschau und Trockenlauf nicht nur für ganze Dörfer, sondern auch für Einzeländerungen auslegen; `appMode = editor` ist der Platz für die Werkzeuge.

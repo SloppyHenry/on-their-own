@@ -55,4 +55,5 @@ Was SIMULACRA bewusst vereinfacht, was gemessen nicht ideal ist und was als Näc
 2. **Mitspieler** (offene Frage 11): Menschen steuern eigene Figuren, die KIs sehen sie als gleichwertige Bewohner.
 3. **Weltgenerator** (AP12) und Hochskalieren auf mehr Figuren (Ereignisse sind dafür bereits verdichtet).
 4. **Semantische Erinnerungssuche** mit kleinem Embedding-Modell.
-5. **Zweiter Modell-Slot** oder Batch-Entscheidungen, wenn mehr Agenten dazukommen.
+5. **Selbst gestalten, eigene Figuren, Epochen, Baustein-Editor mit Funktionen für die KI** (Wunsch Henry, 14.10.2026): [ausblick.md](ausblick.md).
+6. **Zweiter Modell-Slot** oder Batch-Entscheidungen, wenn mehr Agenten dazukommen.
