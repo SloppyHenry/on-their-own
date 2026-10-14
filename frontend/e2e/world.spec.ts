@@ -103,6 +103,22 @@ test("Puppenhaus: Klick auf einen Raum zeigt ihn groß, Esc führt Schritt für 
   await expect(overlays).toHaveAttribute("data-interior", "-1");
 });
 
+test("Namensblase: kurz über einem Ding verweilen zeigt seinen Namen, daneben und nach dem Klick verschwindet sie", async ({ page }) => {
+  await openApp(page);
+  const tip = page.getByTestId("hover-tip"), v = (await page.getByTestId("world-canvas").boundingBox())!;
+  const m = await settled(page, '[data-house="0"]');
+  await page.mouse.move(m.x, m.y);
+  expect(await tip.evaluate((e) => getComputedStyle(e).opacity)).toBe("0");                // erst nach kurzem Verweilen
+  await expect(tip).toHaveText("Haus");
+  await expect(tip).toHaveCSS("opacity", "1");
+  await page.mouse.move(v.x + 30, v.y + 30);                                                 // Himmel: nichts zum Anfassen
+  await expect(tip).toHaveCSS("opacity", "0");
+  await page.mouse.move(m.x, m.y);
+  await expect(tip).toHaveCSS("opacity", "1");
+  await page.mouse.down(); await page.mouse.up();
+  await expect(tip).toHaveCSS("opacity", "0");
+});
+
 test("Ansicht umschalten: Tiefe und Flach, die Wahl bleibt nach dem Neuladen", async ({ page }) => {
   await openApp(page);
   await expect(page.getByTestId("view-menu").getByRole("button", { name: "Tiefe", exact: true })).toHaveAttribute("aria-pressed", "true");

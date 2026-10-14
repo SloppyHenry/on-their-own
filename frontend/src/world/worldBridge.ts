@@ -37,6 +37,8 @@ export interface Frame {
   room?: string | null;
   /** Ziel der Wegvorschau (Mitspieler-Vorschau) in Bildschirmpixeln. */
   goal: { x: number; y: number } | null;
+  /** Namensblase über dem Ding unter dem Zeiger (nach kurzem Verweilen), Zeigerposition in CSS-Pixeln. */
+  tip?: { text: string; x: number; y: number } | null;
 }
 
 export interface WorldBridge {

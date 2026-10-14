@@ -7,6 +7,7 @@ import type { PlayerHooks } from "../view/WorldView";
 import { Figures } from "../view/figures";
 import { hitTest, locationAt } from "../view/picking";
 import { weather } from "../view/post";
+import { nameOf } from "../player/actions";
 import { drawGhost, drawPreviewGround } from "../view/previewDraw";
 import type { Target } from "../view/scene";
 import type { WorldBridge } from "../worldBridge";
@@ -20,6 +21,8 @@ import { casters, indoor, occupants, outdoor } from "./szene";
 const ZMAX = 3;
 const reducedMotion = () => typeof matchMedia === "function" && matchMedia("(prefers-reduced-motion: reduce)").matches;
 const daytime = (m: Mood) => (m.stars > 0.5 ? "Nacht" : m.glowA > 0.2 ? "Abend" : "Tag");
+
+const TIP_MS = 400;                                   // Namensblase erscheint nach kurzem Verweilen über einem Ding
 
 export class DorfView {
   interior = -1;
@@ -37,6 +40,9 @@ export class DorfView {
   private o = { x: 0, y: 0 };
   private drawn: Drawn[] = [];
   private hover: Target | null = null;
+  /** Namensblase: seit wann der Zeiger auf demselben Ding steht, und wo (CSS-Pixel). */
+  private hoverSince = 0;
+  private mouse = { x: 0, y: 0 };
   private drag: { x: number; y: number; moved: boolean } | null = null;
   private keys = new Set<string>();
   private wheel = 0;
@@ -55,10 +61,10 @@ export class DorfView {
     this.bild = new Dorfbild(look);
     const on = <K extends keyof HTMLElementEventMap>(el: EventTarget, ev: K, fn: (e: HTMLElementEventMap[K]) => void, opt?: AddEventListenerOptions) => { el.addEventListener(ev, fn as EventListener, opt); this.off.push(() => el.removeEventListener(ev, fn as EventListener, opt)); };
     on(host, "wheel", (e) => { e.preventDefault(); this.wheelBy(e.deltaY * (e.deltaMode === 1 ? 30 : 1), e); }, { passive: false });
-    on(host, "pointerdown", (e) => { if (e.button === 0) this.drag = { x: e.clientX, y: e.clientY, moved: false }; });
+    on(host, "pointerdown", (e) => { this.hoverSince = Infinity; if (e.button === 0) this.drag = { x: e.clientX, y: e.clientY, moved: false }; });   // nach dem Klick keine Namensblase, bis der Zeiger weiterzieht
     on(host, "pointermove", (e) => this.move(e));
     on(host, "pointerup", (e) => this.up(e));
-    on(host, "pointerleave", () => { this.drag = null; this.hover = null; this.player?.hover(null); });
+    on(host, "pointerleave", () => { this.drag = null; this.hover = null; this.hoverSince = 0; this.player?.hover(null); });
     on(host, "contextmenu", (e) => { e.preventDefault(); this.click(e, true); });
     on(window, "keydown", (e) => { if (!(e.target as HTMLElement)?.closest?.("input, textarea, select, [contenteditable]")) this.keys.add(e.code); });
     on(window, "keyup", (e) => this.keys.delete(e.code));
@@ -147,7 +153,10 @@ export class DorfView {
       this.host.style.cursor = "grabbing";
       return;
     }
-    this.hover = this.targetAt(p.x, p.y);
+    const hit = this.targetAt(p.x, p.y);
+    if (hit?.kind !== this.hover?.kind || hit?.id !== this.hover?.id) this.hoverSince = performance.now();
+    this.hover = hit;
+    this.mouse = { x: p.x / this.dpr, y: p.y / this.dpr };
     const tile = this.tileAt(p.x, p.y);
     this.player?.hover(this.bridge.playerPreview() ? tile : null);
     this.host.style.cursor = this.hover ? "pointer" : this.bridge.playerPreview() && tile ? "crosshair" : "default";
@@ -308,6 +317,7 @@ export class DorfView {
     });
     const rooms = this.interior >= 0 && this.innen ? this.innen.labels.map((r) => ({ id: r.id, x: r.x / d, y: r.y / d - 6 })) : [];
     const goal = this.player && this.bridge.playerPreview() ? this.player.preview().goal : null, gp = goal && !isInside(L, goal[0], goal[1]) ? toCss(this.bild.p(goal[0] * T + 8 - L.origin[0], goal[1] * T + 8 - L.origin[1])) : null;
-    this.bridge.emitFrame({ agents, houses: [{ i: 0, x: top.x, y: top.y, cy: mid.y, occupants: inHouse }], rooms, interior: this.interior, interiorRooms: this.haus?.plan.rooms.map((r) => r.id) ?? [], room: this.interior >= 0 ? this.room : null, goal: gp });
+    const h = this.hover, tip = h && h.kind !== "agent" && !this.drag && performance.now() - this.hoverSince >= TIP_MS ? { text: nameOf(h, w), x: this.mouse.x, y: this.mouse.y } : null;
+    this.bridge.emitFrame({ tip, agents, houses: [{ i: 0, x: top.x, y: top.y, cy: mid.y, occupants: inHouse }], rooms, interior: this.interior, interiorRooms: this.haus?.plan.rooms.map((r) => r.id) ?? [], room: this.interior >= 0 ? this.room : null, goal: gp });
   }
 }

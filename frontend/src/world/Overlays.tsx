@@ -71,6 +71,15 @@ export function Overlays({ bridge }: { bridge: WorldBridge }) {
         m.style.transform = `translate(${h.x}px, ${h.cy}px)`;
         m.style.display = f.interior < 0 ? "" : "none";
       }
+      const tip = el.querySelector<HTMLElement>("[data-testid=hover-tip]");
+      if (tip) {
+        tip.style.opacity = f.tip ? "1" : "0";
+        if (f.tip) {
+          if (tip.textContent !== f.tip.text) tip.textContent = f.tip.text;
+          const half = tip.offsetWidth / 2, x = Math.max(half + 4, Math.min(f.tip.x, W - half - 4));
+          tip.style.transform = `translate(${x}px, ${Math.max(f.tip.y - 14, tip.offsetHeight + 4)}px) translate(-50%, -100%)`;
+        }
+      }
       for (const r of f.rooms) { const lab = el.querySelector<HTMLElement>(`[data-room="${r.id}"]`); if (lab) lab.style.transform = `translate(${r.x}px, ${r.y}px) translate(-50%, -100%)`; }
     });
   }, [bridge]);
@@ -80,6 +89,7 @@ export function Overlays({ bridge }: { bridge: WorldBridge }) {
     <div ref={root} className="pointer-events-none absolute inset-0 overflow-hidden" data-testid="overlays"
       onClick={(e) => { const b = (e.target as HTMLElement).closest<HTMLElement>("[data-bubble]"); if (b?.dataset.seq) select({ kind: "event", id: b.dataset.seq }); }}>
       <div data-markers="" />
+      <div data-testid="hover-tip" className="absolute left-0 top-0 z-[5] whitespace-nowrap rounded-md bg-[#2b2233]/85 px-2 py-0.5 text-[11px] font-semibold text-[#fff8ec] shadow transition-opacity duration-150" style={{ opacity: 0 }} />
       {interior.i >= 0 && (
         <button type="button" data-testid="leave-house" onClick={() => bridge.commands.leaveInterior?.()}
           className="pointer-events-auto absolute left-3 top-3 z-[4] rounded-full border-2 border-[#3b2c3d] bg-[#fff8ec] px-4 py-1.5 text-sm font-semibold text-[#3b2c3d] shadow">
