@@ -1,6 +1,6 @@
 import { Icon } from "../lib/Icon";
 import { Portrait } from "../lib/Portrait";
-import { ACTIVITIES, resourceName, statusName } from "../lib/names";
+import { ACTIVITIES, USE_VERBS, resourceName, statusName } from "../lib/names";
 import { accentOf } from "../world/art/people";
 import { useSimStore } from "../store/simStore";
 import { useUiStore } from "../store/uiStore";
@@ -20,7 +20,8 @@ function targetName(w: World, params: Record<string, unknown>): string {
 
 export function activityOf(a: AgentInfo, w: World): { text: string; icon: string } {
   if (a.action) {
-    const [verb, icon] = ACTIVITIES[a.action.type] ?? [a.action.type, "think"];
+    const [base, icon] = ACTIVITIES[a.action.type] ?? [a.action.type, "think"];
+    const verb = a.action.type === "use" ? USE_VERBS[String(a.action.params?.mode ?? "")] ?? base : base;
     const target = targetName(w, a.action.params);
     return { text: target ? `${verb} · ${target}` : verb, icon };
   }

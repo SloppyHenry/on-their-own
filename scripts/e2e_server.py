@@ -83,4 +83,12 @@ if __name__ == "__main__":
     sim = build(args.data_dir)
     if args.inject_rate:
         sim.inject.rate = args.inject_rate
-    uvicorn.run(create_app(sim, settings=sim.settings), host="127.0.0.1", port=args.port, log_level="warning")
+    app = create_app(sim, settings=sim.settings)
+
+    @app.post("/api/e2e/propose")
+    async def e2e_propose(body: dict):
+        """Nur Testserver: eine Handlung direkt vorschlagen (z. B. Alex rudert), um Zustände im Bild zu prüfen."""
+        res = await sim.engine.propose_async(body["agent"], body["action"], body.get("params") or {})
+        return {"ok": res.ok, "rejected": res.rejected.model_dump() if res.rejected else None}
+
+    uvicorn.run(app, host="127.0.0.1", port=args.port, log_level="warning")

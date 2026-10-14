@@ -31,7 +31,7 @@ export const worldHandlers: { [K in EventType]?: Handler<EventDataMap[K]> } = {
   },
   "world.resource_added": (w, d) => ({
     ...w,
-    resources: { ...w.resources, [d.node]: { id: d.node, location_id: "", x: d.tile[0], y: d.tile[1], resource: d.resource, amount: d.amount, cap: d.cap, requires_tool: null } },
+    resources: { ...w.resources, [d.node]: { id: d.node, location_id: "", x: d.tile[0], y: d.tile[1], resource: d.resource, amount: d.amount, cap: d.cap, requires_tool: null, label: null } },
   }),
   "world.weather_changed": (w, d, ev) => ({ ...w, weather: { kind: d.to, since: ev.sim_time.total, until: d.until } }),
   "world.tile_changed": (w, d) => ({ ...w, map: paint(w.map, w, [d]) }),

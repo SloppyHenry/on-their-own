@@ -29,6 +29,7 @@ export function decorSprite(kind: string, extra: number, lit: boolean): HTMLCanv
     case "sun": c = sunflower(); break;
     case "tomato": c = tomato(e); break;
     case "scare": c = scarecrow(); break;
+    case "scareDown": c = lying(scarecrow()); break;                         // AP15: vom Sturm umgeworfen
     case "sign": c = sign(); break;
     case "mailbox": c = mailbox(); break;
     case "rock": c = rock(e); break;
@@ -38,5 +39,14 @@ export function decorSprite(kind: string, extra: number, lit: boolean): HTMLCanv
     default: c = null;
   }
   if (c) cache.set(key, c);
+  return c;
+}
+
+/** Sprite um 90° gekippt, liegt auf dem Boden (Fuß bleibt unten). */
+function lying(src: HTMLCanvasElement): HTMLCanvasElement {
+  const c = document.createElement("canvas");
+  c.width = src.height; c.height = src.width;
+  const g = c.getContext("2d")!;
+  g.translate(0, c.height); g.rotate(-Math.PI / 2); g.drawImage(src, 0, 0);
   return c;
 }

@@ -900,6 +900,7 @@ export interface ResourceInfo {
   amount: number;
   cap: number;
   id: string;
+  label: string | null;
   location_id: string;
   requires_tool: string | null;
   resource: string;

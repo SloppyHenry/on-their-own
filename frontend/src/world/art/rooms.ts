@@ -94,5 +94,6 @@ export const korb = sprite(12, 9, (s) => { s.ell(6, 5, 5.5, 3.5, "#c99a5a"); s.r
 export const saegebock = sprite(18, 12, (s) => { s.r(0, 3, 18, 3, WP.wood1); s.r(2, 6, 2, 6, WP.wood3); s.r(14, 6, 2, 6, WP.wood3); s.r(6, 1, 8, 2, "#d8b07a"); s.outline(O); });
 export const kiste = sprite(12, 11, (s) => { s.r(0, 1, 12, 10, WP.wood1); s.r(0, 1, 12, 2, "#e0b07a"); s.r(0, 5, 12, 1, WP.wood3); s.r(5, 1, 2, 10, WP.wood2); s.outline(O); });
 export const kerze = sprite(6, 10, (s) => { s.r(2, 4, 2, 5, "#fff8ec"); s.r(1, 9, 4, 1, "#c8a777"); s.p(2, 2, "#ffd36e"); s.p(2, 3, "#ff9a4a"); s.outline(O); });
+export const kerzeAus = sprite(6, 10, (s) => { s.r(2, 4, 2, 5, "#fff8ec"); s.r(1, 9, 4, 1, "#c8a777"); s.p(2, 3, "#3b2c3d"); s.outline(O); });   // AP15: gelöscht
 export const katze = sprite(14, 9, (s) => { s.ell(7, 6, 6, 3, "#e0a458"); s.disc(11, 3.5, 2.5, "#e0a458"); s.p(10, 1, "#e0a458"); s.p(12, 1, "#e0a458"); s.p(11, 3, O); s.r(1, 4, 2, 1, "#c27a3a"); s.outline(O); });
 export const fussmatte = sprite(16, 6, (s) => { s.r(0, 0, 16, 6, "#b8864e"); for (let x = 1; x < 16; x += 2) s.r(x, 1, 1, 4, "#9a6a3a"); s.outline(O); });

@@ -4898,6 +4898,17 @@
     "id": {
      "type": "string"
     },
+    "label": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
     "location_id": {
      "type": "string"
     },
@@ -4930,7 +4941,8 @@
     "resource",
     "amount",
     "cap",
-    "requires_tool"
+    "requires_tool",
+    "label"
    ],
    "title": "ResourceInfo",
    "type": "object"

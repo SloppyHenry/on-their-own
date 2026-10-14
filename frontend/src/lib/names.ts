@@ -10,6 +10,13 @@ export const ACTIVITIES: Record<string, [string, string]> = {
   give: ["gibt etwas", "hammer"], use: ["benutzt etwas", "hammer"],
 };
 
+/** Modus von `use` -> Tätigkeit („rudert · Boot“ statt „benutzt etwas · Boot“). */
+export const USE_VERBS: Record<string, string> = {
+  sleep: "schläft", sit: "sitzt", cook: "kocht", read: "liest", write: "schreibt", light: "macht Licht an", extinguish: "löscht",
+  lock: "schließt ab", unlock: "schließt auf", fish: "angelt", harvest: "erntet", row: "rudert", post: "schreibt einen Brief",
+  collect: "holt die Post", fix: "richtet auf", pet: "streichelt", store: "legt etwas ab", retrieve: "nimmt etwas heraus",
+};
+
 export const STATUS_NAMES: Record<string, [string, string]> = {
   idle: ["frei", "think"], deciding: ["entscheidet", "plan"], acting: ["handelt", "hammer"], talking: ["spricht", "chat"],
   sleeping: ["schläft", "zzz"], stuck: ["steckt fest", "warn"],

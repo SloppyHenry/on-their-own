@@ -46,7 +46,7 @@ export function decorSprite(kind: string, lit: boolean, sky: [string, string], c
     case "korb": return D.korb;
     case "saegebock": return D.saegebock;
     case "kiste": return D.kiste;
-    case "kerze": return D.kerze;
+    case "kerze": return lit ? D.kerze : D.kerzeAus;
     case "katze": return D.katze;
     case "objekt": return objectSprite(arg ?? "table");
     default: return null;

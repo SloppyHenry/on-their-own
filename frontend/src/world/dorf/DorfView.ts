@@ -16,6 +16,7 @@ import { Dorfbild, type Drawn } from "./bild";
 import { Hausbild, type HausOut, type Tageszeit } from "./haus/bild";
 import { makePlan } from "./haus/plan";
 import { T, isInside, lookOf, type Look } from "./look";
+import { boatSpot, glowing } from "./dinge";
 import { casters, indoor, occupants, outdoor } from "./szene";
 
 const ZMAX = 3;
@@ -253,7 +254,7 @@ export class DorfView {
         const skyKey = `${Math.floor((w.clock.minute % 1440) / 10)}|${w.weather.kind}|${lw}x${lh}`;
         this.drawn = this.bild.drawLow(outdoor(ctx), m, t, skyKey, true);
         this.preview(t);
-        const lights = [...this.look.lights];
+        const lights = glowing(w, this.look);
         this.bild.post(m, t, this.S, lights, { tilt: !reducedMotion(), particles: !reducedMotion() && !["rain", "storm"].includes(w.weather.kind), daytime: daytime(m) });
         const out = this.bild.out, oc = out.getContext("2d")!;
         weather(oc, { w: out.width, h: out.height, mood: m, weather: w.weather.kind, t, dt: 0.04, particles: false, pf: this.S });
@@ -312,7 +313,7 @@ export class DorfView {
         const shown = inside && x >= h.ox && x <= h.ox + h.box.w * h.z && y >= h.oy && y <= h.oy + h.box.h * h.z;
         return { id: a.id, x: x / d, y: y / d, scale: h.z / d, visible: shown, house: inside ? -1 : 0 };
       }
-      const p = this.bild.p(pos.x - L.origin[0], pos.y - L.origin[1]), c = toCss(p);
+      const boat = boatSpot(w, L, a), p = boat ? this.bild.p(boat[0], boat[1] + 2.5) : this.bild.p(pos.x - L.origin[0], pos.y - L.origin[1]), c = toCss(p);
       return { id: a.id, x: c.x, y: c.y, scale: (p.sc * k) / d, visible: !inside && c.x > -20 && c.x < this.W / d + 20 && c.y > 0 && c.y < this.H / d + 30, house: inside ? 0 : -1 };
     });
     const rooms = this.interior >= 0 && this.innen ? this.innen.labels.map((r) => ({ id: r.id, x: r.x / d, y: r.y / d - 6 })) : [];

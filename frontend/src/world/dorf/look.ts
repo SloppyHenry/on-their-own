@@ -22,7 +22,8 @@ export interface Look {
   /** Lichtquellen wie W_LIGHTS: [x, y, Höhe, Stärke]. */
   lights: number[][];
   /** Lage im Bild (Dorfkoordinaten) für Dinge aus dem Zustand; `sprite: "none"` = im Bild schon enthalten (Beete, Steg …). */
-  place: Record<string, { at: [number, number]; sprite?: string }>;
+  /** Bildstelle eines Dings oder einer Quelle; `sprite`/`e` wie in `decor`, `more`: weitere Sprites derselben Quelle [x, y, e]. */
+  place: Record<string, { at: [number, number]; sprite?: string; e?: number; more?: [number, number, number][] }>;
   door: { outside: [number, number]; inside: [number, number]; at: [number, number] };
   /** Innenbereich des Hauses in Kacheln [x, y, w, h] und seine Einrichtung (Mockup innen2): Stil je Raum, Wanddeko
    *  [Art, Kachel-x, Raum, Abstand von oben], Möbel [Art, x, y], Teppiche. */

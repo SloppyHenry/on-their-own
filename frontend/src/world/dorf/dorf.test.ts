@@ -6,6 +6,7 @@ import { findPath, gridOf } from "../player/pathfind";
 import { frameFor, project, unproject } from "./abbild";
 import { texel } from "./boden";
 import type { Look } from "./look";
+import { boatSpot, glowing } from "./dinge";
 
 const tex = { size: [384, 288] as [number, number], offset: [64, 96] as [number, number] };
 const A = (look: Partial<Look["shapes"]> = {}): Look => ({
@@ -61,5 +62,21 @@ describe("Wegvorschau durch die Haustür", () => {
     const p = findPath(gridOf(w), [0, 1], [6, 1])!;
     expect(p).not.toBeNull();
     expect(p[p.findIndex(([x, y]) => x === 2 && y === 0) + 1]).toEqual([4, 2]);
+  });
+});
+
+describe("Dinge im Dorf (AP15)", () => {
+  const obj = (id: string, kind: string, state: Record<string, unknown> = {}) => ({ id, kind, name: kind, location_id: "lake", x: 18, y: 13, holder: null, state, portable: false, owner: null, hidden: false }) as never;
+  it("Lichtschein nur an brennenden Laternen, Fenster wie in A", () => {
+    const L = { ...A(), lights: [[43, 60, 32, 1], [103, 86, 24, 1], [154, 128, 24, 1]], place: { l1: { at: [103, 86] as [number, number] }, l2: { at: [154, 128] as [number, number] } } };
+    const w = { objects: { l1: obj("l1", "lantern", { lit: false }), l2: obj("l2", "lantern", { lit: true }) } } as never;
+    expect(glowing(w, L)).toEqual([[43, 60, 32, 1], [154, 128, 24, 1]]);
+  });
+  it("wer rudert, sitzt im Boot; sonst steht die Figur an ihrer Kachel", () => {
+    const L = { ...A(), place: { boat: { at: [230, 106] as [number, number], sprite: "boat" } } };
+    const w = { objects: { boat: obj("boat", "boat") } } as never;
+    const rowing = { action: { type: "use", params: { object_id: "boat", mode: "row" } } } as never;
+    expect(boatSpot(w, L, rowing)).toEqual([230, 103]);
+    expect(boatSpot(w, L, { action: { type: "wait", params: {} } } as never)).toBeNull();
   });
 });

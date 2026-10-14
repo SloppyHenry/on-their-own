@@ -119,6 +119,16 @@ test("Namensblase: kurz über einem Ding verweilen zeigt seinen Namen, daneben u
   await expect(tip).toHaveCSS("opacity", "0");
 });
 
+test("Dinge im Dorf: wer rudert, sitzt im Boot und das Schild sagt es", async ({ page, request }) => {
+  await moveAgent(request, "Bewege Alex zum See");
+  await expect.poll(async () => {                                                            // bis Alex am See angekommen ist
+    await post(request, "/api/sim/step", { n: 10 });
+    return (await post(request, "/api/e2e/propose", { agent: "alex", action: "use", params: { object_id: "boat", mode: "row", minutes: 90 } })).ok;
+  }, { timeout: 30_000 }).toBe(true);
+  await openApp(page);
+  await expect(page.locator('[data-tag="alex"]')).toContainText("rudert · Boot");
+});
+
 test("Ansicht umschalten: Tiefe und Flach, die Wahl bleibt nach dem Neuladen", async ({ page }) => {
   await openApp(page);
   await expect(page.getByTestId("view-menu").getByRole("button", { name: "Tiefe", exact: true })).toHaveAttribute("aria-pressed", "true");

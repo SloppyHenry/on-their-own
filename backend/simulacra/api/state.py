@@ -59,7 +59,7 @@ def snapshot(sim: Simulation) -> StateSnapshot:
         locations=[LocationInfo(id=l.id, name=l.name, rect=list(l.rect), entrances=[list(e) for e in l.entrances], props=l.props, discovered_by=l.discovered_by)
                    for l in st.locations.values()],
         objects=[ObjectInfo(**o.model_dump(exclude={"created_by", "created_at"})) for o in st.all_objects()],
-        resources=[ResourceInfo(**n.model_dump(include={"id", "location_id", "x", "y", "resource", "amount", "cap", "requires_tool"})) for n in st.all_nodes()],
+        resources=[ResourceInfo(**n.model_dump(include={"id", "location_id", "x", "y", "resource", "amount", "cap", "requires_tool", "label"})) for n in st.all_nodes()],
         agents=[agent_info(sim, a) for a in st.agents()], clock=ClockInfo(**clock.snapshot(st.minute)),
         weather=WeatherInfo(**w), simulation=sim_status(sim), rules=st.rules.model_dump(),
         links=st.get_meta("links") or [], look=st.get_meta("look"))
@@ -89,5 +89,5 @@ def location_detail(sim: Simulation, location_id: str) -> LocationDetail | None:
     return LocationDetail(location=LocationInfo(id=loc.id, name=loc.name, rect=list(loc.rect), entrances=[list(e) for e in loc.entrances], props=loc.props,
                                                 discovered_by=loc.discovered_by),
                           objects=[ObjectInfo(**o.model_dump(exclude={"created_by", "created_at"})) for o in st.objects_at(location_id)],
-                          resources=[ResourceInfo(**n.model_dump(include={"id", "location_id", "x", "y", "resource", "amount", "cap", "requires_tool"})) for n in st.nodes_at(location_id)],
+                          resources=[ResourceInfo(**n.model_dump(include={"id", "location_id", "x", "y", "resource", "amount", "cap", "requires_tool", "label"})) for n in st.nodes_at(location_id)],
                           agents=[a.id for a in st.agents() if a.location_id == location_id], recent_events=[to_out(e) for e in events])

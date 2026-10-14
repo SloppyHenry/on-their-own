@@ -77,7 +77,8 @@ export class Figures {
   }
 
   /** Bild und Lage einer Figur für dieses Bild; `kindAt` liefert die Objektarten auf einer Kachel. */
-  pose(a: AgentInfo, t: number, kindAt: (x: number, y: number) => string[]): Pose | null {
+  /** `seated`: sitzt auf einem Ding neben der eigenen Kachel (Boot, Sessel, AP15). */
+  pose(a: AgentInfo, t: number, kindAt: (x: number, y: number) => string[], seated = false): Pose | null {
     const v = this.views.get(a.id);
     if (!v) return null;
     const sleeping = a.status === "sleeping" || a.action?.type === "sleep";
@@ -89,7 +90,7 @@ export class Figures {
       if (kinds.some((k) => BED_KINDS.has(k))) return { ...base, y: (a.y + 1) * T - 1, spr: sleeper(a.id), inBed: true, lift: 3 };
       return { ...base, spr: lying(a.id) };
     }
-    const sit = !v.moving && (a.action?.type === "rest" || a.action?.params?.mode === "sit") && kinds.some((k) => SEAT_KINDS.has(k));
+    const sit = !v.moving && (seated || ((a.action?.type === "rest" || a.action?.params?.mode === "sit") && kinds.some((k) => SEAT_KINDS.has(k))));
     const working = !v.moving && a.action != null && a.action.type in TOOL_FOR_ACTION;
     const tl = working ? TOOL_FOR_ACTION[a.action!.type] : null;
     return { ...base, sitting: sit, spr: figure(a.id, sit ? "down" : dir, frame, sit ? "sit" : ""), lift: working ? Math.abs(Math.sin(t * 9)) : 0, toolSpr: tl ? tool(tl) : null, toolAngle: tl === "can" ? Math.sin(t * 3) * 0.3 : Math.sin(t * 9) * 0.6 };

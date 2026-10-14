@@ -60,6 +60,7 @@ class ResourceInfo(Out):
     amount: float
     cap: float
     requires_tool: str | None = None
+    label: str | None = None             # Name der Quelle („Tomaten“, AP15)
 
 
 class ActionInfo(Out):
