@@ -9,7 +9,7 @@ from ..world.state import WorldState
 NUMBERS = {"ein": 1, "eine": 1, "einen": 1, "einer": 1, "zwei": 2, "drei": 3, "vier": 4, "fünf": 5, "sechs": 6, "sieben": 7, "acht": 8, "neun": 9, "zehn": 10, "zwölf": 12}
 WEATHER_WORDS = {"rain": ("regen", "regnet", "regnen", "regnerisch"), "storm": ("sturm", "stürmt", "gewitter", "unwetter", "stürmisch"), "fog": ("nebel", "neblig"),
                  "snow": ("schnee", "schneit", "schneien"), "clear": ("sonne", "sonnig", "klar", "wolkenlos", "aufklaren", "aufklart"), "cloudy": ("wolken", "bewölkt", "wolkig")}
-RESOURCES = {"wood": ("holz",), "food": ("nahrung", "essen", "lebensmittel", "pilze"), "stone": ("stein", "steine", "felsen"), "seeds": ("samen", "saatgut")}
+RESOURCES = {"wood": ("holz",), "food": ("nahrung", "essen", "lebensmittel", "pilze"), "stone": ("stein", "steine", "felsen"), "seeds": ("samen", "saatgut"), "reed": ("schilf",)}
 # Objektarten mit Synonymen (deutsche Wörter); alles andere wird zu „item“
 KIND_WORDS = {"map": ("karte", "landkarte"), "note": ("notiz", "zettel", "brief"), "key": ("schlüssel",), "door": ("tür", "pforte"), "axe": ("axt",), "pickaxe": ("spitzhacke",),
               "chest": ("truhe", "kiste"), "bench": ("bank",), "table": ("tisch",), "board": ("tafel", "anschlagtafel")}

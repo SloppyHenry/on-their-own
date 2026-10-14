@@ -722,6 +722,162 @@
    "state": {},
    "portable": true,
    "hidden": true
+  },
+  {
+   "id": "lantern_1",
+   "kind": "lantern",
+   "name": "Laterne",
+   "tile": [
+    10,
+    11
+   ]
+  },
+  {
+   "id": "lantern_2",
+   "kind": "lantern",
+   "name": "Laterne",
+   "tile": [
+    13,
+    14
+   ]
+  },
+  {
+   "id": "lantern_3",
+   "kind": "lantern",
+   "name": "Laterne",
+   "tile": [
+    16,
+    11
+   ]
+  },
+  {
+   "id": "mailbox",
+   "kind": "mailbox",
+   "name": "Briefkasten",
+   "tile": [
+    9,
+    11
+   ]
+  },
+  {
+   "id": "signpost",
+   "kind": "signpost",
+   "name": "Wegweiser",
+   "tile": [
+    12,
+    15
+   ]
+  },
+  {
+   "id": "scarecrow",
+   "kind": "scarecrow",
+   "name": "Vogelscheuche",
+   "tile": [
+    8,
+    14
+   ]
+  },
+  {
+   "id": "boat",
+   "kind": "boat",
+   "name": "Boot",
+   "tile": [
+    18,
+    13
+   ]
+  },
+  {
+   "id": "cat",
+   "kind": "cat",
+   "name": "Katze",
+   "tile": [
+    34,
+    8
+   ],
+   "state": {
+    "spots": [
+     [
+      47,
+      13
+     ],
+     [
+      34,
+      8
+     ],
+     [
+      30,
+      13
+     ],
+     [
+      29,
+      7
+     ]
+    ],
+    "spot": 1
+   }
+  },
+  {
+   "id": "floor_lamp_1",
+   "kind": "floor_lamp",
+   "name": "Stehlampe",
+   "tile": [
+    39,
+    4
+   ]
+  },
+  {
+   "id": "floor_lamp_2",
+   "kind": "floor_lamp",
+   "name": "Stehlampe",
+   "tile": [
+    37,
+    11
+   ]
+  },
+  {
+   "id": "candle",
+   "kind": "candle",
+   "name": "Kerze",
+   "tile": [
+    44,
+    12
+   ]
+  },
+  {
+   "id": "armchair",
+   "kind": "armchair",
+   "name": "Sessel",
+   "tile": [
+    45,
+    13
+   ]
+  },
+  {
+   "id": "wardrobe",
+   "kind": "wardrobe",
+   "name": "Schrank",
+   "tile": [
+    32,
+    4
+   ]
+  },
+  {
+   "id": "crate_1",
+   "kind": "crate",
+   "name": "Kiste",
+   "tile": [
+    41,
+    8
+   ]
+  },
+  {
+   "id": "crate_2",
+   "kind": "crate",
+   "name": "Kiste",
+   "tile": [
+    42,
+    8
+   ]
   }
  ],
  "resource_nodes": [
@@ -864,6 +1020,102 @@
    "regen_per_hour": 0.1,
    "requires_tool": null,
    "gather_minutes": 4
+  },
+  {
+   "id": "rain_barrels",
+   "location_id": "garden",
+   "tile": [
+    5,
+    15
+   ],
+   "resource": "water",
+   "label": "Regentonnen",
+   "amount": 6,
+   "cap": 10,
+   "regen_per_hour": 2,
+   "requires_tool": null,
+   "gather_minutes": 2,
+   "regen_weather": "rain,storm"
+  },
+  {
+   "id": "sunflowers",
+   "location_id": "garden",
+   "tile": [
+    6,
+    14
+   ],
+   "resource": "seeds",
+   "label": "Sonnenblumen",
+   "amount": 3,
+   "cap": 4,
+   "regen_per_hour": 0.05,
+   "requires_tool": null,
+   "gather_minutes": 3,
+   "regen_weather": null
+  },
+  {
+   "id": "tomatoes",
+   "location_id": "garden",
+   "tile": [
+    7,
+    14
+   ],
+   "resource": "food",
+   "label": "Tomaten",
+   "amount": 4,
+   "cap": 6,
+   "regen_per_hour": 0.1,
+   "requires_tool": null,
+   "gather_minutes": 3,
+   "regen_weather": null
+  },
+  {
+   "id": "reeds",
+   "location_id": "lake",
+   "tile": [
+    15,
+    12
+   ],
+   "resource": "reed",
+   "label": "Schilf",
+   "amount": 6,
+   "cap": 8,
+   "regen_per_hour": 0.1,
+   "requires_tool": null,
+   "gather_minutes": 4,
+   "regen_weather": null
+  },
+  {
+   "id": "apple_trees",
+   "location_id": "paths",
+   "tile": [
+    12,
+    10
+   ],
+   "resource": "food",
+   "label": "Apfelbäume",
+   "amount": 4,
+   "cap": 6,
+   "regen_per_hour": 0.1,
+   "requires_tool": null,
+   "gather_minutes": 4,
+   "regen_weather": null
+  },
+  {
+   "id": "field_rocks",
+   "location_id": "paths",
+   "tile": [
+    12,
+    16
+   ],
+   "resource": "stone",
+   "label": "Steine",
+   "amount": 6,
+   "cap": 6,
+   "regen_per_hour": 0.05,
+   "requires_tool": "pickaxe",
+   "gather_minutes": 10,
+   "regen_weather": null
   }
  ],
  "agents": [
@@ -1040,24 +1292,6 @@
     0
    ],
    [
-    "mailbox",
-    86,
-    66,
-    0
-   ],
-   [
-    "barrel",
-    26,
-    62,
-    0
-   ],
-   [
-    "barrel",
-    33,
-    64,
-    0
-   ],
-   [
     "bushP",
     44,
     68,
@@ -1079,30 +1313,6 @@
     "bushW",
     20,
     84,
-    0
-   ],
-   [
-    "lamp",
-    103,
-    86,
-    0
-   ],
-   [
-    "lamp",
-    154,
-    128,
-    0
-   ],
-   [
-    "lamp",
-    200,
-    88,
-    0
-   ],
-   [
-    "sign",
-    138,
-    142,
     0
    ],
    [
@@ -1238,102 +1448,6 @@
     0
    ],
    [
-    "sun",
-    26,
-    124,
-    0
-   ],
-   [
-    "sun",
-    34,
-    123,
-    0
-   ],
-   [
-    "sun",
-    42,
-    124,
-    0
-   ],
-   [
-    "tomato",
-    32,
-    136,
-    1
-   ],
-   [
-    "tomato",
-    48,
-    136,
-    2
-   ],
-   [
-    "tomato",
-    64,
-    136,
-    3
-   ],
-   [
-    "scare",
-    78,
-    128,
-    0
-   ],
-   [
-    "boat",
-    230,
-    106,
-    0
-   ],
-   [
-    "reed",
-    186,
-    74,
-    0
-   ],
-   [
-    "reed",
-    189,
-    108,
-    0
-   ],
-   [
-    "reed",
-    206,
-    124,
-    0
-   ],
-   [
-    "reed",
-    244,
-    122,
-    0
-   ],
-   [
-    "reed",
-    254,
-    70,
-    0
-   ],
-   [
-    "rock",
-    150,
-    172,
-    0
-   ],
-   [
-    "rock",
-    6,
-    102,
-    0
-   ],
-   [
-    "rock",
-    150,
-    66,
-    0
-   ],
-   [
     "tree",
     20,
     30,
@@ -1344,12 +1458,6 @@
     104,
     32,
     1
-   ],
-   [
-    "treeF",
-    118,
-    58,
-    2
    ],
    [
     "tree",
@@ -1374,12 +1482,6 @@
     244,
     170,
     6
-   ],
-   [
-    "treeF",
-    176,
-    152,
-    7
    ],
    [
     "treeB",
@@ -2447,6 +2549,182 @@
      0
     ],
     "sprite": "none"
+   },
+   "lantern_1": {
+    "at": [
+     103,
+     86
+    ],
+    "sprite": "lamp",
+    "e": 0
+   },
+   "lantern_2": {
+    "at": [
+     154,
+     128
+    ],
+    "sprite": "lamp",
+    "e": 0
+   },
+   "lantern_3": {
+    "at": [
+     200,
+     88
+    ],
+    "sprite": "lamp",
+    "e": 0
+   },
+   "mailbox": {
+    "at": [
+     86,
+     66
+    ],
+    "sprite": "mailbox",
+    "e": 0
+   },
+   "signpost": {
+    "at": [
+     138,
+     142
+    ],
+    "sprite": "sign",
+    "e": 0
+   },
+   "scarecrow": {
+    "at": [
+     78,
+     128
+    ],
+    "sprite": "scare",
+    "e": 0
+   },
+   "boat": {
+    "at": [
+     230,
+     106
+    ],
+    "sprite": "boat",
+    "e": 0
+   },
+   "rain_barrels": {
+    "at": [
+     26,
+     62
+    ],
+    "sprite": "barrel",
+    "e": 0,
+    "more": [
+     [
+      33,
+      64,
+      0
+     ]
+    ]
+   },
+   "sunflowers": {
+    "at": [
+     26,
+     124
+    ],
+    "sprite": "sun",
+    "e": 0,
+    "more": [
+     [
+      34,
+      123,
+      0
+     ],
+     [
+      42,
+      124,
+      0
+     ]
+    ]
+   },
+   "tomatoes": {
+    "at": [
+     32,
+     136
+    ],
+    "sprite": "tomato",
+    "e": 1,
+    "more": [
+     [
+      48,
+      136,
+      2
+     ],
+     [
+      64,
+      136,
+      3
+     ]
+    ]
+   },
+   "reeds": {
+    "at": [
+     186,
+     74
+    ],
+    "sprite": "reed",
+    "e": 0,
+    "more": [
+     [
+      189,
+      108,
+      0
+     ],
+     [
+      206,
+      124,
+      0
+     ],
+     [
+      244,
+      122,
+      0
+     ],
+     [
+      254,
+      70,
+      0
+     ]
+    ]
+   },
+   "apple_trees": {
+    "at": [
+     118,
+     58
+    ],
+    "sprite": "treeF",
+    "e": 2,
+    "more": [
+     [
+      176,
+      152,
+      7
+     ]
+    ]
+   },
+   "field_rocks": {
+    "at": [
+     150,
+     172
+    ],
+    "sprite": "rock",
+    "e": 0,
+    "more": [
+     [
+      6,
+      102,
+      0
+     ],
+     [
+      150,
+      66,
+      0
+     ]
+    ]
    }
   },
   "door": {
@@ -2590,23 +2868,8 @@
      5
     ],
     [
-     "schrank",
-     32,
-     4
-    ],
-    [
      "pflanze",
      27,
-     8
-    ],
-    [
-     "stehlampe",
-     39,
-     4
-    ],
-    [
-     "katze",
-     34,
      8
     ],
     [
@@ -2620,16 +2883,6 @@
      7
     ],
     [
-     "kiste",
-     41,
-     8
-    ],
-    [
-     "kiste",
-     42,
-     8
-    ],
-    [
      "kuechenzeile",
      33,
      10
@@ -2640,24 +2893,9 @@
      12
     ],
     [
-     "stehlampe",
-     37,
-     11
-    ],
-    [
-     "sessel:#5d8fb0",
-     45,
-     13
-    ],
-    [
      "pflanze:gross",
      37,
      14
-    ],
-    [
-     "kerze",
-     44,
-     12
     ]
    ],
    "rugs": [

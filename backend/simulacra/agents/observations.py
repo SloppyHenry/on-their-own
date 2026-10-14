@@ -17,8 +17,11 @@ WITNESS_ACTIONS = {"use", "gather", "build", "plant", "water", "eat", "drink", "
 Obs = tuple[str, str, str, int]  # (Agent, Art, Text, Wichtigkeit)
 
 
+HIDDEN_STATE = {"letters", "spots", "spot", "contents", "goods", "extra_slots"}   # privat oder nur für die Engine
+
+
 def _short_state(state: dict[str, Any]) -> str:
-    parts = [f"{k}: {v}" for k, v in state.items() if v not in (None, "", [], {}, False)]
+    parts = [f"{k}: {v}" for k, v in state.items() if k not in HIDDEN_STATE and v not in (None, "", [], {}, False)]
     return (", ".join(parts))[:140]
 
 
@@ -96,6 +99,13 @@ class ObservationCollector:
             out.append((who, "body", "Du hast geschlafen und fühlst dich erholt.", 3))
         elif t == "agent.rested" and who:
             out.append((who, "body", "Du hast dich ausgeruht.", 2))
+        elif t == "agent.rowed" and who:
+            out.append((who, "body", "Du bist mit dem Boot über den See gerudert. Das Wasser war ruhig.", 3))
+        elif t == "agent.petted" and who:
+            out.append((who, "body", f"Du hast die {d['name']} gestreichelt; sie schnurrt zufrieden.", 3))
+        elif t == "agent.stored" and who:
+            what = f"{d['amount']}× {RES_DE.get(d['resource'], d['resource'])}" if d.get("resource") else d["what"]
+            out.append((who, "inventory", f"Du legst {what} in {d['name']}." if d["into"] else f"Du nimmst {what} aus {d['name']}.", 3))
         elif t == "agent.fished" and who:
             out.append((who, "result", "Du hast einen Fisch gefangen." if d["caught"] else "Diesmal hat nichts angebissen.", 3))
         elif t == "agent.inventory_changed" and who:
@@ -116,6 +126,8 @@ class ObservationCollector:
                 if who:
                     out.append((who, "result", f"Du hast {o['name']} " + {"build_done": "fertiggestellt", "plant": "eingepflanzt"}.get(cause, "geschaffen") + ".", 5))
                 out += [(w, "seen", f"Neu {loc_at(st, loc)}: {o['name']}.", 3) for w in self._at(bodies, loc, set(ev.agents))]
+        elif t == "world.object_changed" and d.get("change") == "fell":
+            out += [(w, "seen", f"Der Sturm hat die {d['name']} umgeworfen.", 4) for w in self._at(bodies, loc, set())]
         elif t == "world.object_changed" and d.get("change") == "grew":
             out += [(w, "seen", f"{d['name']} ist ein Stück gewachsen.", 2) for w in self._at(bodies, loc, set())]
         elif t == "world.object_discovered" and who:

@@ -123,6 +123,38 @@ const MOEBEL = [[29, 5], [32, 4], [27, 8], [39, 4], [39, 8], [44, 7], [41, 8], [
 for (const [x, y] of MOEBEL) grid[y][x] = "m";
 look.decor = look.decor.filter(([k, vx, vy]) => !(k === "rock" && vx === 210 && vy === 150));   // dieser Stein ist die Quelle „shore_rocks“
 
+// 6. Dinge im Dorf (AP15): Deko aus A und innen2 wird zu Objekten und Quellen. Bildstelle und Sprite bleiben (look.place),
+//    die Kachel ist die Stelle für Wege und Wahrnehmung (Dinge auf Mauer oder Zaun rücken auf die nächste freie Kachel davor).
+const locAt = ([x, y]) => (locations.find((l) => !l.props.fallback && x >= l.rect[0] && y >= l.rect[1] && x < l.rect[0] + l.rect[2] && y < l.rect[1] + l.rect[3]) ?? locations.at(-1)).id;
+const take = (kind) => { const out = look.decor.filter((d) => d[0] === kind); look.decor = look.decor.filter((d) => d[0] !== kind); return out; };
+const thing = (id, kind, name, tile, [k, vx, vy, e], state) => {
+  objects.push({ id, kind, name, tile, ...(state ? { state } : {}) });
+  look.place[id] = { at: [vx, vy], sprite: k, e };
+};
+const source = (id, resource, label, tile, ds, { amount, cap, regen, tool = null, minutes = 3, weather = null }) => {
+  resource_nodes.push({ id, location_id: locAt(tile), tile, resource, label, amount, cap, regen_per_hour: regen, requires_tool: tool, gather_minutes: minutes, regen_weather: weather });
+  look.place[id] = { at: [ds[0][1], ds[0][2]], sprite: ds[0][0], e: ds[0][3], more: ds.slice(1).map((d) => [d[1], d[2], d[3]]) };
+};
+take("lamp").forEach((d, i) => thing(`lantern_${i + 1}`, "lantern", "Laterne", [[10, 11], [13, 14], [16, 11]][i], d));
+thing("mailbox", "mailbox", "Briefkasten", [9, 11], take("mailbox")[0]);
+thing("signpost", "signpost", "Wegweiser", [12, 15], take("sign")[0]);
+thing("scarecrow", "scarecrow", "Vogelscheuche", [8, 14], take("scare")[0]);
+thing("boat", "boat", "Boot", [18, 13], take("boat")[0]);
+source("rain_barrels", "water", "Regentonnen", [5, 15], take("barrel"), { amount: 6, cap: 10, regen: 2, minutes: 2, weather: "rain,storm" });
+source("sunflowers", "seeds", "Sonnenblumen", [6, 14], take("sun"), { amount: 3, cap: 4, regen: 0.05 });
+source("tomatoes", "food", "Tomaten", [7, 14], take("tomato"), { amount: 4, cap: 6, regen: 0.1 });
+source("reeds", "reed", "Schilf", [15, 12], take("reed"), { amount: 6, cap: 8, regen: 0.1, minutes: 4 });
+source("apple_trees", "food", "Apfelbäume", [12, 10], take("treeF"), { amount: 4, cap: 6, regen: 0.1, minutes: 4 });
+source("field_rocks", "stone", "Steine", [12, 16], take("rock"), { amount: 6, cap: 6, regen: 0.05, tool: "pickaxe", minutes: 10 });
+const inner = (kind) => { const out = look.interior.decor.filter((d) => d[0].split(":")[0] === kind); look.interior.decor = look.interior.decor.filter((d) => d[0].split(":")[0] !== kind); return out; };
+const [[, cx, cy]] = inner("katze");
+objects.push({ id: "cat", kind: "cat", name: "Katze", tile: [cx, cy], state: { spots: [[47, 13], [cx, cy], [30, 13], [29, 7]], spot: 1 } });
+inner("stehlampe").forEach(([, x, y], i) => objects.push({ id: `floor_lamp_${i + 1}`, kind: "floor_lamp", name: "Stehlampe", tile: [x, y] }));
+inner("kerze").forEach(([, x, y]) => objects.push({ id: "candle", kind: "candle", name: "Kerze", tile: [x, y] }));
+inner("sessel").forEach(([, x, y]) => objects.push({ id: "armchair", kind: "armchair", name: "Sessel", tile: [x, y] }));
+inner("schrank").forEach(([, x, y]) => objects.push({ id: "wardrobe", kind: "wardrobe", name: "Schrank", tile: [x, y] }));
+inner("kiste").forEach(([, x, y], i) => objects.push({ id: `crate_${i + 1}`, kind: "crate", name: "Kiste", tile: [x, y] }));
+
 const types = { ...old.tile_types, fence: { char: "f", walkable: false, cost: 0, color: "#a96f42", label: "Zaun" }, furniture: { char: "m", walkable: false, cost: 0, color: "#a96f42", label: "Möbel" } };
 const world = {
   ...old, name: "Dorf am See", size: [W, H], home: door, tile_types: types, tiles: grid.map((r) => r.join("")),

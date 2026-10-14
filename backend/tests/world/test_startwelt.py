@@ -29,9 +29,24 @@ def start(monkeypatch):
 def test_grundriss_wie_mockup_a(welt):
     look = welt["look"]
     assert look["style"] == "mockup-a" and welt["size"] == [51, 19]
-    kinds = [d[0] for d in look["decor"]]
+    kinds = [d[0] for d in look["decor"]]                                                   # Deko plus Dinge (AP15) mit ihren Sprites
+    for p in look["place"].values():
+        kinds += [p.get("sprite")] * (1 + len(p.get("more", [])))
     assert sum(k in ("tree", "treeF", "treeB", "pine") for k in kinds) == 13 + 95 + 52   # alle Bäume aus A
     assert kinds.count("boat") == 1 and kinds.count("house") == 1 and kinds.count("lamp") == 3
+    for k, n in {"mailbox": 1, "sign": 1, "scare": 1, "barrel": 2, "sun": 3, "tomato": 3, "reed": 5, "rock": 4, "treeF": 2}.items():
+        assert kinds.count(k) == n, k
+
+
+def test_dinge_aus_der_deko_sind_echt(welt):
+    objs, nodes = {o["id"]: o for o in welt["objects"]}, {n["id"]: n for n in welt["resource_nodes"]}
+    kinds = sorted(o["kind"] for o in objs.values() if o["kind"] in ("lantern", "mailbox", "signpost", "scarecrow", "boat", "cat", "floor_lamp", "candle", "armchair", "wardrobe", "crate"))
+    assert kinds == sorted(["lantern"] * 3 + ["mailbox", "signpost", "scarecrow", "boat", "cat", "floor_lamp", "floor_lamp", "candle", "armchair", "wardrobe", "crate", "crate"])
+    assert {nodes[i]["label"] for i in ("tomatoes", "sunflowers", "rain_barrels", "reeds", "apple_trees", "field_rocks")} == {"Tomaten", "Sonnenblumen", "Regentonnen", "Schilf", "Apfelbäume", "Steine"}
+    assert nodes["rain_barrels"]["location_id"] == "garden" and nodes["rain_barrels"]["regen_weather"] == "rain,storm"
+    assert nodes["reeds"]["location_id"] == "lake" and objs["boat"]["tile"] and objs["scarecrow"]["tile"]
+    inner = [d[0].split(":")[0] for d in welt["look"]["interior"]["decor"]]
+    assert not {"katze", "stehlampe", "kerze", "sessel", "schrank", "kiste"} & set(inner)          # jetzt Dinge, keine Deko mehr
     ids = {l["id"] for l in welt["locations"]}
     assert {"house.bedroom_a", "house.bedroom_b", "house.workshop", "house.kitchen", "house.living", "garden", "square", "lake", "forest", "paths"} <= ids
     assert not {"well_garden", "bench_garden", "door_back"} & {o["id"] for o in welt["objects"]}   # A hat einen Brunnen und eine Bank

@@ -19,6 +19,8 @@ class NeedParams:
     social_rise_per_hour: float = 5.0          # allein
     social_relief_per_min_talking: float = 1.2
     social_relief_per_min_together: float = 0.15
+    social_relief_per_min_petting: float = 1.5         # Katze streicheln
+    calm_relief_per_min_rowing: float = 0.5            # mit dem Boot auf dem See
     calm_rise_per_min_talking: float = 0.25
     calm_relief_per_hour_alone: float = 8.0
     calm_relief_per_hour_quiet_place: float = 14.0
@@ -62,7 +64,10 @@ class NeedsStore:
             loc = st.locations.get(body.location_id)
             themes = set(loc.props.get("themes", [])) if loc else set()
             indoors = body.location_id.startswith("house.")
+            mode = body.action.data.get("mode") if body.action is not None and body.action.type == "use" else None   # Dinge im Dorf (AP15)
             if p.enabled["social"]:
+                if mode == "pet":
+                    v["social"] -= p.social_relief_per_min_petting
                 if aid in talking:
                     v["social"] -= p.social_relief_per_min_talking
                 elif others:
@@ -76,6 +81,8 @@ class NeedsStore:
                     v["calm"] -= (p.calm_relief_per_hour_quiet_place if themes & {"calm", "rest"} else p.calm_relief_per_hour_alone) / 60
                 if weather == "storm" and not indoors:
                     v["calm"] += p.calm_rise_per_hour_storm / 60
+                if mode == "row":
+                    v["calm"] -= p.calm_relief_per_min_rowing
             if p.enabled["warmth"]:
                 cold = not indoors and (weather in ("rain", "storm", "snow") or night)
                 fire = indoors and any(o.kind in ("fireplace", "firepit") and o.state.get("lit") for o in st.objects_at(body.location_id))

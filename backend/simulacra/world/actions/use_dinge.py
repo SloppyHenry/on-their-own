@@ -208,7 +208,8 @@ class Store(Mode):
             o.state["goods"][d["resource"]] = o.state["goods"].get(d["resource"], 0) + d["amount"]
             what = f"{d['amount']}× {d['resource']}"
         ctx.state.save_object(o)
-        ctx.emit("agent.stored", [actor.id], actor.location_id, {"object": o.id, "name": o.name, "what": what, "into": True})
+        ctx.emit("agent.stored", [actor.id], actor.location_id, {"object": o.id, "name": o.name, "what": what, "into": True,
+                                                                 "resource": d.get("resource"), "amount": d.get("amount")})
         return None
 
 
@@ -252,7 +253,8 @@ class Retrieve(Mode):
             ctx.inv_add(actor, d["resource"], d["amount"])
             what = f"{d['amount']}× {d['resource']}"
         ctx.state.save_object(o)
-        ctx.emit("agent.stored", [actor.id], actor.location_id, {"object": o.id, "name": o.name, "what": what, "into": False})
+        ctx.emit("agent.stored", [actor.id], actor.location_id, {"object": o.id, "name": o.name, "what": what, "into": False,
+                                                                 "resource": d.get("resource"), "amount": d.get("amount")})
         return None
 
 

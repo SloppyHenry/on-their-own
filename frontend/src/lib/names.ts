@@ -1,5 +1,5 @@
 // Deutsche Bezeichnungen für Aktionen, Ressourcen und Status. Unbekanntes wird lesbar durchgereicht, nie verschluckt.
-export const RESOURCE_NAMES: Record<string, string> = { food: "Essen", water: "Wasser", wood: "Holz", stone: "Stein", seeds: "Samen", fish: "Fisch" };
+export const RESOURCE_NAMES: Record<string, string> = { food: "Essen", water: "Wasser", wood: "Holz", stone: "Stein", seeds: "Samen", fish: "Fisch", reed: "Schilf" };
 export const resourceName = (r: string) => RESOURCE_NAMES[r] ?? r;
 
 /** Aktionstyp -> [Tätigkeit im Präsens, Symbol] */

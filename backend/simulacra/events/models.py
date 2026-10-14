@@ -111,6 +111,8 @@ class Stored(D):
     name: str
     what: str
     into: bool
+    resource: str | None = None
+    amount: int | None = None
 
 
 class ItemMoved(D):

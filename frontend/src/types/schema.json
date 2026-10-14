@@ -5823,6 +5823,17 @@
    "additionalProperties": false,
    "description": "Etwas in eine Ablage gelegt (`into`) oder herausgenommen.",
    "properties": {
+    "amount": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
     "into": {
      "type": "boolean"
     },
@@ -5831,6 +5842,17 @@
     },
     "object": {
      "type": "string"
+    },
+    "resource": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
     },
     "what": {
      "type": "string"

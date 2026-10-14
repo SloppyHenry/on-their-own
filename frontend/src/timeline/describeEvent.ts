@@ -41,6 +41,9 @@ const TEXT: Table = {
   "agent.drank": (_d, n, ev) => `${who(ev, n)} trinkt.`,
   "agent.slept": (d, n, ev) => `${who(ev, n)} hat ${Math.round(d.minutes / 60 * 10) / 10} Stunden geschlafen.`,
   "agent.rested": (_d, n, ev) => `${who(ev, n)} ruht sich aus.`,
+  "agent.rowed": (d, n, ev) => `${who(ev, n)} rudert ${d.minutes} Minuten mit dem Boot.`,
+  "agent.petted": (d, n, ev) => `${who(ev, n)} streichelt die ${d.name}.`,
+  "agent.stored": (d, n, ev) => `${who(ev, n)} ${d.into ? "legt" : "nimmt"} ${d.resource ? `${d.amount}× ${resourceName(d.resource)}` : d.what} ${d.into ? "in" : "aus"} ${d.name}.`,
   "agent.item_taken": (d, n, ev) => `${who(ev, n)} nimmt ${d.object.name}.`,
   "agent.item_dropped": (d, n, ev) => `${who(ev, n)} legt ${d.object.name} ab.`,
   "agent.item_given": (d, n) => `${n.agent(d.from)} gibt ${n.agent(d.to)} ${d.object?.name ?? `${d.amount ?? ""} ${resourceName(d.resource ?? "")}`.trim()}.`,
@@ -113,7 +116,7 @@ const ICON_BY_TYPE: Partial<Record<EventType, string>> = {
   "agent.informed": "chat", "simulation.event_injected": "hammer", "simulation.event_scheduled": "plan", "simulation.event_fired": "hammer", "simulation.effect_ended": "ok", "world.npc_acted": "go",
   "agent.decision_failed": "warn", "agent.guard_triggered": "warn", "agent.goal_changed": "plan", "agent.relation_changed": "chat", "agent.action_failed": "no", "agent.action_rejected": "no", "agent.action_interrupted": "warn",
   "agent.action_completed": "ok", "world.weather_changed": "rain", "world.day_started": "sun", "world.phase_changed": "sun",
-  "agent.slept": "zzz", "agent.rested": "zzz", "agent.memory_created": "think", "agent.memory_retrieved": "think", "agent.memory_skipped": "think", "agent.memory_archived": "think",
+  "agent.slept": "zzz", "agent.rested": "zzz", "agent.rowed": "rain", "agent.petted": "leaf", "agent.stored": "hammer", "agent.memory_created": "think", "agent.memory_retrieved": "think", "agent.memory_skipped": "think", "agent.memory_archived": "think",
 };
 
 export function describeEvent(ev: EventOut, names: Names): Described {

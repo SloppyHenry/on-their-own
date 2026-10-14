@@ -10,7 +10,9 @@ from . import Env, Factors, add
 BASE = {"speak": 28, "reply": 46, "end_talk": 16, "accept": 40, "decline": 18, "give": 22, "move": 24, "explore": 30,
         "inspect": 12, "take": 18, "gather": 28, "build": 30, "plant": 34, "water": 32, "harvest": 42, "eat": 22, "drink": 22,
         "rest": 18, "sleep": 14, "to_bed": 14, "wait": 8, "read": 22, "write": 14, "fish": 28, "cook": 30, "light": 18, "extinguish": 8,
-        "unlock": 24, "lock": 6, "resume": 36, "search": 20}
+        "unlock": 24, "lock": 6, "resume": 36, "search": 20,
+        "row": 20, "post": 16, "collect": 52, "fix": 30, "pet": 22, "store": 10, "retrieve": 14}
+LIGHT_KINDS = ("lantern", "candle", "floor_lamp")
 OUTDOOR_MOVES = {"move", "explore"}
 SOCIAL = {"speak", "reply", "accept", "give", "search"}
 STOP = {"einen", "eine", "einem", "einer", "eines", "dass", "sich", "auch", "noch", "oder", "aber", "dann", "wenn", "über", "unter", "mehr",
@@ -52,9 +54,15 @@ def base(o, p: Perception, pers: Personality, ctx: AgentContext, env: Env) -> Fa
 def time_weather(o, p: Perception, pers: Personality, ctx: AgentContext, env: Env) -> Factors:
     f: Factors = []
     night = p.phase == "night"
-    if night and o.kind in OUTDOOR_MOVES | {"gather", "build", "plant", "water"} and not env.indoors_target:
+    if night and o.kind in OUTDOOR_MOVES | {"gather", "build", "plant", "water", "row"} and not env.indoors_target:
         add(f, "Nacht", -18 * (1 - 0.5 * max(0.0, pers.f("risk_taking"))))
-    if p.weather in ("Regen", "Sturm", "Schnee") and (o.kind in OUTDOOR_MOVES or o.kind in ("gather", "build", "plant")) and not env.indoors_target:
+    if o.meta.get("object_kind") in LIGHT_KINDS:                        # Licht: abends an, tagsüber aus (niemand schaltet es sonst)
+        dark = p.phase in ("dusk", "night")
+        if o.kind == "light":
+            add(f, "Dunkelheit" if dark else "Es ist hell", 16.0 if dark else -12.0)
+        elif o.kind == "extinguish":
+            add(f, "Es ist hell" if not dark else "Dunkelheit", 12.0 if not dark else -10.0)
+    if p.weather in ("Regen", "Sturm", "Schnee") and (o.kind in OUTDOOR_MOVES or o.kind in ("gather", "build", "plant", "row")) and not env.indoors_target:
         add(f, "Wetter", -12 * (1 - 0.5 * max(0.0, pers.f("risk_taking"))))
     return f
 

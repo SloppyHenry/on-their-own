@@ -17,7 +17,9 @@ from .store import AgentStore
 
 PLACEHOLDER = "…"
 USE_KIND = {"sleep": "sleep", "sit": "rest", "cook": "cook", "read": "read", "write": "write", "light": "light",
-            "extinguish": "extinguish", "unlock": "unlock", "fish": "fish", "harvest": "harvest"}
+            "extinguish": "extinguish", "unlock": "unlock", "fish": "fish", "harvest": "harvest",
+            "row": "row", "collect": "collect", "fix": "fix", "pet": "pet"}
+CONTAINERS = ("chest", "wardrobe", "crate")
 
 
 def fmt_eta(minutes: int | None) -> str:
@@ -81,7 +83,14 @@ def generate(engine: WorldEngine, store: AgentStore, p: Perception) -> list[Opti
             label = USE_OPTION.get((o.kind, mode))
             if kind and label and not (o.kind == "door" and mode != "unlock"):
                 add(kind, label.format(obj=o.name), "use", {"object_id": o.id, "mode": mode},
-                    utterance_key="text" if mode == "write" else None)
+                    utterance_key="text" if mode == "write" else None, meta={"object_kind": o.kind})
+        if o.kind == "mailbox":
+            for other in st.agents():
+                if other.id != aid:
+                    add("post", f"{other.name} einen Brief schreiben und in den Briefkasten werfen", "use", {"object_id": o.id, "mode": "post", "to": other.id},
+                        utterance_key="text", meta={"partner": other.id})
+        if o.kind in CONTAINERS:
+            add_container(add, o, body, held, st)
         if o.kind == "seedbed":
             add("plant", f"Samen in {o.name} pflanzen", "plant", {"seedbed_id": o.id})
         if o.kind == "plant":
@@ -90,7 +99,8 @@ def generate(engine: WorldEngine, store: AgentStore, p: Perception) -> list[Opti
             add("resume", f"Den Bau fortsetzen: {o.name}", "build", {"site_id": o.id}, meta={"bp_kind": engine.blueprints.get(o.state.get("blueprint", ""), {}).get("kind")})
     for n in st.nodes_at(p.location_id):
         if n.amount >= 1:
-            add("gather", f"{RES_DE.get(n.resource, n.resource)} sammeln (2×)" + (f", braucht {n.requires_tool}" if n.requires_tool else ""),
+            what = f"{n.label} – {RES_DE.get(n.resource, n.resource)}" if n.label else RES_DE.get(n.resource, n.resource)
+            add("gather", f"{what} sammeln (2×)" + (f", braucht {n.requires_tool}" if n.requires_tool else ""),
                 "gather", {"resource": n.resource, "amount": 2, "node": n.id})
     for bp_id, bp in engine.blueprints.items():
         cost = ", ".join(f"{max(1, math.ceil(q * st.rules.build_cost_mult))}× {RES_DE.get(r, r)}" for r, q in bp["cost"].items())
@@ -117,6 +127,20 @@ def generate(engine: WorldEngine, store: AgentStore, p: Perception) -> list[Opti
         for h in held:
             add("give", f"{person.name} {h.name} geben", "give", {"to": person.id, "object_id": h.id})
     return cands
+
+
+def add_container(add, o, body, held, st) -> None:
+    """Ablagen: Dinge und Rohstoffe hineinlegen oder herausnehmen (je höchstens zwei Angebote)."""
+    for r, q in sorted(body.inventory.items())[:2]:
+        add("store", f"{min(q, 5)}× {RES_DE.get(r, r)} in {o.name} legen", "use", {"object_id": o.id, "mode": "store", "resource": r, "amount": min(q, 5)})
+    for h in held[:2]:
+        add("store", f"{h.name} in {o.name} legen", "use", {"object_id": o.id, "mode": "store", "item": h.id})
+    for r, q in sorted(o.state.get("goods", {}).items())[:2]:
+        add("retrieve", f"{min(q, 5)}× {RES_DE.get(r, r)} aus {o.name} nehmen", "use", {"object_id": o.id, "mode": "retrieve", "resource": r, "amount": min(q, 5)})
+    for i in o.state.get("contents", [])[:2]:
+        it = st.obj(i)
+        if it is not None:
+            add("retrieve", f"{it.name} aus {o.name} nehmen", "use", {"object_id": o.id, "mode": "retrieve", "item": i})
 
 
 def build_options(engine: WorldEngine, store: AgentStore, p: Perception, tuning: Tuning) -> list[Option]:

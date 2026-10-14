@@ -4,7 +4,7 @@ from typing import Any
 
 from ..world.state import WorldState
 
-RES_DE = {"wood": "Holz", "food": "Nahrung", "water": "Wasser", "seeds": "Samen", "stone": "Stein"}
+RES_DE = {"wood": "Holz", "food": "Nahrung", "water": "Wasser", "seeds": "Samen", "stone": "Stein", "reed": "Schilf"}
 
 USE_OPTION = {
     ("bed", "sleep"): "Im Bett schlafen", ("sofa", "sit"): "Sich aufs {obj} setzen und ausruhen", ("bench", "sit"): "Sich auf die {obj} setzen und ausruhen",
@@ -15,10 +15,21 @@ USE_OPTION = {
     ("firepit", "light"): "Die Feuerstelle anzünden (braucht 1 Holz)", ("firepit", "extinguish"): "Die Feuerstelle löschen",
     ("door", "lock"): "{obj} abschließen", ("door", "unlock"): "{obj} aufschließen",
     ("fishing_spot", "fish"): "Angeln", ("plant", "harvest"): "Die reife Pflanze ernten",
+    # Dinge im Dorf (AP15)
+    ("boat", "row"): "Mit dem Boot auf den See hinausrudern", ("boat", "fish"): "Vom Boot aus angeln",
+    ("lantern", "light"): "Die {obj} anzünden", ("lantern", "extinguish"): "Die {obj} löschen",
+    ("candle", "light"): "Die {obj} anzünden", ("candle", "extinguish"): "Die {obj} ausblasen",
+    ("floor_lamp", "light"): "Die {obj} einschalten", ("floor_lamp", "extinguish"): "Die {obj} ausschalten",
+    ("mailbox", "collect"): "Die Post aus dem Briefkasten holen und lesen", ("signpost", "read"): "Den Wegweiser lesen",
+    ("scarecrow", "fix"): "Die umgefallene Vogelscheuche wieder aufrichten", ("cat", "pet"): "Die Katze streicheln",
+    ("armchair", "sit"): "Sich in den {obj} setzen und ausruhen",
 }
+LIGHTS = ("lantern", "candle", "floor_lamp")
 USE_THIRD = {"sleep": "legt sich schlafen", "sit": "setzt sich hin", "cook": "kocht etwas", "read": "liest", "write": "schreibt etwas auf",
              "light": "zündet ein Feuer an", "extinguish": "löscht ein Feuer", "lock": "schließt eine Tür ab", "unlock": "schließt eine Tür auf",
-             "fish": "angelt", "harvest": "erntet eine Pflanze"}
+             "fish": "angelt", "harvest": "erntet eine Pflanze", "row": "rudert mit dem Boot", "post": "wirft einen Brief ein",
+             "collect": "holt die Post", "fix": "richtet die Vogelscheuche auf", "pet": "streichelt die Katze",
+             "store": "legt etwas ab", "retrieve": "nimmt etwas heraus"}
 
 
 def loc_to(state: WorldState, loc_id: str) -> str:
@@ -38,7 +49,7 @@ def target_label(state: WorldState, target: str) -> str:
     if (o := state.obj(target)) is not None:
         return o.name
     if (n := state.node(target)) is not None:
-        return f"Quelle für {RES_DE.get(n.resource, n.resource)}"
+        return n.label or f"Quelle für {RES_DE.get(n.resource, n.resource)}"
     if (a := state.agent(target)) is not None:
         return a.name
     return target
@@ -58,6 +69,8 @@ def third_person(state: WorldState, name: str, action: str, params: dict[str, An
         return f"{name} {simple[action]}"
     if action == "use":
         o = state.obj(p.get("object_id", ""))
+        if o and o.kind in LIGHTS and p.get("mode") in ("light", "extinguish"):
+            return f"{name} {'macht' if p['mode'] == 'light' else 'löscht'} {'Licht an' if p['mode'] == 'light' else 'ein Licht'}: {o.name}"
         return f"{name} {USE_THIRD.get(p.get('mode'), 'benutzt')} {('(' + o.name + ')') if o and p.get('mode') in ('read', 'write') else ''}".strip()
     if action == "gather":
         return f"{name} sammelt {RES_DE.get(p.get('resource'), 'etwas')}"

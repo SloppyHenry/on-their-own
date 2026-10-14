@@ -28,10 +28,12 @@ def relief(o, p: Perception, pers: Personality, ctx: AgentContext, env: Env) -> 
     if ctx.on("social"):
         if o.kind in SOCIAL:
             add(f, "Bedürfnis Geselligkeit", 22 * max(0.0, soc - 35) / 65)
-        elif o.kind in ("rest", "sleep", "wait", "read", "fish") and soc > 70:
+        elif o.kind == "pet":
+            add(f, "Bedürfnis Geselligkeit", 10 * max(0.0, soc - 35) / 65)
+        elif o.kind in ("rest", "sleep", "wait", "read", "fish", "row") and soc > 70:
             add(f, "Bedürfnis Geselligkeit", -8 * (soc - 70) / 30)
     if ctx.on("calm"):
-        calming = o.kind in ("rest", "wait", "sleep", "read", "fish")
+        calming = o.kind in ("rest", "wait", "sleep", "read", "fish", "row", "pet")
         if calming or (o.kind in OUTDOOR_MOVES and "calm" in (env.place_themes or [])):
             add(f, "Bedürfnis Ruhe", 18 * max(0.0, calm - 35) / 65)
         elif o.kind in ("speak", "reply") and calm > 65:

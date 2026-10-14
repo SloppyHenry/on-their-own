@@ -73,7 +73,7 @@ class Perception:
     extra: dict[str, Any] = field(default_factory=dict)
 
 
-def _object_note(o: WorldObject) -> str:
+def _object_note(o: WorldObject, names: dict[str, str] | None = None) -> str:
     s = o.state
     if o.kind == "plant":
         return f"Stufe {s['stage']} von 4, " + ("gegossen" if s["watered_at"] is not None else "trocken")
@@ -85,7 +85,21 @@ def _object_note(o: WorldObject) -> str:
         return "brennt" if s["lit"] else "aus"
     if o.kind in ("board", "desk"):
         return f"{len(s['notes'])} Notizen"
+    if o.kind in ("lantern", "candle"):
+        return "brennt" if s["lit"] else "aus"
+    if o.kind == "floor_lamp":
+        return "an" if s["lit"] else "aus"
+    if o.kind == "scarecrow" and not s["upright"]:
+        return "umgefallen"
+    if o.kind in ("chest", "wardrobe", "crate"):
+        return container_text(s, names) if names is not None else ""
     return ""
+
+
+def container_text(s: dict, names: dict[str, str]) -> str:
+    """„darin: 2× Holz, Axt“ oder „leer“ (Truhe, Schrank, Kiste)."""
+    parts = [f"{q}× {RES_DE.get(r, r)}" for r, q in sorted(s.get("goods", {}).items())] + [names.get(i, i) for i in s.get("contents", [])]
+    return "darin: " + ", ".join(parts) if parts else "leer"
 
 
 def build(engine: WorldEngine, store: AgentStore, convs: ConversationManager, agent_id: str, memory_lines: int = 10) -> Perception:
@@ -94,16 +108,22 @@ def build(engine: WorldEngine, store: AgentStore, convs: ConversationManager, ag
     minute = engine.minute
     plants = {(o.x, o.y): o for o in st.objects_at(body.location_id) if o.kind == "plant"}
     objects = []
-    for o in st.objects_at(body.location_id):
+    here = st.objects_at(body.location_id)
+    stored = {i for o in here for i in o.state.get("contents", [])}
+    names = {i: st.obj(i).name for i in stored if st.obj(i)}
+    for o in here:
         if not o.visible_to(agent_id):
             continue
-        note = _object_note(o)
+        note = _object_note(o, names)
+        if o.kind == "mailbox":
+            mine = sum(1 for m in o.state["letters"] if m["to"] == agent_id and not m["read"])
+            note = f"Post für dich ({mine} {'Brief' if mine == 1 else 'Briefe'})" if mine else "keine Post für dich"
         if o.kind == "seedbed":
             note = f"bepflanzt: {plants[(o.x, o.y)].name} ({_object_note(plants[(o.x, o.y)])})" if (o.x, o.y) in plants else "frei"
         if o.kind == "plant" and any(b.kind == "seedbed" and (b.x, b.y) == (o.x, o.y) for b in st.objects_at(body.location_id)):
             continue                                   # steht schon beim Beet
         objects.append({"id": o.id, "name": o.name, "kind": o.kind, "note": note, "pos": (o.x, o.y)})
-    sources = [{"id": n.id, "resource": RES_DE.get(n.resource, n.resource), "available": n.amount >= 1, "tool": n.requires_tool}
+    sources = [{"id": n.id, "resource": (f"{n.label}: " if n.label else "") + RES_DE.get(n.resource, n.resource), "available": n.amount >= 1, "tool": n.requires_tool}
                for n in st.nodes_at(body.location_id)]
     people = []
     for other in st.agents():

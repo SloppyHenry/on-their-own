@@ -1926,9 +1926,11 @@ export interface StepRequest {
  * via the `definition` "Stored".
  */
 export interface Stored {
+  amount?: number | null;
   into: boolean;
   name: string;
   object: string;
+  resource?: string | null;
   what: string;
 }
 /**
