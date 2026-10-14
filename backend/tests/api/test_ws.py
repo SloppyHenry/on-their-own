@@ -114,7 +114,7 @@ def test_two_clients_receive_the_same_events():
 
 
 def test_heartbeat_pings_and_closes_silent_clients():
-    with api(ws_ping_s=0.1) as c:
+    with api(ws_ping_s=0.3) as c:
         with c.websocket_connect("/ws") as ws:
             hello(ws)
             assert ws.receive_json() == {"type": "ping"}
