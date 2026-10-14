@@ -27,7 +27,13 @@ async function prepare(page: Page, minute: number) {
   await page.waitForTimeout(1500);
 }
 const welt = (page: Page) => page.evaluate(() => { const v = (window as unknown as { __welt: Welt }).__welt; return { x: v.kam.x, y: v.kam.y, zo: v.kam.zo, zoom: v.kam.zoom }; });
-const grab = async (page: Page) => Buffer.from((await page.getByTestId("world-pixels").evaluate((c: HTMLCanvasElement) => c.toDataURL("image/png"))).split(",")[1], "base64");
+const raw = async (page: Page) => Buffer.from((await page.getByTestId("world-pixels").evaluate((c: HTMLCanvasElement) => c.toDataURL("image/png"))).split(",")[1], "base64");
+/** Wartet, bis zwei Bilder hintereinander gleich sind (Boden und Kamera ruhen), und liefert das zweite: so hängt der Test nicht an festen Wartezeiten. */
+const grab = async (page: Page) => {
+  let prev = await raw(page);
+  for (let i = 0; i < 16; i++) { await page.waitForTimeout(250); const cur = await raw(page); if (cur.equals(prev)) return cur; prev = cur; }
+  return prev;
+};
 /** Kamera auf den Boden (Texel) in Bildmitte setzen und ruhen lassen. */
 async function lookAt(page: Page, tx: number, ty: number, level?: number) {
   await page.evaluate(({ tx, ty, level }) => {

@@ -87,6 +87,24 @@ def test_bestand_wird_nie_ueberschrieben(start):
     assert all((st.obj(i).x, st.obj(i).y) == p for i, p in before[2].items())
 
 
+def test_auf_erzeugter_welt_aendert_die_landstrasse_nur_wildnis_und_wald(tmp_path, monkeypatch):
+    w, _ = new_world(12)
+    f = tmp_path / "w.json"
+    f.write_text(json.dumps(w, ensure_ascii=False))
+    monkeypatch.setattr(loader, "DEFAULT_WORLD", f)
+    eng = WorldEngine.create(Database(":memory:"))
+    st = eng.state
+    chars = {k: t.char for k, t in st.tile_types.items()}
+    before = ["".join(chars[c] for c in row) for row in st.grid.cells]
+    patch, rep = extension_patch(WorldInfo.from_state(st), 5)
+    assert rep.ok
+    eng.edit.apply_patch(patch)
+    after = ["".join(chars[c] for c in row) for row in st.grid.cells]
+    changed = [(b, a) for rb, ra in zip(before, after) for b, a in zip(rb, ra) if b != a]
+    assert changed and all(b in ".T" and a == "," for b, a in changed)          # nur Wildnis und Wald wurden zum Weg
+    assert not open_reachable(eng, [l for l in st.locations.values() if l.id.startswith("v2")])
+
+
 def test_zweites_und_drittes_dorf(start):
     for n, seed in ((2, 5), (3, 9)):
         patch, rep = extension_patch(WorldInfo.from_state(start.state), seed)
@@ -129,10 +147,13 @@ def test_gebaeudemix_und_see(mix, lake, start):
 def test_pruefung_erkennt_unerreichbares():
     w, _ = new_world(3)
     rows = [list(r) for r in w["tiles"]]
-    (a, b), = w["links"][:1] and [w["links"][0]]
-    ax, ay = a
+    (ax, ay), _inside = w["links"][0]
     for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):                       # Haustür zubauen
         rows[ay + dy][ax + dx] = "#"
-    assert (ax, ay) not in reachable(["".join(r) for r in rows], [], (10, 10), set()) or True
-    seen = reachable(["".join(r) for r in rows], w["links"], (w["agents"][0]["tile"][0], w["agents"][0]["tile"][1]), set())
-    assert tuple(a) not in seen
+    seen = reachable(["".join(r) for r in rows], w["links"], tuple(w["agents"][0]["tile"]), set())
+    assert (ax, ay) not in seen
+
+
+def test_fixture_fuer_den_bild_kachel_abgleich_ist_aktuell():
+    from .make_fixture import OUT, fixture
+    assert OUT.read_text() == dumps(fixture()), "Fixture veraltet: backend/.venv/bin/python -m tests.generator.make_fixture"

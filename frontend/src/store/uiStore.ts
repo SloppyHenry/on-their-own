@@ -29,6 +29,8 @@ export const DEFAULT_FILTERS: Filters = {
 };
 
 export type View = "world" | "memory" | "history" | "stats";
+/** Anwendungsmodus: das Spiel selbst, der Welteditor (AP12c) und das Menü zum Spielbeginn. Nur im Spiel gibt es die Infoleiste rechts (Bewohner, Protokoll, Details). */
+export type AppMode = "game" | "editor" | "menu";
 
 interface UiStore {
   view: View;
@@ -58,6 +60,11 @@ interface UiStore {
   /** Weltansicht „Tiefe“ (gewölbt, Mockup A) oder „Flach“. */
   worldMode: ViewMode;
   setWorldMode: (m: ViewMode) => void;
+  appMode: AppMode;
+  setAppMode: (m: AppMode) => void;
+  /** Infoleiste rechts eingeklappt (je Gerät gemerkt). Im Editor und im Startmenü ist sie ohnehin aus. */
+  sidebarCollapsed: boolean;
+  toggleSidebar: () => void;
   /** Mitspieler-Steuerung als Vorschau (AP13): Klick geht/handelt, schickt aber nichts an die Simulation. */
   playerPreview: boolean;
   setPlayerPreview: (on: boolean) => void;
@@ -85,6 +92,10 @@ export const useUiStore = create<UiStore>((set) => ({
   setFilters: (patch) => set((s) => ({ filters: { ...s.filters, ...patch } })),
   worldMode: load<ViewMode>("simulacra.ansicht", "tiefe") === "flach" ? "flach" : "tiefe",
   setWorldMode: (worldMode) => { keep("simulacra.ansicht", worldMode); set({ worldMode }); },
+  appMode: "game",
+  setAppMode: (appMode) => set({ appMode }),
+  sidebarCollapsed: load<boolean>("simulacra.infoleiste-zu", false) === true,
+  toggleSidebar: () => set((s) => { keep("simulacra.infoleiste-zu", !s.sidebarCollapsed); return { sidebarCollapsed: !s.sidebarCollapsed }; }),
   playerPreview: load<boolean>("simulacra.mitspieler", false) === true,
   setPlayerPreview: (playerPreview) => { keep("simulacra.mitspieler", playerPreview); set({ playerPreview }); },
 }));

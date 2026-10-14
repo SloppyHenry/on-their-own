@@ -1,6 +1,6 @@
 // Weltansicht für Welten nach Mockup A (AP12a): Die Kamera fährt durch die Welt (WASD, Pfeile, Ziehen, Folgen, „hingehen“), 1× ist immer der
 // Standard und zeigt in der Startlage genau Bild A. Zoomstufen ¼×, ½× (mehr Welt, gröberer Boden), 2×, 3× (fertiges Bild vergrößert); beim
-// Fahren fließt der Boden weich und der Horizont wird gerade, im Stillstand ist alles scharf (siehe kamera.ts). Klick aufs Haus zeigt es von innen.
+// Fahren fließt der Boden weich, die Wölbung bleibt wie in A, im Stillstand ist alles scharf (siehe kamera.ts). Klick aufs Haus zeigt es von innen.
 import type { World } from "../../store/types";
 import { moodAt, weatherMood, type Mood } from "../art/palette";
 import type { PlayerHooks } from "../view/WorldView";
@@ -269,7 +269,7 @@ export class DorfView {
     this.figures.update(w, dt);
     this.keysPan(dt);
     this.follow(w, dt);
-    const { soft, curve } = this.kam.tick(dt);
+    const { soft } = this.kam.tick(dt);
     const m = weatherMood(moodAt(w.clock.minute % 1440), w.weather.kind), sel = this.bridge.selection();
     const ctx = { w, L: this.look, figures: this.figures, t, lit: m.lights > 0.5, selected: sel?.kind === "agent" ? sel.id : null, hover: this.hover };
     const g = this.canvas.getContext("2d")!;
@@ -284,12 +284,12 @@ export class DorfView {
     } else {
       const mode: Mode = this.bridge.mode() === "flach" ? "flach" : "tiefe", { lw, lh } = this.bufferSize(), k = this.kam;
       this.bild.setCamera(k.x, k.y);
-      this.bild.layout(mode, lw, lh, this.S, k.zo, mode === "tiefe" ? curve : 1);
-      const camKey = `${k.x.toFixed(3)},${k.y.toFixed(3)}|${k.zo}|${curve}|${mode}`;
+      this.bild.layout(mode, lw, lh, this.S, k.zo);
+      const camKey = `${k.x.toFixed(3)},${k.y.toFixed(3)}|${k.zo}|${mode}`;
       if (now - this.lastCompose >= 40 || !this.lastCompose || camKey !== this.composedCam) {      // Takt von A: 25 Bilder je Sekunde; fährt die Kamera, jedes Bild
         this.lastCompose = now; this.composedCam = camKey;
         this.bild.setCasters(casters(w, this.look));
-        const skyKey = `${Math.floor((w.clock.minute % 1440) / 10)}|${w.weather.kind}|${lw}x${lh}|${curve}|${k.zo}`;
+        const skyKey = `${Math.floor((w.clock.minute % 1440) / 10)}|${w.weather.kind}|${lw}x${lh}|${k.zo}`;
         const smokes = housesOf(this.look).filter((h) => h.house.smoke != null).map((h) => [h.region.frame[0] + h.house.at[0] + h.house.smoke!, h.region.frame[1] + h.house.at[1]] as [number, number]);
         this.drawn = this.bild.drawLow(outdoor(ctx), m, t, skyKey, smokes, soft, this.S, (lg) => this.preview(lg, t));
         const lights = glowing(w, this.look);
@@ -359,7 +359,7 @@ export class DorfView {
         return { id: a.id, x: x / d, y: y / d, scale: h.z / d, visible: shown, house: inside ? -1 : num };
       }
       const boat = boatSpot(w, L, a), p = boat ? this.bild.p(boat[0], boat[1] + 2.5) : this.bild.p(pos.x, pos.y), c = toCss(p);
-      return { id: a.id, x: c.x, y: c.y, scale: (p.sc * k) / d, visible: !inside && c.x > -20 && c.x < this.W / d + 20 && c.y > 0 && c.y < this.H / d + 30, house: num };
+      return { id: a.id, x: c.x, y: c.y, scale: (p.sc * k) / d, visible: !inside && p.t <= 1 && c.x > -20 && c.x < this.W / d + 20 && c.y > 0 && c.y < this.H / d + 30, house: num };
     });
     const rooms = this.interior >= 0 && this.innen ? this.innen.labels.map((r) => ({ id: r.id, x: r.x / d, y: r.y / d - 6 })) : [];
     const goal = this.player && this.bridge.playerPreview() ? this.player.preview().goal : null, gp = goal && !houseAt(L, goal[0], goal[1]) ? toCss(this.bild.p(goal[0] * T + 8, goal[1] * T + 8)) : null;

@@ -78,8 +78,12 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--port", type=int, default=8191)
     ap.add_argument("--data-dir", type=Path, default=Path("/tmp/simulacra-e2e"))
+    ap.add_argument("--world", type=Path, default=None, help="Weltdatei statt der Startwelt (z. B. von `cli world new`)")
     ap.add_argument("--inject-rate", type=int, default=None, help="Eingaben je Minute (nur Tests; Standard wie im Betrieb)")
     args = ap.parse_args()
+    if args.world:
+        from simulacra.world import loader
+        loader.DEFAULT_WORLD = args.world
     sim = build(args.data_dir)
     if args.inject_rate:
         sim.inject.rate = args.inject_rate

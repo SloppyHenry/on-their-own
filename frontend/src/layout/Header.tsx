@@ -25,6 +25,9 @@ export function Header() {
   const settingsOpen = useUiStore((s) => s.settingsOpen);
   const openSettings = useUiStore((s) => s.openSettings);
   const closeSettings = useUiStore((s) => s.closeSettings);
+  const appMode = useUiStore((s) => s.appMode);
+  const collapsed = useUiStore((s) => s.sidebarCollapsed);
+  const toggleSidebar = useUiStore((s) => s.toggleSidebar);
   const status = useStatus(4000);
   const [connText, dot] = CONN[conn];
   const clock = world?.clock;
@@ -46,6 +49,9 @@ export function Header() {
       <button className="btn" onClick={() => setSavesOpen(true)} data-testid="open-saves">Spielstände</button>
       <button className={`btn ${view === "history" ? "on" : ""}`} onClick={() => setView(view === "history" ? "world" : "history")} aria-pressed={view === "history"} data-testid="open-history-view">Verlauf</button>
       <button className={`btn ${view === "stats" ? "on" : ""}`} onClick={() => setView(view === "stats" ? "world" : "stats")} aria-pressed={view === "stats"} data-testid="open-stats">Statistik</button>
+      {appMode === "game" && view !== "memory" && view !== "stats" && (
+        <button className={`btn ${collapsed ? "" : "on"}`} onClick={toggleSidebar} aria-pressed={!collapsed} title={collapsed ? "Infoleiste (Bewohner, Protokoll) einblenden" : "Infoleiste (Bewohner, Protokoll) ausblenden"} data-testid="toggle-sidebar">Infoleiste</button>
+      )}
       <button className={`btn ${view === "memory" ? "on" : ""}`} onClick={() => (view === "memory" ? setView("world") : openMemory(useUiStore.getState().lastAgent))} aria-pressed={view === "memory"}>{view === "memory" ? "← Zur Welt" : "Gedächtnis"}</button>
       <span className="whitespace-nowrap text-dim" data-testid="conn"><span className={`mr-1.5 inline-block size-2 rounded-full ${dot}`} />{connText}</span>
       <span className="min-w-0 max-w-[15rem] shrink truncate whitespace-nowrap text-dim" title={health?.llm.error ?? ""}>

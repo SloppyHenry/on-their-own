@@ -10,6 +10,9 @@
     python -m simulacra.cli world log alex
     python -m simulacra.cli world patches               # bereits angewendete Welt-Patches
     python -m simulacra.cli world patch datei.json      # Patch auf eine bestehende Welt anwenden (einmalig, atomar)
+    python -m simulacra.cli world new --seed 7 --out dorf.json            # neue Startwelt erzeugen (Weltdatei, dann: world init --world-file dorf.json)
+    python -m simulacra.cli world generate --seed 7 --preview dorf.patch.json   # Erweiterung planen: Patch und Prüfbericht, nichts wird verändert
+    python -m simulacra.cli world generate --seed 7 --apply --yes        # dasselbe Dorf anlegen (vorher Sicherung mit scripts/backup.sh)
 
 Simulation (Details: python -m simulacra.cli run --help):
     python -m simulacra.cli run --ticks 200             # Agenten handeln selbstständig, Live-Protokoll und Auswertung
@@ -54,12 +57,57 @@ def _open(args) -> WorldEngine:
     return WorldEngine(Database(path))
 
 
+def _mix(text: str | None) -> dict[str, int] | None:
+    return None if not text else {k: int(v) for k, v in (p.split("=") for p in text.split(","))}
+
+
+def cmd_new(args) -> int:
+    from .generator.generate import GenerationError, dumps, new_world
+    try:
+        world, rep = new_world(args.seed, lake=args.lake, mix=_mix(args.mix))
+    except GenerationError as e:
+        print(f"Kein gültiges Dorf: {e}")
+        return 2
+    out = Path(args.out or f"dorf-{args.seed}.json")
+    out.write_text(dumps(world))
+    print(f"Weltdatei '{world['name']}' ({world['size'][0]} × {world['size'][1]} Kacheln, {len(world['locations'])} Orte, {len(world['objects'])} Objekte) nach {out}; "
+          f"Prüfung: {sum(c['ok'] for c in rep.checks)}/{len(rep.checks)} bestanden. Anlegen: world init --world-file {out}")
+    return 0
+
+
+def cmd_generate(eng: WorldEngine, args) -> int:
+    from .generator.generate import GenerationError, WorldInfo, dumps, extension_patch
+    from .world.extend import WorldEditError
+    try:
+        patch, rep = extension_patch(WorldInfo.from_state(eng.state), args.seed, lake=args.lake, mix=_mix(args.mix))
+    except GenerationError as e:
+        print(f"Kein gültiges Dorf: {e}")
+        return 2
+    print(f"Patch '{patch['id']}': {patch['description']}; Karte {patch.get('extend_map', {}).get('width', '-')} × {patch.get('extend_map', {}).get('height', '-')}, "
+          f"{len(patch['locations'])} Orte, {len(patch['objects'])} Objekte; Prüfung {sum(c['ok'] for c in rep.checks)}/{len(rep.checks)} bestanden")
+    if args.preview:
+        Path(args.preview).write_text(dumps(patch))
+        print(f"Vorschau (Patch) nach {args.preview}; anwenden mit: world patch {args.preview}")
+    if args.apply:
+        if not args.yes:
+            print("Zum Anwenden --yes angeben (vorher sichern: scripts/backup.sh).")
+            return 1
+        try:
+            res = eng.edit.apply_patch(patch)
+        except WorldEditError as e:
+            print(f"ABGELEHNT [{e.code}]: {e.text}")
+            return 2
+        print(f"Angewendet: {res.value}")
+    return 0
+
+
 def cmd_init(args) -> int:
     eng = _open(args)
     if eng.state.is_seeded():
         print(f"Abbruch: {eng.db.path} enthält bereits eine Welt. Zum Neuanlegen die Datei selbst löschen.")
         return 1
-    eng = WorldEngine.create(eng.db, seed=args.seed)
+    world = json.loads(Path(args.world_file).read_text()) if args.world_file else None
+    eng = WorldEngine.create(eng.db, world=world, seed=args.seed)
     print(f"Welt '{eng.state.get_meta('world_name')}' angelegt in {eng.db.path} ({clock.fmt(eng.minute)}).")
     return 0
 
@@ -173,10 +221,17 @@ def main(argv: list[str] | None = None) -> int:
         return sim_main(argv)
     ap = argparse.ArgumentParser(prog="simulacra.cli", description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("group", choices=["world"])
-    ap.add_argument("command", choices=["init", "show", "map", "act", "tick", "events", "log", "patch", "patches"])
+    ap.add_argument("command", choices=["init", "show", "map", "act", "tick", "events", "log", "patch", "patches", "new", "generate"])
     ap.add_argument("rest", nargs="*")
     ap.add_argument("--db", help="Pfad der Datenbank (Standard: <SIM_DATA_DIR>/live.db)")
     ap.add_argument("--seed", type=int, default=1)
+    ap.add_argument("--lake", choices=["auto", "east", "south"], default="auto", help="new und generate: See im Osten (wie Bild A) oder im Süden")
+    ap.add_argument("--mix", help="new und generate: Gebäudemix, z. B. house=3,shop=1,workshop=1")
+    ap.add_argument("--out", help="new: Weltdatei")
+    ap.add_argument("--preview", help="generate: Patch in diese Datei schreiben")
+    ap.add_argument("--apply", action="store_true", help="generate: Patch anwenden (mit --yes)")
+    ap.add_argument("--yes", action="store_true")
+    ap.add_argument("--world-file", help="init: Weltdatei (z. B. von world new)")
     ap.add_argument("--no-wait", action="store_true", help="act: Aktion nur starten, nicht bis zum Ende simulieren")
     ap.add_argument("--since", type=int, default=0)
     ap.add_argument("--type", default="")
@@ -185,6 +240,8 @@ def main(argv: list[str] | None = None) -> int:
     args = ap.parse_args(argv)
     if args.command == "init":
         return cmd_init(args)
+    if args.command == "new":
+        return cmd_new(args)
     eng = _open(args)
     if args.command == "act":
         if len(args.rest) < 2:
@@ -197,7 +254,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "log":
         args.agent = args.rest[0] if args.rest else "alex"
         return cmd_log(eng, args)
-    return {"show": cmd_show, "map": cmd_map, "events": cmd_events, "patch": cmd_patch, "patches": cmd_patches}[args.command](eng, args)
+    return {"show": cmd_show, "map": cmd_map, "events": cmd_events, "patch": cmd_patch, "patches": cmd_patches, "generate": cmd_generate}[args.command](eng, args)
 
 
 if __name__ == "__main__":

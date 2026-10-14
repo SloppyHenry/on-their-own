@@ -10,6 +10,7 @@ from typing import Any
 from pydantic import BaseModel
 
 from . import models as m
+from . import models_edit as me
 from . import models_move as mm
 from . import models_user as mu
 
@@ -87,13 +88,13 @@ _ALL = [
     _t("world.tile_changed", "world", m.TileChanged, "Eine Kachel hat sich verändert (Bau)"),
     _t("world.tiles_changed", "world", m.TilesChanged, "Mehrere Kacheln verändert"),
     _t("world.tile_type_added", "world", m.TileTypeAdded, "Neue Kachelart"),
-    _t("world.map_extended", "world", m.MapExtended, "Karte vergrößert"),
+    _t("world.map_extended", "world", me.MapExtended, "Karte vergrößert"),
     _t("world.location_added", "world", m.LocationEvent, "Neuer Ort"),
     _t("world.location_updated", "world", m.LocationEvent, "Ort geändert"),
     _t("world.agent_added", "world", m.AgentAdded, "Neue Figur in der Welt"),
-    _t("world.links_added", "world", m.LinksAdded, "Neue Übergänge (Haustüren)"),
-    _t("world.look_changed", "world", m.LookChanged, "Gebiete oder Landstraßen der Darstellung ergänzt"),
-    _t("world.patch_applied", "system", m.PatchApplied, "Welt-Patch angewendet"),
+    _t("world.links_added", "world", me.LinksAdded, "Neue Übergänge (Haustüren)"),
+    _t("world.look_changed", "world", me.LookChanged, "Gebiete oder Landstraßen der Darstellung ergänzt"),
+    _t("world.patch_applied", "system", me.PatchApplied, "Welt-Patch angewendet"),
     # Simulation
     _t("simulation.started", "system", m.SimControl, "Simulation gestartet"),
     _t("simulation.paused", "system", m.SimControl, "Simulation pausiert"),

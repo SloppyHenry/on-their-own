@@ -20,7 +20,13 @@ async function prepare(page: Page, minute: number) {
   await page.waitForTimeout(1500);
 }
 /** Nur die Pixel der Zeichenfläche (ohne DOM-Schilder und Menüs, damit Textänderungen die Goldbilder nicht brechen). */
-const grab = async (page: Page) => Buffer.from((await page.getByTestId("world-pixels").evaluate((c: HTMLCanvasElement) => c.toDataURL("image/png"))).split(",")[1], "base64");
+const raw = async (page: Page) => Buffer.from((await page.getByTestId("world-pixels").evaluate((c: HTMLCanvasElement) => c.toDataURL("image/png"))).split(",")[1], "base64");
+/** Wartet, bis zwei Bilder hintereinander gleich sind (Boden und Kamera ruhen), und liefert das zweite: so hängt der Test nicht an festen Wartezeiten. */
+const grab = async (page: Page) => {
+  let prev = await raw(page);
+  for (let i = 0; i < 16; i++) { await page.waitForTimeout(250); const cur = await raw(page); if (cur.equals(prev)) return cur; prev = cur; }
+  return prev;
+};
 const OPT = { maxDiffPixels: 0, threshold: 0 };
 
 test.beforeEach(async ({ request }) => { await freshWorld(request); });

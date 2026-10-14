@@ -29,11 +29,15 @@ Ein Patch ist eine JSON-Datei mit denselben Abschnitten wie die Weltdatei (nur d
   "locations": [{"id": "pavilion", "name": "Pavillon", "rect": [41, 21, 3, 3], "claim": true}],
   "objects": [{"kind": "bench", "name": "Pavillonbank", "tile": [42, 22]}],
   "resource_nodes": [{"id": "pavilion_well", "tile": [41, 21], "resource": "water", "amount": 999, "cap": 999}],
-  "agents": [{"id": "jonas", "name": "Jonas", "tile": [43, 23]}]
+  "agents": [{"id": "jonas", "name": "Jonas", "tile": [43, 23]}],
+  "links": [[[40, 22], [60, 5]]],
+  "look": {"regions": [{"id": "v2", "frame": [0, 320], "bounds": {...}, "shapes": {...}, "decor": [], "lights": [], "place": {}, "houses": []}], "roads": [[[196, 304], [196, 400]]]},
+  "max_objects": 300
 }
 ```
+`links` setzt Übergänge (Haustüren) zwischen zwei begehbaren Kacheln; `look` hängt Gebiete und Landstraßen an die Darstellung ([unten](#übergänge-und-darstellung-ap14)); `max_objects` hebt die Obergrenze für Objekte an (bis 500). Ein Objekt mit `"anywhere": true` darf auch auf einer nicht begehbaren Kachel stehen (Boot auf dem Wasser, Möbel auf Möbelkacheln wie in der Startwelt). Quellen kennen jetzt auch `label` und `regen_weather`.
 
-Reihenfolge der Anwendung: `tile_types`, `extend_map`, `tiles`, `locations`, `objects`, `resource_nodes`, `agents`. Im Abschnitt `tiles` steht in `rows` jedes Zeichen für eine Kachelart (`char`); ein **Leerzeichen lässt die Kachel unverändert**, so lassen sich beliebige Formen zeichnen. Unbekannte Abschnittsnamen (Tippfehler) werden abgelehnt.
+Reihenfolge der Anwendung: `max_objects`, `tile_types`, `extend_map`, `tiles`, `locations`, `objects`, `resource_nodes`, `links`, `agents`, `look`. Im Abschnitt `tiles` steht in `rows` jedes Zeichen für eine Kachelart (`char`); ein **Leerzeichen lässt die Kachel unverändert**, so lassen sich beliebige Formen zeichnen. Unbekannte Abschnittsnamen (Tippfehler) werden abgelehnt.
 
 ```bash
 cd backend
@@ -49,7 +53,7 @@ cd backend
 - **IDs** von Orten, Objekten, Quellen und Agenten teilen sich einen Namensraum, weil sie alle Ziel von `move_to` sein können.
 - **Objekte** brauchen eine bekannte Objektart und ein gültiges Zustandsschema, respektieren `max_objects` und die Tragkraft. Mit `location_id` statt `tile` sucht die Engine einen freien Platz im Ort; mit `hidden` und `known_by` steuert man, wer es sieht.
 - **Agenten** können jederzeit dazukommen und nutzen dieselbe Schnittstelle (`propose`) wie alle anderen.
-- Jede Änderung erzeugt ein Ereignis (`world.tile_type_added`, `world.tiles_changed`, `world.map_extended`, `world.location_added`, `world.location_updated`, `world.agent_added`, `world.object_created`, `world.object_removed`, `world.resource_added`, `world.patch_applied`).
+- Jede Änderung erzeugt ein Ereignis (`world.tile_type_added`, `world.tiles_changed`, `world.map_extended`, `world.location_added`, `world.location_updated`, `world.agent_added`, `world.links_added`, `world.look_changed`, `world.object_created`, `world.object_removed`, `world.resource_added`, `world.patch_applied`).
 - Fehler sind `WorldEditError` mit den Codes `exists`, `invalid`, `out_of_bounds`, `blocked`, `unknown`, `limit`.
 
 ## Programmschnittstelle
@@ -70,6 +74,9 @@ Jeder Aufruf liefert `EditResult(events, value)`.
 ## Übergänge und Darstellung (AP14)
 - **`links`** in der Weltdatei: Liste von Kachelpaaren `[[x, y], [x, y]]`, die wie Nachbarn verbunden sind (in beide Richtungen), z. B. die Haustür draußen und der Flur im Innenbereich. Beide Kacheln müssen begehbar sein. Wegsuche (Backend und Vorschau im Browser) und Bewegung gehen hindurch; Hören und Sehen bleiben getrennt (Ort und Hörweite).
 - **`look`** beschreibt, wie die Welt aussieht. **Version 2 (AP12a):** `{"version": 2, "style": "mockup-a", "texShift": [2, 8], "legacy": …, "home": [194, 296], "regions": […], "roads": […]}`. Eine **Region** ist ein Gebiet (Dorf) in eigenen Dorfkoordinaten wie `world.js` (Weltpixel = Dorfkoordinaten + `frame`, eine Kachel hat 16 Weltpixel): `bounds` (Wiese: `left`, `right`, `top`, `bottom`), `shapes` (Listen: `paths`, `squares`, `lakes`, `gardens` mit `beds`, `docks`, `streams`, `bridges`, `pads`), `decor` (Deko wie `wObjects`: Art, x, y, Zusatz), `lights`, `place` (Bildstelle einzelner Objekte und Quellen: `at`, `sprite`, `e`, `more`; so werden Boot, Laternen, Tomaten, Schilf usw. zu echten Dingen, die genauso aussehen wie die Deko) und `houses` (je Haus: `at`, `sprite`, `door` mit `outside` und `inside`, `interior`, `smoke`). `interior` gestaltet die Innenansicht (Puppenhaus): `rect`, `rooms` (je Ort-ID Tapete, Boden, Vorhangfarbe), `wall`, `decor`, `rugs`. `roads` sind Landstraßen zwischen Gebieten (Linienzüge in Weltpixeln). `legacy` nennt den Block des Bodens, dessen Zufall wie in Bild A in einer Folge gewürfelt wird (die Startwelt). Lichtschein aus `lights` an einer Laterne erscheint nur, wenn sie brennt. Stellplätze großer Einrichtung sind als Kachelart „Möbel“ (`m`, nicht begehbar) gesperrt. Die Startwelt wird mit `node scripts/startwelt_a.mjs` aus `docs/mockups/welt-optik/world.js` erzeugt. **Version 1** (ein Dorf mit Einzelstücken `shapes.lake`, `shapes.square`, `door`, `interior` …) lädt über `normalizeLook` (`frontend/src/world/dorf/look.ts`) weiter und ergibt genau dieselbe Version 2.
+
+## Ein ganzes Dorf erzeugen (AP12)
+Der Weltgenerator legt neue Dörfer im Stil von Bild A an, als neue Startwelt oder als Erweiterung: [generator.md](generator.md).
 
 ## Alte Spielstände
 - Datenbanken von vor den Kachelarten werden beim Öffnen automatisch migriert (Migration 002).

@@ -345,12 +345,6 @@ class TileTypeAdded(D):
     label: str
 
 
-class MapExtended(D):
-    from_: list[int] = Field(alias="from")
-    to: list[int]
-    fill: str
-
-
 class LocationEvent(D):
     """location_added und location_updated."""
     location: dict[str, Any]
@@ -363,23 +357,6 @@ class AgentAdded(D):
     name: str
     tile: list[int]
     capacity: int
-
-
-class LinksAdded(D):
-    links: list[list[list[int]]]
-
-
-class LookChanged(D):
-    """Gebiete und Landstraßen, die an die Gestaltung der Welt angehängt wurden (siehe docs/welt-erweitern.md)."""
-    regions: list[dict[str, Any]]
-    roads: list[list[list[float]]]
-    upgraded: bool
-
-
-class PatchApplied(D):
-    id: str
-    description: str = ""
-    counts: dict[str, int]
 
 
 # --- Simulation ----------------------------------------------------------------------------------------------

@@ -156,9 +156,10 @@ def _obj(o: dict) -> dict:
 
 
 def _road_tiles(road: list, frag: tuple[int, int, int, int], size: tuple[int, int], info: WorldInfo) -> list[tuple[int, int]]:
-    """Kacheln der Landstraße außerhalb des Dorfs, nur in neuem Land (unterhalb des bisherigen Rasters)."""
+    """Kacheln der Landstraße außerhalb des neuen Dorfs: in neuem Land und durch Wildnis oder Wald des Bestands (Mauern, Wasser, Orte bleiben)."""
     fx, fy, fw, fh = frag
     out: set[tuple[int, int]] = set()
+    inside_ok = road[0][1] < info.size[1] * T - 8                  # Ausfahrt mitten im Bestand (erzeugtes Dorf): Wildnis und Wald dürfen einem Weg weichen; liegt sie am Rand (Startwelt), bleibt der Bestand unberührt
     for a, b in zip(road, road[1:]):
         steps = max(1, int(math.hypot(b[0] - a[0], b[1] - a[1]) / 4))
         for k in range(steps + 1):
@@ -166,7 +167,9 @@ def _road_tiles(road: list, frag: tuple[int, int, int, int], size: tuple[int, in
             for dy in (-6, 0, 6):
                 for dx in (-6, 0, 6):
                     t = (math.floor((x + dx) / T), math.floor((y + dy) / T))
-                    if 0 <= t[0] < size[0] and info.size[1] <= t[1] < size[1] and not (fx <= t[0] < fx + fw and fy <= t[1] < fy + fh):
+                    if not (0 <= t[0] < size[0] and 0 <= t[1] < size[1]) or (fx <= t[0] < fx + fw and fy <= t[1] < fy + fh):
+                        continue
+                    if t[1] >= info.size[1] or (inside_ok and t[0] < info.size[0] and info.rows[t[1]][t[0]] in ".T"):          # nur neues Land oder Wildnis und Wald des Bestands
                         out.add(t)
     return sorted(out)
 

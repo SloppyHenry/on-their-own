@@ -23,6 +23,15 @@
         "docs/mockups/welt-optik"
       ],
       "port": 8766
+    },
+    {
+      "name": "welt-generiert",
+      "runtimeExecutable": "bash",
+      "runtimeArgs": [
+        "-c",
+        "(backend/.venv/bin/python scripts/e2e_server.py --port 8195 --data-dir /tmp/simgen &) && cd frontend && SIM_BACKEND=http://127.0.0.1:8195 SIM_FRONTEND_PORT=5177 npx vite --host 127.0.0.1 --strictPort"
+      ],
+      "port": 5177
     }
   ]
 }

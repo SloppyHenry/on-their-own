@@ -42,11 +42,14 @@ export const horizonA = (ax: number, curve = 1) => { const k = (ax - 160) / 160;
 export function project(f: Frame, wx: number, wy: number): P {
   const tx = wx - f.sx, ty = wy - f.sy;
   if (f.mode === "flach") return { x: 160 + (tx - f.cx) / f.zo + f.xo, y: LH + (ty - f.cy) / f.zo + f.yo, sc: 1 / f.zo, t: 0 };
-  // bei cy = TH, zo = 1: wie 1 − ty / th in A. Hinter der Kamera (u < 0) läuft die Abbildung gespiegelt unter den unteren Bildrand weiter,
-  // statt dort alles auf t = 0 zu stapeln; die Größe bleibt dann die vom unteren Rand.
-  const u = 1 - (ty - (f.cy - TH * f.zo)) / (TH * f.zo), t = u < 0 ? -Math.pow(-u, 1 / GAMMA) : Math.pow(u, 1 / GAMMA), s = (0.62 + 0.9 * Math.max(0, t)) * f.zo;
-  const x = 160 + (tx - f.cx) / s, yh = horizonA(x, f.curve);
-  return { x: x + f.xo, y: LH - t * (LH - yh) + f.yo, sc: 1 / s, t };
+  // bei cy = TH, zo = 1: wie 1 − ty / th in A. Hinter der Kamera (u < 0) zieht das Ding unter den unteren Bildrand weg wie unter einer echten
+  // Kamera: anfangs so schnell, wie es groß ist (1 / 0,62 Pufferpixel je Texel), dann immer schneller – ein Haus ist nach etwa 40 Texeln
+  // verschwunden, statt am Rand zu kleben; die Größe bleibt die vom unteren Rand. Hinter dem Horizont (t > 1) liegt der Fußpunkt wie auf einer
+  // Kugel unter der Horizontlinie: Das Ding versinkt dahinter und taucht beim Näherfahren auf (gezeichnet wird nur, was über der Linie ist).
+  const u = 1 - (ty - (f.cy - TH * f.zo)) / (TH * f.zo), t = u < 0 ? u : Math.pow(u, 1 / GAMMA), s = (0.62 + 0.9 * Math.max(0, t)) * f.zo;
+  const x = 160 + (tx - f.cx) / s, yh = horizonA(x, f.curve), d = -u * TH;                                       // d: Texel hinter der Kamera (bei 1×)
+  const y = u < 0 ? LH + (d / 0.62) * (1 + d / 48) : t > 1 ? yh + (t - 1) * (LH - yh) : LH - t * (LH - yh);
+  return { x: x + f.xo, y: y + f.yo, sc: 1 / s, t };
 }
 
 /** Puffer → Weltpixel auf dem Boden (Umkehrung des Bodenpasses); über dem Horizont null. */

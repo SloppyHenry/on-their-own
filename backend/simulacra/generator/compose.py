@@ -43,13 +43,17 @@ def build_village(p: Params, nm: Naming, village: str | None = None) -> Village:
         if b.role == "home":
             houses.append((I.heim(), title))
         else:
-            houses.append((I.build(I.blueprint_for(b.role, b.ww), nm.house_loc(n), nm.house_obj(n), title, rng), title))
+            full = title if nm.canonical else f"{title}, {nm.village}"                  # Namen sind in der ganzen Welt eindeutig
+            houses.append((I.build(I.blueprint_for(b.role, b.ww), nm.house_loc(n), nm.house_obj(n), full, rng), title))
     # Innenbereiche rechts neben dem Dorf, übereinander
     bx, by, block = out.w + 1, 0, []
     for f, _ in houses:
         block.append((bx, by)); by += f.h + 1
     W, H = out.w + 1 + max((f.w for f, _ in houses), default=0), max(out.h, by - 1)
     g = [["T"] * W for _ in range(H)]
+    for j in range(out.h, H):                                       # unter dem Dorf offene Wildnis (dort geht die Landstraße weiter)
+        for i in range(out.w):
+            g[j][i] = GRASS
     for j, row in enumerate(out.rows):
         for i, c in enumerate(row):
             g[j][i] = c

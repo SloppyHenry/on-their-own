@@ -79,7 +79,7 @@ Schema (`Event`): `seq` (fortlaufende ID), `ts` (UTC), `sim_minute`, `type`, `ag
 | `world.resource_changed` | Quelle gesammelt, verbraucht oder nachgewachsen |
 | `world.weather_changed`, `world.phase_changed`, `world.day_started` | Zeit und Wetter |
 | `simulation.parameter_changed` | Weltregeln geändert |
-| `world.tile_type_added`, `world.tiles_changed`, `world.map_extended`, `world.location_added`, `world.location_updated`, `world.agent_added`, `world.resource_added`, `world.patch_applied` | Erweiterungen der Welt (siehe `welt-erweitern.md`) |
+| `world.tile_type_added`, `world.tiles_changed`, `world.map_extended`, `world.location_added`, `world.location_updated`, `world.agent_added`, `world.resource_added`, `world.links_added`, `world.look_changed`, `world.patch_applied` | Erweiterungen der Welt (siehe `welt-erweitern.md`) |
 
 ### Wissen und Sichtbarkeit
 `WorldObject.hidden` + `known_by`: Verborgene Objekte sind nur für die Agenten in `known_by` sichtbar (`visible_to(agent_id)`). Aktionen lehnen unbekannte Objekte mit `invalid_target` ab. **Die Wahrnehmung für Prompts (AP02) muss `objects_at()` immer über `visible_to` filtern.** Entdeckt wird beim `inspect` eines Objekts am selben Ort im Umkreis von 3 Kacheln.

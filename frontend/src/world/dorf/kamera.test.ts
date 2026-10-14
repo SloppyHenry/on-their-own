@@ -35,13 +35,12 @@ describe("Kamera", () => {
     expect(k.focus[0]).toBeCloseTo(250, 9); expect(k.focus[1]).toBeCloseTo(180, 9);
     expect(k.y).toBeCloseTo(180 + TH * 2 * FOCUS, 9);            // bei ½× liegt der untere Bildrand doppelt so weit unter der Mitte
   });
-  it("Fahrt blendet weich ein und im Stillstand ganz aus; die Wölbung kommt zurück", () => {
+  it("Fahrt blendet weich ein und im Stillstand ganz aus", () => {
     const k = new Kamera([192, 288]);
-    expect(k.tick(0.016)).toEqual({ soft: 0, curve: 1 });
+    expect(k.tick(0.016)).toEqual({ soft: 0 });
     for (let i = 0; i < 30; i++) { k.set(k.x + 3, k.y); k.tick(0.016); }
-    const f = k.tick(0.016);
-    expect(f.soft).toBeGreaterThan(0.8); expect(f.curve).toBeLessThan(0.2);
+    expect(k.tick(0.016).soft).toBeGreaterThan(0.8);
     for (let i = 0; i < 90; i++) k.tick(0.016);
-    expect(k.tick(0.016)).toEqual({ soft: 0, curve: 1 });
+    expect(k.tick(0.016)).toEqual({ soft: 0 });
   });
 });

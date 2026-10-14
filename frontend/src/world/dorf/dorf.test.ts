@@ -78,6 +78,15 @@ describe("Abbildung wie Mockup A", () => {
     expect(project(b, ...world(60, 60)).y - project(a, ...world(60, 60)).y).toBeCloseTo(30, 9);
     expect(unproject(b, 190, 20)).toBeNull();                       // Himmel
   });
+  it("hinter der Kamera geht es unter den unteren Rand, hinter dem Horizont unter die Horizontlinie (Kugel)", () => {
+    const f = frameFor("tiefe", 320, 200, SHIFT, [192, 288]);
+    const near = project(f, 192 + SHIFT[0], 280 + SHIFT[1]), behind = project(f, 192 + SHIFT[0], 300 + SHIFT[1]), further = project(f, 192 + SHIFT[0], 340 + SHIFT[1]);
+    expect(near.y).toBeLessThan(200); expect(behind.y).toBeGreaterThan(200); expect(further.y).toBeGreaterThan(behind.y);
+    expect(behind.sc).toBeCloseTo(1 / 0.62, 9);                      // Größe wie am unteren Rand
+    const edge = project(f, 192 + SHIFT[0], 0 + SHIFT[1]), past = project(f, 192 + SHIFT[0], -30 + SHIFT[1]), gone = project(f, 192 + SHIFT[0], -80 + SHIFT[1]);
+    expect(edge.y).toBeCloseTo(34, 9);                               // Fußpunkt genau auf dem Horizont
+    expect(past.t).toBeGreaterThan(1); expect(past.y).toBeGreaterThan(34); expect(gone.y).toBeGreaterThan(past.y);   // versinkt immer tiefer
+  });
   it("die Kamera lässt sich auf einen Weltpunkt und eine Bildstelle ausrichten", async () => {
     const { camFor } = await import("./abbild");
     const L = A(), f = frameFor("tiefe", 320, 200, SHIFT, home(L), 2, 0.6), [wx, wy] = world(120, 100);

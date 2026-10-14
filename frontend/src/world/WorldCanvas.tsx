@@ -30,7 +30,7 @@ export function WorldCanvas() {
     const v: ViewLike = lookJson ? new DorfView(canvas.current!, host.current!, bridge, JSON.parse(lookJson))
       : new WorldView({ host: host.current!, canvas: canvas.current!, glow: glow.current!, atmo: atmo.current!, grade: grade.current!, tilt: tilt.current! }, bridge);
     setView(v);
-    if (import.meta.env.DEV || location.search.includes("messen")) Object.assign(window, { __welt: v, __sim: useSimStore });   // Prüf- und Messzugang
+    if (import.meta.env.DEV || location.search.includes("messen")) Object.assign(window, { __welt: v, __sim: useSimStore, __ui: useUiStore });   // Prüf- und Messzugang
     const onKey = (e: KeyboardEvent) => {
       if (isTyping(e.target as Element | null) || e.metaKey || e.ctrlKey || e.altKey || e.defaultPrevented) return;
       if (e.key === "Enter" && bridge.playerPreview()) { e.preventDefault(); const sel = bridge.selection(); usePlayer.setState({ say: { open: true, to: sel?.kind === "agent" ? sel.id : null }, menu: null }); return; }

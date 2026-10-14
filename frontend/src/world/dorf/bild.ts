@@ -209,9 +209,17 @@ export class Dorfbild {
       snap = (v: number) => { const r = Math.round(v); return Math.round((r + (v - r) * soft) * S) / S; };   // gleitet beim Anhalten auf ganze Pixel
       spr = (c, w, h) => scaled(c, w, h, smooth);
     }
+    const beyond = (on: boolean) => {                              // hinter dem Horizont: nur zeichnen, was über der Horizontlinie ist
+      if (!on) { g.restore(); return; }
+      g.save(); g.beginPath(); g.moveTo(-60, -60);
+      for (let x = -60; x <= f.lw + 60; x += 2) g.lineTo(x, horizonA(x - f.xo, f.curve) + f.yo);
+      g.lineTo(f.lw + 60, -60); g.closePath(); g.clip();
+    };
     for (const t of [...things].sort((a, b) => a.vy - b.vy)) {
-      const pr = this.p(t.vx, t.vy);
+      const pr = this.p(t.vx, t.vy), far = f.mode === "tiefe" && pr.t > 1;
       if (pr.x < -60 || pr.x > f.lw + 60 || pr.y < 0 || pr.y - t.spr.height * pr.sc > f.lh) continue;
+      if (far && pr.y - t.spr.height * pr.sc >= horizonA(pr.x - f.xo, f.curve) + f.yo) continue;     // ganz versunken
+      if (far) beyond(true);
       const fig = t.figure;
       if (fig) {                                                    // Schatten wie in A, mitwandernd
         g.globalCompositeOperation = "multiply"; g.fillStyle = "rgb(184,188,206)";
@@ -233,15 +241,18 @@ export class Dorfbild {
         g.drawImage(spr(fig.tool, tw, tw), Math.round(-2 * pr.sc), Math.round(-6 * pr.sc), tw, tw); g.restore();
       }
       if (fig?.zzz) { g.fillStyle = "#fff8ec"; g.globalAlpha = 0.5 + 0.5 * Math.abs(Math.sin(tm * 2)); g.fillRect(snap(pr.x + 5 * pr.sc), snap(pr.y - 26 * pr.sc - ((tm * 4) % 3)), 3, 1); g.globalAlpha = 1; }
+      if (far) beyond(false);
     }
     for (const [sx0, sy0] of smokes) {
-      const ch = this.p(sx0, sy0);
+      const ch = this.p(sx0, sy0), far = f.mode === "tiefe" && ch.t > 1;
       if (ch.x < -60 || ch.x > f.lw + 60) continue;
+      if (far) beyond(true);
       for (let k = 0; k < 5; k++) {
         const age = (tm * 0.35 + k / 5) % 1, sx = ch.x + (Math.sin(age * 5 + k) * 3 + age * 8) * ch.sc, sy = ch.y - (78 + age * 26) * ch.sc, rad = (1.5 + age * 3.5) * ch.sc;
         g.globalAlpha = (1 - age) * 0.75; g.fillStyle = m.stars > 0.5 ? "#8a90b8" : "#f4f1ec";
         g.fillRect(snap(sx - rad), snap(sy - rad), Math.round(rad * 2), Math.round(rad * 2));
       }
+      if (far) beyond(false);
     }
     g.globalAlpha = 1;
     over?.(g);
@@ -259,7 +270,9 @@ export class Dorfbild {
     if (m.glowA > 0.01) {
       ctx.globalCompositeOperation = "lighter";
       for (const L of lights) {
-        const lp = this.p(L[0], L[1]), gx = lp.x * S, gy = (lp.y - L[2] * lp.sc) * S, gr = (f.mode === "flach" ? 46 : 58 * lp.sc) * L[3] * q;
+        const lp = this.p(L[0], L[1]);
+        if (f.mode === "tiefe" && lp.t > 1) continue;                // hinter dem Horizont
+        const gx = lp.x * S, gy = (lp.y - L[2] * lp.sc) * S, gr = (f.mode === "flach" ? 46 : 58 * lp.sc) * L[3] * q;
         const rg = ctx.createRadialGradient(gx, gy, 0, gx, gy, gr);
         rg.addColorStop(0, `rgba(255,205,120,${m.glowA})`); rg.addColorStop(0.35, `rgba(255,170,90,${m.glowA * 0.4})`); rg.addColorStop(1, "rgba(255,150,80,0)");
         ctx.fillStyle = rg; ctx.fillRect(gx - gr, gy - gr, gr * 2, gr * 2);

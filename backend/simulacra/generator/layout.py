@@ -95,7 +95,7 @@ def make_layout(p: Params) -> Layout:
     west = [(-ext_l - 60, y0 + rnd(-6, 6)), (20, y0 + rnd(-5, 5)), (sq["x"] - sq["r"] + 4, y0)]
     east_road = ([(sq["x"] + sq["r"] - 4, y0), (sq["x"] + sq["r"] + 20, y0 + 4), (176, y0 + 8)] if east
                  else [(sq["x"] + sq["r"] - 4, y0), (215, y0 + rnd(-5, 5)), (300, y0 + rnd(-5, 5))])
-    south = [(sq["x"], y0 + sq["r"] - 4), (sq["x"] + rnd(-8, 8), y0 + 50), (sq["x"] + rnd(-6, 6), 200), (sq["x"] + rnd(-6, 6), 280)]
+    south = [(sq["x"], y0 + sq["r"] - 4), (sq["x"] + rnd(-8, 8), y0 + 50), (sq["x"] + rnd(-6, 6), 200), (sq["x"] + rnd(-6, 6), 236)]          # endet in der letzten Kachelreihe des Dorfs
     paths: list[list[Pt]] = [west, east_road, south]
     road = west + east_road[1:]
 
