@@ -9,6 +9,7 @@ import type { Frame, WorldBridge } from "./worldBridge";
 
 const MAX_CHARS = 140;
 const STACK = 22;                                       // Abstand der Schilder über dem Dach (px)
+const snippet = (t?: string) => (!t ? "etwas" : t.length > 30 ? `${t.slice(0, 29)}…` : t);
 export const bubbleDuration = (text: string) => Math.min(12000, Math.max(3500, 2500 + 55 * text.length));
 
 /** Lage des Schildes: am Fuß der Figur oder über dem Dach ihres Hauses. */
@@ -48,7 +49,7 @@ export function Overlays({ bridge }: { bridge: WorldBridge }) {
           tag.dataset.pulse = active;
           tag.dataset.inside = at?.up ? "1" : "";
           const badge = tag.querySelector<HTMLElement>("[data-badge]");
-          if (badge) badge.textContent = active === "saved" ? "  ＋ gemerkt" : active === "recalled" ? "  ↺ erinnert sich" : "";
+          if (badge) badge.textContent = active ? `  ${active === "saved" ? "＋ merkt sich" : "↺ erinnert sich an"}: ${snippet(pulse?.text)}` : "";
           tag.style.display = on ? "" : "none";
           if (at) tag.style.transform = `translate(${at.x}px, ${at.y}px) translateX(-50%)${at.up ? " translateY(-100%)" : ""}`;
         }

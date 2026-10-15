@@ -24,7 +24,7 @@ test("Regler Knappheit: Status „übernommen“ und die Welt schrumpft wirklich
   expect((await values(request))["world.scarcity"]).toBe(60);                       // die API bestätigt den Wert beim Verbraucher
   const after = (await (await request.get("/api/state")).json()).resources.find((r: { id: string }) => r.id === "forest_wood").amount;
   expect(after).toBeLessThan(before * 0.6);
-  await expect(page.locator('[data-testid=timeline]')).toBeVisible();
+  await expect(page.getByTestId("sidebar")).toBeVisible();
   await row.getByRole("button", { name: /auf Standard/ }).click();
   await expect.poll(async () => (await values(request))["world.scarcity"]).toBe(0);
 });

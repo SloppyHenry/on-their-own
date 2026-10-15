@@ -1,6 +1,9 @@
 # AP16 – Gestalten: Dörfer selbst bauen und Häuser einrichten (Plan, 14.10.2026)
 
-**Auftrag:** Henry, Ausblick Nr. 1 ([ausblick.md](../ausblick.md)); Reihenfolge am 14.10.2026 bestätigt, AP12b und AP12c abgenommen. **Abhängig von:** AP12c (Trockenlauf, Vorschau, Werkzeugleiste, `appMode = editor`). **Umfang:** L, vier Teilpakete. **Status:** Plan; vor dem Bau brauchen die Fragen 27 bis 30 in [offene-fragen.md](../offene-fragen.md) deine Antwort, und das Mockup (Schritt 0) deine Abnahme.
+**Auftrag:** Henry, Ausblick Nr. 1 ([ausblick.md](../ausblick.md)); Reihenfolge am 14.10.2026 bestätigt, AP12b und AP12c abgenommen. **Abhängig von:** AP12c (Trockenlauf, Vorschau, Werkzeugleiste, `appMode = editor`). **Umfang:** L, vier Teilpakete. **Status:** Plan, angepasst am 15.10.2026 (Grundsatz unten); nach AP17 vorgeschlagen (Frage 35); vor dem Bau brauchen die Fragen 27 bis 30 und 36 in [offene-fragen.md](../offene-fragen.md) deine Antwort, und das Mockup (Schritt 0) deine Abnahme.
+
+## Grundsatz (Henry, 15.10.2026)
+**Editor-Modus wie der Baumodus bei Sims; die Agenten dürfen nicht merken, dass es eine höhere Instanz gibt.** Betreten hält die Simulation an, Verlassen setzt sie fort (wenn sie lief); der Entwurf wird in einem Zug übernommen (Sicherung davor). Für die Agenten gibt es danach keinen Hinweis auf den Umbau: das Ereignis der Änderung steht im Protokoll der Leitstelle, aber nicht in Wahrnehmung, Gedächtnis oder Prompt. Laufende Wege, die der Umbau ungültig macht, werden still neu geplant. Erreichbar im Spiel („Welt gestalten“) und aus dem Startmenü vor Beginn einer Runde (AP17a/b). Prüfung im Abnahmeteil (AP16d): Prompts und Erinnerungen nach einem Umbau enthalten keine Hinweise auf Editor, Leitstelle oder Spieler.
 
 ## Ziel
 Im Editor-Modus Werkzeuge, mit denen du die Welt selbst formst: **Wege** ziehen, **Seen** ausheben, **Gärten** setzen, **Häuser** setzen (aus den vorhandenen Gebäudearten), **Bäume und Deko** setzen, und **Häuser von innen einrichten** (Möbel, Wandschmuck, Teppiche, Farben). Alles löschen und ändern, was man gesetzt hat. Das Ergebnis ist sofort bespielbar: Kacheln, Orte, Objekte, Quellen und Bild stimmen überein, wie beim Generator.
@@ -24,7 +27,7 @@ Im Editor-Modus Werkzeuge, mit denen du die Welt selbst formst: **Wege** ziehen,
 3. **Bild, Kacheln und Orte kommen aus denselben Formen.** Der Editor ändert Formen und leitet alles andere mit denselben Funktionen ab wie der Generator.
 4. **Nur Bespielbares** (Validierung wie beim Generator, dazu: nichts überbauen, was Figuren oder Dinge belegen; jedes Haus erreichbar; Quellen erreichbar). Ein verbotenes Setzen zeigt den Grund am Cursor, statt zu scheitern.
 5. **Nur vorhandene Bausteine.** Gesetzt wird, was es schon gibt (Gebäudearten, Möbel, Dinge, Bäume, Deko aus Bild A und den Bausteinen). Neue Möbel oder Gebäude zeichnen ist der spätere Baustein-Editor.
-6. **Die Simulation steht still, wenn übernommen wird** (Frage 28): kurz anhalten wie bei AP12c; Flächen mit Figuren oder Dingen lassen sich nicht überbauen (`blocked`).
+6. **Die Zeit steht still, solange der Editor offen ist** (Frage 28, Grundsatz oben): Betreten pausiert, Verlassen setzt fort. Flächen mit Figuren oder Dingen lassen sich nicht überbauen (`blocked`).
 7. **Neue Bilder erst als Mockup** (Frage 30): Werkzeugleiste, Cursor, Raster, Vorschau des Gesetzten und Innenausbau, bevor Code entsteht.
 
 ## Teilpakete

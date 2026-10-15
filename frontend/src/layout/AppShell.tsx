@@ -1,10 +1,5 @@
 import { useEffect } from "react";
 import { startLive } from "../net/connect";
-import { AgentDetail } from "../panels/AgentDetail";
-import { AgentPanel } from "../panels/AgentPanel";
-import { LocationDetail } from "../panels/LocationDetail";
-import { EventDetail } from "../timeline/EventDetail";
-import { EventTimeline } from "../timeline/EventTimeline";
 import { useSimStore } from "../store/simStore";
 import { useUiStore } from "../store/uiStore";
 import { EventHistory } from "../history/EventHistory";
@@ -16,10 +11,10 @@ import { EventComposer } from "../composer/EventComposer";
 import { ParameterPanel } from "../settings/ParameterPanel";
 import { WorldEditor } from "../editor/WorldEditor";
 import { Header } from "./Header";
+import { SideBar } from "./SideBar";
 
 export function AppShell() {
   const ready = useSimStore((s) => s.world !== null);
-  const selection = useUiStore((s) => s.selection);
   const view = useUiStore((s) => s.view);
   const savesOpen = useUiStore((s) => s.savesOpen);
   const appMode = useUiStore((s) => s.appMode);
@@ -37,11 +32,8 @@ export function AppShell() {
           <ParameterPanel />
         </div>
         {tools && ready && <WorldEditor />}
-        <aside data-testid="sidebar" className={`relative grid min-h-0 grid-rows-[auto_1fr] border-l border-line bg-panel ${hideSide ? "hidden" : ""}`}>
-          {ready && <><AgentPanel /><EventTimeline /></>}
-          {selection?.kind === "agent" && <AgentDetail id={selection.id} />}
-          {selection?.kind === "location" && <LocationDetail id={selection.id} />}
-          {selection?.kind === "event" && <EventDetail refId={selection.id} />}
+        <aside data-testid="sidebar" className={`relative grid min-h-0 grid-rows-[1fr] border-l border-line bg-panel ${hideSide ? "hidden" : ""}`}>
+          {ready && <SideBar />}
         </aside>
       </main>
       {ready && <EventComposer />}

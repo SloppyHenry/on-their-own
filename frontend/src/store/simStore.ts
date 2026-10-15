@@ -17,6 +17,8 @@ export function mergeEvents(a: EventOut[], b: EventOut[], max = MAX_EVENTS): Eve
 export interface Pulse {
   kind: "saved" | "recalled";
   at: number;
+  /** Worum es geht (Auszug aus der Erinnerung), fürs Namensschild. */
+  text?: string;
 }
 
 interface SimStore {
@@ -72,8 +74,8 @@ export const useSimStore = create<SimStore>((set) => ({
         if (!live) continue;
         const b = bubbleOf(ev);
         if (b) bubbles[b.agent] = b;
-        if (ev.type === "agent.memory_created") { pulses[ev.agents[0]] = { kind: "saved", at: Date.now() }; fresh[(ev.data as { memory_id: string }).memory_id] = Date.now(); }
-        if (ev.type === "agent.memory_retrieved") pulses[ev.agents[0]] = { kind: "recalled", at: Date.now() };
+        if (ev.type === "agent.memory_created") { pulses[ev.agents[0]] = { kind: "saved", at: Date.now(), text: (ev.data as { text?: string }).text }; fresh[(ev.data as { memory_id: string }).memory_id] = Date.now(); }
+        if (ev.type === "agent.memory_retrieved") pulses[ev.agents[0]] = { kind: "recalled", at: Date.now(), text: (ev.data as { items?: { text: string }[] }).items?.[0]?.text };
       }
       return { world: applyEvents(st.world, items), events: mergeEvents(st.events, items), bubbles, pulses, newMemories: fresh, memoryVersion: touched ? st.memoryVersion + 1 : st.memoryVersion, autonomyVersion: auto ? st.autonomyVersion + 1 : st.autonomyVersion, paramVersion: param ? st.paramVersion + 1 : st.paramVersion };
     }),
