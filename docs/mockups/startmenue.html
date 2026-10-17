@@ -157,6 +157,21 @@
       <div class="actions"><button data-back>Abbrechen</button><button class="on">Weiter ›</button></div>
     </div></div>
 
+    <!-- Editoren (Obermenü) -->
+    <div class="layer win" id="editors"><div>
+      <h2>Editoren <span class="sp"></span><button data-back>✕</button></h2>
+      <div class="body">
+        <div class="ed">
+          <div class="card"><b>▦ Welt</b><small>Dorf gestalten: Wege, Seen, Gärten, Häuser, Dinge, Innenausbau (AP16).</small><button class="on" data-go="worldeditor">Öffnen</button></div>
+          <div class="card"><b>☺ Figuren</b><small>Bewohner anlegen und bearbeiten: Persönlichkeit, Werte, Ziele, Beziehungen (AP17b).</small><button class="on" data-go="chareditor">Öffnen</button></div>
+          <div class="card" style="border-style:dashed"><b>⌂ Häuser und Gebäude</b><small>Eigene Häuser entwerfen: Form, Räume, Aussehen. <span class="tag auto">später</span></small><button disabled>Bald</button></div>
+          <div class="card" style="border-style:dashed"><b>◆ Dinge und Assets</b><small>Eigene Objekte zeichnen, mit Wirkungen für die Bewohner. <span class="tag auto">später</span></small><button disabled>Bald</button></div>
+        </div>
+        <p class="dim" style="margin-bottom:0">Alle Editoren sitzen hier an einer Stelle, damit weitere (Epochen, Bausteine) ohne neuen Menüpunkt dazukommen. Im laufenden Spiel erreicht man sie über den Editor-Modus mit stehender Zeit.</p>
+      </div>
+      <div class="actions"><button data-back>Zurück</button></div>
+    </div></div>
+
     <!-- Welteditor -->
     <div class="layer win" id="worldeditor"><div>
       <h2>Welteditor <span class="sp"></span><button data-back>✕</button></h2>
@@ -194,8 +209,7 @@ const ITEMS = () => [
   { id: 'newsim', ic: '✦', t: 'Neue Simulation', s: 'Assistent' },
   { id: 'load', ic: '⤓', t: 'Simulation laden', s: '5 Stände' },
   { id: 'hr' },
-  { id: 'worldeditor', ic: '▦', t: 'Welteditor', s: 'Dorf gestalten' },
-  { id: 'chareditor', ic: '☺', t: 'Charaktereditor', s: 'Figuren anlegen' },
+  { id: 'editors', ic: '✎', t: 'Editoren', s: 'Welt · Figuren · Bausteine' },
   { id: 'hr' },
   { id: 'settings', ic: '⚙', t: 'Einstellungen', s: 'Spiel · Darstellung · Ton · Modelle' },
 ].filter(Boolean);
@@ -242,7 +256,8 @@ function act(id) {
   if (id === 'title') return show('title');
   show(id);
 }
-function back() { show(ingame ? 'pause' : 'title'); }
+const PARENT = { worldeditor: 'editors', chareditor: 'editors' };
+function back() { show(PARENT[screen] || (ingame ? 'pause' : 'title')); }
 
 const SAVES = [
   { n: 'Eichental · Tag 3', d: 'heute 14:20', t: '', m: ['2 Bewohner', 'Qwen3-8B', '1.240 Ereignisse'], tag: 'laufend' },
@@ -307,6 +322,7 @@ document.addEventListener('keydown', e => {
   }
 });
 $$('[data-back]').forEach(b => b.onclick = back);
+$$('[data-go]').forEach(b => b.onclick = () => show(b.dataset.go));
 $('#loadgo').onclick = () => show('game');
 $('#menubtn').onclick = () => { if (screen === 'game') { ingame = true; show('pause'); } else if (screen === 'pause') show('game'); };
 $('#state').onchange = e => { state = e.target.value; ingame = false; show('title'); };

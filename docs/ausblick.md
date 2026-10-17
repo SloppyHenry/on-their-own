@@ -33,3 +33,6 @@ Nicht beauftragt, nur vorgemerkt. Reihenfolge nach Henry: erst Gestalten und Fig
 4. **Objektarten als Daten** (Refactoring, ohne neue Optik).
 5. **Epochen** (je Epoche ein Paket mit Mockups).
 6. **Baustein-Editor mit Funktionen.**
+
+## Nachtrag 17.10.2026 (Henry)
+Auch **Assets und Häuser sollen selbst entworfen werden können** (gehört zu Nr. 4, Baustein-Editor, ergänzt um eigene Gebäudeformen und Räume). Alle Editoren (Welt, Figuren, später Häuser und Gebäude, Dinge und Assets, Epochen) sind im Startmenü unter dem Obermenüpunkt **Editoren** zusammengefasst.
