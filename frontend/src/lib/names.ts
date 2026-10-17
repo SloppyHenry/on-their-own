@@ -18,7 +18,7 @@ export const USE_VERBS: Record<string, string> = {
 };
 
 export const STATUS_NAMES: Record<string, [string, string]> = {
-  idle: ["frei", "think"], deciding: ["entscheidet", "plan"], acting: ["handelt", "hammer"], talking: ["spricht", "chat"],
+  idle: ["ohne Vorhaben", "think"], deciding: ["überlegt", "plan"], acting: ["ist beschäftigt", "hammer"], talking: ["spricht", "chat"],
   sleeping: ["schläft", "zzz"], stuck: ["steckt fest", "warn"],
 };
 export const statusName = (s: string): [string, string] => STATUS_NAMES[s] ?? [s, "think"];

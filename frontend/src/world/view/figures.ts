@@ -18,6 +18,11 @@ interface View {
   walked: number;
   moving: boolean;
   route?: Walk;                                        // zuletzt gesehener Fahrplan; überdauert die Ankunft im selben Bild
+  ox: number;                                          // Versatz, damit Figuren auf derselben Kachel nicht aufeinander liegen
+  oy: number;
+  speed: number;                                       // Pixel je Sekunde für den laufenden Schub (gleichmäßig statt stoßweise)
+  pushedAt: number;                                    // Uhrzeit (s) des letzten Schubs, für den Abstand zum nächsten
+  gap: number;                                         // geglätteter Abstand zwischen zwei Schüben (s)
 }
 
 export interface Pose {
@@ -36,33 +41,69 @@ export interface Pose {
   sitting?: boolean;
 }
 
+/** Restlicher Weg der Warteschlange in Pixeln (Sprünge durch Türen zählen nicht). */
+function ahead(v: View): number {
+  let d = 0, x = v.px, y = v.py;
+  for (const q of v.queue) { const s = Math.hypot(q.x - x, q.y - y); if (s <= T * 1.6) d += s; x = q.x; y = q.y; }
+  return d;
+}
+
 const BED_KINDS = new Set(["bed"]), SEAT_KINDS = new Set(["sofa", "bench"]);
 
 export class Figures {
   private views = new Map<string, View>();
+  private clock = 0;
 
   position(id: string): { x: number; y: number } | null {
     const v = this.views.get(id);
-    return v ? { x: v.px, y: v.py } : null;
+    return v ? { x: v.px + v.ox, y: v.py + v.oy } : null;
   }
 
   update(w: World, dt: number): void {
     for (const id of [...this.views.keys()]) if (!w.agents[id]) this.views.delete(id);
-    const delay = w.simulation.tick_delay_s, base = delay > 0 ? 1 / delay : 12;
+    this.clock += dt;
+    const tick = w.simulation.tick_delay_s > 0 ? w.simulation.tick_delay_s : 1;   // erwarteter Abstand zweier Schritte, bis gemessen
     for (const a of Object.values(w.agents)) {
       let v = this.views.get(a.id);
-      if (!v) { const f = tileFoot(a.x, a.y); v = { px: f.x, py: f.y, queue: [], tile: null, dir: "down", walked: 0, moving: false }; this.views.set(a.id, v); }
+      if (!v) { const f = tileFoot(a.x, a.y); v = { px: f.x, py: f.y, queue: [], tile: null, dir: "down", walked: 0, moving: false, ox: 0, oy: 0, speed: T / tick, pushedAt: -Infinity, gap: tick }; this.views.set(a.id, v); }
       if (w.walks[a.id]) v.route = w.walks[a.id];
       if (!v.tile || v.tile[0] !== a.x || v.tile[1] !== a.y) {
         const between = v.tile ? routeBetween(v.route, v.tile, [a.x, a.y]) : null;
         const far = !v.tile || (!between && Math.abs(v.tile[0] - a.x) + Math.abs(v.tile[1] - a.y) > 2);
         const f = tileFoot(a.x, a.y);
         if (far) { v.px = f.x; v.py = f.y; v.queue = []; }
-        else v.queue.push(...(between ?? [[a.x, a.y]]).map(([x, y]) => tileFoot(x, y)));
+        else {
+          v.queue.push(...(between ?? [[a.x, a.y]]).map(([x, y]) => tileFoot(x, y)));
+          // Der nächste Schub kommt etwa nach dem bisherigen Abstand: so schnell gehen, dass die Warteschlange bis dahin leer ist, ohne Stehen dazwischen.
+          const since = this.clock - v.pushedAt;
+          v.gap = since > 4 * v.gap + 1 ? tick : Math.min(4, Math.max(0.05, v.gap * 0.6 + since * 0.4));   // nach langer Pause (Stehen, Handeln) neu ansetzen
+          v.pushedAt = this.clock;
+          v.speed = Math.min(14 * T, Math.max(0.3 * T, ahead(v) / (v.gap * 1.15)));   // etwas Nachlauf: lieber knapp hinterher als stehen
+        }
         v.tile = [a.x, a.y];
       }
-      this.step(v, dt, Math.min(12, Math.max(1.5, base)) * T * (1 + v.queue.length * 0.6));
+      this.step(v, dt, v.speed * (1 + Math.max(0, v.queue.length - 8) * 0.25));
     }
+    this.spread(w);
+  }
+
+  /** Wer ruhig auf derselben Kachel steht, rückt auseinander, damit jede Figur zu sehen ist. */
+  private spread(w: World) {
+    const groups = new Map<string, View[]>();
+    for (const a of Object.values(w.agents)) {
+      const v = this.views.get(a.id);
+      if (!v) continue;
+      const key = `${a.x},${a.y}`, g = groups.get(key);
+      if (g && !v.moving && !(a.status === "sleeping" || a.action?.type === "sleep")) g.push(v);
+      else if (!g) groups.set(key, !v.moving && !(a.status === "sleeping" || a.action?.type === "sleep") ? [v] : []);
+    }
+    for (const g of groups.values()) {
+      g.forEach((v, i) => {
+        const n = g.length, tx = n < 2 ? 0 : (i - (n - 1) / 2) * Math.min(10, 12 / (n - 1)), ty = n < 3 ? 0 : (i % 2 ? 2 : -2);
+        v.ox += (tx - v.ox) * 0.25; v.oy += (ty - v.oy) * 0.25;
+      });
+    }
+    for (const v of this.views.values()) if (v.moving) { v.ox *= 0.7; v.oy *= 0.7; }
   }
 
   private step(v: View, dt: number, speed: number) {
@@ -85,7 +126,7 @@ export class Figures {
     const kinds = v.moving ? [] : kindAt(a.x, a.y);
     const dir: Dir = v.moving ? v.dir : DIRS.includes(a.facing as Dir) ? (a.facing as Dir) : v.dir;
     const frame: Frame = v.moving ? ((Math.floor(v.walked / 4) % 4) as Frame) : "stand";
-    const base = { id: a.id, x: v.px, y: v.py, inBed: false, lift: 0, toolSpr: null, toolAngle: 0, sleeping };
+    const base = { id: a.id, x: v.px + v.ox, y: v.py + v.oy, inBed: false, lift: 0, toolSpr: null, toolAngle: 0, sleeping };
     if (sleeping) {
       if (kinds.some((k) => BED_KINDS.has(k))) return { ...base, y: (a.y + 1) * T - 1, spr: sleeper(a.id), inBed: true, lift: 3 };
       return { ...base, spr: lying(a.id) };

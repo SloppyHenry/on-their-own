@@ -91,6 +91,7 @@ test("Zurücksetzen sichert vorher als Spielstand und lässt die Profile behalte
 test("Verlauf: Filter nach Kategorie, Text und Zeitraum, Export als CSV und JSON", async ({ page, request }) => {
   await openApp(page);
   await steps(request, 60);
+  await page.getByTestId("open-insights").click();
   await page.getByTestId("open-history-view").click();
   const view = page.getByTestId("history-view");
   await expect(view).toBeVisible();
@@ -121,6 +122,7 @@ test("Verlauf: Filter nach Kategorie, Text und Zeitraum, Export als CSV und JSON
 test("Statistik zeigt echte Zahlen und Verläufe aus dem laufenden Tag (§14)", async ({ page, request }) => {
   await openApp(page);
   await steps(request, 180);
+  await page.getByTestId("open-insights").click();
   await page.getByTestId("open-stats").click();
   const kpis = page.getByTestId("kpis");
   await expect(kpis).toContainText("Aktionen gelungen");
@@ -134,6 +136,6 @@ test("Statistik zeigt echte Zahlen und Verläufe aus dem laufenden Tag (§14)", 
   await expect(page.getByLabel("Beziehungen")).toContainText("zu Mira");
   await page.getByRole("button", { name: "Letzte 6 Std." }).click();
   await expect(kpis).toBeVisible();
-  await page.getByTestId("open-stats").click();
+  await page.getByTestId("back-to-world").click();
   await expect(page.getByTestId("world-canvas")).toBeVisible();
 });

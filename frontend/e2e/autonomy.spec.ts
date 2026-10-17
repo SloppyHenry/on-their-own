@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { freshWorld, openApp, post } from "./helpers";
+import { freshWorld, openApp, post, showTab } from "./helpers";
 
 test.beforeEach(async ({ request }) => { await freshWorld(request); });
 
@@ -9,7 +9,7 @@ test("Agentenübersicht zeigt Ziel, Stimmung und Bedürfnisse aus den echten Dat
   const goal = page.getByTestId("goal-line-alex");
   await expect(goal).toBeVisible();
   await expect(goal).toContainText("gehen und sich umsehen");
-  await expect(page.getByTestId("mood-alex")).toContainText("Stimmung:");
+  await expect(page.getByTestId("mood-alex")).toHaveAttribute("title", "Stimmung");
   const bars = page.getByTestId("agent-card-alex").getByTestId("needs");
   await expect(bars.locator("[data-need]")).toHaveCount(5);              // Energie, Sattheit, Wasser, Gesellschaft, Ruhe (Wärme ist aus)
   const api = await (await request.get("/api/overview")).json();
@@ -39,6 +39,7 @@ test("Agenten-Detail: Ziele mit Plan, Beziehung, Fehlschläge und „Warum?“ a
 test("Protokoll: „Warum?“ klappt Erklärung und Faktoren auf, Filter „Fehlschläge“ zeigt nur Fehlschläge", async ({ page, request }) => {
   await post(request, "/api/sim/step", { n: 40 });
   await openApp(page);
+  await showTab(page, "protokoll");
   const timeline = page.getByTestId("timeline");
   await timeline.getByRole("button", { name: "Warum?" }).first().click();
   const box = page.getByTestId("why-box").first();
@@ -52,6 +53,7 @@ test("Protokoll: „Warum?“ klappt Erklärung und Faktoren auf, Filter „Fehl
 test("Entscheidungsdetail im Ereignis zeigt Optionen mit Faktoren und das aktive Ziel", async ({ page, request }) => {
   await post(request, "/api/sim/step", { n: 40 });
   await openApp(page);
+  await showTab(page, "protokoll");
   await page.locator('[data-testid=timeline] [data-type="agent.decision"]').first().click();
   const drawer = page.getByTestId("drawer");
   await expect(drawer.getByTestId("decision-detail")).toContainText("Optionen (Punkte)");
@@ -64,6 +66,7 @@ test("Zielwechsel und Beziehungsänderungen erscheinen im Protokoll mit Grund", 
   await post(request, "/api/sim/step", { n: 50 });
   await post(request, "/api/sim/step", { n: 50 });
   await openApp(page);
+  await showTab(page, "protokoll");
   await page.getByLabel("Protokoll durchsuchen").fill("Ziel «");
   await expect(page.locator('[data-testid=timeline] button[data-type="agent.goal_changed"]').first()).toBeVisible();
   const first = await page.locator('[data-testid=timeline] button[data-type="agent.goal_changed"]').first().textContent();

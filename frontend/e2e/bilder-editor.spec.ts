@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { freshWorld, openApp } from "./helpers";
+import { freshWorld, openApp, viewMenu } from "./helpers";
 
 /** Bilder des Welteditors für docs/status/AP12c.md (nur mit SIM_BILDER=1): ganze Oberfläche, Vorschau unter dem Schleier. */
 test.skip(!process.env.SIM_BILDER, "nur mit SIM_BILDER=1");
@@ -50,10 +50,10 @@ test("Andere Seeds, Übersicht und flache Ansicht", async ({ page }) => {
   await page.getByTestId("lake").selectOption("south");
   await preview(page, 12);
   await shot(page, "vorschau-12-sueden");
-  await page.getByTestId("view-menu").getByRole("button", { name: "Flach", exact: true }).click();
+  await (await viewMenu(page)).getByRole("button", { name: "Flach", exact: true }).click();
   await page.waitForTimeout(1200);
   await shot(page, "vorschau-12-flach");
-  await page.getByTestId("view-menu").getByRole("button", { name: "Tiefe", exact: true }).click();
+  await (await viewMenu(page)).getByRole("button", { name: "Tiefe", exact: true }).click();
   await page.evaluate(() => (window as unknown as { __welt: Welt }).__welt.zoomLevel(0.25));
   await page.waitForTimeout(1500);
   await shot(page, "vorschau-12-uebersicht");

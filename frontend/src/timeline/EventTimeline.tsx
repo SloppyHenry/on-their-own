@@ -47,9 +47,8 @@ export function EventTimeline() {
   const toggleCat = (c: EventCategory) => setFilters({ categories: { ...filters.categories, [c]: !filters.categories[c] } });
 
   return (
-    <section className="flex min-h-0 flex-col border-t border-line">
-      <h2 className="px-4 pb-1.5 pt-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-dim">Protokoll</h2>
-      <div className="flex flex-wrap gap-1.5 px-3 pb-2">
+    <section className="flex min-h-0 flex-1 flex-col" aria-label="Protokoll">
+      <div className="flex flex-wrap gap-1.5 px-3 pb-2 pt-3">
         {CAT_LABEL.map(([c, label, col]) => (
           <button key={c} onClick={() => toggleCat(c)} aria-pressed={filters.categories[c]} className="cursor-pointer rounded-full border px-2.5 py-0.5 text-xs"
             style={filters.categories[c] ? { borderColor: col, color: "var(--color-text)", background: "#ffffff0a" } : { borderColor: "var(--color-line)", color: "var(--color-dim)" }}>{label}</button>

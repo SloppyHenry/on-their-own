@@ -12,6 +12,7 @@ import { DorfView } from "./dorf/DorfView";
 import { lookOf } from "./dorf/look";
 import { WorldView, type ViewLike } from "./view/WorldView";
 import { createBridge } from "./worldBridge";
+import { ViewControls } from "../layout/ViewSettings";
 
 const TILT_MASK = "linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.85) 20%, rgba(0,0,0,0) 36%, rgba(0,0,0,0) 84%, rgba(0,0,0,0.75) 100%)";
 
@@ -30,6 +31,7 @@ export function WorldCanvas() {
   const fly = useEditorStore((s) => s.fly);
   const dorf = !!lookJson;
   const player = useUiStore((s) => s.playerPreview);
+  const sideOpen = useUiStore((s) => s.appMode === "game" && !s.sidebarCollapsed);                   // Ansicht steht dann im Reiter der Infoleiste
   const focus = useUiStore((s) => s.focusRequest);
   useEffect(() => { if (focus) bridge.commands.focusTile?.(focus.x, focus.y); }, [focus, bridge]);
 
@@ -91,29 +93,7 @@ export function WorldCanvas() {
       </div>
       <Overlays bridge={bridge} />
       {player && <PlayerLayer bridge={bridge} view={view} pc={pc} />}
-      <ViewMenu dorf={dorf} />
-    </div>
-  );
-}
-
-function ViewMenu({ dorf }: { dorf: boolean }) {
-  const mode = useUiStore((s) => s.worldMode), setMode = useUiStore((s) => s.setWorldMode);
-  const player = useUiStore((s) => s.playerPreview), setPlayer = useUiStore((s) => s.setPlayerPreview);
-  const btn = (on: boolean) => `rounded-md px-2 py-0.5 ${on ? "bg-white/15 text-white" : "text-dim hover:text-white"}`;
-  return (
-    <div className="absolute right-3 top-3 z-[4] flex flex-col items-end gap-1.5 text-xs" data-testid="view-menu">
-      <div className="flex items-center gap-1 rounded-lg bg-bg/80 px-1.5 py-1" role="group" aria-label="Ansicht">
-        <span className="px-1 text-dim">Ansicht:</span>
-        <button type="button" className={btn(mode === "tiefe")} aria-pressed={mode === "tiefe"} onClick={() => setMode("tiefe")}>Tiefe</button>
-        <button type="button" className={btn(mode === "flach")} aria-pressed={mode === "flach"} onClick={() => setMode("flach")}>Flach</button>
-        <label className="ml-2 flex cursor-pointer items-center gap-1.5 px-1 text-dim">
-          <input type="checkbox" checked={player} onChange={(e) => setPlayer(e.target.checked)} data-testid="player-toggle" />
-          Mitspieler-Steuerung (Vorschau)
-        </label>
-      </div>
-      <div className="rounded-lg bg-bg/80 px-2.5 py-1.5 text-dim">
-        {player ? "Klick: gehen/handeln · Umschalt- oder Rechtsklick: auswählen · Enter: sagen · " : "Klick aufs Haus: hineinschauen · Doppelklick: folgen · "}{dorf ? "Mausrad oder + −: Zoom ¼×–3× · Ziehen oder WASD: fahren" : "Mausrad: Zoom · Ziehen: verschieben"} · F: folgen · 0: Gesamtansicht
-      </div>
+      {!sideOpen && <div className="absolute right-3 top-3 z-[4]"><ViewControls dorf={dorf} compact /></div>}
     </div>
   );
 }

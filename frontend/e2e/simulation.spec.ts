@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { freshWorld, openApp, openHouse, post, state, tagBox } from "./helpers";
+import { freshWorld, openApp, openHouse, post, state, tagBox, showTab } from "./helpers";
 
 test.beforeEach(async ({ request }) => { await freshWorld(request); });
 
@@ -22,6 +22,7 @@ test("Dialog erscheint als Sprechblase und als Protokolleintrag (§17 Nr. 5)", a
   const box = (await bubble.boundingBox())!, view = (await page.getByTestId("world-canvas").boundingBox())!;
   expect(box.x).toBeGreaterThanOrEqual(view.x);
   expect(box.x + box.width).toBeLessThanOrEqual(view.x + view.width);
+  await showTab(page, "protokoll");
   await expect(page.locator('[data-testid=timeline] [data-type="agent.dialogue"]').first()).toBeVisible();
   await post(request, "/api/sim/pause");
 });
@@ -49,6 +50,7 @@ test("Neu laden stellt Uhrzeit, Positionen und Protokoll wieder her (§17 Nr. 13
   await openApp(page);
   await expect(page.getByTestId("clock")).toContainText("07:30");
   await expect.poll(() => tagBox(page, "alex")).not.toBeNull();
+  await showTab(page, "protokoll");
   const rows = () => page.locator("[data-testid=timeline] button[data-type]").evaluateAll((els) => els.slice(-6).map((e) => e.textContent));
   const before = { clock: await page.getByTestId("clock").textContent(), alex: await tagBox(page, "alex"), mira: await tagBox(page, "mira"), rows: await rows() };
   await page.reload();
@@ -103,6 +105,7 @@ test("Klick auf Agent und Ereignis öffnet Details mit echten Daten", async ({ p
   await expect(drawer).toContainText("Letzte Entscheidungen");
   await drawer.getByRole("button", { name: "Schließen" }).first().click();
   await expect(drawer).toHaveCount(0);
+  await showTab(page, "protokoll");
   await page.locator('[data-testid=timeline] [data-type="agent.decision"]').first().click();
   await expect(drawer).toContainText("agent.decision");
   await expect(drawer).toContainText("Optionen");

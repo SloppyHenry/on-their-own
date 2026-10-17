@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import fixture from "./fixtures/look-zwei-doerfer.json" with { type: "json" };
-import { freshWorld } from "./helpers";
+import { freshWorld, viewMenu } from "./helpers";
 
 /**
  * Beide Ansichten bleiben immer wählbar: dieselbe Welt mit zwei Dörfern in der Ansicht „Flach“ (Draufsicht, Mockup B). Welt mit zwei Dörfern (AP12a): die Startwelt und ein aus einem Seed erzeugtes zweites Dorf (Fixture aus dem Mockup-Generator, Look Version 2),
@@ -50,7 +50,7 @@ test.beforeEach(async ({ request }) => { await freshWorld(request); });
 
 test("Flach: Startdorf, zweites Dorf, Landstraße, ½× und ¼×; der Umschalter wechselt zwischen Tiefe und Flach", async ({ page }) => {
   await prepare(page, 12 * 60);
-  await expect(page.getByTestId("view-menu").getByRole("button", { name: "Flach", exact: true })).toHaveAttribute("aria-pressed", "true");
+  await expect((await viewMenu(page)).getByRole("button", { name: "Flach", exact: true })).toHaveAttribute("aria-pressed", "true");
   expect(await welt(page)).toMatchObject({ x: 192, y: 288, zo: 1, zoom: 1 });
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(String(e)));
@@ -64,7 +64,7 @@ test("Flach: Startdorf, zweites Dorf, Landstraße, ½× und ¼×; der Umschalter
   await lookAt(page, 400, 200, 0.25);
   expect(await grab(page)).toMatchSnapshot("flach-viertel.png", OPT);
   await page.keyboard.press("0");
-  await page.getByTestId("view-menu").getByRole("button", { name: "Tiefe", exact: true }).click();     // jederzeit zurück auf 3D, die Kamera bleibt
+  await (await viewMenu(page)).getByRole("button", { name: "Tiefe", exact: true }).click();     // jederzeit zurück auf 3D, die Kamera bleibt
   expect(await welt(page)).toMatchObject({ x: 192, y: 288 });
   expect(await grab(page)).toMatchSnapshot("tiefe-start.png", OPT);
   expect(errors).toEqual([]);

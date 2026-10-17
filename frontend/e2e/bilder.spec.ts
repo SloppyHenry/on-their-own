@@ -1,5 +1,5 @@
 import { expect, test, type APIRequestContext, type Page } from "@playwright/test";
-import { freshWorld, moveAgent, openApp, openHouse, post, settled, settledTag, setView, state } from "./helpers";
+import { freshWorld, moveAgent, openApp, openHouse, post, settled, settledTag, setView, state, viewMenu } from "./helpers";
 
 /** Bildschirmfotos für docs/status/AP14.md (nur mit SIM_BILDER=1). Wetter für die Vergleichsbilder klar gesetzt (nur in der Anzeige). */
 test.skip(!process.env.SIM_BILDER, "nur mit SIM_BILDER=1");
@@ -62,7 +62,7 @@ test("Bilder AP14", async ({ page, request }) => {
   await world(page, "dorf-nacht");
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.reload(); await openApp(page);
-  await page.getByTestId("player-toggle").check();
+  await (await viewMenu(page)).getByTestId("player-toggle").check();
   await clear(page);
   const house = await settled(page, '[data-house="0"]');
   await page.mouse.click(house.x + 420, house.y + 330);                  // freie Wiese vor dem See
@@ -72,7 +72,7 @@ test("Bilder AP14", async ({ page, request }) => {
   await page.mouse.click(house.x, house.y);
   await expect(page.getByTestId("player-menu")).toBeVisible();
   await shot(page, "mitspieler-vorschau");
-  await page.getByTestId("player-toggle").uncheck();
+  await (await viewMenu(page)).getByTestId("player-toggle").uncheck();
 });
 
 /** Bis die Handlung angenommen wird (Figur muss erst ankommen oder frei sein): je Versuch ein paar Minuten weiter; mit `at` vorher hinsetzen. */
