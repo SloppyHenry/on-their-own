@@ -11,7 +11,11 @@ export default defineConfig({
   workers: 1,
   fullyParallel: false,
   reporter: [["list"]],
-  use: { baseURL: `http://127.0.0.1:${FRONTEND}`, viewport: { width: 1440, height: 900 }, trace: "retain-on-failure", screenshot: "only-on-failure" },
+  // Das Titelbild (AP17a) ist je Gerät abschaltbar; die Tests starten ohne, damit sie direkt im Spiel sind. menue.spec.ts schaltet es wieder an.
+  use: {
+    baseURL: `http://127.0.0.1:${FRONTEND}`, viewport: { width: 1440, height: 900 }, trace: "retain-on-failure", screenshot: "only-on-failure",
+    storageState: { cookies: [], origins: [{ origin: `http://127.0.0.1:${FRONTEND}`, localStorage: [{ name: "simulacra.titelbild", value: "false" }] }] },
+  },
   webServer: [
     {
       command: `rm -rf /tmp/simulacra-e2e-run && ../backend/.venv/bin/python ../scripts/e2e_server.py --port ${BACKEND} --data-dir /tmp/simulacra-e2e-run`,

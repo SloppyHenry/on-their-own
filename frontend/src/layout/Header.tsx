@@ -22,7 +22,7 @@ export function Header() {
   const health = useHealth();
   const view = useUiStore((s) => s.view);
   const setView = useUiStore((s) => s.setView);
-  const setSavesOpen = useUiStore((s) => s.setSavesOpen);
+  const menu = useUiStore((s) => s.menu), setMenu = useUiStore((s) => s.setMenu);
   const settingsOpen = useUiStore((s) => s.settingsOpen);
   const openSettings = useUiStore((s) => s.openSettings);
   const closeSettings = useUiStore((s) => s.closeSettings);
@@ -49,7 +49,6 @@ export function Header() {
       {/* Bedienknöpfe dürfen bei schmalem Fenster seitlich rollen; Verbindung und Modell rechts bleiben immer sichtbar. */}
       <nav className="flex min-w-0 shrink items-center gap-2 overflow-x-auto [scrollbar-width:none]" aria-label="Bereiche">
       <button className={`btn ${settingsOpen ? "on" : ""}`} onClick={() => (settingsOpen ? closeSettings() : openSettings())} aria-pressed={settingsOpen} data-testid="open-settings">Einstellungen</button>
-      <button className="btn" onClick={() => setSavesOpen(true)} data-testid="open-saves">Spielstände</button>
       <button className={`btn ${appMode !== "game" ? "on" : ""}`} onClick={() => (appMode === "game" ? (setView("world"), enterEditor()) : leaveEditor())} aria-pressed={appMode !== "game"} data-testid="open-editor">Welt gestalten</button>
       {appMode === "game" && view !== "memory" && view !== "stats" && (
         <button className={`btn ${collapsed ? "" : "on"}`} onClick={toggleSidebar} aria-pressed={!collapsed} title={collapsed ? "Infoleiste (Bewohner, Protokoll) einblenden" : "Infoleiste (Bewohner, Protokoll) ausblenden"} data-testid="toggle-sidebar" aria-label="Infoleiste">{collapsed ? "«" : "»"}</button>
@@ -67,6 +66,7 @@ export function Header() {
         {status && status.model.errors_15min > 0 && <span className="ml-1 font-mono text-xs text-warn" title="Fehlgeschlagene Modellanfragen in den letzten 15 Minuten"> · {status.model.errors_15min} Fehler</span>}
       </span>
       </button>
+      <button type="button" className={`btn shrink-0 ${menu ? "on" : ""}`} onClick={() => setMenu(menu ? null : "pause")} aria-pressed={!!menu} title="Menü (Esc)" data-testid="open-menu">☰ Menü</button>
     </header>
   );
 }

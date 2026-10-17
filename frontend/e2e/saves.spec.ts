@@ -4,7 +4,8 @@ import { freshWorld, openApp, post, state, steps } from "./helpers";
 test.beforeEach(async ({ request }) => { await freshWorld(request); });
 
 const minute = async (r: Parameters<typeof state>[0]) => (await state(r)).clock.minute as number;
-const openSaves = async (page: Page) => { await page.getByTestId("open-saves").click(); await expect(page.getByTestId("saves-dialog")).toBeVisible(); };
+const openSaves = async (page: Page) => { await page.getByTestId("open-menu").click(); await page.getByTestId("menu-load").click(); await expect(page.getByTestId("saves-dialog")).toBeVisible(); };
+const closeSaves = async (page: Page) => { await page.getByTestId("open-menu").click(); await expect(page.getByTestId("start-menu")).toHaveCount(0); };
 const saveAs = async (page: Page, name: string) => { await page.getByLabel("Name des Spielstands").fill(name); await page.getByTestId("save-now").click(); };
 
 test("Speichern, weiterlaufen, Laden: der Browser zeigt den gespeicherten Stand; vorher wird gesichert (§17 Nr. 7)", async ({ page, request }) => {
@@ -16,7 +17,7 @@ test("Speichern, weiterlaufen, Laden: der Browser zeigt den gespeicherten Stand;
   await expect(page.getByTestId("saves-message")).toHaveText("Gespeichert.");
   const row = page.getByTestId("saves-list").locator("li", { hasText: "E2E Stand" });
   await expect(row).toContainText("Manuell");
-  await page.getByTestId("saves-dialog").getByRole("button", { name: "Schließen" }).click();
+  await closeSaves(page);
   await steps(request, 30);
   await expect.poll(() => minute(request)).toBe(saved + 30);
   await expect(page.getByTestId("clock")).toContainText(String(Math.floor(((saved + 30) % 1440) / 60)).padStart(2, "0"));
@@ -27,7 +28,7 @@ test("Speichern, weiterlaufen, Laden: der Browser zeigt den gespeicherten Stand;
   await page.getByTestId("confirm-ask").click();
   await expect(page.getByTestId("saves-message")).toHaveText("Geladen.");
   await expect.poll(() => minute(request)).toBe(saved);
-  await page.getByTestId("saves-dialog").getByRole("button", { name: "Schließen" }).click();
+  await closeSaves(page);
   await expect(page.getByTestId("clock")).toContainText(String(Math.floor((saved % 1440) / 60)).padStart(2, "0") + ":" + String(saved % 60).padStart(2, "0"));
   await openSaves(page);
   await expect(page.getByTestId("saves-list").locator("li", { hasText: "Vor dem Laden" })).toContainText("Sicherung");

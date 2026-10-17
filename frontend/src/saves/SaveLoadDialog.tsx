@@ -8,7 +8,7 @@ const size = (b: number) => (b > 1e6 ? `${(b / 1e6).toFixed(1)} MB` : `${Math.ma
 const when = (iso: string) => new Date(iso).toLocaleString("de-DE", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
 
 /** Spielstände: speichern (Überschreiben nur mit ausdrücklicher Bestätigung), laden (sichert vorher), löschen, exportieren, importieren. Jeder destruktive Schritt fragt nach. */
-export function SaveLoadDialog() {
+export function SaveLoadDialog({ embedded = false }: { embedded?: boolean } = {}) {
   const close = useUiStore((s) => s.setSavesOpen);
   const [items, setItems] = useState<SaveOut[]>([]);
   const [name, setName] = useState("");
@@ -22,10 +22,11 @@ export function SaveLoadDialog() {
   const reload = useCallback(() => api.saves().then(setItems).catch(() => setMsg({ text: "Spielstände nicht erreichbar", bad: true })), []);
   useEffect(() => { void reload(); }, [reload]);
   useEffect(() => {
+    if (embedded) return;                                                    // im Menü schließt Esc das Menü
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && close(false);
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [close]);
+  }, [close, embedded]);
 
   const act = async (fn: () => Promise<unknown>, ok: string) => {
     setBusy(true);
@@ -44,13 +45,15 @@ export function SaveLoadDialog() {
   const save = (overwrite: boolean) => act(async () => { await api.save(name, desc, overwrite); setClash(false); setName(""); setDesc(""); }, overwrite ? "Überschrieben." : "Gespeichert.");
 
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-black/60" role="dialog" aria-modal="true" aria-label="Spielstände" data-testid="saves-dialog">
-      <div className="flex max-h-[88vh] w-[56rem] max-w-[95vw] flex-col rounded-lg border border-line bg-panel">
-        <header className="flex items-center justify-between border-b border-line px-5 py-3">
-          <h2 className="text-lg font-semibold">Spielstände</h2>
-          <button className="btn" onClick={() => close(false)} aria-label="Schließen">✕</button>
-        </header>
-        <div className="overflow-auto px-5 py-4">
+    <div className={embedded ? "" : "fixed inset-0 z-50 grid place-items-center bg-black/60"} role={embedded ? undefined : "dialog"} aria-modal={embedded ? undefined : true} aria-label="Spielstände" data-testid="saves-dialog">
+      <div className={embedded ? "flex flex-col" : "flex max-h-[88vh] w-[56rem] max-w-[95vw] flex-col rounded-lg border border-line bg-panel"}>
+        {!embedded && (
+          <header className="flex items-center justify-between border-b border-line px-5 py-3">
+            <h2 className="text-lg font-semibold">Spielstände</h2>
+            <button className="btn" onClick={() => close(false)} aria-label="Schließen">✕</button>
+          </header>
+        )}
+        <div className={embedded ? "px-1 py-2" : "overflow-auto px-5 py-4"}>
           <form className="rounded-md border border-line p-3" onSubmit={(e) => { e.preventDefault(); setClash(false); void save(false); }}>
             <h3 className="sub !mt-0">Aktuellen Stand speichern</h3>
             <div className="flex gap-2">

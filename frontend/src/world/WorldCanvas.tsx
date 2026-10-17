@@ -48,7 +48,7 @@ export function WorldCanvas() {
       if (e.key === "Enter" && bridge.playerPreview()) { e.preventDefault(); const sel = bridge.selection(); usePlayer.setState({ say: { open: true, to: sel?.kind === "agent" ? sel.id : null }, menu: null }); return; }
       if (e.key === "0") bridge.commands.fit?.();
       if (e.key === "f" || e.key === "F") bridge.commands.toggleFollow?.();
-      if (e.key === "Escape" && v.interior >= 0) bridge.commands.leaveInterior?.();
+      if (e.key === "Escape" && v.interior >= 0) { e.preventDefault(); bridge.commands.leaveInterior?.(); }          // Esc gehört zuerst der Innenansicht, erst dann dem Menü
     };
     window.addEventListener("keydown", onKey);
     return () => {
