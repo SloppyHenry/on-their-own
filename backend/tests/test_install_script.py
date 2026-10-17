@@ -24,15 +24,16 @@ def _stub(dirpath: Path, name: str, body: str) -> None:
     f.chmod(0o755)
 
 
-def machine(tmp_path: Path, *, os_name: str = "Linux", arch: str = "x86_64", mem_gb: int = 16, nvidia: tuple[str, int, str] | None = None) -> dict[str, str]:
+def machine(tmp_path: Path, *, os_name: str = "Linux", arch: str = "x86_64", mem_gb: int = 16, nvidia: tuple[str, int, str] | tuple[str, int, str, int] | None = None) -> dict[str, str]:
     """Umgebung für ein Skript, das auf dem beschriebenen Rechner zu laufen glaubt."""
     bin_dir = tmp_path / "bin"
     bin_dir.mkdir()
     _stub(bin_dir, "uname", f'case "$1" in -s) echo {os_name};; -m) echo {arch};; *) echo {os_name};; esac')
     _stub(bin_dir, "sysctl", f'case "$2" in hw.memsize) echo {mem_gb * 1024**3};; machdep.cpu.brand_string) echo "Apple M3 Pro";; *) exit 1;; esac')
     if nvidia:
-        name, vram_mb, cuda = nvidia
-        _stub(bin_dir, "nvidia-smi", f'if [ "$1" = "--query-gpu=name,memory.total" ] || [[ "$*" == *query-gpu* ]]; then echo "{name}, {vram_mb}"; else echo "| NVIDIA-SMI 550.00   Driver Version: 550.00   CUDA Version: {cuda} |"; fi')
+        name, vram_mb, cuda, *rest = nvidia
+        free_mb = rest[0] if rest else vram_mb
+        _stub(bin_dir, "nvidia-smi", f'if [ "$1" = "--query-gpu=name,memory.total" ] || [[ "$*" == *query-gpu* ]]; then echo "{name}, {vram_mb}, {free_mb}"; else echo "| NVIDIA-SMI 550.00   Driver Version: 550.00   CUDA Version: {cuda} |"; fi')
     _stub(bin_dir, "curl", f"""url=""; for a in "$@"; do case "$a" in http*) url="$a";; esac; done
 case "$url" in
   *api.github.com/repos/ggml-org/llama.cpp/releases*) cat {FIX}/releases.json;;
@@ -137,3 +138,35 @@ def test_projektordner_mit_leerzeichen_wird_abgelehnt(tmp_path):
     env_dir.mkdir()
     r = subprocess.run(["bash", str(copy / "install.sh"), "--dry-run", "--yes"], env=machine(env_dir), capture_output=True, text=True, timeout=60)
     assert r.returncode != 0 and "Leerzeichen" in r.stderr
+
+
+def test_belegte_grafikkarte_zaehlt_nur_den_freien_speicher(tmp_path):
+    r = dry(machine(tmp_path, nvidia=("NVIDIA GeForce RTX 3060", 12288, "13.2", 1260)))
+    assert "davon frei 1,2 GB" in r.stdout and "zum großen Teil belegt" in r.stdout
+    assert "KNAPP" in r.stdout and "Standard: nein" in r.stdout          # kleinstes Modell wird nur vorgeschlagen, nicht still geladen
+
+
+def test_zweiter_lauf_behaelt_das_token(tmp_path):
+    """Echter Lauf (ohne Netz, ohne Dienst): `--no-llm --headless` schreibt den Block; ein zweiter Lauf darf das Token nicht verlieren."""
+    root = tmp_path / "simulacra"
+    (root / "backend" / "simulacra" / "data").mkdir(parents=True)
+    shutil.copy(SCRIPT, root / "install.sh")
+    shutil.copy(ROOT / "backend" / "simulacra" / "data" / "models.json", root / "backend" / "simulacra" / "data" / "models.json")
+    env_dir = tmp_path / "m"
+    env_dir.mkdir()
+    env = machine(env_dir)
+    # Nur das Schreiben der Einstellungen prüfen: die Funktion aus dem Skript herauslösen
+    harness = root / "harness.sh"
+    harness.write_text('set -euo pipefail\nsource <(sed -n "/^write_env()/,/^}/p; /^py()/,/^}/p; /^have()/p; /^ok()/p; /^warn()/p; /^plan()/p; /^MARK/p" "$1")\nROOT="$2"; DRY=0; HEADLESS=1; NO_LLM=1; MODEL_ALIAS=""; LLM_PORT=8081; C_W=""; C_0=""; C_OK=""; C_D=""\nwrite_env\n')
+    def run_once():
+        return subprocess.run(["bash", str(harness), str(SCRIPT), str(root)], env=env, capture_output=True, text=True, timeout=30)
+    first = run_once()
+    assert first.returncode == 0, first.stderr
+    envf = root / "backend" / ".env"
+    t1 = [ln for ln in envf.read_text().splitlines() if ln.startswith("SIM_ACCESS_TOKEN=")]
+    assert len(t1) == 1 and len(t1[0]) > len("SIM_ACCESS_TOKEN=") + 16
+    second = run_once()
+    assert second.returncode == 0, second.stderr
+    assert [ln for ln in envf.read_text().splitlines() if ln.startswith("SIM_ACCESS_TOKEN=")] == t1
+    assert envf.read_text().count("# --- simulacra install") == 1
+    assert oct(envf.stat().st_mode & 0o777) == "0o600"

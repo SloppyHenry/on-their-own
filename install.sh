@@ -94,10 +94,13 @@ detect_hw() {
   case "$(uname -s)" in Darwin) OS=macos;; Linux) OS=linux;; *) die "Betriebssystem $(uname -s) wird nicht unterstützt (Linux und macOS).";; esac
   case "$(uname -m)" in arm64|aarch64) ARCH=arm64;; x86_64|amd64) ARCH=x64;; *) die "Architektur $(uname -m) wird nicht unterstützt.";; esac
   if [ "$OS" = macos ]; then MEM_MB=$(( $(sysctl -n hw.memsize) / 1048576 )); else MEM_MB=$(awk '/^MemTotal/ {print int($2/1024)}' "${SIMULACRA_MEMINFO:-/proc/meminfo}"); fi
-  GPU_KIND=cpu; GPU_NAME=""; VRAM_MB=0; CUDA_VER=""
+  GPU_KIND=cpu; GPU_NAME=""; VRAM_MB=0; VRAM_FREE_MB=0; CUDA_VER=""
   local nv
-  if have nvidia-smi && nv="$(nvidia-smi --query-gpu=name,memory.total --format=csv,noheader,nounits 2>/dev/null | head -1)" && [ -n "$nv" ]; then
-    GPU_KIND=nvidia; GPU_NAME="${nv%%,*}"; VRAM_MB="$(printf '%s' "${nv##*,}" | tr -dc '0-9')"
+  if have nvidia-smi && nv="$(nvidia-smi --query-gpu=name,memory.total,memory.free --format=csv,noheader,nounits 2>/dev/null | head -1)" && [ -n "$nv" ]; then
+    GPU_KIND=nvidia; GPU_NAME="${nv%%,*}"
+    VRAM_MB="$(printf '%s' "$nv" | awk -F, '{gsub(/[^0-9]/,"",$2); print $2}')"
+    VRAM_FREE_MB="$(printf '%s' "$nv" | awk -F, '{gsub(/[^0-9]/,"",$3); print ($3==""?$2:$3)}')"
+    VRAM_FREE_MB="${VRAM_FREE_MB:-$VRAM_MB}"
     CUDA_VER="$(nvidia-smi 2>/dev/null | sed -n 's/.*CUDA Version: *\([0-9][0-9.]*\).*/\1/p' | head -1 || true)"
   elif [ "$OS" = macos ] && [ "$ARCH" = arm64 ]; then
     GPU_KIND=metal; GPU_NAME="$(sysctl -n machdep.cpu.brand_string 2>/dev/null || echo 'Apple Silicon')"
@@ -107,7 +110,7 @@ detect_hw() {
   CUDA_MAJOR="${CUDA_VER%%.*}"; CUDA_MAJOR="${CUDA_MAJOR:-0}"
   # Speicher, der dem Modell zur Verfügung steht: Grafikspeicher, bei Apple Silicon zwei Drittel des gemeinsamen Speichers, sonst RAM
   case "$GPU_KIND" in
-    nvidia) USABLE_MB=$(( VRAM_MB * 95 / 100 ));;
+    nvidia) USABLE_MB=$(( VRAM_FREE_MB * 95 / 100 ));;        # frei, nicht gesamt: ein anderer Dienst kann die Karte belegen
     metal)  USABLE_MB=$(( MEM_MB * 2 / 3 ));;
     *)      USABLE_MB=$(( MEM_MB * 6 / 10 ));;
   esac
@@ -122,7 +125,8 @@ check_machine() {
   detect_hw
   say "  System        $OS $ARCH"
   case "$GPU_KIND" in
-    nvidia) say "  Beschleuniger NVIDIA $GPU_NAME, $(fmt_gb "$VRAM_MB") GB Grafikspeicher (CUDA ${CUDA_VER:-unbekannt})";;
+    nvidia) say "  Beschleuniger NVIDIA $GPU_NAME, $(fmt_gb "$VRAM_MB") GB Grafikspeicher, davon frei $(fmt_gb "$VRAM_FREE_MB") GB (CUDA ${CUDA_VER:-unbekannt})"
+            if [ $(( VRAM_FREE_MB * 100 / VRAM_MB )) -lt 60 ]; then warn "Die Grafikkarte ist zum großen Teil belegt (andere Prozesse). Ein Modell muss in den freien Speicher passen; nichts wird beendet oder verdrängt."; fi;;
     metal)  say "  Beschleuniger Metal ($GPU_NAME), $(fmt_gb "$MEM_MB") GB gemeinsamer Speicher";;
     vulkan) say "  Beschleuniger Vulkan-Grafik (Größe unbekannt)";;
     *)      say "  Beschleuniger keiner erkannt (Prozessor)";;
@@ -298,7 +302,8 @@ EOF
   [ "$fit" = KNAPP ] && warn "Der Speicher ist knapp; das Modell läuft vielleicht nur langsam. Mit --model ein kleineres wählen oder --no-model."
   MODEL_FILE="$MODELS_DIR/$file"; MODEL_ALIAS="$name"
   if [ -f "$MODEL_FILE" ]; then ok "$file ist schon da ✓"; return; fi
-  if ! ask "$name ($(printf '%s' "$size" | tr . ,) GB) von huggingface.co/$repo laden?" j; then MODEL_FILE=""; warn "ohne Modell: später im Tool (Menü → Einstellungen → Modelle) oder mit ./install.sh --update."; return; fi
+  local lddef=j; [ "$fit" = KNAPP ] && lddef=n
+  if ! ask "$name ($(printf '%s' "$size" | tr . ,) GB) von huggingface.co/$repo laden?" "$lddef"; then MODEL_FILE=""; warn "ohne Modell: später im Tool (Menü → Einstellungen → Modelle) oder mit ./install.sh --update."; return; fi
   if [ "$DRY" = 1 ]; then plan "$file laden (fortsetzbar), SHA-256 gegen Hugging Face prüfen"; return; fi
   local sha
   sha="$(curl -fsSL "https://huggingface.co/api/models/$repo/tree/main" | py -c 'import json,sys; f=sys.argv[1]; print(next((x.get("lfs",{}).get("oid","") for x in json.load(sys.stdin) if x["path"]==f), ""))' "$file")"
@@ -315,8 +320,12 @@ write_env() {
     block="${block}SIM_LLM_BASE_URL=http://127.0.0.1:$LLM_PORT/v1"$'\n'"SIM_LLM_MODEL=$MODEL_ALIAS"$'\n'
   fi
   if [ "$HEADLESS" = 1 ]; then
-    if [ -f "$envf" ] && grep -q '^SIM_ACCESS_TOKEN=.' "$envf" 2>/dev/null; then token=""; else token="$(py -c 'import secrets; print(secrets.token_hex(16))')"; fi
-    block="${block}SIM_HOST=0.0.0.0"$'\n'
+    # Ein vorhandener Zugangsschutz bleibt: der eigene Block wird bei jedem Lauf neu geschrieben, das Token darf dabei nicht verloren gehen.
+    if [ -f "$envf" ]; then token="$(sed -n 's/^SIM_ACCESS_TOKEN=//p' "$envf" | head -1)"; fi
+    if [ -z "$token" ]; then token="$(py -c 'import secrets; print(secrets.token_hex(16))')"; fi
+    # "::" lauscht auf IPv4 und IPv6 (manche Heimnetz-Namen lösen nur zu IPv6 auf); ohne IPv6 im Kernel bleibt es bei 0.0.0.0
+    local bindhost=0.0.0.0; [ -e /proc/net/if_inet6 ] && bindhost="::"
+    block="${block}SIM_HOST=$bindhost"$'\n'
     [ -n "$token" ] && block="${block}SIM_ACCESS_TOKEN=$token"$'\n'
   fi
   block="${block}$MARK_END"
