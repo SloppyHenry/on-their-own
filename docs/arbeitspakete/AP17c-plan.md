@@ -46,11 +46,11 @@ Für Linux und macOS, idempotent, mit `--yes` (ohne Rückfragen), `--dry-run` (z
 - Der Container (`deploy/`) bleibt der Weg für Server mit externem Modell; für maintux und thirdtux läuft das Skript per `ssh … install.sh --yes --headless`.
 - Prüfung: `shellcheck`, ein Trockenlauf je Plattform-Beispiel (aufgezeichnete Ausgaben von `nvidia-smi`, `sysctl` als Testdaten), ein Lauf in einem sauberen Container (Linux, CPU, kleines Prüfmodell).
 
-## Reihenfolge der Teilpakete
-- **17c-1:** Hardware, Katalog, Passung, API, Tests (reine Python-Logik, kein Download).
-- **17c-2:** Download mit Prüfsumme und Fortschritt, Laufzeit-Verwaltung, Probelauf.
-- **17c-3:** Oberfläche (Bereich Modelle), Neustart-Fenster mit Modell, Statusanzeige.
-- **17c-4:** Install-Skript, Dienste, Handbuch (`installation.md`, `llm-anbindung.md`, `konfiguration.md`), Probelauf auf thirdtux (und maintux, sobald erreichbar), Abnahmebericht.
+## Reihenfolge der Teilpakete (geändert am 17.10.2026 auf Henrys Wunsch: zuerst das Install-Skript)
+- **17c-1: Install-Skript** (`install.sh`, `scripts/start.sh`, kuratierte Liste `models.json`, Tests mit nachgestellten Rechnern). **Gebaut**, siehe [status/AP17c.md](../status/AP17c.md).
+- **17c-2:** Hardware-Erkennung und Katalog im Backend (Live-Liste, Passung, API), danach das Skript nutzt dieselbe Logik.
+- **17c-3:** Download mit Fortschritt, Laufzeit-Verwaltung durch das Backend (statt Dienst), Probelauf.
+- **17c-4:** Oberfläche (Bereich Modelle), Neustart-Fenster mit Modell, Statusanzeige, Handbuch, Probelauf auf thirdtux und maintux.
 
 ## Tests
 - Python: Parser für `nvidia-smi`/`sysctl`/`system_profiler` mit Beispielausgaben; Passung (Grenzwerte); Katalogzusammenführung und Zwischenspeicher mit Mock-Transport; Download (Fortsetzen, falsche Prüfsumme, zu wenig Platz, nicht erlaubter Host, Abbruch); Laufzeit mit Fake-Prozess (Start, Gesundheit, Absturz, Wechsel); Probe mit Fake-Provider; API (Bestätigungspflicht, Idempotency-Key).
