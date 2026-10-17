@@ -234,7 +234,7 @@ function show(s) {
   if (s === 'load') renderSaves();
   if (s === 'settings') renderSettings();
   $('header').style.display = s === 'title' ? 'none' : '';
-  $('#app').style.gridTemplateRows = s === 'title' ? '0 1fr' : '44px 1fr';
+  $('#app').style.gridTemplateRows = s === 'title' ? '1fr' : '44px 1fr';
   $('#clock').style.visibility = state === 'running' ? '' : 'hidden';
 }
 function act(id) {
