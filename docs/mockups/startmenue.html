@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SIMULACRA Mockup AP17a: Startmenü</title>
+<style>
+  :root { --bg: #1a1322; --panel: #2b2233; --panel2: #3a2f45; --line: #4b3f58; --txt: #fff8ec; --dim: #bfae9a; --acc: #ffd36e; --ok: #93c79f; --bad: #ff8a7a; --ghost: #b79cff; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--txt); font: 500 14px ui-rounded, system-ui, sans-serif; overflow: hidden; }
+  button, select, input { font: inherit; color: var(--txt); background: var(--panel2); border: 1px solid var(--line); border-radius: 8px; padding: 5px 12px; cursor: pointer; }
+  button:hover, button:focus-visible { border-color: var(--acc); outline: none; }
+  button.on { background: var(--acc); color: #2b2233; border-color: var(--acc); }
+  small, .dim { color: var(--dim); }
+  #app { position: fixed; inset: 0; display: grid; grid-template-rows: 44px 1fr; }
+  /* Kopfzeile im Spiel (schlank) */
+  header { display: flex; align-items: center; gap: 12px; padding: 0 12px; background: var(--panel); border-bottom: 1px solid var(--line); white-space: nowrap; }
+  header b.logo { letter-spacing: .18em; font-size: 13px; }
+  header .sp { flex: 1; }
+  header .clock { font-variant-numeric: tabular-nums; }
+  header .speed button { padding: 2px 8px; }
+  .status { display: flex; align-items: center; gap: 6px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ok); display: inline-block; }
+  .menubtn { display: inline-flex; align-items: center; gap: 6px; }
+  .menubtn kbd { font: 10px ui-monospace, monospace; color: var(--dim); border: 1px solid var(--line); border-radius: 4px; padding: 0 4px; }
+  /* Welt */
+  #stage { position: relative; overflow: hidden; background: #0e1115 url(welt-optik/echt-mittag.png) center / cover no-repeat; }
+  #stage.dim::before { content: ""; position: absolute; inset: 0; background: rgba(20, 12, 28, .55); backdrop-filter: blur(3px) saturate(.8); }
+  #stage.dim.title::before { background: radial-gradient(ellipse at 30% 50%, rgba(20,12,28,.35), rgba(20,12,28,.8)); backdrop-filter: blur(2px); }
+  #side { position: absolute; right: 0; top: 0; bottom: 0; width: 300px; background: var(--panel); border-left: 1px solid var(--line); padding: 10px 12px; display: grid; gap: 8px; align-content: start; }
+  #side .tabs { display: flex; gap: 4px; } #side .tabs button { padding: 2px 8px; }
+  .card { padding: 8px 10px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel2); }
+  /* Menü-Ebenen */
+  .layer { position: absolute; inset: 0; display: none; }
+  .layer.open { display: grid; }
+  #title { grid-template-columns: minmax(320px, 440px) 1fr; padding: 0 0 0 7vw; align-items: center; }
+  .logo-big { font-size: 46px; letter-spacing: .26em; font-weight: 700; text-shadow: 0 3px 0 #0007; margin-bottom: 4px; }
+  .logo-sub { color: var(--dim); margin-bottom: 26px; letter-spacing: .06em; }
+  .menu { display: grid; gap: 8px; }
+  .menu button { display: grid; grid-template-columns: 34px 1fr auto; align-items: center; text-align: left; padding: 10px 14px; border-radius: 12px; font-size: 16px; background: rgba(43, 34, 51, .88); }
+  .menu button i { font-style: normal; font-size: 20px; }
+  .menu button small { font-size: 12px; }
+  .menu button[aria-selected="true"] { border-color: var(--acc); background: rgba(58, 47, 69, .96); transform: translateX(6px); }
+  .menu button.primary { background: var(--acc); color: #2b2233; }
+  .menu button.primary small { color: #5a4a3a; }
+  .menu button.primary[aria-selected="true"] { box-shadow: 0 0 0 2px #fff8; }
+  .menu hr { border: 0; border-top: 1px solid var(--line); margin: 4px 0; width: 100%; }
+  .foot { position: absolute; left: 7vw; bottom: 16px; display: flex; gap: 16px; color: var(--dim); font-size: 12px; }
+  .foot kbd { font: 11px ui-monospace, monospace; border: 1px solid var(--line); border-radius: 4px; padding: 0 5px; }
+  /* Fenster */
+  .win { place-items: center; background: rgba(10, 6, 14, .5); }
+  .win > div { width: min(900px, 92vw); max-height: 86%; overflow: auto; background: var(--panel); border: 1px solid var(--line); border-radius: 14px; box-shadow: 0 20px 60px #000a; display: grid; grid-template-rows: auto 1fr auto; }
+  .win h2 { margin: 0; padding: 12px 16px; font-size: 15px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid var(--line); }
+  .win h2 .sp { flex: 1; }
+  .win .body { padding: 14px 16px; }
+  .win .actions { padding: 10px 16px; border-top: 1px solid var(--line); display: flex; gap: 8px; justify-content: flex-end; }
+  .saves { display: grid; gap: 8px; }
+  .save { display: grid; grid-template-columns: 160px 1fr auto; gap: 14px; padding: 8px; border: 1px solid var(--line); border-radius: 12px; align-items: center; background: var(--panel2); cursor: pointer; }
+  .save[aria-selected="true"] { border-color: var(--acc); }
+  .thumb { width: 160px; height: 90px; border-radius: 8px; background: #0e1115 url(welt-optik/echt-mittag.png) center / cover; border: 1px solid #000; image-rendering: pixelated; }
+  .thumb.abend { background-image: url(welt-optik/echt-abend.png); }
+  .thumb.nacht { background-image: url(welt-optik/echt-nacht.png); }
+  .save b { font-size: 15px; } .save .meta { color: var(--dim); font-size: 12px; margin-top: 2px; display: flex; flex-wrap: wrap; gap: 4px 12px; }
+  .tag { display: inline-block; padding: 0 7px; border-radius: 999px; font-size: 11px; border: 1px solid var(--line); color: var(--dim); }
+  .tag.auto { border-color: var(--ghost); color: var(--ghost); }
+  .set { display: grid; grid-template-columns: 170px 1fr; min-height: 340px; }
+  .set nav { border-right: 1px solid var(--line); display: grid; align-content: start; gap: 4px; padding: 10px; }
+  .set nav button { text-align: left; border: 0; background: transparent; }
+  .set nav button.on { background: var(--acc); }
+  .set .pane { padding: 14px 16px; display: grid; gap: 12px; align-content: start; }
+  .set .row { display: grid; grid-template-columns: 200px 1fr; gap: 10px; align-items: center; }
+  .set .row.seg button { border-radius: 0; margin-right: -1px; }
+  .seg { display: inline-flex; }
+  .models { display: grid; gap: 6px; }
+  .model { display: grid; grid-template-columns: 1fr auto auto; gap: 12px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 10px; align-items: center; }
+  .model.rec { border-color: var(--ok); }
+  .bar { height: 6px; border-radius: 3px; background: var(--line); overflow: hidden; width: 120px; } .bar i { display: block; height: 100%; background: var(--acc); }
+  .wiz { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+  .wiz span { padding: 2px 10px; border-radius: 999px; border: 1px solid var(--line); font-size: 12px; color: var(--dim); }
+  .wiz span.now { border-color: var(--acc); color: var(--acc); }
+  .stub { border: 1px dashed var(--ghost); border-radius: 12px; padding: 14px; color: var(--dim); }
+  .ed { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .ed .card { display: grid; gap: 6px; }
+  .note { position: fixed; right: 10px; bottom: 8px; z-index: 20; padding: 4px 12px; border-radius: 999px; background: rgba(43,34,51,.92); border: 1px dashed var(--ghost); color: var(--ghost); font-size: 12px; pointer-events: none; }
+  .ingame { width: 360px !important; }
+  #pause { grid-template-columns: 1fr; place-items: center; background: rgba(10,6,14,.45); }
+  #pause .menu { width: 340px; background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 14px; box-shadow: 0 20px 60px #000a; }
+  #pause h3 { margin: 0 0 6px; text-align: center; letter-spacing: .18em; font-size: 13px; }
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <b class="logo">SIMULACRA</b>
+    <span class="clock" id="clock">Tag 3 · 14:20</span>
+    <span class="speed"><button>⏸</button><button class="on">1×</button><button>2×</button><button>5×</button></span>
+    <button>Einblicke ▾</button>
+    <button>Welt gestalten</button>
+    <span class="sp"></span>
+    <span class="status"><span class="dot"></span><span>verbunden · Qwen3-8B · Warteschlange 0</span></span>
+    <button class="menubtn" id="menubtn">☰ Menü <kbd>Esc</kbd></button>
+  </header>
+  <div id="stage" class="dim title">
+    <div id="side" style="display:none">
+      <div class="tabs"><button class="on">Bewohner</button><button>Protokoll</button><button>Ansicht</button></div>
+      <div class="card"><b style="color:#e8ac5c">Alex</b> · geht zur Küche<br><small>Ziel: Frühstück vorbereiten</small></div>
+      <div class="card"><b style="color:#93c79f">Mira</b> · liest im Wohnzimmer<br><small>Ziel: Alex fragen, was los ist</small></div>
+    </div>
+
+    <!-- Titelbild -->
+    <div class="layer open" id="title">
+      <div>
+        <div class="logo-big">SIMULACRA</div>
+        <div class="logo-sub">Ein Dorf, in dem sich Menschen von selbst entwickeln.</div>
+        <div class="menu" id="mainmenu" role="menu"></div>
+      </div>
+      <div class="foot"><span><kbd>↑</kbd> <kbd>↓</kbd> wählen</span><span><kbd>Enter</kbd> öffnen</span><span><kbd>Esc</kbd> zurück</span><span id="srv">● verbunden · Qwen3-8B</span></div>
+    </div>
+
+    <!-- Pause-Menü im Spiel -->
+    <div class="layer" id="pause">
+      <div class="menu" id="pausemenu">
+        <h3>MENÜ</h3>
+      </div>
+    </div>
+
+    <!-- Simulation laden -->
+    <div class="layer win" id="load"><div>
+      <h2>Simulation laden <span class="sp"></span><button data-back>✕</button></h2>
+      <div class="body"><div class="saves" id="saves"></div></div>
+      <div class="actions"><small style="flex:1">Beim Laden läuft die Simulation an der gespeicherten Stelle weiter. Der laufende Stand wird vorher gesichert.</small><button data-back>Zurück</button><button class="on" id="loadgo">Laden</button></div>
+    </div></div>
+
+    <!-- Einstellungen -->
+    <div class="layer win" id="settings"><div>
+      <h2>Einstellungen <span class="sp"></span><button data-back>✕</button></h2>
+      <div class="set">
+        <nav id="setnav"></nav>
+        <div class="pane" id="setpane"></div>
+      </div>
+      <div class="actions"><button data-back>Schließen</button></div>
+    </div></div>
+
+    <!-- Neue Simulation (Assistent, Inhalt AP17b) -->
+    <div class="layer win" id="newsim"><div>
+      <h2>Neue Simulation <span class="sp"></span><button data-back>✕</button></h2>
+      <div class="body">
+        <div class="wiz"><span class="now">1 Welt</span><span>2 Bewohner</span><span>3 Regeln</span><span>4 Modell</span><span>5 Start</span></div>
+        <div class="ed">
+          <div class="card"><b>Startwelt „Eichental“</b><small>Das bekannte Dorf, 64 × 40, zwei Häuser, See, Marktplatz.</small><button class="on">Wählen</button></div>
+          <div class="card"><b>Neues Dorf erzeugen</b><small>Seed, Seeufer, Gebäudemix (wie „Welt erweitern“), mit Vorschau.</small><button>Wählen</button></div>
+          <div class="card"><b>Selbst gestalten</b><small>Öffnet den Welteditor (AP16) und kommt mit dem Entwurf zurück.</small><button>Wählen</button></div>
+          <div class="card"><b>Aus Spielstand-Vorlage</b><small>Welt eines gespeicherten Standes, ohne Verlauf und Erinnerungen.</small><button>Wählen</button></div>
+        </div>
+        <p class="dim" style="margin-bottom:0">Schritte 2 bis 5 folgen im Paket „Simulation selbst definieren“ (AP17b). Hier nur der Einstieg, damit das Menü vollständig ist.</p>
+      </div>
+      <div class="actions"><button data-back>Abbrechen</button><button class="on">Weiter ›</button></div>
+    </div></div>
+
+    <!-- Welteditor -->
+    <div class="layer win" id="worldeditor"><div>
+      <h2>Welteditor <span class="sp"></span><button data-back>✕</button></h2>
+      <div class="body"><div class="stub"><b style="color:var(--txt)">Hier öffnet sich das Mockup „Welt gestalten“ (AP16).</b><br>Ohne laufende Simulation: Werkzeugleiste, Entwurf, Prüfung, Übernehmen. Im Startmenü wählt man zuerst, welche Welt man bearbeitet (Startwelt, ein Spielstand oder ein erzeugtes Dorf) und speichert sie als eigene Welt.</div></div>
+      <div class="actions"><button data-back>Zurück</button><button class="on">Welt wählen ›</button></div>
+    </div></div>
+
+    <!-- Charaktereditor -->
+    <div class="layer win" id="chareditor"><div>
+      <h2>Charaktereditor <span class="sp"></span><button data-back>✕</button></h2>
+      <div class="body">
+        <div class="ed">
+          <div class="card"><b style="color:#e8ac5c">Alex</b> <small>Vorlage · 34</small><small>ruhig, neugierig, hilfsbereit</small><button>Bearbeiten</button></div>
+          <div class="card"><b style="color:#93c79f">Mira</b> <small>Vorlage · 31</small><small>offen, ordentlich, ungeduldig</small><button>Bearbeiten</button></div>
+          <div class="card" style="border-style:dashed"><b>＋ Neue Figur</b><small>Name, Alter, Persönlichkeit, Werte, Ziele, Beziehungen, Wohnort.</small><button>Anlegen</button></div>
+          <div class="card" style="border-style:dashed"><b>⇪ Importieren</b><small>Profil aus einer Datei (Export aus einem anderen Dorf).</small><button>Datei wählen</button></div>
+        </div>
+        <p class="dim" style="margin-bottom:0">Dieselbe Maske wie im Schritt „Bewohner“ der neuen Simulation (AP17b). Das Aussehen aus Teilen kommt später dazu.</p>
+      </div>
+      <div class="actions"><button data-back>Zurück</button></div>
+    </div></div>
+  </div>
+</div>
+<div class="note" id="note">Mockup AP17a – nichts davon ist im Spiel. Tasten: ↑ ↓ Enter Esc, unten links „Zustand“ wechseln.</div>
+<div style="position:fixed;left:10px;bottom:8px;z-index:30;display:flex;gap:6px;align-items:center"><small>Zustand:</small>
+  <select id="state"><option value="fresh">Frisch gestartet (keine Simulation)</option><option value="running" selected>Simulation läuft</option></select></div>
+<script>
+const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const q = new URLSearchParams(location.search);
+let state = q.get('state') || 'running', screen = q.get('screen') || 'title', sel = 0, setTab = q.get('tab') || 'Spiel', saveSel = 0, ingame = false;
+$('#state').value = state;
+
+const ITEMS = () => [
+  state === 'running' ? { id: 'resume', ic: '▶', t: 'Fortsetzen', s: 'Eichental · Tag 3, 14:20 · Alex, Mira', primary: true } : null,
+  { id: 'newsim', ic: '✦', t: 'Neue Simulation', s: 'Assistent' },
+  { id: 'load', ic: '⤓', t: 'Simulation laden', s: '5 Stände' },
+  { id: 'hr' },
+  { id: 'worldeditor', ic: '▦', t: 'Welteditor', s: 'Dorf gestalten' },
+  { id: 'chareditor', ic: '☺', t: 'Charaktereditor', s: 'Figuren anlegen' },
+  { id: 'hr' },
+  { id: 'settings', ic: '⚙', t: 'Einstellungen', s: 'Spiel · Darstellung · Ton · Modelle' },
+].filter(Boolean);
+const PAUSE = [
+  { id: 'resume', ic: '▶', t: 'Zurück zum Spiel', primary: true },
+  { id: 'load', ic: '⤓', t: 'Speichern und laden' },
+  { id: 'settings', ic: '⚙', t: 'Einstellungen' },
+  { id: 'title', ic: '☰', t: 'Hauptmenü', s: 'Simulation läuft weiter' },
+];
+
+function build(el, items) {
+  el.querySelectorAll('button,hr').forEach(n => n.remove());
+  items.forEach((it, i) => {
+    if (it.id === 'hr') { el.append(document.createElement('hr')); return; }
+    const b = document.createElement('button');
+    b.setAttribute('role', 'menuitem'); b.dataset.id = it.id; b.dataset.i = i;
+    b.className = it.primary ? 'primary' : '';
+    b.innerHTML = `<i>${it.ic}</i><span>${it.t}</span><small>${it.s || ''}</small>`;
+    b.onclick = () => act(it.id);
+    b.onmouseenter = () => { sel = i; mark(el); };
+    el.append(b);
+  });
+  sel = items.findIndex(x => x.id !== 'hr');
+  mark(el);
+}
+function mark(el) { $$('button', el).forEach(b => b.setAttribute('aria-selected', String(+b.dataset.i === sel))); }
+function layer(id) { $$('.layer').forEach(l => l.classList.toggle('open', l.id === id)); }
+
+function show(s) {
+  screen = s; $('#stage').classList.toggle('title', s === 'title');
+  $('#stage').classList.toggle('dim', s !== 'game');
+  $('#side').style.display = (s === 'game' || s === 'pause') ? 'grid' : 'none';
+  layer(s === 'game' ? '' : s);
+  if (s === 'title') build($('#mainmenu'), ITEMS());
+  if (s === 'pause') { build($('#pausemenu'), PAUSE); $('#stage').classList.add('dim'); }
+  if (s === 'load') renderSaves();
+  if (s === 'settings') renderSettings();
+  $('header').style.display = s === 'title' ? 'none' : '';
+  $('#app').style.gridTemplateRows = s === 'title' ? '0 1fr' : '44px 1fr';
+  $('#clock').style.visibility = state === 'running' ? '' : 'hidden';
+}
+function act(id) {
+  if (id === 'resume') return show('game');
+  if (id === 'title') return show('title');
+  show(id);
+}
+function back() { show(ingame ? 'pause' : 'title'); }
+
+const SAVES = [
+  { n: 'Eichental · Tag 3', d: 'heute 14:20', t: '', m: ['2 Bewohner', 'Qwen3-8B', '1.240 Ereignisse'], tag: 'laufend' },
+  { n: 'Autosicherung', d: 'heute 13:00', t: 'abend', m: ['Tag 2, 21:40', '2 Bewohner', 'Qwen3-8B'], tag: 'auto' },
+  { n: 'Vor dem Erweitern', d: 'gestern 18:12', t: '', m: ['Tag 2, 09:15', '2 Bewohner', 'Sicherung'], tag: 'Sicherung' },
+  { n: 'Seed 7, vier Bewohner', d: '15.10. 20:03', t: 'nacht', m: ['Tag 1, 23:05', '4 Bewohner', 'Qwen3-14B'], tag: '' },
+  { n: 'Dürre-Test', d: '12.10. 11:30', t: '', m: ['Tag 6, 07:10', '2 Bewohner', 'Fake-Modell'], tag: '' },
+];
+function renderSaves() {
+  $('#saves').innerHTML = SAVES.map((s, i) => `<div class="save" role="option" aria-selected="${i === saveSel}" data-i="${i}">
+    <div class="thumb ${s.t}"></div><div><b>${s.n}</b> ${s.tag ? `<span class="tag ${s.tag === 'auto' ? 'auto' : ''}">${s.tag}</span>` : ''}<div class="meta"><span>${s.d}</span>${s.m.map(x => `<span>${x}</span>`).join('')}</div></div>
+    <div><button data-del title="Löschen">🗑</button></div></div>`).join('');
+  $$('#saves .save').forEach(el => el.onclick = () => { saveSel = +el.dataset.i; renderSaves(); });
+}
+
+const TABS = ['Spiel', 'Darstellung', 'Ton', 'Modelle'];
+function renderSettings() {
+  $('#setnav').innerHTML = TABS.map(t => `<button class="${t === setTab ? 'on' : ''}" data-t="${t}">${t}</button>`).join('');
+  $$('#setnav button').forEach(b => b.onclick = () => { setTab = b.dataset.t; renderSettings(); });
+  const P = {
+    'Spiel': `<div class="row"><span>Tempo beim Start</span><span class="seg"><button>1×</button><button class="on">2×</button><button>5×</button></span></div>
+      <div class="row"><span>Autonomie der Bewohner</span><input type="range" value="70"></div>
+      <div class="row"><span>Gedächtnis-Abruf</span><input type="range" value="50"></div>
+      <div class="row"><span>Autosicherung</span><select><option>alle 30 Spielminuten</option></select></div>
+      <small>Die vorhandenen Parameter-Regler aus der Leitstelle. Änderungen gelten für die laufende Simulation.</small>`,
+    'Darstellung': `<div class="row"><span>Ansicht</span><span class="seg"><button class="on">Tiefe</button><button>Flach</button></span></div>
+      <div class="row"><span>Effekte (Licht, Wetter)</span><span class="seg"><button class="on">an</button><button>aus</button></span></div>
+      <div class="row"><span>Schilder über Figuren</span><span class="seg"><button class="on">Aktion</button><button>nur Name</button><button>aus</button></span></div>
+      <div class="row"><span>Sprechblasen</span><span class="seg"><button class="on">an</button><button>aus</button></span></div>
+      <small>Beide Ansichten bleiben immer wählbar. Die Infoleiste-Reiter „Ansicht“ verweist hierher.</small>`,
+    'Ton': `<div class="row"><span>Musik</span><input type="range" value="40"></div>
+      <div class="row"><span>Umgebung</span><input type="range" value="60"></div>
+      <div class="row"><span>Figuren (Stimmen, Schritte)</span><input type="range" value="50"></div>
+      <div class="row"><span>Stumm</span><span class="seg"><button>an</button><button class="on">aus</button></span></div>
+      <small>Kommt mit AP17d. Die Regler sind je Gerät gemerkt.</small>`,
+    'Modelle': `<div class="row"><span>Verbindung</span><span><span class="dot"></span> Router maintux · Qwen3-8B</span></div>
+      <div class="row"><span>Dieser Rechner</span><small>Apple M3 Pro · 36 GB Speicher (Metal)</small></div>
+      <div class="models">
+        <div class="model rec"><div><b>Qwen3-8B Q4_K_M</b> <span class="tag" style="border-color:var(--ok);color:var(--ok)">passt gut</span><br><small>5 GB · ca. 4 s je Entscheidung · installiert</small></div><div class="bar"><i style="width:100%"></i></div><button>Testen</button></div>
+        <div class="model rec"><div><b>Qwen3-14B Q4_K_M</b> <span class="tag" style="border-color:var(--ok);color:var(--ok)">passt</span><br><small>9 GB · ca. 7 s · bessere Antworten</small></div><div class="bar"><i style="width:34%"></i></div><button>Laden</button></div>
+        <div class="model"><div><b>Qwen3-32B Q4_K_M</b> <span class="tag">knapp</span><br><small>19 GB · ca. 15 s</small></div><span></span><button>Laden</button></div>
+      </div>
+      <div class="row"><span></span><button>Liste aktualisieren (Hugging Face)</button></div>
+      <small>Vorschau auf AP17c: Empfehlungen nach Hardware, live aus Hugging Face, Rückfallliste im Repository. Jeder Download nur nach Bestätigung.</small>`,
+  };
+  $('#setpane').innerHTML = P[setTab];
+}
+
+document.addEventListener('keydown', e => {
+  const items = screen === 'title' ? ITEMS() : screen === 'pause' ? PAUSE : null;
+  const el = screen === 'title' ? $('#mainmenu') : $('#pausemenu');
+  if (items && (e.key === 'ArrowDown' || e.key === 'ArrowUp')) {
+    const d = e.key === 'ArrowDown' ? 1 : -1; let i = sel;
+    do { i = (i + d + items.length) % items.length; } while (items[i].id === 'hr');
+    sel = i; mark(el); e.preventDefault();
+  } else if (items && e.key === 'Enter') { act(items[sel].id); }
+  else if (screen === 'load' && (e.key === 'ArrowDown' || e.key === 'ArrowUp')) { saveSel = Math.max(0, Math.min(SAVES.length - 1, saveSel + (e.key === 'ArrowDown' ? 1 : -1))); renderSaves(); }
+  else if (e.key === 'Escape') {
+    if (screen === 'game') { ingame = true; show('pause'); }
+    else if (screen === 'pause') show('game');
+    else if (screen !== 'title') back();
+  }
+});
+$$('[data-back]').forEach(b => b.onclick = back);
+$('#loadgo').onclick = () => show('game');
+$('#menubtn').onclick = () => { if (screen === 'game') { ingame = true; show('pause'); } else if (screen === 'pause') show('game'); };
+$('#state').onchange = e => { state = e.target.value; ingame = false; show('title'); };
+// Aus dem Titelbild geöffnete Fenster kehren zum Titel zurück, aus dem Pausenmenü zum Pausenmenü.
+const _act = act; act = id => { if (id !== 'resume') ingame = (screen === 'pause'); if (id === 'resume' && screen === 'title') ingame = false; _act(id); };
+if (screen === 'pause') ingame = true;
+show(screen);
+</script>
+</body>
+</html>
