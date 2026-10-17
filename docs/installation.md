@@ -15,7 +15,8 @@ Das Skript prüft den Rechner (System, Arbeitsspeicher, Grafikkarte), holt fehle
 | `--dry-run` | zeigt nur, was geschehen würde (liest das Netz, ändert nichts) |
 | `--model qwen3-8b` | ein bestimmtes Modell der kuratierten Liste (`backend/simulacra/data/models.json`) |
 | `--no-model` / `--no-llm` | kein Modell laden / auch keine Laufzeit (externer Server wie maintux) |
-| `--headless` | Server ohne Bildschirm: lauscht im Netz, erzeugt einen Zugangsschutz (`SIM_ACCESS_TOKEN`), Dienst als Standard |
+| `--headless` | Server ohne Bildschirm: lauscht im Netz (IPv4 und IPv6), Dienst als Standard; **ohne** Zugangsschutz |
+| `--token` | mit `--headless`: erzeugt einen Zugangsschutz (`SIM_ACCESS_TOKEN` in `backend/.env`, bleibt bei jedem Lauf gleich); ohne den Schalter wird ein früher geschriebenes Token wieder entfernt |
 | `--update` | Projekt (`git pull`), Oberfläche und llama.cpp aktualisieren, Dienste neu starten |
 | `--uninstall` | Dienste entfernen; mit `--purge` auch die Daten (mit Rückfrage) |
 

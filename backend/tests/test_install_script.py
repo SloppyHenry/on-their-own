@@ -119,9 +119,12 @@ def test_no_llm_ueberspringt_laufzeit_und_modell(tmp_path):
     assert "übersprungen (--no-llm)" in r.stdout and "Kandidat" not in r.stdout
 
 
-def test_headless_lauscht_im_netz_mit_zugangsschutz(tmp_path):
+def test_headless_lauscht_im_netz_ohne_zugangsschutz_standardmaessig(tmp_path):
     r = dry(machine(tmp_path), "--headless")
-    assert "lauscht im Netz, Zugangsschutz" in r.stdout
+    assert "lauscht im Netz)" in r.stdout and "Zugangsschutz" not in r.stdout
+    (tmp_path / "t").mkdir()
+    r2 = dry(machine(tmp_path / "t"), "--headless", "--token")
+    assert "lauscht im Netz, mit Zugangsschutz" in r2.stdout
     assert "Standard: ja" in r.stdout and "systemd --user" in r.stdout    # auf Servern ist der Dienst die Vorgabe
 
 
@@ -147,7 +150,7 @@ def test_belegte_grafikkarte_zaehlt_nur_den_freien_speicher(tmp_path):
 
 
 def test_zweiter_lauf_behaelt_das_token(tmp_path):
-    """Echter Lauf (ohne Netz, ohne Dienst): `--no-llm --headless` schreibt den Block; ein zweiter Lauf darf das Token nicht verlieren."""
+    """Echter Lauf (ohne Netz, ohne Dienst): `--headless --token` schreibt den Block; ein zweiter Lauf darf das Token nicht verlieren."""
     root = tmp_path / "simulacra"
     (root / "backend" / "simulacra" / "data").mkdir(parents=True)
     shutil.copy(SCRIPT, root / "install.sh")
@@ -157,7 +160,7 @@ def test_zweiter_lauf_behaelt_das_token(tmp_path):
     env = machine(env_dir)
     # Nur das Schreiben der Einstellungen prüfen: die Funktion aus dem Skript herauslösen
     harness = root / "harness.sh"
-    harness.write_text('set -euo pipefail\nsource <(sed -n "/^write_env()/,/^}/p; /^py()/,/^}/p; /^have()/p; /^ok()/p; /^warn()/p; /^plan()/p; /^MARK/p" "$1")\nROOT="$2"; DRY=0; HEADLESS=1; NO_LLM=1; MODEL_ALIAS=""; LLM_PORT=8081; C_W=""; C_0=""; C_OK=""; C_D=""\nwrite_env\n')
+    harness.write_text('set -euo pipefail\nsource <(sed -n "/^write_env()/,/^}/p; /^py()/,/^}/p; /^have()/p; /^ok()/p; /^warn()/p; /^plan()/p; /^MARK/p" "$1")\nROOT="$2"; DRY=0; HEADLESS=1; TOKEN=${TOKEN:-1}; NO_LLM=1; MODEL_ALIAS=""; LLM_PORT=8081; C_W=""; C_0=""; C_OK=""; C_D=""\nwrite_env\n')
     def run_once():
         return subprocess.run(["bash", str(harness), str(SCRIPT), str(root)], env=env, capture_output=True, text=True, timeout=30)
     first = run_once()
@@ -170,3 +173,20 @@ def test_zweiter_lauf_behaelt_das_token(tmp_path):
     assert [ln for ln in envf.read_text().splitlines() if ln.startswith("SIM_ACCESS_TOKEN=")] == t1
     assert envf.read_text().count("# --- simulacra install") == 1
     assert oct(envf.stat().st_mode & 0o777) == "0o600"
+
+
+def test_ohne_token_schalter_steht_kein_token_in_der_env(tmp_path):
+    root = tmp_path / "simulacra"
+    (root / "backend").mkdir(parents=True)
+    harness = tmp_path / "harness.sh"
+    harness.write_text('set -euo pipefail\nsource <(sed -n "/^write_env()/,/^}/p; /^py()/,/^}/p; /^have()/p; /^ok()/p; /^warn()/p; /^plan()/p; /^MARK/p" "$1")\nROOT="$2"; DRY=0; HEADLESS=1; TOKEN=0; NO_LLM=1; MODEL_ALIAS=""; LLM_PORT=8081; C_W=""; C_0=""; C_OK=""; C_D=""\nwrite_env\n')
+    envf = root / "backend" / ".env"
+    # ein früher geschriebener Block mit Token (alter Lauf) verschwindet, wenn --token fehlt; eigene Einträge bleiben
+    envf.write_text("EIGEN=1\n# --- simulacra install (verwaltet von install.sh) ---\nSIM_ACCESS_TOKEN=altes\n# --- ende simulacra install ---\n")
+    env_dir = tmp_path / "m"
+    env_dir.mkdir()
+    r = subprocess.run(["bash", str(harness), str(SCRIPT), str(root)], env=machine(env_dir), capture_output=True, text=True, timeout=30)
+    assert r.returncode == 0, r.stderr
+    text = envf.read_text()
+    assert "SIM_ACCESS_TOKEN" not in text and "EIGEN=1" in text and "SIM_HOST=" in text
+    assert "ohne Zugangsschutz" in r.stdout

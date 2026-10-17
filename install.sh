@@ -5,7 +5,7 @@
 #   ./install.sh --yes           ohne Rückfragen (Standardantworten)
 #   ./install.sh --dry-run       zeigt nur, was geschehen würde (liest das Netz, ändert nichts)
 #   ./install.sh --no-model      kein Modell laden            --no-llm  auch keine Laufzeit (externer Server)
-#   ./install.sh --headless      Server ohne Bildschirm: lauscht im Netz, erzeugt einen Zugangsschutz
+#   ./install.sh --headless      Server ohne Bildschirm: lauscht im Netz (ohne Zugangsschutz; mit --token mit Token)
 #   ./install.sh --model qwen3-8b  ein bestimmtes Modell aus der kuratierten Liste
 #   ./install.sh --update        Projekt und llama.cpp aktualisieren       --uninstall  Dienste entfernen (--purge: auch Daten)
 #
@@ -25,11 +25,11 @@ APP_PORT="${SIMULACRA_PORT:-8090}"
 MARK_BEGIN="# --- simulacra install (verwaltet von install.sh) ---"
 MARK_END="# --- ende simulacra install ---"
 
-YES=0; DRY=0; NO_MODEL=0; NO_LLM=0; HEADLESS=0; UPDATE=0; UNINSTALL=0; PURGE=0; MODEL_KEY=""
+YES=0; DRY=0; TOKEN=0; NO_MODEL=0; NO_LLM=0; HEADLESS=0; UPDATE=0; UNINSTALL=0; PURGE=0; MODEL_KEY=""
 while [ $# -gt 0 ]; do
   case "$1" in
     --yes|-y) YES=1;; --dry-run) DRY=1;; --no-model) NO_MODEL=1;; --no-llm) NO_LLM=1; NO_MODEL=1;;
-    --headless) HEADLESS=1;; --update) UPDATE=1;; --uninstall) UNINSTALL=1;; --purge) PURGE=1;;
+    --headless) HEADLESS=1;; --token) TOKEN=1;; --update) UPDATE=1;; --uninstall) UNINSTALL=1;; --purge) PURGE=1;;
     --model) shift; MODEL_KEY="${1:-}";;
     -h|--help) sed -n '2,15p' "$0" | sed 's/^# \{0,1\}//'; exit 0;;
     *) echo "Unbekannter Schalter: $1 (siehe --help)" >&2; exit 2;;
@@ -320,16 +320,18 @@ write_env() {
     block="${block}SIM_LLM_BASE_URL=http://127.0.0.1:$LLM_PORT/v1"$'\n'"SIM_LLM_MODEL=$MODEL_ALIAS"$'\n'
   fi
   if [ "$HEADLESS" = 1 ]; then
-    # Ein vorhandener Zugangsschutz bleibt: der eigene Block wird bei jedem Lauf neu geschrieben, das Token darf dabei nicht verloren gehen.
-    if [ -f "$envf" ]; then token="$(sed -n 's/^SIM_ACCESS_TOKEN=//p' "$envf" | head -1)"; fi
-    if [ -z "$token" ]; then token="$(py -c 'import secrets; print(secrets.token_hex(16))')"; fi
     # "::" lauscht auf IPv4 und IPv6 (manche Heimnetz-Namen lösen nur zu IPv6 auf); ohne IPv6 im Kernel bleibt es bei 0.0.0.0
     local bindhost=0.0.0.0; [ -e /proc/net/if_inet6 ] && bindhost="::"
     block="${block}SIM_HOST=$bindhost"$'\n'
-    [ -n "$token" ] && block="${block}SIM_ACCESS_TOKEN=$token"$'\n'
+    # Zugangsschutz nur mit --token (Standard: aus, wie im Heimnetz üblich). Ein vorhandenes Token bleibt dann bei jedem Lauf gleich.
+    if [ "$TOKEN" = 1 ]; then
+      if [ -f "$envf" ]; then token="$(sed -n 's/^SIM_ACCESS_TOKEN=//p' "$envf" | head -1)"; fi
+      if [ -z "$token" ]; then token="$(py -c 'import secrets; print(secrets.token_hex(16))')"; fi
+      block="${block}SIM_ACCESS_TOKEN=$token"$'\n'
+    fi
   fi
   block="${block}$MARK_END"
-  if [ "$DRY" = 1 ]; then plan "backend/.env schreiben (Block von install.sh$([ "$HEADLESS" = 1 ] && echo ', lauscht im Netz, Zugangsschutz'))"; return; fi
+  if [ "$DRY" = 1 ]; then plan "backend/.env schreiben (Block von install.sh$([ "$HEADLESS" = 1 ] && echo ', lauscht im Netz')$([ "$TOKEN" = 1 ] && echo ', mit Zugangsschutz'))"; return; fi
   touch "$envf"
   # eigene Werte außerhalb des Blocks gehen vor: gleiche Schlüssel im Block würden sonst verwirren
   tmp="$(mktemp)"
@@ -343,7 +345,8 @@ write_env() {
   { cat "$tmp"; printf '%s\n' "$block"; } >"$envf"; rm -f "$tmp"
   chmod 600 "$envf"
   ok "backend/.env geschrieben ✓"
-  if [ -n "$token" ]; then say "  ${C_W}Zugangsschutz: SIM_ACCESS_TOKEN steht in backend/.env; die Oberfläche fragt einmal danach.${C_0}"; fi
+  if [ -n "$token" ]; then say "  Zugangsschutz: SIM_ACCESS_TOKEN steht in backend/.env; die Oberfläche fragt einmal danach."
+  elif [ "$HEADLESS" = 1 ]; then warn "Der Server ist im Netz ohne Zugangsschutz erreichbar (mit --token einschalten)."; fi
 }
 
 # Befehl für scripts/start.sh (ohne Dienst): eine Zeile mit der Kommandozeile und die Bibliothekenablage
