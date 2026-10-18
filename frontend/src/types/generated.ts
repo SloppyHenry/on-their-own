@@ -12,6 +12,7 @@ export interface SimulacraApi {
   Arrived?: Arrived;
   Ate?: Ate;
   AuthStatus?: AuthStatus;
+  CatalogOut?: CatalogOut;
   ConversationEnded?: ConversationEnded;
   ConversationStarted?: ConversationStarted;
   DayStarted?: DayStarted;
@@ -38,6 +39,7 @@ export interface SimulacraApi {
   GoalChanged?: GoalChanged;
   GoalOut?: GoalOut;
   GuardTriggered?: GuardTriggered;
+  HardwareOut?: HardwareOut;
   Informed?: Informed;
   InjectConfirmRequest?: InjectConfirmRequest;
   InjectParseRequest?: InjectParseRequest;
@@ -377,6 +379,99 @@ export interface Ate {
 export interface AuthStatus {
   authenticated: boolean;
   required: boolean;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "CatalogOut".
+ */
+export interface CatalogOut {
+  fetched_at: string | null;
+  hardware: HardwareOut;
+  hidden: {
+    [k: string]: number;
+  };
+  items: CatalogItemOut[];
+  note: string | null;
+  recommended: CatalogItemOut[];
+  source: "live" | "cache" | "stale" | "curated";
+  total: number;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "HardwareOut".
+ */
+export interface HardwareOut {
+  arch: string;
+  bandwidth_gbs: number;
+  bandwidth_known: boolean;
+  cuda_version: string | null;
+  free_disk_mb: number;
+  gpu_count: number;
+  gpu_names: string[];
+  kind: "nvidia" | "metal" | "amd" | "vulkan" | "cpu";
+  name: string;
+  os: string;
+  ram_mb: number;
+  summary: string;
+  usable_mb: number;
+  vram_free_mb: number;
+  vram_mb: number;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "CatalogItemOut".
+ */
+export interface CatalogItemOut {
+  active_b: number | null;
+  curated_key: string | null;
+  downloadable: boolean;
+  downloads: number | null;
+  file: VariantOut;
+  gated: boolean;
+  license: string | null;
+  likes: number | null;
+  moe: boolean;
+  multimodal: boolean;
+  name: string;
+  params_b: number | null;
+  publisher: string;
+  repo: string;
+  source: "curated" | "live";
+  uncensored: boolean;
+  updated: string | null;
+  url: string;
+  variants: VariantOut[];
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "VariantOut".
+ */
+export interface VariantOut {
+  estimate: EstimateOut;
+  file: string;
+  fit: FitOut;
+  quant: string;
+  sha256: string | null;
+  size_mb: number;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "EstimateOut".
+ */
+export interface EstimateOut {
+  is_estimate: true;
+  seconds_per_decision: number;
+  tokens_per_s: number;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "FitOut".
+ */
+export interface FitOut {
+  label: string;
+  level: "good" | "ok" | "tight" | "no";
+  need_mb: number;
+  ratio: number;
 }
 /**
  * This interface was referenced by `SimulacraApi`'s JSON-Schema

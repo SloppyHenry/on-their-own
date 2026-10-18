@@ -103,7 +103,7 @@ def test_ohne_grafikkarte_nimmt_cpu_version(tmp_path):
 
 def test_knapper_speicher_warnt(tmp_path):
     r = dry(machine(tmp_path, mem_gb=4))
-    assert "KNAPP" in r.stdout and "Speicher ist knapp" in r.stdout
+    assert "zu groß" in r.stdout and "passt nicht in den nutzbaren Speicher" in r.stdout and "Standard: nein" in r.stdout
 
 
 def test_modell_waehlen_und_unbekanntes_ablehnen(tmp_path):
@@ -146,7 +146,7 @@ def test_projektordner_mit_leerzeichen_wird_abgelehnt(tmp_path):
 def test_belegte_grafikkarte_zaehlt_nur_den_freien_speicher(tmp_path):
     r = dry(machine(tmp_path, nvidia=("NVIDIA GeForce RTX 3060", 12288, "13.2", 1260)))
     assert "davon frei 1,2 GB" in r.stdout and "zum großen Teil belegt" in r.stdout
-    assert "KNAPP" in r.stdout and "Standard: nein" in r.stdout          # kleinstes Modell wird nur vorgeschlagen, nicht still geladen
+    assert "zu groß" in r.stdout and "Standard: nein" in r.stdout        # kleinstes Modell wird nur vorgeschlagen, nicht still geladen
 
 
 def test_zweiter_lauf_behaelt_das_token(tmp_path):

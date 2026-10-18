@@ -745,6 +745,217 @@
    "title": "AuthStatus",
    "type": "object"
   },
+  "CatalogItemOut": {
+   "additionalProperties": false,
+   "properties": {
+    "active_b": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "curated_key": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "downloadable": {
+     "type": "boolean"
+    },
+    "downloads": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "file": {
+     "$ref": "#/$defs/VariantOut"
+    },
+    "gated": {
+     "type": "boolean"
+    },
+    "license": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "likes": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "moe": {
+     "type": "boolean"
+    },
+    "multimodal": {
+     "type": "boolean"
+    },
+    "name": {
+     "type": "string"
+    },
+    "params_b": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "publisher": {
+     "type": "string"
+    },
+    "repo": {
+     "type": "string"
+    },
+    "source": {
+     "enum": [
+      "curated",
+      "live"
+     ],
+     "type": "string"
+    },
+    "uncensored": {
+     "type": "boolean"
+    },
+    "updated": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "url": {
+     "type": "string"
+    },
+    "variants": {
+     "items": {
+      "$ref": "#/$defs/VariantOut"
+     },
+     "type": "array"
+    }
+   },
+   "required": [
+    "repo",
+    "name",
+    "publisher",
+    "license",
+    "source",
+    "curated_key",
+    "moe",
+    "multimodal",
+    "uncensored",
+    "gated",
+    "downloadable",
+    "params_b",
+    "active_b",
+    "downloads",
+    "likes",
+    "updated",
+    "url",
+    "file",
+    "variants"
+   ],
+   "title": "CatalogItemOut",
+   "type": "object"
+  },
+  "CatalogOut": {
+   "additionalProperties": false,
+   "properties": {
+    "fetched_at": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "hardware": {
+     "$ref": "#/$defs/HardwareOut"
+    },
+    "hidden": {
+     "additionalProperties": {
+      "type": "integer"
+     },
+     "type": "object"
+    },
+    "items": {
+     "items": {
+      "$ref": "#/$defs/CatalogItemOut"
+     },
+     "type": "array"
+    },
+    "note": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "recommended": {
+     "items": {
+      "$ref": "#/$defs/CatalogItemOut"
+     },
+     "type": "array"
+    },
+    "source": {
+     "enum": [
+      "live",
+      "cache",
+      "stale",
+      "curated"
+     ],
+     "type": "string"
+    },
+    "total": {
+     "type": "integer"
+    }
+   },
+   "required": [
+    "hardware",
+    "source",
+    "fetched_at",
+    "note",
+    "hidden",
+    "total",
+    "recommended",
+    "items"
+   ],
+   "title": "CatalogOut",
+   "type": "object"
+  },
   "CheckOut": {
    "additionalProperties": false,
    "properties": {
@@ -1513,6 +1724,29 @@
    "title": "EffectEnded",
    "type": "object"
   },
+  "EstimateOut": {
+   "additionalProperties": false,
+   "properties": {
+    "is_estimate": {
+     "const": true,
+     "default": true,
+     "type": "boolean"
+    },
+    "seconds_per_decision": {
+     "type": "number"
+    },
+    "tokens_per_s": {
+     "type": "number"
+    }
+   },
+   "required": [
+    "tokens_per_s",
+    "seconds_per_decision",
+    "is_estimate"
+   ],
+   "title": "EstimateOut",
+   "type": "object"
+  },
   "EventDetail": {
    "additionalProperties": false,
    "properties": {
@@ -1844,6 +2078,37 @@
     "caught"
    ],
    "title": "Fished",
+   "type": "object"
+  },
+  "FitOut": {
+   "additionalProperties": false,
+   "properties": {
+    "label": {
+     "type": "string"
+    },
+    "level": {
+     "enum": [
+      "good",
+      "ok",
+      "tight",
+      "no"
+     ],
+     "type": "string"
+    },
+    "need_mb": {
+     "type": "integer"
+    },
+    "ratio": {
+     "type": "number"
+    }
+   },
+   "required": [
+    "level",
+    "label",
+    "need_mb",
+    "ratio"
+   ],
+   "title": "FitOut",
    "type": "object"
   },
   "GenerateApplied": {
@@ -2354,6 +2619,92 @@
     "detail"
    ],
    "title": "GuardTriggered",
+   "type": "object"
+  },
+  "HardwareOut": {
+   "additionalProperties": false,
+   "properties": {
+    "arch": {
+     "type": "string"
+    },
+    "bandwidth_gbs": {
+     "type": "number"
+    },
+    "bandwidth_known": {
+     "type": "boolean"
+    },
+    "cuda_version": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "free_disk_mb": {
+     "type": "integer"
+    },
+    "gpu_count": {
+     "type": "integer"
+    },
+    "gpu_names": {
+     "items": {
+      "type": "string"
+     },
+     "type": "array"
+    },
+    "kind": {
+     "enum": [
+      "nvidia",
+      "metal",
+      "amd",
+      "vulkan",
+      "cpu"
+     ],
+     "type": "string"
+    },
+    "name": {
+     "type": "string"
+    },
+    "os": {
+     "type": "string"
+    },
+    "ram_mb": {
+     "type": "integer"
+    },
+    "summary": {
+     "type": "string"
+    },
+    "usable_mb": {
+     "type": "integer"
+    },
+    "vram_free_mb": {
+     "type": "integer"
+    },
+    "vram_mb": {
+     "type": "integer"
+    }
+   },
+   "required": [
+    "kind",
+    "name",
+    "vram_mb",
+    "vram_free_mb",
+    "ram_mb",
+    "free_disk_mb",
+    "os",
+    "arch",
+    "cuda_version",
+    "gpu_count",
+    "gpu_names",
+    "usable_mb",
+    "bandwidth_gbs",
+    "bandwidth_known",
+    "summary"
+   ],
+   "title": "HardwareOut",
    "type": "object"
   },
   "Informed": {
@@ -6619,6 +6970,46 @@
    "title": "TilesChanged",
    "type": "object"
   },
+  "VariantOut": {
+   "additionalProperties": false,
+   "properties": {
+    "estimate": {
+     "$ref": "#/$defs/EstimateOut"
+    },
+    "file": {
+     "type": "string"
+    },
+    "fit": {
+     "$ref": "#/$defs/FitOut"
+    },
+    "quant": {
+     "type": "string"
+    },
+    "sha256": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "size_mb": {
+     "type": "number"
+    }
+   },
+   "required": [
+    "file",
+    "quant",
+    "size_mb",
+    "sha256",
+    "fit",
+    "estimate"
+   ],
+   "title": "VariantOut",
+   "type": "object"
+  },
   "WalkInfo": {
    "additionalProperties": false,
    "description": "Restlicher Weg mit Fahrplan (wie `agent.walking`), damit ein Refresh mitten im Weg weiterlaufen kann.",
@@ -6984,6 +7375,9 @@
   "AuthStatus": {
    "$ref": "#/$defs/AuthStatus"
   },
+  "CatalogOut": {
+   "$ref": "#/$defs/CatalogOut"
+  },
   "ConversationEnded": {
    "$ref": "#/$defs/ConversationEnded"
   },
@@ -7061,6 +7455,9 @@
   },
   "GuardTriggered": {
    "$ref": "#/$defs/GuardTriggered"
+  },
+  "HardwareOut": {
+   "$ref": "#/$defs/HardwareOut"
   },
   "Informed": {
    "$ref": "#/$defs/Informed"

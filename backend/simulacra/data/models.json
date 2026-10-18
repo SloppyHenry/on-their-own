@@ -1,8 +1,9 @@
 {
-  "_comment": "Kuratierte Modelle für das Install-Skript (AP17c). Nur Modelle, deren Dateien bekannt und prüfbar sind (SHA-256 holt das Skript zur Laufzeit von Hugging Face). min_gb = nutzbarer Speicher für Modelle (Grafikspeicher beziehungsweise gemeinsamer Speicher), den Datei plus Kontext (8192) brauchen. Die Live-Liste im Tool (AP17c-2) zeigt neuere Modelle; hier stehen die geprüften Empfehlungen und der Rückfall ohne Netz.",
+  "_comment": "Kuratierte Modelle (AP17c): geprüfte Empfehlungen und Rückfall ohne Netz. Die Live-Liste von Hugging Face (models/catalog.py) ergänzt sie, überschreibt sie aber nicht. size_gb = Dateigröße in Milliarden Byte; Passung und Zeitschätzung rechnet models/fit.py aus Dateigröße und Parametern (Kontext 8192), Prüfsumme und genaue Größe holt das Programm zur Laufzeit von Hugging Face. publishers = Herausgeber, die im Standard angezeigt werden (alle anderen nur mit publishers=all).",
+  "publishers": ["Qwen", "unsloth", "bartowski", "ggml-org", "lmstudio-community", "google", "mistralai", "meta-llama", "microsoft", "nvidia", "LiquidAI", "JetBrains", "HuggingFaceTB", "ibm-granite", "allenai", "deepseek-ai", "zai-org"],
   "models": [
-    {"key": "qwen3-4b",  "name": "Qwen3-4B",  "repo": "Qwen/Qwen3-4B-GGUF",  "file": "Qwen3-4B-Q4_K_M.gguf",  "size_gb": 2.5, "min_gb": 4.0,  "license": "Apache-2.0"},
-    {"key": "qwen3-8b",  "name": "Qwen3-8B",  "repo": "Qwen/Qwen3-8B-GGUF",  "file": "Qwen3-8B-Q4_K_M.gguf",  "size_gb": 5.0, "min_gb": 7.0,  "license": "Apache-2.0"},
-    {"key": "qwen3-14b", "name": "Qwen3-14B", "repo": "Qwen/Qwen3-14B-GGUF", "file": "Qwen3-14B-Q4_K_M.gguf", "size_gb": 9.0, "min_gb": 11.5, "license": "Apache-2.0"}
+    {"key": "qwen3-4b",  "name": "Qwen3-4B",  "repo": "Qwen/Qwen3-4B-GGUF",  "file": "Qwen3-4B-Q4_K_M.gguf",  "size_gb": 2.5, "params_b": 4.0,  "license": "apache-2.0"},
+    {"key": "qwen3-8b",  "name": "Qwen3-8B",  "repo": "Qwen/Qwen3-8B-GGUF",  "file": "Qwen3-8B-Q4_K_M.gguf",  "size_gb": 5.0, "params_b": 8.2,  "license": "apache-2.0"},
+    {"key": "qwen3-14b", "name": "Qwen3-14B", "repo": "Qwen/Qwen3-14B-GGUF", "file": "Qwen3-14B-Q4_K_M.gguf", "size_gb": 9.0, "params_b": 14.8, "license": "apache-2.0"}
   ]
 }

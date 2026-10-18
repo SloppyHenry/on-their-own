@@ -10,13 +10,13 @@
 ## Bausteine
 
 ### 1. Hardware-Erkennung (`backend/simulacra/models/hardware.py`)
-Betriebssystem, Architektur, Arbeitsspeicher, Grafik (NVIDIA über `nvidia-smi --query-gpu`, Apple Silicon über `sysctl`/`system_profiler` mit **gemeinsamem Speicher**, AMD über `rocm-smi`, sonst CPU), freier Plattenplatz im Datenordner. Ergebnis `Hardware(kind, name, vram_mb, ram_mb, free_disk_mb)`; der Parser liest Textausgaben, damit er mit Beispielausgaben testbar ist. `GET /api/hardware`. Das Install-Skript nutzt dieselben Befehle in der Shell für die Wahl der Laufzeit.
+Betriebssystem, Architektur, Arbeitsspeicher, Grafik (NVIDIA über `nvidia-smi --query-gpu`, Apple Silicon über `sysctl`/`system_profiler` mit **gemeinsamem Speicher**, AMD über `rocm-smi`, sonst CPU), freier Plattenplatz im Datenordner. Ergebnis `Hardware(kind, name, vram_mb, vram_free_mb, ram_mb, free_disk_mb, os, arch)` (gebaut mit **freiem** statt gesamtem Grafikspeicher); der Parser liest Textausgaben, damit er mit Beispielausgaben testbar ist. `GET /api/hardware`. Das Install-Skript nutzt dieselben Befehle in der Shell für die Wahl der Laufzeit.
 
 ### 2. Modellkatalog, immer aktuell (`models/catalog.py`)
 Zwei Quellen, zusammengeführt:
 - **Live:** Hugging Face API (`/api/models` mit Filter `gguf`, Sortierung nach Trend und Downloads, optional Herausgeber wie `unsloth`, `bartowski`, `Qwen`; `/api/models/<id>?blobs=true` liefert Dateien mit Größe und SHA-256 der LFS-Datei). Antworten werden 6 Stunden zwischengespeichert (`data/models/cache/`).
 - **Kuratiert:** `backend/simulacra/data/models.json` im Repository: unsere **geprüften** Empfehlungen mit Messwerten (Format, Zeit je Entscheidung) und der Rückfall ohne Netz. Sie wird nur von uns gepflegt, nicht von der Live-Liste überschrieben.
-- **Passung** je Datei: Dateigröße plus geschätzter KV-Cache (Kontext 8192) gegen den freien Speicher der Hardware ergibt **passt gut** (bis 70 %), **passt** (bis 90 %), **knapp**, **zu groß**. Die Zeit je Entscheidung ist vorab nur **grob geschätzt** (Speicherbandbreite geteilt durch Dateigröße) und als Schätzung gekennzeichnet; erst die Messung (Baustein 5) liefert Zahlen.
+- **Passung** je Datei: Dateigröße plus geschätzter KV-Cache (Kontext 8192) und Puffer gegen den freien Speicher der Hardware ergibt **passt gut** (bis 70 %), **passt** (bis 90 %), **knapp** (bis 100 %), **zu groß**. *(Gebaut in `models/fit.py`.)* Die Zeit je Entscheidung ist vorab nur **grob geschätzt** (Speicherbandbreite geteilt durch Dateigröße) und als Schätzung gekennzeichnet; erst die Messung (Baustein 5) liefert Zahlen.
 - Auswahlregeln: nur Textmodelle im GGUF-Format, Quantisierung Q4 bis Q8, Lizenz wird angezeigt; Filter nach Größe, Herausgeber, „nur passende“. Welche Modelle auftauchen, sagt das Netz; unser Zutun ist die Passung und die Prüfung.
 
 ### 3. Laufzeit (`models/runtime.py`)
@@ -48,7 +48,7 @@ Für Linux und macOS, idempotent, mit `--yes` (ohne Rückfragen), `--dry-run` (z
 
 ## Reihenfolge der Teilpakete (geändert am 17.10.2026 auf Henrys Wunsch: zuerst das Install-Skript)
 - **17c-1: Install-Skript** (`install.sh`, `scripts/start.sh`, kuratierte Liste `models.json`, Tests mit nachgestellten Rechnern). **Gebaut**, siehe [status/AP17c.md](../status/AP17c.md).
-- **17c-2:** Hardware-Erkennung und Katalog im Backend (Live-Liste, Passung, API), danach das Skript nutzt dieselbe Logik.
+- **17c-2: Hardware und Katalog im Backend** (`backend/simulacra/models/`, `GET /api/hardware`, `GET /api/models/catalog`, `python -m simulacra.models`). **Gebaut** am 18.10.2026, siehe [status/AP17c.md](../status/AP17c.md). Das Skript nutzt für die Modellwahl dieselbe Rechnung. Abweichungen vom Plan: Stufen 70/90/100 % (statt 70/90 %/„knapp“ ohne Grenze), Datei-Liste über `/tree/main` (nicht `?blobs=true`), Zeit je Entscheidung mit Wirkungsgrad 0,7, Positivliste der Herausgeber in `models.json`.
 - **17c-3:** Download mit Fortschritt, Laufzeit-Verwaltung durch das Backend (statt Dienst), Probelauf.
 - **17c-4:** Oberfläche (Bereich Modelle), Neustart-Fenster mit Modell, Statusanzeige, Handbuch, Probelauf auf thirdtux und maintux.
 

@@ -277,32 +277,24 @@ choose_model() {
   step "5/7" "Modell"
   MODEL_FILE=""; MODEL_ALIAS=""
   if [ "$NO_MODEL" = 1 ]; then ok "übersprungen ($([ "$NO_LLM" = 1 ] && echo '--no-llm' || echo '--no-model'))"; return; fi
-  local sel
-  sel="$(py - "$ROOT/backend/simulacra/data/models.json" "$USABLE_MB" "$MODEL_KEY" <<'PYEOF'
-import json, sys
-path, usable_mb, key = sys.argv[1], int(sys.argv[2]), sys.argv[3]
-models = json.load(open(path))["models"]
-usable = usable_mb / 1024
-if key:
-    m = next((m for m in models if m["key"] == key), None)
-    if not m: print("FEHLER|unbekanntes Modell " + key + " (bekannt: " + ", ".join(x["key"] for x in models) + ")"); sys.exit(0)
-else:
-    fitting = [m for m in models if m["min_gb"] <= usable]
-    m = max(fitting, key=lambda x: x["size_gb"]) if fitting else min(models, key=lambda x: x["size_gb"])
-fit = "passt gut" if m["min_gb"] <= usable * 0.8 else "passt" if m["min_gb"] <= usable else "KNAPP"
-print("|".join([m["key"], m["name"], m["repo"], m["file"], str(m["size_gb"]), fit]))
-PYEOF
-)"
+  # Auswahl und Passung rechnet das Backend (python -m simulacra.models), dieselbe Rechnung wie das Tool; hier nur die erkannten Werte übergeben
+  local sel args
+  args=(recommend --shell --kind "$GPU_KIND" --name "$GPU_NAME" --ram-mb "$MEM_MB" --vram-mb "$VRAM_MB" --vram-free-mb "$VRAM_FREE_MB")
+  if [ -n "$MODEL_KEY" ]; then args+=(--model "$MODEL_KEY"); fi
+  sel="$(PYTHONPATH="$ROOT/backend" py -m simulacra.models "${args[@]}")" || die "Die Modellauswahl ist fehlgeschlagen (python -m simulacra.models)."
   case "$sel" in FEHLER*) die "${sel#FEHLER|}";; esac
-  local name repo file size fit
-  IFS='|' read -r _ name repo file size fit <<EOF
+  local name repo file size fit secs quant level
+  IFS='|' read -r _ name repo file size fit secs quant level <<EOF
 $sel
 EOF
-  say "  Empfehlung für diesen Rechner: $name Q4_K_M ($(printf '%s' "$size" | tr . ,) GB, $fit)"
-  [ "$fit" = KNAPP ] && warn "Der Speicher ist knapp; das Modell läuft vielleicht nur langsam. Mit --model ein kleineres wählen oder --no-model."
+  say "  Empfehlung für diesen Rechner: $name $quant ($(printf '%s' "$size" | tr . ,) GB, $fit), ≈ $(printf '%s' "$secs" | tr . ,) s je Entscheidung (Schätzung)"
+  local lddef=j
+  case "$level" in
+    tight) lddef=n; warn "Der Speicher ist knapp; das Modell läuft vielleicht nur langsam. Mit --model ein kleineres wählen oder --no-model.";;
+    no)    lddef=n; warn "Das Modell passt nicht in den nutzbaren Speicher. Mit --model ein kleineres wählen oder --no-model.";;
+  esac
   MODEL_FILE="$MODELS_DIR/$file"; MODEL_ALIAS="$name"
   if [ -f "$MODEL_FILE" ]; then ok "$file ist schon da ✓"; return; fi
-  local lddef=j; [ "$fit" = KNAPP ] && lddef=n
   if ! ask "$name ($(printf '%s' "$size" | tr . ,) GB) von huggingface.co/$repo laden?" "$lddef"; then MODEL_FILE=""; warn "ohne Modell: später im Tool (Menü → Einstellungen → Modelle) oder mit ./install.sh --update."; return; fi
   if [ "$DRY" = 1 ]; then plan "$file laden (fortsetzbar), SHA-256 gegen Hugging Face prüfen"; return; fi
   local sha

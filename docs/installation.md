@@ -24,7 +24,7 @@ Das Skript prüft den Rechner (System, Arbeitsspeicher, Grafikkarte), holt fehle
 - Auf einem Server: `ssh server 'cd simulacra && ./install.sh --yes --headless'`; damit die Dienste ohne Anmeldung laufen, einmal `sudo loginctl enable-linger $USER`.
 - Ein vorhandener Eintrag in `backend/.env` (zum Beispiel `SIM_LLM_BASE_URL`) bleibt unberührt; das Skript schreibt nur seinen eigenen, markierten Block.
 - Die Auswahl der llama.cpp-Datei und des Modells ist mit nachgestellten Rechnern getestet (`backend/tests/test_install_script.py`); ein echter Lauf auf Apple M1 mit Qwen3-4B ist im Bericht [status/AP17c.md](status/AP17c.md) beschrieben.
-- Noch nicht im Skript: die Modellwahl nach Hardware aus der Live-Liste (kommt mit dem Tool, AP17c-2 und -3).
+- Die Modellwahl rechnet `python -m simulacra.models` (dieselbe Rechnung wie das Tool; kuratierte Liste, geprüft). Die Live-Liste von Hugging Face zeigt das Tool: `GET /api/models/catalog` (Oberfläche folgt mit AP17c-4). Von Hand: `cd backend && .venv/bin/python -m simulacra.models hardware` zeigt den erkannten Rechner, `… catalog --only-fit` die passenden Modelle (Zwischenspeicher 6 Stunden in `data/models/cache/`).
 
 Die folgenden Abschnitte beschreiben dasselbe von Hand.
 

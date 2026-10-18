@@ -301,3 +301,19 @@ Nur mit gesetztem `SIM_ACCESS_TOKEN`. Ohne Token verhalten sich alle Pfade wie b
 
 Mit Schutz antworten `/api/*` (außer `/api/health` und `/api/auth/*`) ohne Cookie mit **401** `{"detail": "Anmeldung erforderlich."}`, `/ws` schließt mit Code **4401**. Skripte können stattdessen `Authorization: Bearer <token>` senden. Ist `SIM_STATIC_DIR` gesetzt, liefert das Backend alle übrigen Pfade als Oberfläche aus (unbekannte Pfade fallen auf `index.html` zurück, `/api/*` bleibt 404).
 
+
+## Hardware und Modellkatalog (AP17c-2)
+Nur lesend; Download, Laufzeit und Probelauf folgen mit AP17c-3. Code: `backend/simulacra/models/` (Kern ohne Zusatzpakete), Antwortmodelle `api/models_llm.py`, Routen `api/routes_models.py`. Typen: `HardwareOut`, `CatalogOut` in `frontend/src/types/`.
+
+| Aufruf | Zweck |
+|---|---|
+| `GET /api/hardware` | erkannter Rechner: `kind` (`nvidia`, `metal`, `amd`, `vulkan`, `cpu`), `name`, `vram_mb`, `vram_free_mb` (**frei**, nicht gesamt), `ram_mb`, `free_disk_mb` (im Datenordner), `os`, `arch`, `cuda_version`, `gpu_count`, `gpu_names`, `usable_mb` (Speicher für ein Modell), `bandwidth_gbs` und `bandwidth_known`, `summary` (eine Zeile für den Kopf) |
+| `GET /api/models/catalog?q=&only_fit=&publishers=&refresh=&limit=` | Modelle für diesen Rechner. `q` Suche (auch live bei Hugging Face), `only_fit=true` ohne „zu groß“, `publishers=trusted` (Standard: Positivliste in `models.json`) oder `all`, `refresh=true` umgeht den 6-Stunden-Zwischenspeicher, `limit` 1–200 (Standard 50). Falsche Werte: 422 |
+
+Antwort von `/api/models/catalog`: `hardware`, `source` (`live`, `cache`, `stale` = Hugging Face nicht erreichbar, älterer Zwischenspeicher, `curated` = nur die kuratierte Liste), `fetched_at` (UTC, älteste verwendete Antwort), `note` (Hinweis bei `stale`/`curated`), `hidden` (ausgeblendete Treffer nach Grund), `total`, `recommended` (bis zu 3), `items`. Netzfehler sind **kein** Serverfehler: die Antwort ist 200 mit `source: "curated"`.
+
+Ein Eintrag (`CatalogItemOut`): `repo`, `name`, `publisher`, `license` (oder `null`), `source` (`curated`/`live`), `curated_key`, `moe`, `multimodal`, `uncensored` (nur Hinweis), `gated` und `downloadable` (gesperrte Modelle sind gekennzeichnet, nicht angeboten), `params_b`, `active_b`, `downloads`, `likes`, `updated`, `url`, `file` (Standarddatei) und `variants` (alle Dateien Q4–Q8). Eine Datei (`VariantOut`): `file`, `quant`, `size_mb`, `sha256` (aus `lfs.oid`, bei gesperrten Modellen `null`), `fit` (`level` `good`/`ok`/`tight`/`no`, `label`, `need_mb`, `ratio`), `estimate` (`tokens_per_s`, `seconds_per_decision`, `is_estimate` immer `true`).
+
+**Passung** (`models/fit.py`, dieselbe Rechnung wie `install.sh` über `python -m simulacra.models`): nötig = Dateigröße + KV-Cache für Kontext 8192 + 300 MB Puffer; KV-Cache ≈ 120 KB + 4,5 KB je Milliarde Parameter je Token. Verhältnis zum nutzbaren Speicher: ≤ 70 % **passt gut**, ≤ 90 % **passt**, ≤ 100 % **knapp**, darüber **zu groß**. Nutzbar: NVIDIA/AMD 95 % des **freien** Grafikspeichers, Apple Silicon zwei Drittel des gemeinsamen Speichers, sonst 60 % des Arbeitsspeichers. **Zeit je Entscheidung** = 90 Token ÷ (Speicherbandbreite ÷ aktive Dateigröße × 0,7) + 1,2 s; bei MoE zählt der aktive Anteil (`A3B` im Namen). Immer eine Schätzung; die Messung kommt mit 17c-3.
+
+**Filter** (`models/filters.py`): Textmodelle (`pipeline_tag` `text-generation`, fehlend, `image-text-to-text` oder `any-to-any`; Vision-Modelle erkennt der Name oder die Architektur, Bild-, Embedding-, OCR-Modelle fallen raus), keine Merges und Adapter, Herausgeber der Positivliste (Standard), nur Einzeldateien Q4 bis Q8 (kein mmproj, imatrix, keine geteilten Dateien). Kommandozeile: `python -m simulacra.models hardware|recommend|catalog` (`--help`).
