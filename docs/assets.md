@@ -29,7 +29,7 @@ Der Stil (gemütliches Farmdorf, 16-Pixel-Kacheln, dunkle Konturen, warme Farben
 Die Bausteine werden aus Weltdaten gezeichnet, nicht aus festen Bildern. Stilangaben stehen in den Daten (`props.style` am Ort: `floor` = `planks|tile|workshop`, `rug`, `surface` = `cobble`, `fence`), Objektzustand in `state` (z. B. `stage` einer Pflanze, `lit` eines Kamins, `locked` einer Tür). Neue Orte und Objekte aus Patches oder dem späteren Generator (AP12) erscheinen deshalb ohne neue Grafik.
 
 ## Klang (Mockup AP17d, 18.10.2026; noch nicht im Spiel)
-Das Mockup `docs/mockups/klang.html` bettet CC0-Aufnahmen zum Vergleich mit Klängen aus Code ein (zu Mono-MP3, 32 kHz, umgewandelt). Alle Quellen sind CC0; die Lizenz wurde auf der jeweiligen Seite beziehungsweise in der Lizenzdatei des Pakets geprüft.
+Das Mockup `docs/mockups/klang.html` bettet CC0-Aufnahmen zum Vergleich mit Klängen aus Code ein (zu Mono-MP3, 32 kHz, umgewandelt, in `docs/mockups/klang/daten.js`). Die Code-Klänge (`klang/geraeusche.js`, `umgebung.js`, `stimmen.js`, `musik.js`) entstehen im Browser und haben keine fremde Quelle. Alle Quellen sind CC0; die Lizenz wurde auf der jeweiligen Seite beziehungsweise in der Lizenzdatei des Pakets geprüft.
 
 | Was | Quelle | Lizenz |
 |---|---|---|
