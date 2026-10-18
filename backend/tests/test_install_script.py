@@ -60,7 +60,7 @@ def test_syntax_und_hilfe():
 
 @pytest.mark.skipif(shutil.which("shellcheck") is None, reason="shellcheck nicht installiert")
 def test_shellcheck_sauber():
-    r = subprocess.run(["shellcheck", "-x", "-S", "warning", str(SCRIPT), str(ROOT / "scripts" / "start.sh")], capture_output=True, text=True)
+    r = subprocess.run(["shellcheck", "-x", "-S", "warning", str(SCRIPT), str(ROOT / "scripts" / "start.sh"), *map(str, sorted((ROOT / "scripts" / "install").glob("*.sh")))], capture_output=True, text=True, cwd=ROOT)
     assert r.returncode == 0, r.stdout
 
 
@@ -137,6 +137,7 @@ def test_projektordner_mit_leerzeichen_wird_abgelehnt(tmp_path):
     copy = tmp_path / "mein ordner"
     copy.mkdir()
     shutil.copy(SCRIPT, copy / "install.sh")
+    shutil.copytree(ROOT / "scripts" / "install", copy / "scripts" / "install")
     env_dir = tmp_path / "m"
     env_dir.mkdir()
     r = subprocess.run(["bash", str(copy / "install.sh"), "--dry-run", "--yes"], env=machine(env_dir), capture_output=True, text=True, timeout=60)
@@ -154,13 +155,14 @@ def test_zweiter_lauf_behaelt_das_token(tmp_path):
     root = tmp_path / "simulacra"
     (root / "backend" / "simulacra" / "data").mkdir(parents=True)
     shutil.copy(SCRIPT, root / "install.sh")
+    shutil.copytree(ROOT / "scripts" / "install", root / "scripts" / "install")
     shutil.copy(ROOT / "backend" / "simulacra" / "data" / "models.json", root / "backend" / "simulacra" / "data" / "models.json")
     env_dir = tmp_path / "m"
     env_dir.mkdir()
     env = machine(env_dir)
     # Nur das Schreiben der Einstellungen prüfen: die Funktion aus dem Skript herauslösen
     harness = root / "harness.sh"
-    harness.write_text('set -euo pipefail\nsource <(sed -n "/^write_env()/,/^}/p; /^py()/,/^}/p; /^have()/p; /^ok()/p; /^warn()/p; /^plan()/p; /^MARK/p" "$1")\nROOT="$2"; DRY=0; HEADLESS=1; TOKEN=${TOKEN:-1}; NO_LLM=1; MODEL_ALIAS=""; LLM_PORT=8081; C_W=""; C_0=""; C_OK=""; C_D=""\nwrite_env\n')
+    harness.write_text('set -euo pipefail\nsource <(sed -n "/^write_env()/,/^}/p; /^py()/,/^}/p; /^have()/p; /^ok()/p; /^warn()/p; /^plan()/p; /^MARK/p" "$1" "$(dirname "$1")/scripts/install/model.sh")\nROOT="$2"; DRY=0; HEADLESS=1; TOKEN=${TOKEN:-1}; NO_LLM=1; MODEL_ALIAS=""; LLM_PORT=8081; C_W=""; C_0=""; C_OK=""; C_D=""\nwrite_env\n')
     def run_once():
         return subprocess.run(["bash", str(harness), str(SCRIPT), str(root)], env=env, capture_output=True, text=True, timeout=30)
     first = run_once()
@@ -179,7 +181,7 @@ def test_ohne_token_schalter_steht_kein_token_in_der_env(tmp_path):
     root = tmp_path / "simulacra"
     (root / "backend").mkdir(parents=True)
     harness = tmp_path / "harness.sh"
-    harness.write_text('set -euo pipefail\nsource <(sed -n "/^write_env()/,/^}/p; /^py()/,/^}/p; /^have()/p; /^ok()/p; /^warn()/p; /^plan()/p; /^MARK/p" "$1")\nROOT="$2"; DRY=0; HEADLESS=1; TOKEN=0; NO_LLM=1; MODEL_ALIAS=""; LLM_PORT=8081; C_W=""; C_0=""; C_OK=""; C_D=""\nwrite_env\n')
+    harness.write_text('set -euo pipefail\nsource <(sed -n "/^write_env()/,/^}/p; /^py()/,/^}/p; /^have()/p; /^ok()/p; /^warn()/p; /^plan()/p; /^MARK/p" "$1" "$(dirname "$1")/scripts/install/model.sh")\nROOT="$2"; DRY=0; HEADLESS=1; TOKEN=0; NO_LLM=1; MODEL_ALIAS=""; LLM_PORT=8081; C_W=""; C_0=""; C_OK=""; C_D=""\nwrite_env\n')
     envf = root / "backend" / ".env"
     # ein früher geschriebener Block mit Token (alter Lauf) verschwindet, wenn --token fehlt; eigene Einträge bleiben
     envf.write_text("EIGEN=1\n# --- simulacra install (verwaltet von install.sh) ---\nSIM_ACCESS_TOKEN=altes\n# --- ende simulacra install ---\n")

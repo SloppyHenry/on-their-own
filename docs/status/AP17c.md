@@ -7,6 +7,7 @@ Teilpakete: [17c-1 Install-Skript](#ap17c-1--install-skript) · [17c-2 Hardware 
 Plan: [AP17c-plan.md](../arbeitspakete/AP17c-plan.md). Mockup: [modelle.html](../mockups/modelle.html) (Reiter „Install-Skript“). Handbuch: [installation.md](../installation.md).
 
 ## Gebaut
+- *(18.10.2026 aufgeteilt: `install.sh` enthält Schalter, Hilfen und `main`; die Schritte stehen in `scripts/install/{machine,runtime,model,services}.sh`, damit keine Datei über 400 Zeilen liegt. Verhalten unverändert.)*
 - `install.sh` im Projektordner: sieben Schritte wie im Mockup (Rechner prüfen, Voraussetzungen, Projekt, llama.cpp, Modell, Dienst, Fertig mit Selbsttest). Läuft mit der bash 3.2 von macOS. Schalter `--yes`, `--dry-run`, `--no-model`, `--no-llm`, `--headless`, `--model`, `--update`, `--uninstall`, `--purge`.
 - `scripts/start.sh`: Modell und Simulacra im Vordergrund, wenn man keinen Dienst will.
 - `backend/simulacra/data/models.json`: kuratierte Modelle (Qwen3-4B, -8B, -14B in Q4_K_M, Dateinamen und Größen gegen Hugging Face geprüft).
