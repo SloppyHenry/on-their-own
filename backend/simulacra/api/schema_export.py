@@ -20,13 +20,15 @@ from . import models as api
 from . import models_memory as mm
 from . import models_autonomy as ma
 from . import models_inject as mi
+from . import models_llm as ml
 from . import models_params as mp
 from . import models_saves as ms
 from . import models_world as mw
+from . import models_newsim as mn
 
 API_MODELS: list[type[BaseModel]] = [
     api.StateSnapshot, api.AgentDetail, api.LocationDetail, api.EventsPage, api.EventDetail, api.SimCommandResult,
-    api.StartRequest, api.StepRequest, api.ResetRequest, api.SpeedRequest,
+    api.StartRequest, api.StepRequest, api.ResetRequest, api.SpeedRequest, api.Voice, api.VoiceSet, api.VoiceOut,
     api.WsHello, api.WsResync, api.WsPong, api.WsSnapshot, api.WsEvents, api.WsEvent, api.WsPing, api.WsClock, api.WsResyncRequired,
     mm.MemoriesPage, mm.MemoryDetail, mm.Knowledge, mm.RetrievalOut, mm.MemoryStats,
     ma.GoalOut, ma.AgentNeeds, ma.AgentOverview, ma.RelationOut, ma.FailureOut, ma.DecisionOut, ma.FactorRegistry,
@@ -34,7 +36,9 @@ API_MODELS: list[type[BaseModel]] = [
     mp.PresetDuplicate, mp.PresetPreview, mp.PresetLoadRequest, mp.PresetLoadOut, mp.StatusOut,
     mi.InjectParseRequest, mi.InjectConfirmRequest, mi.InjectProposal, mi.ScheduledOut,
     ms.SaveOut, ms.SaveCreate, ms.SaveLoadRequest, ms.StatsOut, auth.AuthStatus, auth.LoginRequest,
+    ml.HardwareOut, ml.CatalogOut,
     mw.GenerateRequest, mw.GenerateApplyRequest, mw.GeneratePreview, mw.GenerateApplied, mw.PatchPreviewRequest, mw.PatchPreview,
+    mn.NewSimRequest, mn.NewSimApplyRequest, mn.NewSimPreview, mn.NewSimApplied, mn.NewSimLimits, mn.TemplateOut, mn.TemplateIn, mn.TemplateImported, mn.RulesPreviewRequest, mn.StartEvent,
     EventOut, SimTime,
 ]
 

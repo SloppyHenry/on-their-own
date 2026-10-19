@@ -1,5 +1,5 @@
 // REST-Zugriff. Verändernde Aufrufe tragen einen Idempotency-Key, damit Wiederholungen nichts doppelt tun.
-import type { AgentDetail, AgentNeeds, AgentOverview, DecisionOut, FactorRegistry, FailureOut, GoalOut, RelationOut, EventDetail, EventsPage, Knowledge, LocationDetail, MemoriesPage, MemoryDetail, MemoryStats, RetrievalOut, SimCommandResult, StateSnapshot, ParamPatchOut, ParamSchema, ParamValues, PresetBrief, PresetLoadOut, PresetOut, PresetPreview, StatusOut, InjectProposal, ScheduledOut, SaveOut, StatsOut, AuthStatus, GenerateRequest, GeneratePreview, GenerateApplyRequest, GenerateApplied, PatchPreview } from "../types/generated";
+import type { AgentDetail, AgentNeeds, AgentOverview, DecisionOut, FactorRegistry, FailureOut, GoalOut, RelationOut, EventDetail, EventsPage, Knowledge, LocationDetail, MemoriesPage, MemoryDetail, MemoryStats, RetrievalOut, SimCommandResult, StateSnapshot, ParamPatchOut, ParamSchema, ParamValues, PresetBrief, PresetLoadOut, PresetOut, PresetPreview, StatusOut, InjectProposal, ScheduledOut, SaveOut, StatsOut, AuthStatus, GenerateRequest, GeneratePreview, GenerateApplyRequest, GenerateApplied, PatchPreview, Voice, VoiceOut, NewSimApplied, NewSimLimits, NewSimPreview, NewSimRequest, RulesPreviewRequest, TemplateImported, TemplateOut } from "../types/generated";
 
 export class ApiError extends Error {
   constructor(readonly status: number, readonly detail: string) {
@@ -11,7 +11,7 @@ export const AUTH_REQUIRED = "sim:auth-required";
 
 const key = () => (typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : `k-${Date.now()}-${Math.random().toString(36).slice(2, 12)}`);
 
-async function request<T>(method: "GET" | "POST" | "PATCH" | "DELETE", path: string, body?: unknown): Promise<T> {
+async function request<T>(method: "GET" | "POST" | "PATCH" | "PUT" | "DELETE", path: string, body?: unknown): Promise<T> {
   const headers: Record<string, string> = {};
   if (method !== "GET") {
     headers["Idempotency-Key"] = key();
@@ -99,6 +99,7 @@ export const api = {
   pause: () => request<SimCommandResult>("POST", "/api/sim/pause"),
   resume: () => request<SimCommandResult>("POST", "/api/sim/resume"),
   step: (n = 1) => request<SimCommandResult>("POST", "/api/sim/step", { n }),
+  setVoice: (agent: string, voice: Voice | null) => request<VoiceOut>("PUT", `/api/agents/${encodeURIComponent(agent)}/voice`, { voice }),
   reset: (model?: string, keepProfiles = false) => request<SimCommandResult>("POST", "/api/sim/reset", { confirm: true, keep_profiles: keepProfiles, ...(model ? { model } : {}) }),
   speed: (level: string) => request<SimCommandResult>("POST", "/api/sim/speed", { level }),
   paramSchema: () => request<ParamSchema>("GET", "/api/params/schema"),
@@ -126,6 +127,28 @@ export const api = {
   },
   generate: (body: GenerateRequest) => request<GeneratePreview>("POST", "/api/world/generate", body),
   applyGenerated: (body: GenerateApplyRequest) => request<GenerateApplied>("POST", "/api/world/generate/apply", { ...body, confirm: true }),
+  newSimLimits: () => request<NewSimLimits>("GET", "/api/sim/new/limits"),
+  newSimPreview: (body: NewSimRequest) => request<NewSimPreview>("POST", "/api/sim/new/preview", body),
+  newSimApply: (body: NewSimRequest, digest: string) => request<NewSimApplied>("POST", "/api/sim/new", { ...body, digest, confirm: true }),
+  /** Ein Satz der Weltregeln durch die Ereigniseingabe, auf der Welt des Entwurfs (ändert nichts). */
+  newSimRules: (body: RulesPreviewRequest) => request<InjectProposal>("POST", "/api/sim/new/rules/preview", body),
+  templates: () => request<TemplateOut[]>("GET", "/api/templates"),
+  createTemplate: (profile: object, personality: object) => request<TemplateOut>("POST", "/api/templates", { profile, personality }),
+  updateTemplate: (id: string, profile: object, personality: object) => request<TemplateOut>("PUT", `/api/templates/${encodeURIComponent(id)}`, { profile, personality }),
+  deleteTemplate: (id: string) => request<{ deleted: string }>("DELETE", `/api/templates/${encodeURIComponent(id)}`),
+  duplicateTemplate: (id: string) => request<TemplateOut>("POST", `/api/templates/${encodeURIComponent(id)}/duplicate`, {}),
+  /** Importiert den Text einer Vorlagendatei als neue Vorlage; Fehler kommen alle auf einmal (ApiError.detail, eine Zeile je Fehler). */
+  importTemplate: async (text: string): Promise<TemplateImported> => {
+    const res = await fetch("/api/templates/import", { method: "POST", headers: { "Content-Type": "application/json" }, body: text });
+    const j = await res.json().catch(() => ({}));
+    if (!res.ok) throw new ApiError(res.status, typeof j.detail === "string" ? j.detail : res.statusText);
+    return j as TemplateImported;
+  },
+  exportTemplate: async (id: string): Promise<string> => {
+    const res = await fetch(`/api/templates/${encodeURIComponent(id)}/export`);
+    if (!res.ok) throw new ApiError(res.status, res.statusText);
+    return res.text();
+  },
   patchPreview: (patch: object) => request<PatchPreview>("POST", "/api/world/patch/preview", { patch }),
   stats: (q: { agent?: string; from_minute?: number; to_minute?: number } = {}) => {
     const p = new URLSearchParams();

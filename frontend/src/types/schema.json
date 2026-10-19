@@ -745,6 +745,217 @@
    "title": "AuthStatus",
    "type": "object"
   },
+  "CatalogItemOut": {
+   "additionalProperties": false,
+   "properties": {
+    "active_b": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "curated_key": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "downloadable": {
+     "type": "boolean"
+    },
+    "downloads": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "file": {
+     "$ref": "#/$defs/VariantOut"
+    },
+    "gated": {
+     "type": "boolean"
+    },
+    "license": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "likes": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "moe": {
+     "type": "boolean"
+    },
+    "multimodal": {
+     "type": "boolean"
+    },
+    "name": {
+     "type": "string"
+    },
+    "params_b": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "publisher": {
+     "type": "string"
+    },
+    "repo": {
+     "type": "string"
+    },
+    "source": {
+     "enum": [
+      "curated",
+      "live"
+     ],
+     "type": "string"
+    },
+    "uncensored": {
+     "type": "boolean"
+    },
+    "updated": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "url": {
+     "type": "string"
+    },
+    "variants": {
+     "items": {
+      "$ref": "#/$defs/VariantOut"
+     },
+     "type": "array"
+    }
+   },
+   "required": [
+    "repo",
+    "name",
+    "publisher",
+    "license",
+    "source",
+    "curated_key",
+    "moe",
+    "multimodal",
+    "uncensored",
+    "gated",
+    "downloadable",
+    "params_b",
+    "active_b",
+    "downloads",
+    "likes",
+    "updated",
+    "url",
+    "file",
+    "variants"
+   ],
+   "title": "CatalogItemOut",
+   "type": "object"
+  },
+  "CatalogOut": {
+   "additionalProperties": false,
+   "properties": {
+    "fetched_at": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "hardware": {
+     "$ref": "#/$defs/HardwareOut"
+    },
+    "hidden": {
+     "additionalProperties": {
+      "type": "integer"
+     },
+     "type": "object"
+    },
+    "items": {
+     "items": {
+      "$ref": "#/$defs/CatalogItemOut"
+     },
+     "type": "array"
+    },
+    "note": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "recommended": {
+     "items": {
+      "$ref": "#/$defs/CatalogItemOut"
+     },
+     "type": "array"
+    },
+    "source": {
+     "enum": [
+      "live",
+      "cache",
+      "stale",
+      "curated"
+     ],
+     "type": "string"
+    },
+    "total": {
+     "type": "integer"
+    }
+   },
+   "required": [
+    "hardware",
+    "source",
+    "fetched_at",
+    "note",
+    "hidden",
+    "total",
+    "recommended",
+    "items"
+   ],
+   "title": "CatalogOut",
+   "type": "object"
+  },
   "CheckOut": {
    "additionalProperties": false,
    "properties": {
@@ -1513,6 +1724,29 @@
    "title": "EffectEnded",
    "type": "object"
   },
+  "EstimateOut": {
+   "additionalProperties": false,
+   "properties": {
+    "is_estimate": {
+     "const": true,
+     "default": true,
+     "type": "boolean"
+    },
+    "seconds_per_decision": {
+     "type": "number"
+    },
+    "tokens_per_s": {
+     "type": "number"
+    }
+   },
+   "required": [
+    "tokens_per_s",
+    "seconds_per_decision",
+    "is_estimate"
+   ],
+   "title": "EstimateOut",
+   "type": "object"
+  },
   "EventDetail": {
    "additionalProperties": false,
    "properties": {
@@ -1844,6 +2078,37 @@
     "caught"
    ],
    "title": "Fished",
+   "type": "object"
+  },
+  "FitOut": {
+   "additionalProperties": false,
+   "properties": {
+    "label": {
+     "type": "string"
+    },
+    "level": {
+     "enum": [
+      "good",
+      "ok",
+      "tight",
+      "no"
+     ],
+     "type": "string"
+    },
+    "need_mb": {
+     "type": "integer"
+    },
+    "ratio": {
+     "type": "number"
+    }
+   },
+   "required": [
+    "level",
+    "label",
+    "need_mb",
+    "ratio"
+   ],
+   "title": "FitOut",
    "type": "object"
   },
   "GenerateApplied": {
@@ -2354,6 +2619,113 @@
     "detail"
    ],
    "title": "GuardTriggered",
+   "type": "object"
+  },
+  "HardwareOut": {
+   "additionalProperties": false,
+   "properties": {
+    "arch": {
+     "type": "string"
+    },
+    "bandwidth_gbs": {
+     "type": "number"
+    },
+    "bandwidth_known": {
+     "type": "boolean"
+    },
+    "cuda_version": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "free_disk_mb": {
+     "type": "integer"
+    },
+    "gpu_count": {
+     "type": "integer"
+    },
+    "gpu_names": {
+     "items": {
+      "type": "string"
+     },
+     "type": "array"
+    },
+    "kind": {
+     "enum": [
+      "nvidia",
+      "metal",
+      "amd",
+      "vulkan",
+      "cpu"
+     ],
+     "type": "string"
+    },
+    "name": {
+     "type": "string"
+    },
+    "os": {
+     "type": "string"
+    },
+    "ram_mb": {
+     "type": "integer"
+    },
+    "summary": {
+     "type": "string"
+    },
+    "usable_mb": {
+     "type": "integer"
+    },
+    "vram_free_mb": {
+     "type": "integer"
+    },
+    "vram_mb": {
+     "type": "integer"
+    }
+   },
+   "required": [
+    "kind",
+    "name",
+    "vram_mb",
+    "vram_free_mb",
+    "ram_mb",
+    "free_disk_mb",
+    "os",
+    "arch",
+    "cuda_version",
+    "gpu_count",
+    "gpu_names",
+    "usable_mb",
+    "bandwidth_gbs",
+    "bandwidth_known",
+    "summary"
+   ],
+   "title": "HardwareOut",
+   "type": "object"
+  },
+  "HouseOut": {
+   "additionalProperties": false,
+   "properties": {
+    "beds": {
+     "type": "integer"
+    },
+    "n": {
+     "type": "integer"
+    },
+    "name": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "n",
+    "name",
+    "beds"
+   ],
+   "title": "HouseOut",
    "type": "object"
   },
   "Informed": {
@@ -3825,6 +4197,358 @@
    "title": "NeedOut",
    "type": "object"
   },
+  "NewSimApplied": {
+   "additionalProperties": false,
+   "properties": {
+    "backup": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "counts": {
+     "additionalProperties": {
+      "type": "integer"
+     },
+     "default": {},
+     "type": "object"
+    },
+    "residents": {
+     "default": [],
+     "items": {
+      "$ref": "#/$defs/ResidentOut"
+     },
+     "type": "array"
+    },
+    "seed": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "state": {
+     "default": "stopped",
+     "type": "string"
+    },
+    "village": {
+     "type": "string"
+    },
+    "warnings": {
+     "default": [],
+     "items": {
+      "type": "string"
+     },
+     "type": "array"
+    }
+   },
+   "required": [
+    "village",
+    "seed",
+    "residents",
+    "backup",
+    "counts",
+    "state",
+    "warnings"
+   ],
+   "title": "NewSimApplied",
+   "type": "object"
+  },
+  "NewSimApplyRequest": {
+   "additionalProperties": false,
+   "properties": {
+    "confirm": {
+     "default": false,
+     "type": "boolean"
+    },
+    "digest": {
+     "maxLength": 32,
+     "type": "string"
+    },
+    "model": {
+     "anyOf": [
+      {
+       "maxLength": 200,
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "relations": {
+     "default": [],
+     "items": {
+      "$ref": "#/$defs/RelationIn"
+     },
+     "type": "array"
+    },
+    "residents": {
+     "items": {
+      "$ref": "#/$defs/ResidentIn"
+     },
+     "type": "array"
+    },
+    "rules": {
+     "$ref": "#/$defs/RulesSpec",
+     "default": {
+      "autonomy": null,
+      "creator_text": null,
+      "events": [],
+      "mode": "observer",
+      "preset": null,
+      "scarcity": null
+     }
+    },
+    "run": {
+     "default": "paused",
+     "enum": [
+      "paused",
+      "running"
+     ],
+     "type": "string"
+    },
+    "stories": {
+     "default": [],
+     "items": {
+      "$ref": "#/$defs/StoryIn"
+     },
+     "type": "array"
+    },
+    "world": {
+     "$ref": "#/$defs/WorldSpec",
+     "default": {
+      "houses": null,
+      "kind": "generated",
+      "lake": "auto",
+      "mix": null,
+      "seed": 1
+     }
+    }
+   },
+   "required": [
+    "residents",
+    "digest"
+   ],
+   "title": "NewSimApplyRequest",
+   "type": "object"
+  },
+  "NewSimLimits": {
+   "additionalProperties": false,
+   "properties": {
+    "max_per_house": {
+     "default": 2,
+     "type": "integer"
+    },
+    "max_residents": {
+     "type": "integer"
+    },
+    "seconds_per_decision": {
+     "type": "number"
+    }
+   },
+   "required": [
+    "max_residents",
+    "seconds_per_decision",
+    "max_per_house"
+   ],
+   "title": "NewSimLimits",
+   "type": "object"
+  },
+  "NewSimPreview": {
+   "additionalProperties": false,
+   "properties": {
+    "counts": {
+     "additionalProperties": {
+      "type": "integer"
+     },
+     "default": {},
+     "type": "object"
+    },
+    "digest": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "errors": {
+     "default": [],
+     "items": {
+      "type": "string"
+     },
+     "type": "array"
+    },
+    "houses": {
+     "default": [],
+     "items": {
+      "$ref": "#/$defs/HouseOut"
+     },
+     "type": "array"
+    },
+    "ok": {
+     "type": "boolean"
+    },
+    "report": {
+     "anyOf": [
+      {
+       "$ref": "#/$defs/ReportOut"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "residents": {
+     "default": [],
+     "items": {
+      "$ref": "#/$defs/ResidentOut"
+     },
+     "type": "array"
+    },
+    "seed": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "snapshot": {
+     "anyOf": [
+      {
+       "$ref": "#/$defs/StateSnapshot"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "village": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "warnings": {
+     "default": [],
+     "items": {
+      "type": "string"
+     },
+     "type": "array"
+    }
+   },
+   "required": [
+    "ok",
+    "errors",
+    "warnings",
+    "residents",
+    "houses",
+    "report",
+    "digest",
+    "village",
+    "seed",
+    "counts",
+    "snapshot"
+   ],
+   "title": "NewSimPreview",
+   "type": "object"
+  },
+  "NewSimRequest": {
+   "additionalProperties": false,
+   "properties": {
+    "model": {
+     "anyOf": [
+      {
+       "maxLength": 200,
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "relations": {
+     "default": [],
+     "items": {
+      "$ref": "#/$defs/RelationIn"
+     },
+     "type": "array"
+    },
+    "residents": {
+     "items": {
+      "$ref": "#/$defs/ResidentIn"
+     },
+     "type": "array"
+    },
+    "rules": {
+     "$ref": "#/$defs/RulesSpec",
+     "default": {
+      "autonomy": null,
+      "creator_text": null,
+      "events": [],
+      "mode": "observer",
+      "preset": null,
+      "scarcity": null
+     }
+    },
+    "run": {
+     "default": "paused",
+     "enum": [
+      "paused",
+      "running"
+     ],
+     "type": "string"
+    },
+    "stories": {
+     "default": [],
+     "items": {
+      "$ref": "#/$defs/StoryIn"
+     },
+     "type": "array"
+    },
+    "world": {
+     "$ref": "#/$defs/WorldSpec",
+     "default": {
+      "houses": null,
+      "kind": "generated",
+      "lake": "auto",
+      "mix": null,
+      "seed": 1
+     }
+    }
+   },
+   "required": [
+    "residents"
+   ],
+   "title": "NewSimRequest",
+   "type": "object"
+  },
   "NpcAction": {
    "additionalProperties": false,
    "properties": {
@@ -5186,6 +5910,52 @@
    "title": "RelationChanged",
    "type": "object"
   },
+  "RelationIn": {
+   "additionalProperties": false,
+   "description": "Startwerte der Beziehung von Bewohner `a` zu Bewohner `b` (Nummern in `residents`, ab 0).",
+   "properties": {
+    "a": {
+     "exclusiveMaximum": 8,
+     "minimum": 0,
+     "type": "integer"
+    },
+    "b": {
+     "exclusiveMaximum": 8,
+     "minimum": 0,
+     "type": "integer"
+    },
+    "familiarity": {
+     "default": 30,
+     "maximum": 100,
+     "minimum": 0,
+     "type": "number"
+    },
+    "sympathy": {
+     "default": 50,
+     "maximum": 100,
+     "minimum": 0,
+     "type": "number"
+    },
+    "tension": {
+     "default": 10,
+     "maximum": 100,
+     "minimum": 0,
+     "type": "number"
+    },
+    "trust": {
+     "default": 50,
+     "maximum": 100,
+     "minimum": 0,
+     "type": "number"
+    }
+   },
+   "required": [
+    "a",
+    "b"
+   ],
+   "title": "RelationIn",
+   "type": "object"
+  },
   "RelationLogItem": {
    "additionalProperties": false,
    "properties": {
@@ -5327,6 +6097,108 @@
     }
    },
    "title": "ResetRequest",
+   "type": "object"
+  },
+  "ResidentIn": {
+   "additionalProperties": false,
+   "description": "Die Profilmaske eines Bewohners: dieselbe wie im Charaktereditor und in Vorlagen. Kein Feld für Steuerungsart oder Sonderstatus.",
+   "properties": {
+    "home": {
+     "anyOf": [
+      {
+       "maximum": 6,
+       "minimum": 1,
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "known": {
+     "default": [
+      "square",
+      "garden",
+      "rooms"
+     ],
+     "items": {
+      "enum": [
+       "square",
+       "garden",
+       "rooms",
+       "lake",
+       "forest"
+      ],
+      "type": "string"
+     },
+     "type": "array"
+    },
+    "personality": {
+     "additionalProperties": true,
+     "type": "object"
+    },
+    "profile": {
+     "additionalProperties": true,
+     "type": "object"
+    },
+    "template": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "voice": {
+     "anyOf": [
+      {
+       "$ref": "#/$defs/Voice"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    }
+   },
+   "required": [
+    "profile",
+    "personality"
+   ],
+   "title": "ResidentIn",
+   "type": "object"
+  },
+  "ResidentOut": {
+   "additionalProperties": false,
+   "properties": {
+    "home": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "id": {
+     "type": "string"
+    },
+    "name": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "id",
+    "name",
+    "home"
+   ],
+   "title": "ResidentOut",
    "type": "object"
   },
   "ResourceAdded": {
@@ -5653,6 +6525,123 @@
     "minutes"
    ],
    "title": "Rowed",
+   "type": "object"
+  },
+  "RulesPreviewRequest": {
+   "additionalProperties": false,
+   "description": "Ein Satz der Weltregeln wie in der Ereigniseingabe: Text oder Antwort auf eine Rückfrage, im Entwurf (die Welt, auf die er sich bezieht).",
+   "properties": {
+    "answer": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "answer_to": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "draft": {
+     "$ref": "#/$defs/NewSimRequest"
+    },
+    "text": {
+     "default": "",
+     "maxLength": 1000,
+     "type": "string"
+    }
+   },
+   "required": [
+    "draft"
+   ],
+   "title": "RulesPreviewRequest",
+   "type": "object"
+  },
+  "RulesSpec": {
+   "additionalProperties": false,
+   "description": "Regeln der neuen Simulation. Alles ist optional: ohne Angabe gelten die Einstellungen, wie sie sind (sie bleiben über eine neue Simulation erhalten).",
+   "properties": {
+    "autonomy": {
+     "anyOf": [
+      {
+       "maximum": 100,
+       "minimum": 0,
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "creator_text": {
+     "anyOf": [
+      {
+       "maxLength": 600,
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "events": {
+     "default": [],
+     "items": {
+      "$ref": "#/$defs/StartEvent"
+     },
+     "type": "array"
+    },
+    "mode": {
+     "default": "observer",
+     "enum": [
+      "observer",
+      "creator",
+      "intervention"
+     ],
+     "type": "string"
+    },
+    "preset": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "scarcity": {
+     "anyOf": [
+      {
+       "maximum": 100,
+       "minimum": 0,
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    }
+   },
+   "title": "RulesSpec",
    "type": "object"
   },
   "SaveCreate": {
@@ -6140,6 +7129,37 @@
    "title": "SpeedRequest",
    "type": "object"
   },
+  "StartEvent": {
+   "additionalProperties": false,
+   "description": "Ein Weltereignis zum Start (aus dem Textfeld „Weltregeln“): der geprüfte Vorschlag der Ereigniseingabe (AP08), nach der Vorschau bestätigt. Für die Bewohner ein natürlicher Vorgang.",
+   "properties": {
+    "ops": {
+     "items": {
+      "additionalProperties": true,
+      "type": "object"
+     },
+     "type": "array"
+    },
+    "source": {
+     "default": "rule",
+     "enum": [
+      "rule",
+      "llm"
+     ],
+     "type": "string"
+    },
+    "text": {
+     "maxLength": 1000,
+     "type": "string"
+    }
+   },
+   "required": [
+    "text",
+    "ops"
+   ],
+   "title": "StartEvent",
+   "type": "object"
+  },
   "StartRequest": {
    "additionalProperties": false,
    "properties": {
@@ -6235,6 +7255,13 @@
      },
      "type": "object"
     },
+    "voices": {
+     "additionalProperties": {
+      "$ref": "#/$defs/Voice"
+     },
+     "default": {},
+     "type": "object"
+    },
     "weather": {
      "$ref": "#/$defs/WeatherInfo"
     },
@@ -6256,7 +7283,8 @@
     "simulation",
     "rules",
     "links",
-    "look"
+    "look",
+    "voices"
    ],
    "title": "StateSnapshot",
    "type": "object"
@@ -6412,6 +7440,33 @@
    "title": "Stored",
    "type": "object"
   },
+  "StoryIn": {
+   "additionalProperties": false,
+   "description": "Vorgeschichte eines Paares: wird bei beiden zu einer gewöhnlichen Erinnerung (Art Fakt).",
+   "properties": {
+    "a": {
+     "exclusiveMaximum": 8,
+     "minimum": 0,
+     "type": "integer"
+    },
+    "b": {
+     "exclusiveMaximum": 8,
+     "minimum": 0,
+     "type": "integer"
+    },
+    "text": {
+     "maxLength": 2000,
+     "type": "string"
+    }
+   },
+   "required": [
+    "a",
+    "b",
+    "text"
+   ],
+   "title": "StoryIn",
+   "type": "object"
+  },
   "SystemLoad": {
    "additionalProperties": false,
    "properties": {
@@ -6451,6 +7506,73 @@
     "power_save"
    ],
    "title": "SystemLoad",
+   "type": "object"
+  },
+  "TemplateImported": {
+   "additionalProperties": false,
+   "properties": {
+    "template": {
+     "$ref": "#/$defs/TemplateOut"
+    },
+    "warnings": {
+     "default": [],
+     "items": {
+      "type": "string"
+     },
+     "type": "array"
+    }
+   },
+   "required": [
+    "template",
+    "warnings"
+   ],
+   "title": "TemplateImported",
+   "type": "object"
+  },
+  "TemplateIn": {
+   "additionalProperties": false,
+   "properties": {
+    "personality": {
+     "additionalProperties": true,
+     "type": "object"
+    },
+    "profile": {
+     "additionalProperties": true,
+     "type": "object"
+    }
+   },
+   "required": [
+    "profile",
+    "personality"
+   ],
+   "title": "TemplateIn",
+   "type": "object"
+  },
+  "TemplateOut": {
+   "additionalProperties": false,
+   "properties": {
+    "builtin": {
+     "type": "boolean"
+    },
+    "id": {
+     "type": "string"
+    },
+    "personality": {
+     "additionalProperties": true,
+     "type": "object"
+    },
+    "profile": {
+     "additionalProperties": true,
+     "type": "object"
+    }
+   },
+   "required": [
+    "id",
+    "builtin",
+    "profile",
+    "personality"
+   ],
+   "title": "TemplateOut",
    "type": "object"
   },
   "TileChange": {
@@ -6619,6 +7741,180 @@
    "title": "TilesChanged",
    "type": "object"
   },
+  "VariantOut": {
+   "additionalProperties": false,
+   "properties": {
+    "estimate": {
+     "$ref": "#/$defs/EstimateOut"
+    },
+    "file": {
+     "type": "string"
+    },
+    "fit": {
+     "$ref": "#/$defs/FitOut"
+    },
+    "quant": {
+     "type": "string"
+    },
+    "sha256": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "size_mb": {
+     "type": "number"
+    }
+   },
+   "required": [
+    "file",
+    "quant",
+    "size_mb",
+    "sha256",
+    "fit",
+    "estimate"
+   ],
+   "title": "VariantOut",
+   "type": "object"
+  },
+  "Voice": {
+   "additionalProperties": false,
+   "description": "Stimme einer Figur fürs Plappern im Browser (AP17d). Reine Darstellung; die Bewohner erfahren nichts davon.",
+   "properties": {
+    "base": {
+     "maximum": 400,
+     "minimum": 60,
+     "type": "number"
+    },
+    "breath": {
+     "maximum": 0.5,
+     "minimum": 0,
+     "type": "number"
+    },
+    "lively": {
+     "maximum": 2.5,
+     "minimum": 0,
+     "type": "number"
+    },
+    "size": {
+     "maximum": 1.5,
+     "minimum": 0.7,
+     "type": "number"
+    },
+    "speed": {
+     "maximum": 2.0,
+     "minimum": 0.4,
+     "type": "number"
+    },
+    "style": {
+     "enum": [
+      "plappern",
+      "summen",
+      "piepsen"
+     ],
+     "type": "string"
+    },
+    "timbre": {
+     "enum": [
+      "weich",
+      "klar",
+      "rau",
+      "hohl",
+      "piepsig"
+     ],
+     "type": "string"
+    },
+    "vib": {
+     "default": 5,
+     "maximum": 10,
+     "minimum": 0,
+     "type": "number"
+    }
+   },
+   "required": [
+    "base",
+    "timbre",
+    "speed",
+    "size",
+    "lively",
+    "breath",
+    "style"
+   ],
+   "title": "Voice",
+   "type": "object"
+  },
+  "VoiceChanged": {
+   "additionalProperties": false,
+   "properties": {
+    "agent": {
+     "type": "string"
+    },
+    "voice": {
+     "anyOf": [
+      {
+       "additionalProperties": true,
+       "type": "object"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    }
+   },
+   "required": [
+    "agent"
+   ],
+   "title": "VoiceChanged",
+   "type": "object"
+  },
+  "VoiceOut": {
+   "additionalProperties": false,
+   "properties": {
+    "agent": {
+     "type": "string"
+    },
+    "voice": {
+     "anyOf": [
+      {
+       "$ref": "#/$defs/Voice"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    }
+   },
+   "required": [
+    "agent",
+    "voice"
+   ],
+   "title": "VoiceOut",
+   "type": "object"
+  },
+  "VoiceSet": {
+   "additionalProperties": false,
+   "properties": {
+    "voice": {
+     "anyOf": [
+      {
+       "$ref": "#/$defs/Voice"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    }
+   },
+   "title": "VoiceSet",
+   "type": "object"
+  },
   "WalkInfo": {
    "additionalProperties": false,
    "description": "Restlicher Weg mit Fahrplan (wie `agent.walking`), damit ein Refresh mitten im Weg weiterlaufen kann.",
@@ -6738,6 +8034,64 @@
     "until"
    ],
    "title": "WeatherInfo",
+   "type": "object"
+  },
+  "WorldSpec": {
+   "additionalProperties": false,
+   "description": "`start`: die handgemachte Startwelt (nur Alex und Mira), `generated`: ein Dorf für genau diese Bewohner.",
+   "properties": {
+    "houses": {
+     "anyOf": [
+      {
+       "maximum": 6,
+       "minimum": 1,
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "kind": {
+     "default": "generated",
+     "enum": [
+      "start",
+      "generated"
+     ],
+     "type": "string"
+    },
+    "lake": {
+     "default": "auto",
+     "enum": [
+      "auto",
+      "east",
+      "south"
+     ],
+     "type": "string"
+    },
+    "mix": {
+     "anyOf": [
+      {
+       "additionalProperties": {
+        "type": "integer"
+       },
+       "type": "object"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "seed": {
+     "default": 1,
+     "maximum": 2000000000,
+     "minimum": 0,
+     "type": "integer"
+    }
+   },
+   "title": "WorldSpec",
    "type": "object"
   },
   "WorldTime": {
@@ -6984,6 +8338,9 @@
   "AuthStatus": {
    "$ref": "#/$defs/AuthStatus"
   },
+  "CatalogOut": {
+   "$ref": "#/$defs/CatalogOut"
+  },
   "ConversationEnded": {
    "$ref": "#/$defs/ConversationEnded"
   },
@@ -7062,6 +8419,9 @@
   "GuardTriggered": {
    "$ref": "#/$defs/GuardTriggered"
   },
+  "HardwareOut": {
+   "$ref": "#/$defs/HardwareOut"
+  },
   "Informed": {
    "$ref": "#/$defs/Informed"
   },
@@ -7136,6 +8496,21 @@
   },
   "Moved": {
    "$ref": "#/$defs/Moved"
+  },
+  "NewSimApplied": {
+   "$ref": "#/$defs/NewSimApplied"
+  },
+  "NewSimApplyRequest": {
+   "$ref": "#/$defs/NewSimApplyRequest"
+  },
+  "NewSimLimits": {
+   "$ref": "#/$defs/NewSimLimits"
+  },
+  "NewSimPreview": {
+   "$ref": "#/$defs/NewSimPreview"
+  },
+  "NewSimRequest": {
+   "$ref": "#/$defs/NewSimRequest"
   },
   "NpcAction": {
    "$ref": "#/$defs/NpcAction"
@@ -7239,6 +8614,9 @@
   "Rowed": {
    "$ref": "#/$defs/Rowed"
   },
+  "RulesPreviewRequest": {
+   "$ref": "#/$defs/RulesPreviewRequest"
+  },
   "SaveCreate": {
    "$ref": "#/$defs/SaveCreate"
   },
@@ -7281,6 +8659,9 @@
   "SpeedRequest": {
    "$ref": "#/$defs/SpeedRequest"
   },
+  "StartEvent": {
+   "$ref": "#/$defs/StartEvent"
+  },
   "StartRequest": {
    "$ref": "#/$defs/StartRequest"
   },
@@ -7302,6 +8683,15 @@
   "Stored": {
    "$ref": "#/$defs/Stored"
   },
+  "TemplateImported": {
+   "$ref": "#/$defs/TemplateImported"
+  },
+  "TemplateIn": {
+   "$ref": "#/$defs/TemplateIn"
+  },
+  "TemplateOut": {
+   "$ref": "#/$defs/TemplateOut"
+  },
   "TileChanged": {
    "$ref": "#/$defs/TileChanged"
   },
@@ -7310,6 +8700,18 @@
   },
   "TilesChanged": {
    "$ref": "#/$defs/TilesChanged"
+  },
+  "Voice": {
+   "$ref": "#/$defs/Voice"
+  },
+  "VoiceChanged": {
+   "$ref": "#/$defs/VoiceChanged"
+  },
+  "VoiceOut": {
+   "$ref": "#/$defs/VoiceOut"
+  },
+  "VoiceSet": {
+   "$ref": "#/$defs/VoiceSet"
   },
   "Walking": {
    "$ref": "#/$defs/Walking"

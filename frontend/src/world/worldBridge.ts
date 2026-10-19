@@ -15,6 +15,9 @@ export interface AgentFrame {
   visible: boolean;
   /** Im Haus (Index) und draußen nicht zu sehen: Schild steht dann über dem Dach; sonst -1. */
   house: number;
+  /** Fußpunkt in Weltpixeln und das Haus, in dem die Figur ist (-1: draußen), unabhängig von der Ansicht (Klang: Schritte, Türen). */
+  pos?: [number, number];
+  home?: number;
 }
 
 export interface HouseFrame {

@@ -26,6 +26,16 @@ def validate_sleep(ctx: Ctx, actor: AgentBody, bed: WorldObject | None, params: 
     return Accepted(duration=minutes, data={"bed": bed.id})
 
 
+def claim_bed(ctx: Ctx, actor: AgentBody, bed: WorldObject | None) -> None:
+    """Wer in einem freien Bett schläft, dem gehört es: ein gewöhnlicher Vorgang der Welt (Bett trägt seinen Namen), keine Zuteilung von außen.
+    Wer schon ein Bett hat, nimmt kein zweites in Besitz."""
+    if bed is None or bed.kind != "bed" or bed.owner is not None or any(b.owner == actor.id for b in ctx.state.objects_of_kind("bed")):
+        return
+    bed.owner, bed.name = actor.id, f"Bett ({actor.name})"
+    ctx.state.save_object(bed)
+    ctx.emit("world.object_changed", [actor.id], bed.location_id, {**ctx.object_data(bed), "change": "claimed"})
+
+
 def validate_rest(ctx: Ctx, actor: AgentBody, seat: WorldObject | None, params: dict) -> Accepted | Rejected:
     minutes = params.get("minutes", 15)
     if isinstance(minutes, bool) or not isinstance(minutes, int) or not 5 <= minutes <= 120:
@@ -53,6 +63,9 @@ class Sleep(Action):
             if isinstance(bed, Rejected):
                 return bed
         return validate_sleep(ctx, actor, bed, params)
+
+    def start(self, ctx, actor, act):
+        claim_bed(ctx, actor, ctx.state.obj(act.data.get("bed", "")))
 
     def step(self, ctx, actor, act):
         sleep_step(ctx, actor, act)

@@ -46,6 +46,13 @@ class RelationStore:
         r = self.conn.execute("SELECT * FROM relations WHERE agent_id=? AND other_id=?", (agent_id, other_id)).fetchone()
         return Relation(agent_id, other_id, r["trust"], r["sympathy"], r["tension"], r["familiarity"], json.loads(r["shared"]), json.loads(r["conflicts"]))
 
+    def set_start(self, agent_id: str, other_id: str, values: dict[str, float]) -> None:
+        """Startwerte einer Beziehung (neue Simulation): wie von Anfang an, ohne Protokolleintrag und ohne Ereignis."""
+        self.get(agent_id, other_id)
+        for m in METRICS:
+            if m in values:
+                self.conn.execute(f"UPDATE relations SET {m}=? WHERE agent_id=? AND other_id=?", (max(0.0, min(100.0, float(values[m]))), agent_id, other_id))
+
     def all_of(self, agent_id: str) -> list[Relation]:
         return [self.get(agent_id, o["other_id"]) for o in self.conn.execute("SELECT other_id FROM relations WHERE agent_id=? ORDER BY other_id", (agent_id,)).fetchall()]
 

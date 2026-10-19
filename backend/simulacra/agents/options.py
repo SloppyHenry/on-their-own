@@ -20,6 +20,7 @@ USE_KIND = {"sleep": "sleep", "sit": "rest", "cook": "cook", "read": "read", "wr
             "extinguish": "extinguish", "unlock": "unlock", "fish": "fish", "harvest": "harvest",
             "row": "row", "collect": "collect", "fix": "fix", "pet": "pet"}
 CONTAINERS = ("chest", "wardrobe", "crate")
+WAIT_LIMIT = 4            # so oft in Folge darf ein Agent abwarten; danach bietet die nächste Entscheidung kein „Abwarten“ an (Frage 17)
 
 
 def fmt_eta(minutes: int | None) -> str:
@@ -30,6 +31,22 @@ def fmt_eta(minutes: int | None) -> str:
 
 def _cap(text: str) -> str:
     return text[:1].upper() + text[1:]
+
+
+BED_CHOICES = 3     # so viele freie Betten (verschiedener Räume) werden angeboten, solange man noch keines hat
+
+
+def _beds_to_offer(st: Any, aid: str, pos: tuple[float, float]) -> list[Any]:
+    """Das eigene Bett, sonst die nächsten freien Betten verschiedener Räume: so sucht sich jeder Bewohner selbst eine Bleibe."""
+    beds = [o for o in st.all_objects() if o.kind == "bed" and o.owner in (aid, None) and o.holder is None]
+    own = [b for b in beds if b.owner == aid]
+    if own:
+        return own[:1]
+    out: list[Any] = []
+    for b in sorted(beds, key=lambda b: math.dist(pos, (b.x, b.y))):
+        if all(b.location_id != x.location_id for x in out):
+            out.append(b)
+    return out[:BED_CHOICES]
 
 
 def generate(engine: WorldEngine, store: AgentStore, p: Perception) -> list[Option]:
@@ -44,10 +61,9 @@ def generate(engine: WorldEngine, store: AgentStore, p: Perception) -> list[Opti
     add("sleep", "Schlafen", "sleep", {})
     add("eat", "Etwas essen", "eat", {})
     add("drink", "Etwas trinken", "drink", {})
-    beds = [o for o in st.all_objects() if o.kind == "bed" and o.owner in (aid, None) and o.holder is None]
-    bed = next((b for b in beds if b.owner == aid), beds[0] if beds else None)
-    if bed is not None and bed.location_id != p.location_id and (p.phase == "night" or body.needs["energy"] < 50):
-        add("to_bed", f"Zum Schlafen {loc_to(st, bed.location_id)} gehen", "move_to", {"target": bed.id}, target_loc=bed.location_id)   # Schlafen geht nur am Bett
+    for bed in _beds_to_offer(st, aid, body.pos):
+        if bed.location_id != p.location_id and (p.phase == "night" or body.needs["energy"] < 50):
+            add("to_bed", f"Zum Schlafen {loc_to(st, bed.location_id)} gehen", "move_to", {"target": bed.id}, target_loc=bed.location_id)   # Schlafen geht nur am Bett
     # Wege: bekannte Orte, unbekannte Gebiete, Personen
     for k in p.known_places:
         dest = f"({'Richtung ' + k['direction'] if k['direction'] != 'ganz in der Nähe' else k['direction']})"
@@ -170,6 +186,11 @@ def build_options(engine: WorldEngine, store: AgentStore, p: Perception, tuning:
     locks = p.ctx.locks if p.ctx is not None else {}
     for key in [k for k, o in valid.items() if locks.get(o.key, 0) > p.minute and o.kind not in ("reply", "end_talk", "accept", "decline")]:
         del valid[key]                                           # gesperrte Aktion (Wiederholungsschutz) wird gar nicht erst angeboten; „Abwarten“ wird nie gesperrt
+    if len(recent) >= WAIT_LIMIT and all(r["action"] == "wait" for r in recent[:WAIT_LIMIT]):
+        waits = [k for k, o in valid.items() if o.kind == "wait"]
+        if len(waits) < len(valid):                              # keine Sperre und kein Ereignis: nur diese eine Entscheidung ohne „Abwarten“, wenn es Alternativen gibt
+            for k in waits:
+                del valid[k]
     for o in valid.values():
         indoors = (o.target_loc or p.location_id).startswith("house.")
         loc = st_locs.get(o.target_loc or p.location_id)

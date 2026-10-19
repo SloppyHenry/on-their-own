@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { freshWorld, openApp, openHouse, post, settledTag, state, steps, tagBox } from "../helpers";
+import { freshWorld, openApp, openHouse, post, settledTag, state, steps, tagBox, showTab } from "../helpers";
 
 /** Abnahme (§17, AP11): je Kriterium mit Browseranteil ein benannter Test. Die Backend-Seite steht in backend/tests/acceptance/. */
 
@@ -37,6 +37,7 @@ test("K05 Dialoge live: Sprechblase und Protokollzeile binnen 2 s nach dem Ereig
   const ev = seen.find((e) => e.type === "agent.dialogue")!;
   const bubble = page.locator(`[data-bubble="${ev.data.speaker}"]`);
   await expect(bubble).toBeVisible({ timeout: 2_000 });
+  await showTab(page, "protokoll");
   await expect(page.locator('[data-testid=timeline] [data-type="agent.dialogue"]').first()).toBeVisible({ timeout: 2_000 });
   expect(Date.now() - ev.at).toBeLessThan(2_000 + 500);                // Puffer nur für die Prüfaufrufe selbst
   await post(request, "/api/sim/pause");
@@ -75,7 +76,7 @@ test("K06 Ortswechsel sichtbar: die Figur folgt dem Fahrplan aus agent.walking",
   }
   const target = [body.x, body.y], stop = await settledTag(page, id);
   const dx = target[0] - from[0], dy = target[1] - from[1];
-  const sx = stop.x - start.x, sy = stop.y - start.y;
+  const sx = stop.x + stop.width / 2 - (start.x + start.width / 2), sy = stop.y - start.y;   // Mitte des Schildes: die Breite ändert sich mit dem Text
   expect(Math.abs(dx) + Math.abs(dy)).toBeGreaterThan(0);
   if (dx !== 0) expect(Math.sign(sx)).toBe(Math.sign(dx));             // Bildschirmrichtung = Kachelrichtung
   if (dy !== 0) expect(Math.sign(sy)).toBe(Math.sign(dy));

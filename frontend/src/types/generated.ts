@@ -12,6 +12,7 @@ export interface SimulacraApi {
   Arrived?: Arrived;
   Ate?: Ate;
   AuthStatus?: AuthStatus;
+  CatalogOut?: CatalogOut;
   ConversationEnded?: ConversationEnded;
   ConversationStarted?: ConversationStarted;
   DayStarted?: DayStarted;
@@ -38,6 +39,7 @@ export interface SimulacraApi {
   GoalChanged?: GoalChanged;
   GoalOut?: GoalOut;
   GuardTriggered?: GuardTriggered;
+  HardwareOut?: HardwareOut;
   Informed?: Informed;
   InjectConfirmRequest?: InjectConfirmRequest;
   InjectParseRequest?: InjectParseRequest;
@@ -63,6 +65,11 @@ export interface SimulacraApi {
   MemorySkipped?: MemorySkipped;
   MemoryStats?: MemoryStats;
   Moved?: Moved;
+  NewSimApplied?: NewSimApplied;
+  NewSimApplyRequest?: NewSimApplyRequest;
+  NewSimLimits?: NewSimLimits;
+  NewSimPreview?: NewSimPreview;
+  NewSimRequest?: NewSimRequest;
   NpcAction?: NpcAction;
   ObjectChanged?: ObjectChanged;
   ObjectCreated?: ObjectCreated;
@@ -97,6 +104,7 @@ export interface SimulacraApi {
   Rested?: Rested;
   RetrievalOut?: RetrievalOut;
   Rowed?: Rowed;
+  RulesPreviewRequest?: RulesPreviewRequest;
   SaveCreate?: SaveCreate;
   SaveLoadRequest?: SaveLoadRequest;
   SaveOut?: SaveOut;
@@ -111,6 +119,7 @@ export interface SimulacraApi {
   Slept?: Slept;
   SpeedChanged?: SpeedChanged;
   SpeedRequest?: SpeedRequest;
+  StartEvent?: StartEvent;
   StartRequest?: StartRequest;
   StateSnapshot?: StateSnapshot;
   StatsOut?: StatsOut;
@@ -118,9 +127,16 @@ export interface SimulacraApi {
   StatusOut?: StatusOut;
   StepRequest?: StepRequest;
   Stored?: Stored;
+  TemplateImported?: TemplateImported;
+  TemplateIn?: TemplateIn;
+  TemplateOut?: TemplateOut;
   TileChanged?: TileChanged;
   TileTypeAdded?: TileTypeAdded;
   TilesChanged?: TilesChanged;
+  Voice?: Voice;
+  VoiceChanged?: VoiceChanged;
+  VoiceOut?: VoiceOut;
+  VoiceSet?: VoiceSet;
   Walking?: Walking;
   WeatherChanged?: WeatherChanged;
   WorldTime?: WorldTime;
@@ -377,6 +393,99 @@ export interface Ate {
 export interface AuthStatus {
   authenticated: boolean;
   required: boolean;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "CatalogOut".
+ */
+export interface CatalogOut {
+  fetched_at: string | null;
+  hardware: HardwareOut;
+  hidden: {
+    [k: string]: number;
+  };
+  items: CatalogItemOut[];
+  note: string | null;
+  recommended: CatalogItemOut[];
+  source: "live" | "cache" | "stale" | "curated";
+  total: number;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "HardwareOut".
+ */
+export interface HardwareOut {
+  arch: string;
+  bandwidth_gbs: number;
+  bandwidth_known: boolean;
+  cuda_version: string | null;
+  free_disk_mb: number;
+  gpu_count: number;
+  gpu_names: string[];
+  kind: "nvidia" | "metal" | "amd" | "vulkan" | "cpu";
+  name: string;
+  os: string;
+  ram_mb: number;
+  summary: string;
+  usable_mb: number;
+  vram_free_mb: number;
+  vram_mb: number;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "CatalogItemOut".
+ */
+export interface CatalogItemOut {
+  active_b: number | null;
+  curated_key: string | null;
+  downloadable: boolean;
+  downloads: number | null;
+  file: VariantOut;
+  gated: boolean;
+  license: string | null;
+  likes: number | null;
+  moe: boolean;
+  multimodal: boolean;
+  name: string;
+  params_b: number | null;
+  publisher: string;
+  repo: string;
+  source: "curated" | "live";
+  uncensored: boolean;
+  updated: string | null;
+  url: string;
+  variants: VariantOut[];
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "VariantOut".
+ */
+export interface VariantOut {
+  estimate: EstimateOut;
+  file: string;
+  fit: FitOut;
+  quant: string;
+  sha256: string | null;
+  size_mb: number;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "EstimateOut".
+ */
+export interface EstimateOut {
+  is_estimate: true;
+  seconds_per_decision: number;
+  tokens_per_s: number;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "FitOut".
+ */
+export interface FitOut {
+  label: string;
+  level: "good" | "ok" | "tight" | "no";
+  need_mb: number;
+  ratio: number;
 }
 /**
  * This interface was referenced by `SimulacraApi`'s JSON-Schema
@@ -737,6 +846,9 @@ export interface StateSnapshot {
   tile_types: {
     [k: string]: TileTypeInfo;
   };
+  voices: {
+    [k: string]: Voice;
+  };
   weather: WeatherInfo;
   world_name: string;
 }
@@ -866,6 +978,22 @@ export interface TileTypeInfo {
   cost: number;
   label: string;
   walkable: boolean;
+}
+/**
+ * Stimme einer Figur fürs Plappern im Browser (AP17d). Reine Darstellung; die Bewohner erfahren nichts davon.
+ *
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "Voice".
+ */
+export interface Voice {
+  base: number;
+  breath: number;
+  lively: number;
+  size: number;
+  speed: number;
+  style: "plappern" | "summen" | "piepsen";
+  timbre: "weich" | "klar" | "rau" | "hohl" | "piepsig";
+  vib?: number;
 }
 /**
  * This interface was referenced by `SimulacraApi`'s JSON-Schema
@@ -1317,6 +1445,197 @@ export interface Moved {
 }
 /**
  * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "NewSimApplied".
+ */
+export interface NewSimApplied {
+  backup: string | null;
+  counts: {
+    [k: string]: number;
+  };
+  residents: ResidentOut[];
+  seed: number | null;
+  state: string;
+  village: string;
+  warnings: string[];
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "ResidentOut".
+ */
+export interface ResidentOut {
+  home: number | null;
+  id: string;
+  name: string;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "NewSimApplyRequest".
+ */
+export interface NewSimApplyRequest {
+  confirm?: boolean;
+  digest: string;
+  model?: string | null;
+  relations?: RelationIn[];
+  residents: ResidentIn[];
+  rules?: RulesSpec;
+  run?: "paused" | "running";
+  stories?: StoryIn[];
+  world?: WorldSpec;
+}
+/**
+ * Startwerte der Beziehung von Bewohner `a` zu Bewohner `b` (Nummern in `residents`, ab 0).
+ *
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "RelationIn".
+ */
+export interface RelationIn {
+  a: number;
+  b: number;
+  familiarity?: number;
+  sympathy?: number;
+  tension?: number;
+  trust?: number;
+}
+/**
+ * Die Profilmaske eines Bewohners: dieselbe wie im Charaktereditor und in Vorlagen. Kein Feld für Steuerungsart oder Sonderstatus.
+ *
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "ResidentIn".
+ */
+export interface ResidentIn {
+  home?: number | null;
+  known?: ("square" | "garden" | "rooms" | "lake" | "forest")[];
+  personality: {
+    [k: string]: unknown;
+  };
+  profile: {
+    [k: string]: unknown;
+  };
+  template?: string | null;
+  voice?: Voice | null;
+}
+/**
+ * Regeln der neuen Simulation. Alles ist optional: ohne Angabe gelten die Einstellungen, wie sie sind (sie bleiben über eine neue Simulation erhalten).
+ */
+export interface RulesSpec {
+  autonomy?: number | null;
+  creator_text?: string | null;
+  events?: StartEvent[];
+  mode?: "observer" | "creator" | "intervention";
+  preset?: string | null;
+  scarcity?: number | null;
+}
+/**
+ * Ein Weltereignis zum Start (aus dem Textfeld „Weltregeln“): der geprüfte Vorschlag der Ereigniseingabe (AP08), nach der Vorschau bestätigt. Für die Bewohner ein natürlicher Vorgang.
+ *
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "StartEvent".
+ */
+export interface StartEvent {
+  ops: {
+    [k: string]: unknown;
+  }[];
+  source?: "rule" | "llm";
+  text: string;
+}
+/**
+ * Vorgeschichte eines Paares: wird bei beiden zu einer gewöhnlichen Erinnerung (Art Fakt).
+ *
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "StoryIn".
+ */
+export interface StoryIn {
+  a: number;
+  b: number;
+  text: string;
+}
+/**
+ * `start`: die handgemachte Startwelt (nur Alex und Mira), `generated`: ein Dorf für genau diese Bewohner.
+ */
+export interface WorldSpec {
+  houses?: number | null;
+  kind?: "start" | "generated";
+  lake?: "auto" | "east" | "south";
+  mix?: {
+    [k: string]: number;
+  } | null;
+  seed?: number;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "NewSimLimits".
+ */
+export interface NewSimLimits {
+  max_per_house: number;
+  max_residents: number;
+  seconds_per_decision: number;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "NewSimPreview".
+ */
+export interface NewSimPreview {
+  counts: {
+    [k: string]: number;
+  };
+  digest: string | null;
+  errors: string[];
+  houses: HouseOut[];
+  ok: boolean;
+  report: ReportOut | null;
+  residents: ResidentOut[];
+  seed: number | null;
+  snapshot: StateSnapshot | null;
+  village: string | null;
+  warnings: string[];
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "HouseOut".
+ */
+export interface HouseOut {
+  beds: number;
+  n: number;
+  name: string;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "NewSimRequest".
+ */
+export interface NewSimRequest {
+  model?: string | null;
+  relations?: RelationIn[];
+  residents: ResidentIn[];
+  rules?: RulesSpec1;
+  run?: "paused" | "running";
+  stories?: StoryIn[];
+  world?: WorldSpec1;
+}
+/**
+ * Regeln der neuen Simulation. Alles ist optional: ohne Angabe gelten die Einstellungen, wie sie sind (sie bleiben über eine neue Simulation erhalten).
+ */
+export interface RulesSpec1 {
+  autonomy?: number | null;
+  creator_text?: string | null;
+  events?: StartEvent[];
+  mode?: "observer" | "creator" | "intervention";
+  preset?: string | null;
+  scarcity?: number | null;
+}
+/**
+ * `start`: die handgemachte Startwelt (nur Alex und Mira), `generated`: ein Dorf für genau diese Bewohner.
+ */
+export interface WorldSpec1 {
+  houses?: number | null;
+  kind?: "start" | "generated";
+  lake?: "auto" | "east" | "south";
+  mix?: {
+    [k: string]: number;
+  } | null;
+  seed?: number;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
  * via the `definition` "NpcAction".
  */
 export interface NpcAction {
@@ -1764,6 +2083,18 @@ export interface Rowed {
   object: string;
 }
 /**
+ * Ein Satz der Weltregeln wie in der Ereigniseingabe: Text oder Antwort auf eine Rückfrage, im Entwurf (die Welt, auf die er sich bezieht).
+ *
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "RulesPreviewRequest".
+ */
+export interface RulesPreviewRequest {
+  answer?: string | number | null;
+  answer_to?: string | null;
+  draft: NewSimRequest;
+  text?: string;
+}
+/**
  * This interface was referenced by `SimulacraApi`'s JSON-Schema
  * via the `definition` "SaveCreate".
  */
@@ -2088,6 +2419,40 @@ export interface Stored {
 }
 /**
  * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "TemplateImported".
+ */
+export interface TemplateImported {
+  template: TemplateOut;
+  warnings: string[];
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "TemplateOut".
+ */
+export interface TemplateOut {
+  builtin: boolean;
+  id: string;
+  personality: {
+    [k: string]: unknown;
+  };
+  profile: {
+    [k: string]: unknown;
+  };
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "TemplateIn".
+ */
+export interface TemplateIn {
+  personality: {
+    [k: string]: unknown;
+  };
+  profile: {
+    [k: string]: unknown;
+  };
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
  * via the `definition` "TileChanged".
  */
 export interface TileChanged {
@@ -2126,6 +2491,31 @@ export interface TileChange {
   type: string;
   x: number;
   y: number;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "VoiceChanged".
+ */
+export interface VoiceChanged {
+  agent: string;
+  voice?: {
+    [k: string]: unknown;
+  } | null;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "VoiceOut".
+ */
+export interface VoiceOut {
+  agent: string;
+  voice: Voice | null;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "VoiceSet".
+ */
+export interface VoiceSet {
+  voice?: Voice | null;
 }
 /**
  * This interface was referenced by `SimulacraApi`'s JSON-Schema
@@ -2231,6 +2621,35 @@ export interface WsSnapshot {
   state: StateSnapshot;
   type: "snapshot";
 }
+/**
+ * Regeln der neuen Simulation. Alles ist optional: ohne Angabe gelten die Einstellungen, wie sie sind (sie bleiben über eine neue Simulation erhalten).
+ *
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "RulesSpec".
+ */
+export interface RulesSpec2 {
+  autonomy?: number | null;
+  creator_text?: string | null;
+  events?: StartEvent[];
+  mode?: "observer" | "creator" | "intervention";
+  preset?: string | null;
+  scarcity?: number | null;
+}
+/**
+ * `start`: die handgemachte Startwelt (nur Alex und Mira), `generated`: ein Dorf für genau diese Bewohner.
+ *
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "WorldSpec".
+ */
+export interface WorldSpec2 {
+  houses?: number | null;
+  kind?: "start" | "generated";
+  lake?: "auto" | "east" | "south";
+  mix?: {
+    [k: string]: number;
+  } | null;
+  seed?: number;
+}
 
 /** Ereignistyp -> Typ der Daten (`data`). */
 export interface EventDataMap {
@@ -2307,6 +2726,7 @@ export interface EventDataMap {
   "simulation.event_fired": EventFired;
   "simulation.effect_ended": EffectEnded;
   "agent.informed": Informed;
+  "simulation.voice_changed": VoiceChanged;
   "simulation.saved": SimSaved;
   "simulation.loaded": SimLoaded;
   "world.npc_acted": NpcAction;
@@ -2390,6 +2810,7 @@ export const EVENT_CATEGORY: Record<EventType, EventCategory> = {
   "simulation.event_fired": "system",
   "simulation.effect_ended": "system",
   "agent.informed": "dialogue",
+  "simulation.voice_changed": "system",
   "simulation.saved": "system",
   "simulation.loaded": "system",
   "world.npc_acted": "world",

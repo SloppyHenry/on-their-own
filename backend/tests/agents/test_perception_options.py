@@ -227,3 +227,23 @@ def test_other_schema_enum_matches_offered_options(sim):
     assert prep.schema["required"] == ["option_id", "intent", "utterance", "importance"]
     json.dumps(prep.schema)
     assert Personality().f("sociability") == 0
+
+
+# --- Warten begrenzen (Frage 17) -----------------------------------------------------------------------
+
+def log_actions(sim, aid, actions):
+    with sim.db.transaction() as c:
+        for i, a in enumerate(actions):
+            c.execute("INSERT INTO action_log(sim_minute, actor, action, params, outcome, code, text, event_seq) VALUES (?,?,?,?,?,?,?,?)",
+                      (i, aid, a, "{}", "completed", None, "", None))
+
+
+def test_wait_is_not_offered_after_four_waits_in_a_row(sim):
+    assert "wait" in {o.kind for o in opts(sim, "alex", Tuning(top_k=50))}
+    log_actions(sim, "alex", ["wait"] * 3)
+    assert "wait" in {o.kind for o in opts(sim, "alex", Tuning(top_k=50))}                     # 3× genügt noch nicht
+    log_actions(sim, "alex", ["wait"])
+    kinds = {o.kind for o in opts(sim, "alex", Tuning(top_k=50))}
+    assert "wait" not in kinds and "rest" in kinds                               # 4× in Folge: kein „Abwarten“, aber Alternativen
+    log_actions(sim, "alex", ["rest"])
+    assert "wait" in {o.kind for o in opts(sim, "alex", Tuning(top_k=50))}                     # danach wieder angeboten (keine Sperre)

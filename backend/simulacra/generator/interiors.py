@@ -62,8 +62,9 @@ ARTICLE = {"bedroom": "im", "living": "im", "kitchen": "in der", "workshop": "in
 ARTICLE_TO = {"bedroom": "ins", "living": "ins", "kitchen": "in die", "workshop": "in die", "store": "ins", "shop": "in den", "barn": "in die", "stable": "in den"}
 
 
-def build(name: str, house_loc: str, obj: str, title: str, rng: Rng) -> Furnished:
-    """Innenbereich nach Bauplan `name`; `house_loc` (z. B. „house.v2h1“) und `obj` (z. B. „v2h1“) machen Orts- und Objekt-IDs eindeutig."""
+def build(name: str, house_loc: str, obj: str, title: str, rng: Rng, two_beds: bool = False) -> Furnished:
+    """Innenbereich nach Bauplan `name`; `house_loc` (z. B. „house.v2h1“) und `obj` (z. B. „v2h1“) machen Orts- und Objekt-IDs eindeutig.
+    `two_beds`: ein Wohnhaus mit nur einem Schlafraum bekommt ein zweites Bett (höchstens 2 Personen je Haus, AP17b); sonst bleibt alles wie bisher."""
     bp = load(name)
     bands = bp["bands"]
     W = max(sum(r["w"] for r in b["rooms"]) + len(b["rooms"]) + 1 for b in bands)
@@ -153,6 +154,8 @@ def build(name: str, house_loc: str, obj: str, title: str, rng: Rng) -> Furnishe
         styles[f"{house_loc}_{r['id']}"] = {"paper": rng.pick(papers), "floor": rng.pick(floors), "curtain": rng.pick(curtains)}
         if k == "bedroom":
             add(r, "bed", "Bett", TL); add(r, "chest", "Truhe", TR, {"contents": [], "goods": {}})
+            if two_beds and r is next(q for q in rooms if q["kind"] == "bedroom") and sum(q["kind"] == "bedroom" for q in rooms) == 1:
+                add(r, "bed", "Bett", [(0, -1), (1, -1), (2, -1), (-1, -1), (-2, -1)])
             decor(r, "nachttisch", [(1, 0), (2, 0)])
             if r["w"] >= 5:
                 rugs.append(["oval", r["x"] + r["w"] // 2, r["y"] + r["h"] - 1.7, 26, 11, *rng.pick([["#5d7fb0", "#86a6d0", "#3f5f8c"], ["#d97a92", "#f2b0c0", "#b05a72"]])])

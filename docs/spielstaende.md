@@ -23,3 +23,6 @@ Reine SQL-Abfragen auf `events`, `action_log`, `decisions`, `conversations`, `re
 
 ## Ereignisverlauf
 `GET /api/events` kennt zusätzlich `from_minute`, `to_minute` und `q` (Volltext); `GET /api/events/export` liefert denselben Filter als CSV oder JSON (bis 200 000 Zeilen).
+
+## Neue Simulation (AP17b)
+Der Assistent „Neue Simulation“ sichert die laufende Welt vorher als Spielstand „Vor der neuen Simulation“ (wie der Welteditor, AP12c) und legt Welt, Bewohner, Beziehungsstartwerte, Vorgeschichten und Stimmen in einem Zug an; Vorlagen für Bewohner sind keine Spielstände, sondern Dateien (`vorlagen/`), siehe [agenten.md](agenten.md).

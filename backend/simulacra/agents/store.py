@@ -28,8 +28,12 @@ class AgentStore:
             profile, personality = load_default(agent_id)
         except FileNotFoundError:
             return None
+        return self.create_profile(agent_id, profile, personality)
+
+    def create_profile(self, agent_id: str, profile: AgentProfile, personality: Personality) -> AgentModel | None:
+        """Legt Profil und Laufzeit eines Bewohners an (oder ersetzt das Profil) und macht seine bekannten Orte bekannt."""
         with self.state.db.transaction() as c:
-            c.execute("INSERT INTO agent_profiles(agent_id, profile, personality, updated_at) VALUES(?,?,?,?)",
+            c.execute("INSERT OR REPLACE INTO agent_profiles(agent_id, profile, personality, updated_at) VALUES(?,?,?,?)",
                       (agent_id, profile.model_dump_json(), personality.model_dump_json(), self.state.minute))
             c.execute("INSERT OR IGNORE INTO agent_runtime(agent_id) VALUES(?)", (agent_id,))
             for place in profile.known_places:

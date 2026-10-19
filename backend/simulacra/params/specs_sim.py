@@ -11,6 +11,13 @@ def _speed_of(delay: float) -> str:
     return next((k for k, v in SPEEDS.items() if abs(v - delay) < 1e-9), "custom")
 
 
+async def _only_while_time_stands_still(sim, value):
+    """Der Beobachtungsmodus ändert sich nur, solange die Zeit steht (angehalten oder im Editor-Modus; Frage 36): so gilt er sauber ab der nächsten Entscheidung."""
+    if sim.runner.state.value == "running":
+        return "Der Beobachtungsmodus lässt sich nur ändern, solange die Zeit steht. Bitte die Simulation anhalten (oder in den Editor-Modus wechseln)."
+    return None
+
+
 SPECS = [
     ParamSpec(key="sim.speed", group="sim", scope="global", type="enum", label="Tempo", options=tuple((k, k.replace("x", "×") if k != "max" else "max.") for k in SPEEDS), default="max",
               effect="immediate", help="Wie schnell die Simulation läuft (Pause zwischen den Takten).", apply=lambda sim, v, a: sim.runner.set_speed(SPEEDS[v]),
@@ -40,10 +47,10 @@ SPECS = [
               help="Ringpuffer: so viele Autosaves bleiben, ältere werden gelöscht.", apply=lambda sim, v, a: setattr(sim.autosave, "keep", int(v)),
               read=lambda sim, a: sim.autosave.keep, consumers=("simulacra.saves.service:prune_auto",), effect_test=T + "test_autosave_follows_the_interval_and_keeps_a_ring"),
     ParamSpec(key="mode", group="mode", scope="global", type="enum", label="Beobachtungsmodus", options=tuple(MODE_LABELS.items()), default="observer", effect="next_decision",
-              help="Beobachter: die Agenten erfahren nichts. Schöpfer: sie wissen von einer äußeren Instanz. Eingriff: wie Beobachter, mit direkten Nachrichten (später).",
-              apply=lambda sim, v, a: setattr(sim.planner.mode, "mode", v), read=lambda sim, a: sim.planner.mode.mode, consumers=("simulacra.agents.modes:prompt_extra",),
+              help="Beobachter: die Agenten erfahren nichts. Schöpfer: sie wissen von einer äußeren Instanz. Eingriff: wie Beobachter, mit direkten Nachrichten (später). Änderbar nur, solange die Zeit steht.",
+              apply=lambda sim, v, a: setattr(sim.planner.mode, "mode", v), read=lambda sim, a: sim.planner.mode.mode, check=_only_while_time_stands_still, consumers=("simulacra.agents.modes:prompt_extra",),
               effect_test=T + "test_modes_change_the_prompt_but_not_the_memories"),
     ParamSpec(key="mode.creator_text", group="mode", scope="global", type="text", label="Text für den Schöpfer-Modus", default=DEFAULT_CREATOR_TEXT, max_len=600, effect="next_decision",
               help="Was die Agenten im Schöpfer-Modus über die äußere Instanz erfahren.", apply=lambda sim, v, a: setattr(sim.planner.mode, "creator_text", v),
-              read=lambda sim, a: sim.planner.mode.creator_text, consumers=("simulacra.agents.modes:creator_text",), effect_test=T + "test_modes_change_the_prompt_but_not_the_memories"),
+              read=lambda sim, a: sim.planner.mode.creator_text, check=_only_while_time_stands_still, consumers=("simulacra.agents.modes:creator_text",), effect_test=T + "test_modes_change_the_prompt_but_not_the_memories"),
 ]

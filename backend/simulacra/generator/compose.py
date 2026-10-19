@@ -44,7 +44,7 @@ def build_village(p: Params, nm: Naming, village: str | None = None) -> Village:
             houses.append((I.heim(), title))
         else:
             full = title if nm.canonical else f"{title}, {nm.village}"                  # Namen sind in der ganzen Welt eindeutig
-            houses.append((I.build(I.blueprint_for(b.role, b.ww), nm.house_loc(n), nm.house_obj(n), full, rng), title))
+            houses.append((I.build(I.blueprint_for(b.role, b.ww), nm.house_loc(n), nm.house_obj(n), full, rng, two_beds=p.residents > 0), title))
     # Innenbereiche rechts neben dem Dorf, übereinander
     bx, by, block = out.w + 1, 0, []
     for f, _ in houses:
@@ -61,9 +61,9 @@ def build_village(p: Params, nm: Naming, village: str | None = None) -> Village:
         for j, r in enumerate(f.rows):
             for i, c in enumerate(r):
                 g[y + j][x + i] = c
-    kit0 = make_kit(lay, out, nm, lambda i, j: "paths")             # Orte kennen wir erst danach; die Quellen bekommen sie unten
+    kit0 = make_kit(lay, out, nm, lambda i, j: "paths", p.residents)             # Orte kennen wir erst danach; die Quellen bekommen sie unten
     locs = outdoor_locations(lay, out, nm, kit0)
-    kit = make_kit(lay, out, nm, lambda i, j: _loc_at(locs, i, j))
+    kit = make_kit(lay, out, nm, lambda i, j: _loc_at(locs, i, j), p.residents)
     locs = outdoor_locations(lay, out, nm, kit)
     for i in range(kit.clearing[0], kit.clearing[0] + kit.clearing[2]):    # betretbare Reihe im Wald
         if g[kit.clearing[1]][i] in (TREE, "~", "f"):                      # Bäume weichen, ein Bach wird zur Furt

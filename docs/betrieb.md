@@ -77,7 +77,7 @@ scripts/backup.sh                      # → ~/simulacra-backups/simulacra-JJJJM
 scripts/restore.sh <datei.tar.gz>      # fragt nach, sichert vorher, stoppt, spielt ein, startet wieder
 ```
 
-Das Backup enthält `live.db` und alle Spielstände (`saves/`) samt `manifest.json` mit Prüfsummen. Es entsteht über die SQLite-Backup-API aus dem **laufenden** Container und ist konsistent, ohne die Simulation anzuhalten. Die Wiederherstellung prüft Archiv, Prüfsummen, Integrität und Schema-Version (kein Backup aus einer neueren Programmversion), sichert den aktuellen Stand vorher doppelt (nach `~/simulacra-backups` und im Volume unter `/data/backups`), und lässt bei jedem Fehler den bisherigen Stand unangetastet. Läuft die App, wird sie danach wieder gestartet.
+Das Backup enthält `live.db` und alle Spielstände (`saves/`) samt `manifest.json` mit Prüfsummen. **Eigene Vorlagen für Bewohner** (`vorlagen/` im Datenordner, AP17b) gehören bisher nicht ins Backup: sie lassen sich im Charaktereditor einzeln als Datei exportieren. Es entsteht über die SQLite-Backup-API aus dem **laufenden** Container und ist konsistent, ohne die Simulation anzuhalten. Die Wiederherstellung prüft Archiv, Prüfsummen, Integrität und Schema-Version (kein Backup aus einer neueren Programmversion), sichert den aktuellen Stand vorher doppelt (nach `~/simulacra-backups` und im Volume unter `/data/backups`), und lässt bei jedem Fehler den bisherigen Stand unangetastet. Läuft die App, wird sie danach wieder gestartet.
 
 Einzelne Spielstände (Export als ZIP, Import) laufen unabhängig davon in der Oberfläche ([spielstaende.md](spielstaende.md)). Ein nächtliches Backup per systemd-Timer ist möglich, wird aber nur nach Freigabe eingerichtet.
 

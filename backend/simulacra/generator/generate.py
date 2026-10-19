@@ -61,31 +61,102 @@ class WorldInfo:
 
 # --- neue Startwelt -------------------------------------------------------------------------------------------------
 
-def new_world(seed: int, *, lake: str = "auto", mix: dict[str, int] | None = None, name: str | None = None) -> tuple[dict, Report]:
-    """Eine komplette Weltdatei (wie `world_default.json`) mit einem Dorf: Heimhaus für Alex und Mira, Platz, Garten, See, Wald."""
+def default_mix(n: int) -> dict[str, int]:
+    """Gebäude für `n` Bewohner: höchstens 2 Personen je Wohnhaus (aufgerundet), dazu Werkstatt und Laden; ab 5 Bewohnern ein Stall, ab 7 eine Scheune."""
+    mix = {"house": max(1, math.ceil(n / 2)), "workshop": 1, "shop": 1}
+    if n >= 5:
+        mix["stable"] = 1
+    if n >= 7:
+        mix["barn"] = 1
+    return mix
+
+
+def new_world(seed: int, *, lake: str = "auto", mix: dict[str, int] | None = None, name: str | None = None, residents: list[dict] | None = None) -> tuple[dict, Report]:
+    """Eine komplette Weltdatei (wie `world_default.json`) mit einem Dorf: Heimhaus für Alex und Mira, Platz, Garten, See, Wald.
+
+    Mit `residents` (Liste aus `{"id", "name", "home"}`, `home` = Nummer des Wohnhauses oder None) entsteht stattdessen ein Dorf für genau diese Bewohner (AP17b):
+    ohne Heimhaus, je Wohnhaus zwei Betten ohne Besitzer, Startplätze auf dem Dorfplatz. Nur ein Vorwort „wohnt schon in Haus N“ setzt bei einem Bett den Besitzer
+    und legt den Start ins Haus; alle anderen suchen sich selbst eine Bleibe. Ohne `residents` bleibt die Ausgabe wie bisher.
+    """
     tpl = loader.load_world_file(loader.DATA_DIR / "world_default.json")                  # Vorlage: Kachelarten, Agenten, Startzeit der Startwelt
+    n = len(residents or [])
+    if residents is not None and not 1 <= n <= 8:
+        raise GenerationError("Ein Dorf braucht 1 bis 8 Bewohner.")
+    mix = mix or (default_mix(n) if residents else None)
     last = None
     for attempt in range(TRIES):
         s = seed + attempt * 1000003
         vn = name or village_name(Rng(s), set())
-        v = build_village(Params(s, lake, mix, home=True), Naming("", vn), vn)
+        v = build_village(Params(s, lake, mix, home=not residents, residents=n), Naming("", vn), vn)
         d = place(v, 0, 0)
         sq = d["region"]["shapes"]["squares"][0]
         start = _tile(d, v, sq["x"], sq["y"] + 10)
+        if residents and len(d["spots"]) < n:
+            last = Report(errors=["Der Dorfplatz hat zu wenig begehbare Kacheln für alle Bewohner."])
+            continue
         rep = check_world(d, start)
+        if residents:
+            beds = sum(o["kind"] == "bed" for o in d["objects"])
+            rep.check("Betten für alle Bewohner (höchstens 2 je Haus)", beds >= n, f"{beds} Betten, {n} Bewohner")
         last = rep
         if not rep.ok:
             continue
         W, H = d["size"]
+        if W > MAX_MAP or H > MAX_MAP:
+            raise GenerationError(f"Die Karte würde {W}×{H} Kacheln groß; erlaubt sind {MAX_MAP}×{MAX_MAP}.")
         locations = d["locations"] + [{"id": "paths", "name": "Wege und Wiesen", "rect": [0, 0, W, H], "entrances": [], "extra_tiles": [],
                                        "props": {"fallback": True, "to": "auf die Wege", "at": "auf den Wegen", "themes": []}}]
-        agents = [{**a, "tile": d["spots"][a["id"]]} for a in tpl["agents"]]
+        gen = {"seed": s, "requested_seed": seed, "village": vn}
+        if residents:
+            agents, gen = _residents(d, v, tpl, residents, gen)
+        else:
+            agents = [{**a, "tile": d["spots"][a["id"]]} for a in tpl["agents"]]
         look = {"version": 2, "style": "mockup-a", "texShift": TEX_SHIFT, "legacy": None, "home": d["cam"], "regions": [d["region"]], "roads": []}
         world = {"schema": tpl["schema"], "home": d["home"], "tile_types": {**tpl["tile_types"], **{k: v_ for k, v_ in TILE_TYPES.items() if k not in tpl["tile_types"]}},
                  "name": f"Dorf {vn}", "size": [W, H], "tiles": d["rows"], "locations": locations, "objects": d["objects"], "resource_nodes": d["resource_nodes"],
-                 "agents": agents, "start": tpl["start"], "links": d["links"], "look": look, "generator": {"seed": s, "requested_seed": seed, "village": vn}}
+                 "agents": agents, "start": tpl["start"], "links": d["links"], "look": look, "generator": gen}
         return world, rep
     raise GenerationError(f"Kein gültiges Dorf nach {TRIES} Versuchen (Seed {seed}).", last)
+
+
+def _residents(d: dict, v: Village, tpl: dict, residents: list[dict], gen: dict) -> tuple[list[dict], dict]:
+    """Bewohner auf den Dorfplatz stellen; wer „schon in Haus N wohnt“, bekommt dort ein Bett (Besitzer) und startet im Haus. Dazu die Angaben für Vorschau und Profile."""
+    base = tpl["agents"][0]
+    house_no = [n for n, b in enumerate(v.layout.buildings, 1) if b.role in ("house", "home")]                       # Gebäude, in denen man wohnt (Reihenfolge der Gebäude)
+    houses = []
+    for h, n in enumerate(house_no, 1):
+        prefix, obj = v.nm.house_loc(n), v.nm.house_obj(n)
+        beds = [o for o in d["objects"] if o["kind"] == "bed" and o["id"].startswith(f"{obj}_bed")]
+        houses.append({"n": h, "name": v.houses[n - 1][1], "prefix": prefix, "beds": [b["id"] for b in beds]})
+    taken = {tuple(o["tile"]) for o in d["objects"]}
+    agents = []
+    for i, r in enumerate(residents):
+        tile = d["spots"][f"r{i}"]
+        if r.get("home"):
+            if not 1 <= r["home"] <= len(houses):
+                raise GenerationError(f"Haus {r['home']} gibt es nicht (das Dorf hat {len(houses)} Wohnhäuser).")
+            hs = houses[r["home"] - 1]
+            bed = next((o for o in d["objects"] if o["id"] in hs["beds"] and not o.get("owner")), None)
+            if bed is None:
+                raise GenerationError(f"Haus {r['home']} hat kein freies Bett mehr für {r['name']}.")
+            bed["owner"], bed["name"] = r["id"], f"Bett ({r['name']})"
+            tile = _free_next_to(d, bed["tile"], taken)
+            taken.add(tuple(tile))
+        agents.append({"id": r["id"], "name": r["name"], "tile": list(tile), "capacity": base["capacity"], "needs": dict(base["needs"])})
+    common = [loc["id"] for loc in d["locations"] if loc["id"].startswith("house.") and not any(loc["id"].startswith(h["prefix"] + "_") for h in houses)]
+    gen = {**gen, "houses": [{"n": h["n"], "name": h["name"], "prefix": h["prefix"], "beds": len(h["beds"])} for h in houses],
+           "known": [lid for lid in ("square", "garden") if any(x["id"] == lid for x in d["locations"])] + common}
+    return agents, gen
+
+
+def _free_next_to(d: dict, tile: list[int], taken: set) -> list[int]:
+    """Begehbare Kachel (Boden) neben `tile`, auf der kein Ding steht; sonst die Kachel selbst."""
+    x, y = tile
+    for dx, dy in ((0, 1), (1, 0), (-1, 0), (0, -1), (1, 1), (-1, 1)):
+        a, b = x + dx, y + dy
+        if 0 <= b < len(d["rows"]) and 0 <= a < len(d["rows"][b]) and d["rows"][b][a] == "_" and (a, b) not in taken:
+            return [a, b]
+    return [x, y]
 
 
 def _tile(d: dict, v: Village, lx: float, ly: float) -> tuple[int, int]:

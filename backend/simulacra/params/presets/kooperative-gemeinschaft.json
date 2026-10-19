@@ -1,7 +1,7 @@
 {
  "id": "kooperative-gemeinschaft",
  "name": "Kooperative Gemeinschaft",
- "description": "Beide helfen einander und teilen Ziele; gemeinsame Erinnerungen zählen mehr.",
+ "description": "Alle helfen einander und teilen Ziele; gemeinsame Erinnerungen zählen mehr.",
  "values": {
   "personality.cooperation": {
    "alex": 95,

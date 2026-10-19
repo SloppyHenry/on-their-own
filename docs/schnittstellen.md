@@ -79,6 +79,7 @@ Schema (`Event`): `seq` (fortlaufende ID), `ts` (UTC), `sim_minute`, `type`, `ag
 | `world.resource_changed` | Quelle gesammelt, verbraucht oder nachgewachsen |
 | `world.weather_changed`, `world.phase_changed`, `world.day_started` | Zeit und Wetter |
 | `simulation.parameter_changed` | Weltregeln geändert |
+| `simulation.voice_changed` | Stimme einer Figur eingestellt oder zurückgesetzt (`agent`, `voice` oder `null`); Kategorie `system`, ohne Agenten in `agents`, damit kein Bewohner davon erfährt |
 | `world.tile_type_added`, `world.tiles_changed`, `world.map_extended`, `world.location_added`, `world.location_updated`, `world.agent_added`, `world.resource_added`, `world.links_added`, `world.look_changed`, `world.patch_applied` | Erweiterungen der Welt (siehe `welt-erweitern.md`) |
 
 ### Wissen und Sichtbarkeit
@@ -155,10 +156,11 @@ Ein Ereignis wird in derselben Transaktion gespeichert wie die Änderung. Vertei
 ### REST (`/api`)
 | Methode | Pfad | Zweck |
 |---|---|---|
-| GET | `/api/state` | Snapshot: Karte (Zeichenzeilen + Legende), Kachelarten, Orte, Objekte, Quellen, Agenten (Körper, Bedürfnisse in Zahlen und Worten, Aktion, Status, Inventar), Uhr, Wetter, Simulationsstatus mit Messwerten, Regeln, `seq`, Übergänge `links` (Kachelpaare, z. B. Haustür ↔ Innenbereich) und Darstellung `look` (Mockup A, sonst `null`) |
+| GET | `/api/state` | Snapshot: Karte (Zeichenzeilen + Legende), Kachelarten, Orte, Objekte, Quellen, Agenten (Körper, Bedürfnisse in Zahlen und Worten, Aktion, Status, Inventar), Uhr, Wetter, Simulationsstatus mit Messwerten, Regeln, `seq`, Übergänge `links` (Kachelpaare, z. B. Haustür ↔ Innenbereich), Darstellung `look` (Mockup A, sonst `null`) und eigene Stimmen der Figuren `voices` (Kennung → Stimme; fehlt eine, nimmt der Browser den Vorschlag aus Geschlecht und Alter) |
 | GET | `/api/events?after_seq=&before_seq=&type=&type_prefix=&agent=&category=&location=&limit=&order=` | Verlauf mit Filtern (Standard 200, höchstens 1000) |
 | GET | `/api/events/{id}` | Einzelereignis per `evt_…` oder Sequenznummer mit `chain` (Ursachen) und `consequences` |
 | GET | `/api/agents/{id}` | Detail: Profil, Persönlichkeit, Stimmung, letzte Entscheidungen mit Optionen, Beobachtungen, Gespräch |
+| PUT | `/api/agents/{id}/voice` (`{"voice": {base, timbre, speed, size, lively, breath, vib, style} \| null}`) | Stimme einer Figur fürs Plappern (AP17d): Grundton 60–400 Hz, Klangfarbe `weich\|klar\|rau\|hohl\|piepsig`, Art `plappern\|summen\|piepsen`; `null` setzt auf den Vorschlag zurück. Gespeichert in der Welt (`meta.voices`), wandert mit Spielstand, Export und Import, bleibt beim Zurücksetzen nur mit „Bewohner behalten“. Meldet `simulation.voice_changed`. Reine Darstellung: kein Prompt, keine Beobachtung. 404 bei unbekannter Figur, 422 bei Werten außerhalb der Grenzen |
 | GET | `/api/locations/{id}` | Ort mit Objekten, Quellen, Anwesenden und jüngsten Ereignissen |
 | POST | `/api/sim/start` (`{"ticks"?}`) · `/pause` · `/resume` · `/step` (`{"n": 1-50}`) | Steuerung; `step` nur pausiert oder gestoppt (sonst 409) |
 | POST | `/api/sim/reset` (`{"confirm": true}`) | Zurücksetzen; ohne Bestätigung 400; die alte Welt wird unter `data/backups/` gesichert |
@@ -289,6 +291,22 @@ Beschreibung des Generators: [generator.md](generator.md). Die Vorschau ändert 
 
 Neuer Ereignistyp: `world.generated` (Kategorie Welt): `kind`, `seed`, `requested_seed`, `village`, `patch`, `summary` (Zähler). Fehler: 422 (Wunsch ungültig oder kein gültiges Dorf nach 8 Versuchen, mit Prüfbericht in der Vorschau), 409 (Welt hat sich geändert, Patch von der Engine abgelehnt).
 
+## Neue Simulation nach Maß und Vorlagen (AP17b)
+Router `api/routes_newsim.py`, Modelle `api/models_newsim.py`, Logik `simulation/newsim.py`, Profilmaske und Grenzen `agents/schema.py`, Vorlagenspeicher `agents/templates.py`.
+
+| Route | Wirkung |
+|---|---|
+| `GET /api/templates`, `GET /api/templates/{id}` | Vorlagen: die sechs mitgelieferten (`alex`, `mira`, `hanne`, `jonas`, `rosa`, `kim`, schreibgeschützt) und eigene (`eigene-<name>`, Dateien in `data/vorlagen/`). |
+| `POST /api/templates`, `PUT /api/templates/{id}`, `DELETE`, `POST /{id}/duplicate` | Eigene Vorlagen anlegen, ändern, löschen, duplizieren. Mitgelieferte: 403. Jeder Verstoß gegen die Grenzen: 422, alle Meldungen im Text (je Zeile eine). |
+| `GET /api/templates/{id}/export` | Datei `{format: "simulacra-vorlage", version: 1, profile, personality}` zum Herunterladen. Die Stimme gehört nicht dazu. |
+| `POST /api/templates/import` | Anfragekörper ist die Datei. Legt **immer eine neue** Vorlage an, nie über eine bestehende. Prüft Größe (413 über 20 KB), JSON, Format, Version (höchstens 1), alle Felder und Grenzen; **alle** Fehler kommen auf einmal (422). Antwort `{template, warnings}`, die Warnungen der Wortprüfung. |
+| `GET /api/sim/new/limits` | `max_residents` (8), `seconds_per_decision` (4,5), `max_per_house` (2). |
+| `POST /api/sim/new/preview` | Entwurf `{world: {kind: "start"\|"generated", seed, lake, houses?, mix?}, residents: [{template?, profile, personality, home?, known?, voice?}], relations: [{a, b, trust, sympathy, tension, familiarity}], stories: [{a, b, text}], run}`. Prüft alles (Fehler in `errors`, Hinweise in `warnings`), erzeugt die Welt und zeigt sie wie `/api/world/generate` im Trockenlauf (`snapshot`, `digest`, `report`); dazu `residents` (vergebene Kennungen) und `houses` (Name und Zahl der Betten). Ändert nichts. |
+| `POST /api/sim/new` | derselbe Entwurf plus `digest`, `confirm: true`, Idempotency-Key. Sichert die alte Welt („Vor der neuen Simulation“), legt Welt, Profile (mit bekannten Orten), Beziehungsstartwerte, Vorgeschichten (Erinnerung Art Fakt bei beiden) und Stimmen an. Die Simulation bleibt angehalten (`state: "stopped"`) oder läuft (`run: "running"`). |
+
+Bewohner-Kennung: Name klein ohne Umlaute (`jörg` → `joerg`), eindeutig mit Zahl; in der Startwelt nur `alex` und `mira` (Zimmer fest). Beziehungs- und Vorgeschichtenindizes zählen ab 0 in `residents`.
+Neues Weltereignis: `world.object_changed` mit `change: "claimed"` (ein Bett gehört nun dem, der sich hineinlegte, siehe [agenten.md](agenten.md)).
+
 ## Zugangsschutz und Oberfläche (AP10)
 
 Nur mit gesetztem `SIM_ACCESS_TOKEN`. Ohne Token verhalten sich alle Pfade wie bisher.
@@ -301,3 +319,19 @@ Nur mit gesetztem `SIM_ACCESS_TOKEN`. Ohne Token verhalten sich alle Pfade wie b
 
 Mit Schutz antworten `/api/*` (außer `/api/health` und `/api/auth/*`) ohne Cookie mit **401** `{"detail": "Anmeldung erforderlich."}`, `/ws` schließt mit Code **4401**. Skripte können stattdessen `Authorization: Bearer <token>` senden. Ist `SIM_STATIC_DIR` gesetzt, liefert das Backend alle übrigen Pfade als Oberfläche aus (unbekannte Pfade fallen auf `index.html` zurück, `/api/*` bleibt 404).
 
+
+## Hardware und Modellkatalog (AP17c-2)
+Nur lesend; Download, Laufzeit und Probelauf folgen mit AP17c-3. Code: `backend/simulacra/models/` (Kern ohne Zusatzpakete), Antwortmodelle `api/models_llm.py`, Routen `api/routes_models.py`. Typen: `HardwareOut`, `CatalogOut` in `frontend/src/types/`.
+
+| Aufruf | Zweck |
+|---|---|
+| `GET /api/hardware` | erkannter Rechner: `kind` (`nvidia`, `metal`, `amd`, `vulkan`, `cpu`), `name`, `vram_mb`, `vram_free_mb` (**frei**, nicht gesamt), `ram_mb`, `free_disk_mb` (im Datenordner), `os`, `arch`, `cuda_version`, `gpu_count`, `gpu_names`, `usable_mb` (Speicher für ein Modell), `bandwidth_gbs` und `bandwidth_known`, `summary` (eine Zeile für den Kopf) |
+| `GET /api/models/catalog?q=&only_fit=&publishers=&refresh=&limit=` | Modelle für diesen Rechner. `q` Suche (auch live bei Hugging Face), `only_fit=true` ohne „zu groß“, `publishers=trusted` (Standard: Positivliste in `models.json`) oder `all`, `refresh=true` umgeht den 6-Stunden-Zwischenspeicher, `limit` 1–200 (Standard 50). Falsche Werte: 422 |
+
+Antwort von `/api/models/catalog`: `hardware`, `source` (`live`, `cache`, `stale` = Hugging Face nicht erreichbar, älterer Zwischenspeicher, `curated` = nur die kuratierte Liste), `fetched_at` (UTC, älteste verwendete Antwort), `note` (Hinweis bei `stale`/`curated`), `hidden` (ausgeblendete Treffer nach Grund), `total`, `recommended` (bis zu 3), `items`. Netzfehler sind **kein** Serverfehler: die Antwort ist 200 mit `source: "curated"`.
+
+Ein Eintrag (`CatalogItemOut`): `repo`, `name`, `publisher`, `license` (oder `null`), `source` (`curated`/`live`), `curated_key`, `moe`, `multimodal`, `uncensored` (nur Hinweis), `gated` und `downloadable` (gesperrte Modelle sind gekennzeichnet, nicht angeboten), `params_b`, `active_b`, `downloads`, `likes`, `updated`, `url`, `file` (Standarddatei) und `variants` (alle Dateien Q4–Q8). Eine Datei (`VariantOut`): `file`, `quant`, `size_mb`, `sha256` (aus `lfs.oid`, bei gesperrten Modellen `null`), `fit` (`level` `good`/`ok`/`tight`/`no`, `label`, `need_mb`, `ratio`), `estimate` (`tokens_per_s`, `seconds_per_decision`, `is_estimate` immer `true`).
+
+**Passung** (`models/fit.py`, dieselbe Rechnung wie `install.sh` über `python -m simulacra.models`): nötig = Dateigröße + KV-Cache für Kontext 8192 + 300 MB Puffer; KV-Cache ≈ 120 KB + 4,5 KB je Milliarde Parameter je Token. Verhältnis zum nutzbaren Speicher: ≤ 70 % **passt gut**, ≤ 90 % **passt**, ≤ 100 % **knapp**, darüber **zu groß**. Nutzbar: NVIDIA/AMD 95 % des **freien** Grafikspeichers, Apple Silicon zwei Drittel des gemeinsamen Speichers, sonst 60 % des Arbeitsspeichers. **Zeit je Entscheidung** = 90 Token ÷ (Speicherbandbreite ÷ aktive Dateigröße × 0,7) + 1,2 s; bei MoE zählt der aktive Anteil (`A3B` im Namen). Immer eine Schätzung; die Messung kommt mit 17c-3.
+
+**Filter** (`models/filters.py`): Textmodelle (`pipeline_tag` `text-generation`, fehlend, `image-text-to-text` oder `any-to-any`; Vision-Modelle erkennt der Name oder die Architektur, Bild-, Embedding-, OCR-Modelle fallen raus), keine Merges und Adapter, Herausgeber der Positivliste (Standard), nur Einzeldateien Q4 bis Q8 (kein mmproj, imatrix, keine geteilten Dateien). Kommandozeile: `python -m simulacra.models hardware|recommend|catalog` (`--help`).

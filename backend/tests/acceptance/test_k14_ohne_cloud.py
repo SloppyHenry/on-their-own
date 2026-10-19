@@ -21,7 +21,8 @@ from simulacra.simulation.builder import Simulation
 
 from .conftest import ROOT
 
-CLOUD = re.compile(r"api\.openai\.com|anthropic\.com|googleapis|generativelanguage|api\.mistral|cohere\.(ai|com)|together\.xyz|groq\.com|openrouter|huggingface\.co")
+CLOUD = re.compile(r"api\.openai\.com|anthropic\.com|googleapis|generativelanguage|api\.mistral|cohere\.(ai|com)|together\.xyz|groq\.com|openrouter|api-inference\.huggingface|router\.huggingface|inference\.huggingface")
+# huggingface.co selbst ist ab AP17c nur noch Quelle für Modelldateien und Modellliste (models/), kein Endpunkt, der Anfragen beantwortet
 
 
 class NetLock:

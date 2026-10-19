@@ -1,5 +1,33 @@
 # Installation
 
+## Schnell: ein Aufruf (Linux und macOS)
+
+```bash
+git clone <repository> simulacra && cd simulacra
+./install.sh
+```
+
+Das Skript prüft den Rechner (System, Arbeitsspeicher, Grafikkarte), holt fehlende Werkzeuge (`uv`, Node.js; im Benutzerordner, kein `sudo`), richtet Backend und Oberfläche ein, lädt die passende **llama.cpp**-Version aus den offiziellen GitHub-Releases (Metal auf dem Mac, CUDA oder Vulkan oder Prozessor unter Linux; Prüfsumme aus dem `digest` der Release-API, dazu ein Probelauf von `llama-server --version`), schlägt ein **Modell nach Speicher** vor und lädt es von Hugging Face (fortsetzbar, SHA-256-geprüft), schreibt `backend/.env` und richtet auf Wunsch einen **Dienst** ein (`systemd --user` oder `launchd`). Am Ende läuft ein Selbsttest. Jeder Schritt mit Wirkung fragt vorher nach.
+
+| Schalter | Wirkung |
+|---|---|
+| `--yes` | ohne Rückfragen, mit den Standardantworten |
+| `--dry-run` | zeigt nur, was geschehen würde (liest das Netz, ändert nichts) |
+| `--model qwen3-8b` | ein bestimmtes Modell der kuratierten Liste (`backend/simulacra/data/models.json`) |
+| `--no-model` / `--no-llm` | kein Modell laden / auch keine Laufzeit (externer Server wie maintux) |
+| `--headless` | Server ohne Bildschirm: lauscht im Netz (IPv4 und IPv6), Dienst als Standard; **ohne** Zugangsschutz |
+| `--token` | mit `--headless`: erzeugt einen Zugangsschutz (`SIM_ACCESS_TOKEN` in `backend/.env`, bleibt bei jedem Lauf gleich); ohne den Schalter wird ein früher geschriebenes Token wieder entfernt |
+| `--update` | Projekt (`git pull`), Oberfläche und llama.cpp aktualisieren, Dienste neu starten |
+| `--uninstall` | Dienste entfernen; mit `--purge` auch die Daten (mit Rückfrage) |
+
+- Ohne Dienst: `scripts/start.sh` startet Modell und Simulacra im Vordergrund (Strg+C beendet beides).
+- Auf einem Server: `ssh server 'cd simulacra && ./install.sh --yes --headless'`; damit die Dienste ohne Anmeldung laufen, einmal `sudo loginctl enable-linger $USER`.
+- Ein vorhandener Eintrag in `backend/.env` (zum Beispiel `SIM_LLM_BASE_URL`) bleibt unberührt; das Skript schreibt nur seinen eigenen, markierten Block.
+- Die Auswahl der llama.cpp-Datei und des Modells ist mit nachgestellten Rechnern getestet (`backend/tests/test_install_script.py`); ein echter Lauf auf Apple M1 mit Qwen3-4B ist im Bericht [status/AP17c.md](status/AP17c.md) beschrieben.
+- Die Modellwahl rechnet `python -m simulacra.models` (dieselbe Rechnung wie das Tool; kuratierte Liste, geprüft). Die Live-Liste von Hugging Face zeigt das Tool: `GET /api/models/catalog` (Oberfläche folgt mit AP17c-4). Von Hand: `cd backend && .venv/bin/python -m simulacra.models hardware` zeigt den erkannten Rechner, `… catalog --only-fit` die passenden Modelle (Zwischenspeicher 6 Stunden in `data/models/cache/`).
+
+Die folgenden Abschnitte beschreiben dasselbe von Hand.
+
 Schritt für Schritt auf einem Entwicklungsrechner (macOS oder Linux). Für den Betrieb als Container auf einem Server siehe [betrieb.md](betrieb.md).
 
 ## Voraussetzungen

@@ -69,9 +69,21 @@ export async function openHouse(page: Page) {
   await expect(page.getByTestId("overlays")).toHaveAttribute("data-interior", "0");
 }
 
-/** Ansicht „Tiefe“ oder „Flach“ über den Schalter an der Welt. */
+/** Reiter der Infoleiste öffnen (Bewohner, Protokoll, Ansicht). */
+export async function showTab(page: Page, tab: "bewohner" | "protokoll" | "ansicht") {
+  await page.getByTestId(`side-tab-${tab}`).click();
+}
+
+/** Ansichtsmenü: im Spiel der Reiter „Ansicht“, sonst (Editor, Startmenü, Infoleiste zu) der Schalter an der Welt. */
+export async function viewMenu(page: Page) {
+  const tab = page.getByTestId("side-tab-ansicht");
+  if (await tab.isVisible()) await tab.click();
+  return page.getByTestId("view-menu");
+}
+
+/** Ansicht „Tiefe“ oder „Flach“. */
 export async function setView(page: Page, name: "Tiefe" | "Flach") {
-  const b = page.getByTestId("view-menu").getByRole("button", { name, exact: true });
+  const b = (await viewMenu(page)).getByRole("button", { name, exact: true });
   await b.click();
   await expect(b).toHaveAttribute("aria-pressed", "true");
 }

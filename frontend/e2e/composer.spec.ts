@@ -1,5 +1,5 @@
 import { expect, test, type APIRequestContext, type Page } from "@playwright/test";
-import { freshWorld, openApp } from "./helpers";
+import { freshWorld, openApp, showTab } from "./helpers";
 
 test.beforeEach(async ({ request }) => { await freshWorld(request); });
 
@@ -17,6 +17,7 @@ test("Regen per Texteingabe: Status „ausgeführt ✓“, Wetter wirklich geän
   await send(page, "Heute beginnt es zu regnen.");
   await expect(status(page)).toContainText("ausgeführt ✓");
   expect((await state(request)).weather.kind).toBe("rain");
+  await showTab(page, "protokoll");
   await expect(page.locator('[data-testid=timeline] [data-type="simulation.event_injected"]').first()).toContainText("Heute beginnt es zu regnen");
   await expect(page.locator('[data-testid=timeline] [data-type="world.weather_changed"]').first()).toBeVisible();
   await expect(page.getByTestId("composer-input")).toHaveValue("");

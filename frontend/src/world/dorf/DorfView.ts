@@ -373,15 +373,16 @@ export class DorfView {
     const agents = Object.values(w.agents).map((a) => {
       const pos = this.figures.position(a.id), hh = pos ? houseAt(L, Math.floor(pos.x / T), Math.floor(pos.y / T)) : null, inside = !!hh, num = hh ? houseNo.get(hh.region.houses[hh.i])! : -1;
       if (!pos) return { id: a.id, x: 0, y: 0, scale: 1, visible: false, house: -1 };
+      const at = { pos: [pos.x, pos.y] as [number, number], home: num };
       if (this.interior >= 0) {
         const h = this.innen, P = this.haus?.plan;
-        if (!h || !P) return { id: a.id, x: 0, y: 0, scale: 1, visible: false, house: -1 };
+        if (!h || !P) return { id: a.id, x: 0, y: 0, scale: 1, visible: false, house: -1, ...at };
         const x = h.ox + (P.X(pos.x) - h.box.x) * h.z, y = h.oy + (P.Y(pos.y) - h.box.y) * h.z;
         const shown = num === this.interior && x >= h.ox && x <= h.ox + h.box.w * h.z && y >= h.oy && y <= h.oy + h.box.h * h.z;
-        return { id: a.id, x: x / d, y: y / d, scale: h.z / d, visible: shown, house: inside ? -1 : num };
+        return { id: a.id, x: x / d, y: y / d, scale: h.z / d, visible: shown, house: inside ? -1 : num, ...at };
       }
       const boat = boatSpot(w, L, a), p = boat ? this.bild.p(boat[0], boat[1] + 2.5) : this.bild.p(pos.x, pos.y), c = toCss(p);
-      return { id: a.id, x: c.x, y: c.y, scale: (p.sc * k) / d, visible: !inside && p.t <= 1 && c.x > -20 && c.x < this.W / d + 20 && c.y > 0 && c.y < this.H / d + 30, house: num };
+      return { id: a.id, x: c.x, y: c.y, scale: (p.sc * k) / d, visible: !inside && p.t <= 1 && c.x > -20 && c.x < this.W / d + 20 && c.y > 0 && c.y < this.H / d + 30, house: num, ...at };
     });
     const rooms = this.interior >= 0 && this.innen ? this.innen.labels.map((r) => ({ id: r.id, x: r.x / d, y: r.y / d - 6 })) : [];
     const goal = this.player && this.bridge.playerPreview() ? this.player.preview().goal : null, gp = goal && !houseAt(L, goal[0], goal[1]) ? toCss(this.bild.p(goal[0] * T + 8, goal[1] * T + 8)) : null;

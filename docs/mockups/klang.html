@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SIMULACRA Mockup AP17d: Musik und Klänge</title>
+<style>
+  :root { --bg: #1a1322; --panel: #2b2233; --panel2: #3a2f45; --line: #4b3f58; --txt: #fff8ec; --dim: #bfae9a; --acc: #ffd36e; --ok: #93c79f; --bad: #ff8a7a; --ghost: #b79cff; --alex: #e8ac5c; --mira: #93c79f; --jo: #74aadc; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--txt); font: 500 14px ui-rounded, system-ui, sans-serif; }
+  button, select, input { font: inherit; color: var(--txt); background: var(--panel2); border: 1px solid var(--line); border-radius: 8px; padding: 5px 12px; cursor: pointer; }
+  button:hover, button:focus-visible { border-color: var(--acc); outline: none; }
+  button.on { background: var(--acc); color: #2b2233; border-color: var(--acc); }
+  button:disabled { opacity: .35; cursor: default; }
+  small, .dim { color: var(--dim); }
+  header { display: flex; align-items: center; gap: 12px; padding: 0 14px; height: 44px; background: var(--panel); border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 10; }
+  header b { letter-spacing: .18em; font-size: 13px; } header .sp { flex: 1; } header > span:nth-child(2) { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+  .meter { width: 70px; height: 6px; border-radius: 3px; background: var(--line); overflow: hidden; } .meter i { display: block; height: 100%; width: 0; background: var(--acc); }
+  .seg { display: inline-flex; } .seg button { white-space: nowrap; border-radius: 0; margin-right: -1px; padding: 4px 12px; } .seg button:first-child { border-radius: 8px 0 0 8px; } .seg button:last-child { border-radius: 0 8px 8px 0; margin-right: 0; }
+  main { padding: 16px 4vw 70px; max-width: 1180px; margin: 0 auto; }
+  h2 { margin: 0 0 4px; font-size: 20px; } .lead { color: var(--dim); margin: 0 0 14px; font-size: 13px; }
+  .card { border: 1px solid var(--line); border-radius: 14px; background: rgba(43,34,51,.88); padding: 12px 14px; margin-bottom: 12px; }
+  .card h3 { margin: 0 0 8px; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--dim); }
+  .view { display: none; } .view.on { display: block; }
+  .gate { position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; background: rgba(12,6,18,.86); }
+  .gate.off { display: none; } .gate div { text-align: center; max-width: 440px; padding: 24px; }
+  .gate button { font-size: 18px; padding: 12px 28px; margin: 16px 0 6px; }
+  /* Dorf */
+  .scene { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(280px, 1fr); gap: 14px; align-items: start; }
+  .world { position: relative; aspect-ratio: 16 / 10; border-radius: 12px; overflow: hidden; background: #0e1115 center / cover no-repeat; border: 1px solid #000; transition: filter .6s; }
+  .world .shade { position: absolute; inset: 0; pointer-events: none; transition: background .6s; }
+  .sign { position: absolute; font-size: 11px; padding: 1px 7px; border-radius: 5px; background: #14171ccc; border: 1px solid var(--c); white-space: nowrap; transform: translate(-50%, 0); }
+  .sign b { color: var(--c); }
+  .bubble { position: absolute; transform: translate(-30%, -100%); max-width: 200px; min-height: 1.3em; background: #fffaf0; color: #33281e; font-size: 12px; line-height: 1.3; padding: 5px 9px; border: 2px solid #33281e; border-radius: 4px; box-shadow: 2px 2px 0 #0007; animation: pop .25s ease-out; }
+  @keyframes pop { from { transform: translate(-30%, -90%) scale(.8); opacity: 0; } }
+  .rain { position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity .6s; background: repeating-linear-gradient(105deg, transparent 0 7px, rgba(190,210,255,.28) 7px 8px); animation: fall .5s linear infinite; }
+  @keyframes fall { to { background-position: -30px 60px; } }
+  .world.rainy .rain { opacity: 1; }
+  .log { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; min-height: 26px; }
+  .chip { font-size: 11px; padding: 1px 8px; border-radius: 999px; border: 1px solid var(--line); color: var(--dim); animation: pop .2s ease-out; }
+  .chip.code { border-color: var(--acc); color: var(--acc); } .chip.cc0 { border-color: #8fb7d8; color: #8fb7d8; }
+  .mix { display: grid; gap: 10px; }
+  .ch { display: grid; grid-template-columns: 78px 1fr auto; gap: 10px; align-items: center; }
+  input[type=range] { accent-color: var(--acc); padding: 0; background: none; border: 0; width: 100%; }
+  .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 8px; }
+  /* Einzelklänge */
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; margin-bottom: 18px; }
+  .snd { border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; background: rgba(0,0,0,.16); }
+  .snd b { display: block; margin-bottom: 6px; } .snd .btns { display: flex; gap: 6px; } .snd .btns button { flex: 1; }
+  .snd .src { font-size: 11px; color: var(--dim); margin-top: 6px; line-height: 1.35; }
+  /* Stimmen */
+  .stage { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 12px; }
+  .fig { display: flex; flex-direction: column; gap: 8px; }
+  .fig .say { flex: 1; min-height: 76px; background: #fffaf0; color: #33281e; border: 2px solid #33281e; border-radius: 6px; padding: 8px 10px; font-size: 13px; line-height: 1.35; box-shadow: 2px 2px 0 #0007; transition: box-shadow .15s; }
+  .fig .say.talking { box-shadow: 0 0 0 3px var(--c), 2px 2px 0 #0007; }
+  .fig .who { display: flex; justify-content: space-between; align-items: center; } .fig .who b { color: var(--c); }
+  .vrow { display: grid; grid-template-columns: 54px repeat(5, minmax(0, 1fr)) 92px 160px; gap: 6px 12px; align-items: end; padding: 8px 0; border-top: 1px solid var(--line); }
+  .vrow:first-child { border-top: 0; } .vrow > b { color: var(--c); align-self: center; }
+  .vrow label { display: grid; gap: 2px; font-size: 11px; color: var(--dim); } .vrow label small { font-size: 11px; color: var(--txt); } .vrow select { padding: 3px 6px; }
+  .note { position: fixed; right: 10px; bottom: 8px; padding: 4px 12px; border-radius: 999px; background: rgba(43,34,51,.92); border: 1px dashed var(--ghost); color: var(--ghost); font-size: 12px; pointer-events: none; z-index: 20; }
+  .lic { font-size: 12px; color: var(--dim); line-height: 1.5; } .lic code { color: var(--txt); }
+  @media (max-width: 900px) { .scene, .stage { grid-template-columns: 1fr; } .vrow { grid-template-columns: 1fr 1fr; } }
+</style>
+</head>
+<body>
+<div class="gate" id="gate"><div>
+  <h2>Musik und Klänge</h2>
+  <p class="dim">Dieses Mockup spielt Ton. Browser erlauben das erst nach einem Klick. Stell die Lautstärke am Rechner erst moderat ein; am besten mit Kopfhörern (Klänge liegen links und rechts im Bild).</p>
+  <button class="on" id="go">▶ Ton einschalten</button>
+  <p><small>Alles läuft lokal; nichts wird nachgeladen.</small></p>
+</div></div>
+
+<header>
+  <b>SIMULACRA</b><span>Menü › Einstellungen › Ton <small>· Mockup AP17d, zweite Fassung – nichts davon ist im Spiel</small></span>
+  <span class="sp"></span>
+  <span class="meter" id="meter" title="Pegel am Ausgang"><i></i></span>
+  <span class="seg" id="tabs"><button class="on" data-v="dorf">Im Dorf</button><button data-v="einzel">Einzelklänge</button><button data-v="stimmen">Stimmen</button><button data-v="musik">Musik</button><button data-v="quellen">Quellen</button></span>
+</header>
+<main>
+
+<!-- Im Dorf -->
+<section class="view on" id="v-dorf">
+  <h2>Im Dorf</h2>
+  <p class="lead">So klingt es zusammen. Je Kanal wählst du die Quelle: <b>Aus Code</b> (im Browser erzeugt) oder <b>CC0</b> (fertige freie Aufnahmen und Stücke). Klänge kommen von dort, wo die Figur steht (links, rechts, nah, fern). Wenn jemand spricht, treten Musik und Umgebung kurz zurück. Das Dorf schweigt, solange ein anderer Reiter offen ist.</p>
+  <div class="scene">
+    <div>
+      <div class="world" id="world">
+        <div class="shade" id="shade"></div><div class="rain"></div>
+        <span class="sign" style="--c:var(--alex);left:34%;top:46%" id="sAlex"><b>Alex</b> · → Küche</span>
+        <span class="sign" style="--c:var(--mira);left:62%;top:60%" id="sMira"><b>Mira</b> · liest</span>
+        <span class="sign" style="--c:var(--jo);left:78%;top:30%" id="sJo"><b>Jo</b> · gießt Beete</span>
+      </div>
+      <div class="log" id="log"></div>
+      <small class="dim" id="dnow"></small>
+    </div>
+    <div>
+      <div class="card"><h3>Dorf</h3>
+        <div class="row"><span class="dim" style="width:78px">Tageszeit</span><span class="seg" id="tod"><button data-t="morgen">Morgen</button><button data-t="mittag" class="on">Mittag</button><button data-t="abend">Abend</button><button data-t="nacht">Nacht</button></span></div>
+        <div class="row"><span class="dim" style="width:78px">Wetter</span><span class="seg" id="wx"><button data-w="klar" class="on">klar</button><button data-w="regen">Regen</button></span></div>
+        <div class="row"><button id="live" class="on">▶ Das Dorf lebt</button><small>Schritte, Türen, Arbeit, Gespräche in Zufallsfolge</small></div>
+        <div class="row"><button data-ev="steps">Jemand geht</button><button data-ev="door">Tür</button><button data-ev="cook">Kochen</button><button data-ev="coins">Münzen</button><button data-ev="chop">Holz</button><button data-ev="pour">Gießen</button><button data-ev="book">Buch</button><button data-ev="sleep">Schlafen</button><button data-ev="talk">Gespräch</button></div>
+      </div>
+      <div class="card"><h3>Mischpult</h3><div class="mix">
+        <div class="ch"><span>Musik</span><input type="range" id="vMusic" min="0" max="100" value="45"><span class="seg" data-ch="music"><button data-s="code" class="on">Code</button><button data-s="cc0">CC0</button></span></div>
+        <div class="ch"><span>Umgebung</span><input type="range" id="vAmb" min="0" max="100" value="55"><span class="seg" data-ch="amb"><button data-s="code" class="on">Code</button><button data-s="cc0">CC0</button></span></div>
+        <div class="ch"><span>Figuren</span><input type="range" id="vFig" min="0" max="100" value="60"><span class="seg" data-ch="fig"><button data-s="code" class="on">Code</button><button data-s="cc0">CC0</button></span></div>
+        <div class="ch"><span>Stimmen</span><input type="range" id="vVoice" min="0" max="100" value="75"><small class="dim">nur Code</small></div>
+        <small>„Figuren“ sind Schritte, Türen und Geräusche von Dingen; was es in CC0 nicht gibt (Gießen, Schlafen), kommt immer aus Code.</small>
+      </div></div>
+    </div>
+  </div>
+</section>
+
+<!-- Einzelklänge -->
+<section class="view" id="v-einzel">
+  <h2>Einzelklänge im Vergleich</h2>
+  <p class="lead">Links der Klang aus Code, rechts die CC0-Aufnahme. Klänge aus Code sind bei jedem Klick etwas anders (wie im Spiel, damit Wiederholung nicht auffällt); also ruhig mehrmals klicken.</p>
+  <div class="card"><h3>Figuren und Dinge</h3><div class="grid" id="grid"></div></div>
+  <div class="card"><h3>Umgebung (Dauerklang, 15 Sekunden oder bis zum zweiten Klick)</h3><div class="grid" id="grid2"></div></div>
+</section>
+
+<!-- Stimmen -->
+<section class="view" id="v-stimmen">
+  <h2>Stimmen der Figuren</h2>
+  <p class="lead">Jede Figur hat eine eigene Stimme. Gesprochen wird kein Text, sondern Plappern, das dem Satz folgt: Silben und Laute aus dem Text (s zischt, t knackt, m summt), betonte Silben höher und länger, Fragen steigen am Ende, W-Fragen und Aussagen fallen, Kommas halten kurz an. Der Text läuft in der Blase synchron mit. Gleicher Satz, gleiche Stimme: klingt jedes Mal gleich.</p>
+  <div class="stage" id="stage"></div>
+  <div class="card"><h3>Text</h3>
+    <div class="row"><input type="text" id="said" style="flex:1;min-width:260px;cursor:text" value="Guten Morgen, Mira! Hast du gut geschlafen?"><small class="dim">Enter: Alex spricht</small></div>
+    <div class="row"><span class="dim">Beispiele:</span><span id="samples" class="row" style="margin:0"></span></div>
+    <div class="row"><button id="talk">▶ Gespräch aller drei</button><button id="vstop">■ Stopp</button><small class="dim" id="vinfo"></small></div>
+  </div>
+  <div class="card"><h3>Stimmen einstellen <small>(nach dem Loslassen eines Reglers spricht die Figur den Text)</small></h3><div id="vset"></div>
+    <p class="lead" style="margin:10px 0 0"><b>Art:</b> „Plappern“ formt Silben mit Vokalfarbe und Konsonanten, „Summen“ ist weich mit geschlossenem Mund, „Piepsen“ gibt je Buchstabe einen Ton (wie in alten Rollenspielen). <b>Größe</b> verschiebt die Vokalfarbe (kleiner = kindlicher). Eine CC0-Variante gibt es nicht: Fertige CC0-Stimmen sind gesprochene Sätze mit festem Inhalt und passen nicht zu freiem KI-Text.</p>
+  </div>
+</section>
+
+<!-- Musik -->
+<section class="view" id="v-musik">
+  <h2>Musik nach Tageszeit</h2>
+  <p class="lead">Die Stücke aus Code haben jetzt eine Form: eine Akkordfolge je Tageszeit, zwei Motive in der Folge A A′ B A″ mit Schluss auf dem Grundton. Bei jedem Durchlauf ändern sich der B-Teil und Kleinigkeiten im A-Teil; das Stück bleibt erkennbar. Darunter die CC0-Stücke (Juhani Junkala, „JRPG Pack 4 Calm“).</p>
+  <div class="card"><h3>Aus Code</h3><div class="row" id="mcode"></div><small>Morgen: Pulswelle mit Echo, gebrochene Akkorde, Shaker · Mittag: Melodie, Gegenstimme, laufender Bass, Schlagzeug · Abend: Dreieck mit Vibrato, Fläche, Besen, leicht geswingt · Nacht: Spieluhr, Fläche, viel Hall.</small></div>
+  <div class="card"><h3>CC0</h3><div class="row" id="mcc0"></div><small>Drei Stücke aus dem Paket (Morgen, Mittag, Abend); für die Nacht gibt es kein passendes CC0-Stück in diesem Paket.</small></div>
+  <div class="row"><label class="dim"><input type="checkbox" id="mrain" style="width:auto"> bei Regen (Code: Moll, langsamer, ohne Schlagzeug; beide gedämpft)</label></div>
+  <div class="row"><button id="mstop">■ Stopp</button><span class="dim" id="mnow"></span><small class="dim" id="mbar"></small></div>
+</section>
+
+<!-- Quellen -->
+<section class="view" id="v-quellen">
+  <h2>Quellen und Lizenzen</h2>
+  <p class="lead">Alle eingebetteten Aufnahmen sind <b>CC0</b> (gemeinfrei): erlaubt für private und kommerzielle Nutzung, ohne Namensnennung. Wir führen sie trotzdem in <code>docs/assets.md</code>, falls sie im Spiel landen. Alles unter „Code“ entsteht im Browser und hat keine fremde Quelle.</p>
+  <div class="card lic">
+    <p><b>Kenney, „RPG Audio“ und „Impact Sounds“</b> (Kenney Vleugels, kenney.nl, CC0): Schritte auf Gras, Holz und Stein, Tür auf und zu, Topf, Münzen, Hacken, Tuch, Buchseite, Schloss. Die Dateien lagen in <code>kenney_rpg-audio.zip</code> und <code>kenney_impact-sounds.zip</code>, die Lizenzdatei im Paket nennt CC0.</p>
+    <p><b>Juhani Junkala, „JRPG Pack 4 Calm“</b> (opengameart.org/content/jrpg-pack-4-calm, CC0): „A Place I Call Home“ (Morgen), „Peaceful Days“ (Mittag), „Summer Memories“ (Abend).</p>
+    <p><b>Spring Spring, „Birds and Wind – Ambient“</b> (opengameart.org/content/birds-and-wind-ambient-birds-wind-and-synth, CC0): Vögel und Wind, auf 40 Sekunden gekürzt.</p>
+    <p><b>Ylmir, „Rain (loopable)“</b> (opengameart.org/content/rain-loopable, CC0): Regen, 27 Sekunden.</p>
+    <p><b>rubberduck, „30 CC0 SFX loops“</b> (opengameart.org/content/30-cc0-sfx-loops, CC0): fließendes Wasser.</p>
+    <p class="dim">Für das Mockup in kleine Mono-MP3 (32 kHz) umgewandelt und in <code>klang/daten.js</code> eingebettet. Fehlt in CC0: Feuer, Grillen, Eule, Bienen, Gewitter, Gießen, Schlafen und Wind allein; dafür gibt es nur die Code-Version.</p>
+  </div>
+</section>
+</main>
+<div class="note">Mockup AP17d – Ton, nur zum Anhören</div>
+
+<script src="klang/daten.js"></script>
+<script src="klang/kern.js"></script>
+<script src="klang/geraeusche.js"></script>
+<script src="klang/umgebung.js"></script>
+<script src="klang/stimmen.js"></script>
+<script src="klang/musik.js"></script>
+<script src="klang/oberflaeche.js"></script>
+<script src="klang/reiter.js"></script>
+</body>
+</html>

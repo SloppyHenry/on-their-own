@@ -119,7 +119,7 @@ Wirkung: *sofort* = gilt in der laufenden Welt; *ab der nächsten Entscheidung* 
 
 | Schlüssel | Name | Bedeutung | Bereich | Standard | Wirkung | Wirkungstest |
 |---|---|---|---|---|---|---|
-| `mode` | Beobachtungsmodus | Beobachter: die Agenten erfahren nichts. Schöpfer: sie wissen von einer äußeren Instanz. Eingriff: wie Beobachter, mit direkten Nachrichten (später). | `observer`, `creator`, `intervention` | observer | ab der nächsten Entscheidung | `test_effects_sim.py::test_modes_change_the_prompt_but_not_the_memories` |
+| `mode` | Beobachtungsmodus | Beobachter: die Agenten erfahren nichts. Schöpfer: sie wissen von einer äußeren Instanz. Eingriff: wie Beobachter, mit direkten Nachrichten (später). Änderbar nur, solange die Zeit steht. | `observer`, `creator`, `intervention` | observer | ab der nächsten Entscheidung | `test_effects_sim.py::test_modes_change_the_prompt_but_not_the_memories` |
 | `mode.creator_text` | Text für den Schöpfer-Modus | Was die Agenten im Schöpfer-Modus über die äußere Instanz erfahren. | Text, höchstens 600 Zeichen | Du weißt, dass diese Welt und ihre Be … | ab der nächsten Entscheidung | `test_effects_sim.py::test_modes_change_the_prompt_but_not_the_memories` |
 
 ## Presets
@@ -129,6 +129,6 @@ Sechs mitgelieferte Presets (`backend/simulacra/params/presets/*.json`, schreibg
 - **Experimentelle Konfiguration** (`experimentelle-konfiguration`, 9 Werte): Stark verändertes Spiel mit Wärmebedürfnis, mehr Zufall, schnelleren Zeitschritten und Entscheidungen im Hintergrund.
 - **Freie Exploration** (`freie-exploration`, 11 Werte): Neugierige Figuren, die gern Neues entdecken; wenig Druck durch Bedürfnisse.
 - **Hohe Autonomie** (`hohe-autonomie`, 8 Werte): Die Figuren verfolgen eigene Ziele ausdauernd und mit längerem Planhorizont.
-- **Kooperative Gemeinschaft** (`kooperative-gemeinschaft`, 7 Werte): Beide helfen einander und teilen Ziele; gemeinsame Erinnerungen zählen mehr.
+- **Kooperative Gemeinschaft** (`kooperative-gemeinschaft`, 7 Werte): Alle helfen einander und teilen Ziele; gemeinsame Erinnerungen zählen mehr.
 - **Ressourcenknappheit** (`ressourcenknappheit`, 7 Werte): Holz, Steine und Nahrung sind knapp und wachsen langsam nach; Bauen ist teurer.
 - **Soziale Entwicklung** (`soziale-entwicklung`, 7 Werte): Beziehungen stehen im Vordergrund: viel Gespräch, Soziales zählt als Bedürfnis.

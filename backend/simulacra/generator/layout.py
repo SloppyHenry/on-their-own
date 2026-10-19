@@ -23,6 +23,7 @@ class Params:
     seed: int
     lake: str = "auto"                              # "east" (wie A), "south" oder nach Seed
     mix: dict[str, int] | None = None               # Rollen → Anzahl (house, shop, workshop, barn, stable); sonst 3 Häuser + 2 Sondergebäude
+    residents: int = 0                              # Zahl der Bewohner (AP17b): Startplätze auf dem Platz, zwei Betten je Wohnhaus; 0 = wie bisher
     home: bool = False                              # neue Startwelt: das erste Haus ist das Heimhaus (Haus aus Bild A mit fünf Räumen)
 
 

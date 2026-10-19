@@ -110,6 +110,7 @@ _ALL = [
     _t("simulation.event_fired", "system", mu.EventFired, "Geplantes Ereignis ausgelöst oder befristete Wirkung zurückgenommen"),
     _t("simulation.effect_ended", "system", mu.EffectEnded, "Eine befristete Wirkung ist abgelaufen"),
     _t("agent.informed", "dialogue", mu.Informed, "Information, Nachricht, Einladung oder Situation erreicht bestimmte Agenten"),
+    _t("simulation.voice_changed", "system", mu.VoiceChanged, "Stimme einer Figur eingestellt (nur Darstellung, die Bewohner merken nichts)"),
     _t("simulation.saved", "system", mu.SimSaved, "Spielstand gespeichert (manuell, automatisch oder als Sicherung)"),
     _t("simulation.loaded", "system", mu.SimLoaded, "Ein Spielstand wurde geladen: alle Browser bekommen einen frischen Snapshot"),
     _t("world.npc_acted", "world", mu.NpcAction, "Eine Nebenfigur hat sich bewegt oder etwas gesagt"),
