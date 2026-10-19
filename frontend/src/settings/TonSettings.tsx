@@ -1,11 +1,10 @@
-// Einstellungen „Ton“ (AP17d, Mockup docs/mockups/klang.html): Mischpult mit Quelle je Kanal (Code oder CC0), Musik und Klänge anhören,
-// Stimme je Bewohner wie im Mockup. Mischpult und Quellen gelten für dieses Gerät, die Stimmen gehören zur Welt (Spielstand).
-import { useEffect, useRef, useState } from "react";
+// Einstellungen „Ton“ (AP17d, Mockup docs/mockups/klang.html): Mischpult, Musik anhören, Stimme je Bewohner. Einzelne Klänge anhören gehört später in den
+// Sound-Generator, nicht hierher; die Quelle CC0 ist vorerst aus (`CC0_AKTIV` in klang/einstellungen.ts). Mischpult und Quellen gelten für dieses Gerät, die Stimmen gehören zur Welt (Spielstand).
+import { useEffect, useState } from "react";
 import { stimmeVon } from "../klang/buehne";
-import { useTon, type Quelle, type Regler } from "../klang/einstellungen";
-import type { Loop } from "../klang/kern";
+import { CC0_AKTIV, useTon, type Quelle, type Regler } from "../klang/einstellungen";
 import type { Stueck } from "../klang/musik";
-import { PROBE_KLAENGE, PROBE_SCHLEIFEN, probeKlang, probeSchleife, probeStimme } from "../klang/probe";
+import { probeStimme } from "../klang/probe";
 import { freigeben, getMusikProbe, laeuft, setMusikProbe } from "../klang/regie";
 import { KLANGFARBEN, SPRECHARTEN, standardStimme, type Klangfarbe, type Sprechart, type Stimme } from "../klang/stimmen";
 import { ApiError, api } from "../net/api";
@@ -39,13 +38,12 @@ export function TonSettings() {
         {KANAL.map(([k, label, help]) => (
           <div key={k} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3" data-testid={`ton-kanal-${k}`}>
             <Slider label={label} value={Math.round(t.vol[k] * 100)} onChange={(v) => t.setVol(k, v / 100)} fmt={(v) => `${v} %`} disabled={!t.an} help={help} />
-            {k === "voice" ? <span className="text-[11px] text-faint">Code</span> : <Quellen value={t.quelle[k]} onChange={(q) => t.setQuelle(k, q)} name={label} />}
+            {k === "voice" || !CC0_AKTIV ? <span className="text-[11px] text-faint">Code</span> : <Quellen value={t.quelle[k]} onChange={(q) => t.setQuelle(k, q)} name={label} />}
           </div>
         ))}
-        <p className="text-[11px] leading-snug text-faint">Code: im Browser erzeugt, kein Download. CC0: freie Aufnahmen (Kenney, Juhani Junkala, Freesound u. a., Liste in docs/assets.md), werden beim ersten Mal geladen. Drinnen spielt ein eigenes Lied, die Umgebung von draußen klingt gedämpft.</p>
+        <p className="text-[11px] leading-snug text-faint">Alle Klänge werden im Browser erzeugt, nichts wird geladen. Drinnen spielt ein eigenes Lied, die Umgebung von draußen klingt gedämpft.</p>
       </section>
       <MusikProbe />
-      <KlangProbe />
       <Stimmen />
     </div>
   );
@@ -76,47 +74,11 @@ function MusikProbe() {
   useEffect(() => () => setMusikProbe(null), []);                    // beim Verlassen der Einstellungen wieder die Musik zur Lage
   return (
     <section className="grid gap-1.5">
-      <h3 className="font-semibold">Musik anhören <span className="font-normal text-faint">(mit der Quelle aus dem Mischpult)</span></h3>
+      <h3 className="font-semibold">Musik anhören</h3>
       <div className="flex flex-wrap gap-1">
         {STUECKE.map(([s, label]) => <button key={s} type="button" className={`btn ${on === s ? "on" : ""}`} onClick={() => play(on === s ? null : s)} data-testid={`ton-musik-${s}`}>▶ {label}</button>)}
         {on && <button type="button" className="btn" onClick={() => play(null)}>■ zurück zur Musik im Spiel</button>}
       </div>
-    </section>
-  );
-}
-
-function KlangProbe() {
-  const running = useRef(new Map<string, Loop>());
-  const [, tick] = useState(0);
-  useEffect(() => () => { running.current.forEach((l) => l.stop()); running.current.clear(); }, []);
-  const loop = (id: string, q: Quelle) => {
-    const key = id + q, cur = running.current.get(key);
-    if (cur) { cur.stop(); running.current.delete(key); tick((n) => n + 1); return; }
-    const l = probeSchleife(id, q); if (!l) return;
-    running.current.set(key, l); tick((n) => n + 1);
-    setTimeout(() => { if (running.current.get(key) === l) { l.stop(); running.current.delete(key); tick((n) => n + 1); } }, 12000);
-  };
-  const cell = "grid grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-1 rounded-md border border-line/60 px-2 py-1";
-  return (
-    <section className="grid gap-1.5" data-testid="ton-klaenge">
-      <h3 className="font-semibold">Klänge anhören</h3>
-      <div className="grid grid-cols-2 gap-1 max-[560px]:grid-cols-1">
-        {PROBE_KLAENGE.map((p) => (
-          <div key={p.label} className={cell}>
-            <span className="truncate">{p.label}</span>
-            <button type="button" className="btn px-1.5 py-0 text-xs" onClick={() => void probeKlang(p, "code")}>▶ Code</button>
-            <button type="button" className="btn px-1.5 py-0 text-xs disabled:opacity-30" disabled={!p.cc0} onClick={() => void probeKlang(p, "cc0")} title={p.cc0 ? "" : "nur aus Code"}>▶ CC0</button>
-          </div>
-        ))}
-        {PROBE_SCHLEIFEN.map((s) => (
-          <div key={s.id} className={cell}>
-            <span className="truncate">{s.label}</span>
-            <button type="button" className={`btn px-1.5 py-0 text-xs ${running.current.has(s.id + "code") ? "on" : ""}`} onClick={() => loop(s.id, "code")} data-testid={`ton-schleife-${s.id}`}>▶ Code</button>
-            <button type="button" className={`btn px-1.5 py-0 text-xs disabled:opacity-30 ${running.current.has(s.id + "cc0") ? "on" : ""}`} disabled={!s.cc0} onClick={() => loop(s.id, "cc0")}>▶ CC0</button>
-          </div>
-        ))}
-      </div>
-      <p className="text-[11px] text-faint">Dauerklänge laufen 12 Sekunden oder bis zum zweiten Klick.</p>
     </section>
   );
 }

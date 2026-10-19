@@ -29,6 +29,8 @@ Der Stil (gemütliches Farmdorf, 16-Pixel-Kacheln, dunkle Konturen, warme Farben
 Die Bausteine werden aus Weltdaten gezeichnet, nicht aus festen Bildern. Stilangaben stehen in den Daten (`props.style` am Ort: `floor` = `planks|tile|workshop`, `rug`, `surface` = `cobble`, `fence`), Objektzustand in `state` (z. B. `stage` einer Pflanze, `lit` eines Kamins, `locked` einer Tür). Neue Orte und Objekte aus Patches oder dem späteren Generator (AP12) erscheinen deshalb ohne neue Grafik.
 
 ## Klang (AP17d, im Spiel seit 18.10.2026)
+**Stand 19.10.2026: Die CC0-Aufnahmen sind vorerst ausgeschaltet** (Henry): `CC0_AKTIV = false` in `frontend/src/klang/einstellungen.ts`; alle Quellen sind „Code“, in den Einstellungen gibt es keine Quellenwahl. Dateien und Code bleiben erhalten; mit `true` gilt wieder die Wahl je Kanal. Einzelne Klänge anhören gehört später in den Sound-Generator, nicht in die Einstellungen.
+
 Klänge gibt es in zwei Quellen, je Kanal in den Einstellungen „Ton“ wählbar: **aus Code** (Web Audio im Browser, `frontend/src/klang/`: `geraeusche.ts`, `umgebung.ts`, `stimmen.ts`, `musik.ts`; keine fremde Quelle) und **CC0-Aufnahmen** in `frontend/public/klang/` (Mono-MP3, 32 kHz; geladen erst, wenn CC0 gewählt ist). Das Mockup `docs/mockups/klang.html` bettet dieselben Aufnahmen der ersten Fassung ein. Die Lizenz wurde auf der jeweiligen Seite beziehungsweise in der Lizenzdatei des Pakets geprüft; alle Quellen sind CC0.
 
 | Datei(en) | Quelle | Lizenz |

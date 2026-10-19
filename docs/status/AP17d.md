@@ -66,3 +66,6 @@ Henry: „Stimmen müssen in den Spielstand wandern.“
 
 ## Ansehen
 `./install.sh` oder wie gewohnt starten, einmal in die Seite klicken (Browserregel), dann Einstellungen → Ton. Ins Haus schauen: Klick aufs Haus, Esc führt zurück.
+
+## Änderung 19.10.2026 (Henry)
+In den Einstellungen „Ton“ gibt es **keine Einzelklänge zum Anhören** mehr (später im Sound-Generator; `probe.ts` bleibt dafür), und **CC0 ist ausgeschaltet** (`CC0_AKTIV = false`, Code und Aufnahmen bleiben). Musik und Umgebung kommen aus dem Code; „Musik anhören“ und die Stimmen bleiben.
