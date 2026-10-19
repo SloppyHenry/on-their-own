@@ -44,6 +44,7 @@ test("Esc öffnet das Pausenmenü im Spiel, die Simulation läuft weiter, Esc se
 test("Pfeiltasten wählen, der Inhalt rechts folgt; Hauptmenü führt zum Titelbild", async ({ page }) => {
   await openApp(page);
   await page.getByTestId("open-menu").click();
+  await expect(page.getByTestId("menu-resume")).toHaveAttribute("aria-selected", "true");             // erst wenn die Auswahl steht, zählt die Taste (sonst flackert der Test)
   await page.keyboard.press("ArrowDown");
   await expect(page.getByTestId("menu-load")).toHaveAttribute("aria-selected", "true");
   await expect(page.getByTestId("menu-pane-load")).toBeVisible();
@@ -66,7 +67,8 @@ test("Editoren → Welt öffnet den Welteditor, Neue Simulation → Startwelt fr
   await openApp(page);
   await page.getByTestId("open-menu").click();
   await page.getByTestId("menu-editors").click();
-  await expect(page.getByText("später")).toHaveCount(3);                                 // Figuren, Häuser, Dinge: nur gezeigt, nicht benutzbar
+  await expect(page.getByText("später")).toHaveCount(2);                                 // Häuser und Dinge: nur gezeigt, nicht benutzbar (Figuren: Charaktereditor, AP17b)
+  await expect(page.getByTestId("editor-figuren")).toBeVisible();
   await page.getByTestId("editor-world").click();
   await expect(page.getByTestId("editor-panel")).toBeVisible();
   await expect(page.getByTestId("start-menu")).toHaveCount(0);

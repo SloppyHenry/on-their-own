@@ -38,7 +38,7 @@ API_MODELS: list[type[BaseModel]] = [
     ms.SaveOut, ms.SaveCreate, ms.SaveLoadRequest, ms.StatsOut, auth.AuthStatus, auth.LoginRequest,
     ml.HardwareOut, ml.CatalogOut,
     mw.GenerateRequest, mw.GenerateApplyRequest, mw.GeneratePreview, mw.GenerateApplied, mw.PatchPreviewRequest, mw.PatchPreview,
-    mn.NewSimRequest, mn.NewSimApplyRequest, mn.NewSimPreview, mn.NewSimApplied, mn.NewSimLimits, mn.TemplateOut, mn.TemplateIn, mn.TemplateImported,
+    mn.NewSimRequest, mn.NewSimApplyRequest, mn.NewSimPreview, mn.NewSimApplied, mn.NewSimLimits, mn.TemplateOut, mn.TemplateIn, mn.TemplateImported, mn.RulesPreviewRequest, mn.StartEvent,
     EventOut, SimTime,
 ]
 

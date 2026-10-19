@@ -4242,6 +4242,13 @@
     },
     "village": {
      "type": "string"
+    },
+    "warnings": {
+     "default": [],
+     "items": {
+      "type": "string"
+     },
+     "type": "array"
     }
    },
    "required": [
@@ -4250,7 +4257,8 @@
     "residents",
     "backup",
     "counts",
-    "state"
+    "state",
+    "warnings"
    ],
    "title": "NewSimApplied",
    "type": "object"
@@ -4266,6 +4274,18 @@
      "maxLength": 32,
      "type": "string"
     },
+    "model": {
+     "anyOf": [
+      {
+       "maxLength": 200,
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
     "relations": {
      "default": [],
      "items": {
@@ -4277,9 +4297,18 @@
      "items": {
       "$ref": "#/$defs/ResidentIn"
      },
-     "maxItems": 8,
-     "minItems": 1,
      "type": "array"
+    },
+    "rules": {
+     "$ref": "#/$defs/RulesSpec",
+     "default": {
+      "autonomy": null,
+      "creator_text": null,
+      "events": [],
+      "mode": "observer",
+      "preset": null,
+      "scarcity": null
+     }
     },
     "run": {
      "default": "paused",
@@ -4452,6 +4481,18 @@
   "NewSimRequest": {
    "additionalProperties": false,
    "properties": {
+    "model": {
+     "anyOf": [
+      {
+       "maxLength": 200,
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
     "relations": {
      "default": [],
      "items": {
@@ -4463,9 +4504,18 @@
      "items": {
       "$ref": "#/$defs/ResidentIn"
      },
-     "maxItems": 8,
-     "minItems": 1,
      "type": "array"
+    },
+    "rules": {
+     "$ref": "#/$defs/RulesSpec",
+     "default": {
+      "autonomy": null,
+      "creator_text": null,
+      "events": [],
+      "mode": "observer",
+      "preset": null,
+      "scarcity": null
+     }
     },
     "run": {
      "default": "paused",
@@ -6477,6 +6527,123 @@
    "title": "Rowed",
    "type": "object"
   },
+  "RulesPreviewRequest": {
+   "additionalProperties": false,
+   "description": "Ein Satz der Weltregeln wie in der Ereigniseingabe: Text oder Antwort auf eine Rückfrage, im Entwurf (die Welt, auf die er sich bezieht).",
+   "properties": {
+    "answer": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "answer_to": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "draft": {
+     "$ref": "#/$defs/NewSimRequest"
+    },
+    "text": {
+     "default": "",
+     "maxLength": 1000,
+     "type": "string"
+    }
+   },
+   "required": [
+    "draft"
+   ],
+   "title": "RulesPreviewRequest",
+   "type": "object"
+  },
+  "RulesSpec": {
+   "additionalProperties": false,
+   "description": "Regeln der neuen Simulation. Alles ist optional: ohne Angabe gelten die Einstellungen, wie sie sind (sie bleiben über eine neue Simulation erhalten).",
+   "properties": {
+    "autonomy": {
+     "anyOf": [
+      {
+       "maximum": 100,
+       "minimum": 0,
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "creator_text": {
+     "anyOf": [
+      {
+       "maxLength": 600,
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "events": {
+     "default": [],
+     "items": {
+      "$ref": "#/$defs/StartEvent"
+     },
+     "type": "array"
+    },
+    "mode": {
+     "default": "observer",
+     "enum": [
+      "observer",
+      "creator",
+      "intervention"
+     ],
+     "type": "string"
+    },
+    "preset": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "scarcity": {
+     "anyOf": [
+      {
+       "maximum": 100,
+       "minimum": 0,
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    }
+   },
+   "title": "RulesSpec",
+   "type": "object"
+  },
   "SaveCreate": {
    "additionalProperties": false,
    "properties": {
@@ -6960,6 +7127,37 @@
     }
    },
    "title": "SpeedRequest",
+   "type": "object"
+  },
+  "StartEvent": {
+   "additionalProperties": false,
+   "description": "Ein Weltereignis zum Start (aus dem Textfeld „Weltregeln“): der geprüfte Vorschlag der Ereigniseingabe (AP08), nach der Vorschau bestätigt. Für die Bewohner ein natürlicher Vorgang.",
+   "properties": {
+    "ops": {
+     "items": {
+      "additionalProperties": true,
+      "type": "object"
+     },
+     "type": "array"
+    },
+    "source": {
+     "default": "rule",
+     "enum": [
+      "rule",
+      "llm"
+     ],
+     "type": "string"
+    },
+    "text": {
+     "maxLength": 1000,
+     "type": "string"
+    }
+   },
+   "required": [
+    "text",
+    "ops"
+   ],
+   "title": "StartEvent",
    "type": "object"
   },
   "StartRequest": {
@@ -8416,6 +8614,9 @@
   "Rowed": {
    "$ref": "#/$defs/Rowed"
   },
+  "RulesPreviewRequest": {
+   "$ref": "#/$defs/RulesPreviewRequest"
+  },
   "SaveCreate": {
    "$ref": "#/$defs/SaveCreate"
   },
@@ -8457,6 +8658,9 @@
   },
   "SpeedRequest": {
    "$ref": "#/$defs/SpeedRequest"
+  },
+  "StartEvent": {
+   "$ref": "#/$defs/StartEvent"
   },
   "StartRequest": {
    "$ref": "#/$defs/StartRequest"

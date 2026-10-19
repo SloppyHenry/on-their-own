@@ -104,6 +104,7 @@ export interface SimulacraApi {
   Rested?: Rested;
   RetrievalOut?: RetrievalOut;
   Rowed?: Rowed;
+  RulesPreviewRequest?: RulesPreviewRequest;
   SaveCreate?: SaveCreate;
   SaveLoadRequest?: SaveLoadRequest;
   SaveOut?: SaveOut;
@@ -118,6 +119,7 @@ export interface SimulacraApi {
   Slept?: Slept;
   SpeedChanged?: SpeedChanged;
   SpeedRequest?: SpeedRequest;
+  StartEvent?: StartEvent;
   StartRequest?: StartRequest;
   StateSnapshot?: StateSnapshot;
   StatsOut?: StatsOut;
@@ -1454,6 +1456,7 @@ export interface NewSimApplied {
   seed: number | null;
   state: string;
   village: string;
+  warnings: string[];
 }
 /**
  * This interface was referenced by `SimulacraApi`'s JSON-Schema
@@ -1471,20 +1474,10 @@ export interface ResidentOut {
 export interface NewSimApplyRequest {
   confirm?: boolean;
   digest: string;
+  model?: string | null;
   relations?: RelationIn[];
-  /**
-   * @minItems 1
-   * @maxItems 8
-   */
-  residents:
-    | [ResidentIn]
-    | [ResidentIn, ResidentIn]
-    | [ResidentIn, ResidentIn, ResidentIn]
-    | [ResidentIn, ResidentIn, ResidentIn, ResidentIn]
-    | [ResidentIn, ResidentIn, ResidentIn, ResidentIn, ResidentIn]
-    | [ResidentIn, ResidentIn, ResidentIn, ResidentIn, ResidentIn, ResidentIn]
-    | [ResidentIn, ResidentIn, ResidentIn, ResidentIn, ResidentIn, ResidentIn, ResidentIn]
-    | [ResidentIn, ResidentIn, ResidentIn, ResidentIn, ResidentIn, ResidentIn, ResidentIn, ResidentIn];
+  residents: ResidentIn[];
+  rules?: RulesSpec;
   run?: "paused" | "running";
   stories?: StoryIn[];
   world?: WorldSpec;
@@ -1520,6 +1513,30 @@ export interface ResidentIn {
   };
   template?: string | null;
   voice?: Voice | null;
+}
+/**
+ * Regeln der neuen Simulation. Alles ist optional: ohne Angabe gelten die Einstellungen, wie sie sind (sie bleiben über eine neue Simulation erhalten).
+ */
+export interface RulesSpec {
+  autonomy?: number | null;
+  creator_text?: string | null;
+  events?: StartEvent[];
+  mode?: "observer" | "creator" | "intervention";
+  preset?: string | null;
+  scarcity?: number | null;
+}
+/**
+ * Ein Weltereignis zum Start (aus dem Textfeld „Weltregeln“): der geprüfte Vorschlag der Ereigniseingabe (AP08), nach der Vorschau bestätigt. Für die Bewohner ein natürlicher Vorgang.
+ *
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "StartEvent".
+ */
+export interface StartEvent {
+  ops: {
+    [k: string]: unknown;
+  }[];
+  source?: "rule" | "llm";
+  text: string;
 }
 /**
  * Vorgeschichte eines Paares: wird bei beiden zu einer gewöhnlichen Erinnerung (Art Fakt).
@@ -1586,23 +1603,24 @@ export interface HouseOut {
  * via the `definition` "NewSimRequest".
  */
 export interface NewSimRequest {
+  model?: string | null;
   relations?: RelationIn[];
-  /**
-   * @minItems 1
-   * @maxItems 8
-   */
-  residents:
-    | [ResidentIn]
-    | [ResidentIn, ResidentIn]
-    | [ResidentIn, ResidentIn, ResidentIn]
-    | [ResidentIn, ResidentIn, ResidentIn, ResidentIn]
-    | [ResidentIn, ResidentIn, ResidentIn, ResidentIn, ResidentIn]
-    | [ResidentIn, ResidentIn, ResidentIn, ResidentIn, ResidentIn, ResidentIn]
-    | [ResidentIn, ResidentIn, ResidentIn, ResidentIn, ResidentIn, ResidentIn, ResidentIn]
-    | [ResidentIn, ResidentIn, ResidentIn, ResidentIn, ResidentIn, ResidentIn, ResidentIn, ResidentIn];
+  residents: ResidentIn[];
+  rules?: RulesSpec1;
   run?: "paused" | "running";
   stories?: StoryIn[];
   world?: WorldSpec1;
+}
+/**
+ * Regeln der neuen Simulation. Alles ist optional: ohne Angabe gelten die Einstellungen, wie sie sind (sie bleiben über eine neue Simulation erhalten).
+ */
+export interface RulesSpec1 {
+  autonomy?: number | null;
+  creator_text?: string | null;
+  events?: StartEvent[];
+  mode?: "observer" | "creator" | "intervention";
+  preset?: string | null;
+  scarcity?: number | null;
 }
 /**
  * `start`: die handgemachte Startwelt (nur Alex und Mira), `generated`: ein Dorf für genau diese Bewohner.
@@ -2063,6 +2081,18 @@ export interface RetrievedMemory {
 export interface Rowed {
   minutes: number;
   object: string;
+}
+/**
+ * Ein Satz der Weltregeln wie in der Ereigniseingabe: Text oder Antwort auf eine Rückfrage, im Entwurf (die Welt, auf die er sich bezieht).
+ *
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "RulesPreviewRequest".
+ */
+export interface RulesPreviewRequest {
+  answer?: string | number | null;
+  answer_to?: string | null;
+  draft: NewSimRequest;
+  text?: string;
 }
 /**
  * This interface was referenced by `SimulacraApi`'s JSON-Schema
@@ -2590,6 +2620,20 @@ export interface WsSnapshot {
   seq: number;
   state: StateSnapshot;
   type: "snapshot";
+}
+/**
+ * Regeln der neuen Simulation. Alles ist optional: ohne Angabe gelten die Einstellungen, wie sie sind (sie bleiben über eine neue Simulation erhalten).
+ *
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "RulesSpec".
+ */
+export interface RulesSpec2 {
+  autonomy?: number | null;
+  creator_text?: string | null;
+  events?: StartEvent[];
+  mode?: "observer" | "creator" | "intervention";
+  preset?: string | null;
+  scarcity?: number | null;
 }
 /**
  * `start`: die handgemachte Startwelt (nur Alex und Mira), `generated`: ein Dorf für genau diese Bewohner.

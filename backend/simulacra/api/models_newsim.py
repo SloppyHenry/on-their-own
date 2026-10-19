@@ -47,12 +47,39 @@ class StoryIn(BaseModel):
     text: str = Field(max_length=2000)
 
 
+class StartEvent(BaseModel):
+    """Ein Weltereignis zum Start (aus dem Textfeld „Weltregeln“): der geprüfte Vorschlag der Ereigniseingabe (AP08), nach der Vorschau bestätigt. Für die Bewohner ein natürlicher Vorgang."""
+    text: str = Field(max_length=1000)
+    source: Literal["rule", "llm"] = "rule"
+    ops: list[dict]                                                        # 1 bis 5 Operationen (die Prüfung der Ereigniseingabe lehnt mehr ab)
+
+
+class RulesSpec(BaseModel):
+    """Regeln der neuen Simulation. Alles ist optional: ohne Angabe gelten die Einstellungen, wie sie sind (sie bleiben über eine neue Simulation erhalten)."""
+    preset: str | None = None                                              # Preset (nur seine allgemeinen Werte; Werte je Bewohner stehen im Profil)
+    autonomy: int | None = Field(None, ge=0, le=100)
+    scarcity: int | None = Field(None, ge=0, le=100)
+    mode: Literal["observer", "creator", "intervention"] = "observer"      # Beobachtungsmodus (Frage 36): Standard Beobachter
+    creator_text: str | None = Field(None, max_length=600)
+    events: list[StartEvent] = []                     # Startereignisse (Weltregeln als Text), werden gleich nach dem Anlegen ausgeführt
+
+
 class NewSimRequest(BaseModel):
     world: WorldSpec = WorldSpec()
-    residents: list[ResidentIn] = Field(min_length=1, max_length=MAX_RESIDENTS)
+    residents: list[ResidentIn]                                             # 1 bis 8 (Prüfung in `newsim.resolve`)
     relations: list[RelationIn] = []
     stories: list[StoryIn] = []
+    rules: RulesSpec = RulesSpec()
+    model: str | None = Field(None, max_length=200)                        # Modell der neuen Simulation (gilt fest, Frage 10); ohne Angabe das bisherige
     run: Literal["paused", "running"] = "paused"
+
+
+class RulesPreviewRequest(BaseModel):
+    """Ein Satz der Weltregeln wie in der Ereigniseingabe: Text oder Antwort auf eine Rückfrage, im Entwurf (die Welt, auf die er sich bezieht)."""
+    draft: NewSimRequest
+    text: str = Field("", max_length=1000)
+    answer_to: str | None = None
+    answer: str | int | None = None
 
 
 class NewSimApplyRequest(NewSimRequest):
@@ -93,6 +120,7 @@ class NewSimApplied(Out):
     backup: str | None = None
     counts: dict[str, int] = {}
     state: str = "stopped"
+    warnings: list[str] = []
 
 
 class NewSimLimits(Out):

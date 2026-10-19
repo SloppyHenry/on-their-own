@@ -11,7 +11,9 @@ from ..agents.templates import TemplateError, TemplateStore
 from ..generator import service
 from ..simulation import newsim
 from ..simulation.newsim import SpecError
-from .models_newsim import (HouseOut, NewSimApplied, NewSimApplyRequest, NewSimLimits, NewSimPreview, NewSimRequest, ResidentOut, TemplateImported, TemplateIn,
+from ..events_user.service import InjectError
+from .models_inject import InjectProposal
+from .models_newsim import (HouseOut, NewSimApplied, NewSimApplyRequest, NewSimLimits, NewSimPreview, NewSimRequest, ResidentOut, RulesPreviewRequest, TemplateImported, TemplateIn,
                             TemplateOut)
 
 router = APIRouter(prefix="/api")
@@ -124,7 +126,7 @@ async def preview(request: Request, body: NewSimRequest):
     """Prüft den Entwurf und zeigt die Welt unter dem Schleier. Ändert nichts; Fehler stehen in `errors`, Hinweise der Wortprüfung in `warnings`."""
     sim = request.app.state.sim
     try:
-        res = newsim.resolve(body)
+        res = await sim.engine.db.run(lambda: newsim.resolve(body, sim.presets))
         world, rep = newsim.make_new_world(body, res)
     except SpecError as e:
         return NewSimPreview(ok=False, errors=e.errors)
@@ -134,12 +136,36 @@ async def preview(request: Request, body: NewSimRequest):
                          seed=pv["seed"], counts=pv["counts"], snapshot=pv["snapshot"])
 
 
+@router.post("/sim/new/rules/preview", response_model=InjectProposal)
+async def rules_preview(request: Request, body: RulesPreviewRequest):
+    """Ein Satz der Weltregeln durch die Ereigniseingabe (AP08), auf der Welt des Entwurfs: Vorschau, Rückfrage oder Ablehnung. Ändert nichts. Eine Antwort auf eine
+    Rückfrage (`answer_to`) gilt nur, solange die Vorschau-Welt dieselbe ist; sonst „Vorschau neu erstellen“."""
+    sim = request.app.state.sim
+    try:
+        res = await sim.engine.db.run(lambda: newsim.resolve(body.draft, sim.presets))
+        world, rep = newsim.make_new_world(body.draft, res)
+    except SpecError as e:
+        raise HTTPException(e.status, "\n".join(e.errors)) from None
+    key = service.digest(world) + str(body.draft.rules.mode)
+    cached = getattr(request.app.state, "rules_sim", None)
+    if cached is None or cached[0] != key:
+        if cached is not None:
+            cached[1].close()
+        request.app.state.rules_sim = cached = (key, await sim.engine.db.run(lambda: newsim.preview_sim(sim, res, world)))
+    tmp = cached[1]
+    try:
+        return InjectProposal(**await tmp.inject.parse(body.text, None, None, body.answer_to, body.answer))
+    except InjectError as e:
+        raise HTTPException(e.status, e.text) from None
+
+
 @router.post("/sim/new", response_model=NewSimApplied)
 async def apply(request: Request, body: NewSimApplyRequest):
     if not body.confirm:
         raise HTTPException(400, "Eine neue Simulation ersetzt die laufende. Bestätige mit {\"confirm\": true}; die bisherige Welt wird vorher als Spielstand gesichert.")
+    sim0 = request.app.state.sim
     try:
-        res = newsim.resolve(body)
+        res = await sim0.engine.db.run(lambda: newsim.resolve(body, sim0.presets))
         world, rep = newsim.make_new_world(body, res)
     except SpecError as e:
         raise HTTPException(e.status, "\n".join(e.errors)) from None
@@ -148,16 +174,35 @@ async def apply(request: Request, body: NewSimApplyRequest):
     if service.digest(world) != body.digest:
         raise HTTPException(409, "Die Vorschau passt nicht mehr zu diesem Entwurf. Bitte die Vorschau neu erstellen.")
 
+    events = [e.model_dump() for e in body.rules.events]
+    if events:                                                                           # Probelauf vor dem Ersetzen der Welt: scheitert ein Startereignis, bleibt alles, wie es war
+        tmp = await sim0.engine.db.run(lambda: newsim.preview_sim(sim0, res, world))
+        try:
+            await tmp.engine.db.run(lambda: newsim.check_start_events(tmp, events))
+        except SpecError as e:
+            raise HTTPException(422, "\n".join(e.errors)) from None
+        finally:
+            tmp.close()
+
     async def action(sim):
         if sim.runner.state.value == "running":
             await sim.runner.pause()
-        saved = await sim.reset(world=world, backup_label="Vor der neuen Simulation", setup=lambda fresh: newsim.setup(fresh, res, world))
+        saved = await sim.reset(model=body.model, world=world, backup_label="Vor der neuen Simulation", setup=lambda fresh: newsim.setup(fresh, res, world))
         gen = world.get("generator")
         if gen:
             meta = {"kind": "new", "seed": gen["seed"], "requested_seed": gen["requested_seed"], "village": gen["village"]}
             await sim.engine.db.run(lambda: sim.engine.emit_event("world.generated", data={**meta, "patch": None, "summary": service.world_counts(world)}))
+        problems: list[str] = []
+        if events:
+            def run_all():
+                for ev in events:
+                    try:
+                        newsim.run_start_event(sim, ev)
+                    except SpecError as e:
+                        problems.extend(e.errors)
+            await sim.engine.db.run(run_all)
         if body.run == "running":
             await sim.runner.start()
-        return NewSimApplied(village=(gen or {}).get("village") or world["name"], seed=(gen or {}).get("seed"), residents=_out(res), backup=saved.name if saved else None,
+        return NewSimApplied(warnings=problems, village=(gen or {}).get("village") or world["name"], seed=(gen or {}).get("seed"), residents=_out(res), backup=saved.name if saved else None,
                              counts=service.world_counts(world), state=sim.runner.state.value)
     return await request.app.state.idempotency.run(request.app.state.sim, request, body, lambda: action(request.app.state.sim))

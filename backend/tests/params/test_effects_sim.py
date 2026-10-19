@@ -135,3 +135,18 @@ async def test_autosave_by_sim_hours_keeps_a_real_time_gap_at_full_speed(tmp_pat
     await sim.runner.step(60 * 3)
     assert len([e for e in sim.saves.list() if e["kind"] == "auto"]) == 1
     sim.close()
+
+
+async def test_observation_mode_changes_only_while_time_stands_still(sim):
+    """Frage 36: der Beobachtungsmodus ändert sich nur bei stehender Zeit (angehalten oder Editor-Modus), nie mitten im Lauf; er gilt dann ab der nächsten Entscheidung."""
+    await sim.runner.start()
+    try:
+        [r] = await sim.params.patch([{"key": "mode", "value": "creator"}])
+        assert r["status"] == "rejected" and "solange die Zeit steht" in r["reason"] and sim.planner.mode.mode == "observer"
+        [r] = await sim.params.patch([{"key": "mode.creator_text", "value": "Jemand sieht zu."}])
+        assert r["status"] == "rejected"
+        await sim.runner.pause()
+        [r] = await sim.params.patch([{"key": "mode", "value": "creator"}])
+        assert r["status"] != "rejected" and sim.planner.mode.mode == "creator"
+    finally:
+        await sim.runner.stop()

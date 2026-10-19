@@ -100,3 +100,38 @@ async def test_in_der_nacht_hat_jeder_hoechstens_ein_bett_und_keines_wird_geteil
     log = sim.engine.state.conn.execute("SELECT agents, data FROM events WHERE type='world.object_changed'").fetchall()
     assert all(len(__import__("json").loads(r["agents"])) == 1 for r in log if '"claimed"' in r["data"])      # jeder Vorgang betrifft nur den, der sich hinlegt
     sim.close()
+
+
+def round_robin():
+    import itertools
+    import json as _json
+    import re
+    n = itertools.count()
+
+    def fn(messages, schema, params):
+        opts = dict(re.findall(r"^(o\d+): (.*)$", messages[1]["content"], re.M))
+        keys = list(opts) or ["o1"]
+        return _json.dumps({"option_id": keys[next(n) % len(keys)], "intent": "ausprobieren", "utterance": "Hallo!", "importance": 4})
+    return fn
+
+
+@pytest.mark.parametrize("n", [4, 8])
+async def test_dorf_nach_mass_laeuft_mit_dem_fake_modell(n):
+    """Abnahmeprobe (AP17b-e): 4 und 8 Bewohner im erzeugten Dorf, 300 Schritte ohne Absturz, alle entscheiden, niemand teilt ein Bett."""
+    ids = [f"b{i}" for i in range(n)]
+    w, _ = new_world(7, residents=[{"id": i, "name": f"Bewohner {k}", "home": None} for k, i in enumerate(ids)])
+    sim = Simulation.create(Settings(llm_api_key_file="/nonexistent", llm_backoff_s=0.0), ":memory:", FakeProvider(fn=with_goals(round_robin())), world=w)
+    for i in ids:
+        sim.store.create_profile(i, AgentProfile(name=i, known_places=["square", "garden"]), Personality())
+    sim.engine.advance(13 * 60)                                                       # abends beginnen: die Nacht gehört dazu
+    t0 = sim.engine.minute
+    await sim.runner.step(300)
+    assert sim.engine.minute == t0 + 300
+    c = sim.engine.state.conn
+    decided = {r["agent_id"] for r in c.execute("SELECT DISTINCT agent_id FROM decisions")}
+    assert decided == set(ids)
+    failed = c.execute("SELECT COUNT(*) c FROM events WHERE type='agent.decision_failed'").fetchone()["c"]
+    assert failed < n * 20
+    owners = [b.owner for b in sim.engine.state.objects_of_kind("bed") if b.owner]
+    assert len(owners) == len(set(owners))
+    sim.close()

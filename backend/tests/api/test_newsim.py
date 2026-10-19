@@ -206,3 +206,73 @@ def test_bewohner_erfahren_nichts_von_einer_hoeheren_instanz(c):
         assert META_RE.findall(text) == [], (aid, META_RE.findall(text))
     ev = sim.engine.state.conn.execute("SELECT agents, type FROM events").fetchall()
     assert not [e for e in ev if e["type"].startswith("agent.") and any(a in json.loads(e["agents"]) for a in ("ida", "jo", "kai", "lea"))]       # für die Bewohner ist noch nichts geschehen
+
+
+# --- Regeln und Modell --------------------------------------------------------------------------------------------------------------
+
+def test_regeln_preset_autonomie_knappheit_und_modus_gelten_ab_dem_start(c):
+    body = spec(2, rules={"preset": "ressourcenknappheit", "autonomy": 80, "mode": "creator", "creator_text": "Es gibt jemanden, der zusieht."}, model="anderes-modell")
+    r, _ = apply(c, body)
+    assert r.status_code == 200, r.text
+    sim = c.sim
+    assert sim.params.get("autonomy") == 80 and sim.params.get("mode") == "creator" and sim.planner.mode.creator_text == "Es gibt jemanden, der zusieht."
+    assert sim.params.get("world.scarcity") > 0                                          # aus dem Preset
+    assert sim.settings.llm_model == "anderes-modell" and sim.engine.state.get_meta("llm_model") == "anderes-modell"
+
+
+def test_preset_setzt_keine_werte_je_bewohner(c):
+    body = spec(2, rules={"preset": "hohe-autonomie"})
+    body["residents"][0]["profile"]["name"] = "Alex"
+    body["residents"][0]["personality"]["autonomy"] = 11
+    r, _ = apply(c, body)
+    assert r.status_code == 200
+    assert c.sim.store.get("alex").personality.autonomy == 11 and c.sim.params.get("autonomy") == 90        # allgemeiner Wert gilt, die Figur bleibt, wie sie angelegt wurde
+
+
+def test_unbekanntes_preset_und_standardmodus(c):
+    p = post(c, "/api/sim/new/preview", spec(2, rules={"preset": "gibt-es-nicht"}), key=None).json()
+    assert not p["ok"] and p["errors"][0].startswith("Preset:")
+    r, _ = apply(c, spec(2))
+    assert r.status_code == 200 and c.sim.params.get("mode") == "observer"
+
+
+# --- Weltregeln als Startereignisse -------------------------------------------------------------------------------------------------------
+
+def rules_preview(c, body, text, **kw):
+    return post(c, "/api/sim/new/rules/preview", {"draft": body, "text": text, **kw}, key=None)
+
+
+def test_weltregel_vorschau_ist_die_der_ereigniseingabe_und_aendert_nichts(c):
+    body = spec(2)
+    before = state(c)
+    r = rules_preview(c, body, "Heute regnet es.")
+    assert r.status_code == 200, r.text
+    p = r.json()
+    assert p["status"] in ("ready", "needs_confirmation") and p["ops"][0]["op"] == "set_weather"
+    assert state(c) == before and c.sim.engine.state.conn.execute("SELECT COUNT(*) c FROM inject_log").fetchone()["c"] == 0        # nichts in der laufenden Welt
+    unclear = rules_preview(c, body, "Ida findet etwas.").json()                                                                    # die Bewohner der Vorschau-Welt sind bekannt
+    assert unclear["status"] in ("needs_clarification", "ready", "needs_confirmation")
+    gone = rules_preview(c, body, "", answer_to="inj_gibtsnicht", answer="x")
+    assert gone.status_code == 404
+
+
+def test_startereignis_wird_nach_dem_anlegen_ausgefuehrt(c):
+    body = spec(2)
+    p = rules_preview(c, body, "Heute regnet es.").json()
+    ev = {"text": p["text"], "source": p["source"], "ops": p["ops"]}
+    body["rules"] = {"events": [ev]}
+    r, _ = apply(c, body)
+    assert r.status_code == 200, r.text
+    assert r.json()["warnings"] == []
+    sim = c.sim
+    assert sim.engine.state.conn.execute("SELECT status FROM inject_log").fetchone()["status"] == "executed"
+    assert sim.engine.state.conn.execute("SELECT COUNT(*) c FROM events WHERE type='world.weather_changed'").fetchone()["c"] >= 1
+
+
+def test_unmoegliches_startereignis_laesst_die_welt_unveraendert(c):
+    body = spec(2, rules={"events": [{"text": "Ein Ding im Nichts", "ops": [{"op": "spawn_object", "name": "Eimer", "kind": "item", "location": "gibt_es_nicht"}]}]})
+    p = post(c, "/api/sim/new/preview", body, key=None).json()
+    before = state(c)
+    r = post(c, "/api/sim/new", {**body, "digest": p["digest"], "confirm": True})
+    assert r.status_code == 422 and "Startereignis" in r.text
+    assert state(c) == before

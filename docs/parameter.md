@@ -119,7 +119,7 @@ Wirkung: *sofort* = gilt in der laufenden Welt; *ab der nächsten Entscheidung* 
 
 | Schlüssel | Name | Bedeutung | Bereich | Standard | Wirkung | Wirkungstest |
 |---|---|---|---|---|---|---|
-| `mode` | Beobachtungsmodus | Beobachter: die Agenten erfahren nichts. Schöpfer: sie wissen von einer äußeren Instanz. Eingriff: wie Beobachter, mit direkten Nachrichten (später). | `observer`, `creator`, `intervention` | observer | ab der nächsten Entscheidung | `test_effects_sim.py::test_modes_change_the_prompt_but_not_the_memories` |
+| `mode` | Beobachtungsmodus | Beobachter: die Agenten erfahren nichts. Schöpfer: sie wissen von einer äußeren Instanz. Eingriff: wie Beobachter, mit direkten Nachrichten (später). Änderbar nur, solange die Zeit steht. | `observer`, `creator`, `intervention` | observer | ab der nächsten Entscheidung | `test_effects_sim.py::test_modes_change_the_prompt_but_not_the_memories` |
 | `mode.creator_text` | Text für den Schöpfer-Modus | Was die Agenten im Schöpfer-Modus über die äußere Instanz erfahren. | Text, höchstens 600 Zeichen | Du weißt, dass diese Welt und ihre Be … | ab der nächsten Entscheidung | `test_effects_sim.py::test_modes_change_the_prompt_but_not_the_memories` |
 
 ## Presets

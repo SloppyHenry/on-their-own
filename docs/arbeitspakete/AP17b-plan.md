@@ -1,6 +1,6 @@
 # AP17b – Simulation selbst definieren (Plan, 19.10.2026)
 
-**Auftrag:** Henry, AP17-Plan (Rückmeldung 8) und Fragen 32, 36. **Status:** Schritt 0 (Plan, Fragen, Mockup). Gebaut wird erst nach deiner Abnahme von [assistent.html](../mockups/assistent.html). Bericht: [AP17b-schritt0.md](../status/AP17b-schritt0.md).
+**Auftrag:** Henry, AP17-Plan (Rückmeldung 8) und Fragen 32, 36. **Status:** gebaut (19.10.2026), Abnahme steht aus. Mockup [assistent.html](../mockups/assistent.html) abgenommen („ok leg los“). Berichte: [AP17b-schritt0.md](../status/AP17b-schritt0.md), [AP17b.md](../status/AP17b.md).
 
 ## Entscheidungen (Henry)
 | Wann | Entscheidung |

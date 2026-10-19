@@ -16,7 +16,7 @@ import { accentOf } from "../world/art/people";
 const seg = (on: boolean) => `cursor-pointer rounded px-2 py-0.5 text-xs ${on ? "bg-white/15 text-white" : "text-dim hover:text-white"}`;
 const KANAL: [Regler, string, string][] = [["music", "Musik", "Hintergrundmusik nach Tageszeit, Wetter und Ort"], ["amb", "Umgebung", "Vögel, Bach, Wind, Regen, Grillen, Feuer"], ["fig", "Figuren", "Schritte, Türen, Kochen, Werkzeuge, Schlafen"], ["voice", "Stimmen", "Plappern beim Sprechen (nur aus Code)"]];
 const STUECKE: [Stueck, string][] = [["morgen", "Morgen"], ["mittag", "Mittag"], ["abend", "Abend"], ["nacht", "Nacht"], ["drinnen", "Drinnen (Stube)"]];
-const SLIDERS: [keyof Stimme, string, number, number, number, (v: number) => string][] = [
+export const SLIDERS: [keyof Stimme, string, number, number, number, (v: number) => string][] = [
   ["base", "Tonhöhe", 80, 330, 1, (v) => `${v} Hz`], ["speed", "Tempo", 60, 160, 100, (v) => `${v} %`], ["size", "Größe", 80, 135, 100, (v) => `${v} %`],
   ["lively", "Lebhaft", 0, 200, 100, (v) => `${v} %`], ["breath", "Hauch", 0, 40, 100, (v) => `${v} %`],
 ];
@@ -51,7 +51,7 @@ export function TonSettings() {
   );
 }
 
-function Slider({ label, value, onChange, onCommit, fmt, min = 0, max = 100, disabled, help, testid }: { label: string; value: number; onChange: (v: number) => void; onCommit?: () => void; fmt: (v: number) => string; min?: number; max?: number; disabled?: boolean; help?: string; testid?: string }) {
+export function Slider({ label, value, onChange, onCommit, fmt, min = 0, max = 100, disabled, help, testid }: { label: string; value: number; onChange: (v: number) => void; onCommit?: () => void; fmt: (v: number) => string; min?: number; max?: number; disabled?: boolean; help?: string; testid?: string }) {
   return (
     <label className="grid grid-cols-[6.5rem_minmax(0,1fr)_4rem] items-center gap-2" title={help}>
       <span>{label}</span>

@@ -10,11 +10,13 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from ..agents.model import AgentProfile, Personality
-from ..agents.schema import (TEMPLATE_FORMAT, TEMPLATE_VERSION, check_profile, check_story, profile_warnings, story_warnings, template_errors, unique_id)
+from ..agents.schema import (MAX_RESIDENTS, TEMPLATE_FORMAT, TEMPLATE_VERSION, check_profile, check_story, profile_warnings, story_warnings, template_errors, unique_id)
 from ..api.models_newsim import NewSimRequest
 from ..generator.generate import default_mix
 from ..generator.service import ServiceError, Wish, make_world
 from ..generator.validate import Report
+from ..params.presets import PresetError
+from ..params.registry import REGISTRY
 from ..world import loader
 
 START_IDS = ("alex", "mira")                      # die Startwelt hat feste Zimmer nur für diese beiden
@@ -40,6 +42,9 @@ class Resident:
     voice: dict | None = None
 
 
+GLOBAL_PRESET_SCOPE = "global"                    # aus einem Preset gelten nur allgemeine Werte: Persönlichkeit und Profil je Bewohner kommen aus dem Entwurf
+
+
 @dataclass
 class Resolved:
     kind: str
@@ -47,11 +52,16 @@ class Resolved:
     relations: dict[tuple[int, int], dict[str, float]]
     stories: dict[tuple[int, int], str]
     warnings: list[str] = field(default_factory=list)
+    params: list[tuple[str, None, Any]] = field(default_factory=list)      # Parameter, die beim Anlegen gesetzt werden (Preset, Autonomie, Knappheit, Modus)
 
 
-def resolve(req: NewSimRequest) -> Resolved:
-    """Prüft den Entwurf und vergibt die Kennungen. Wirft `SpecError` mit allen Fehlern."""
+def resolve(req: NewSimRequest, presets: Any = None) -> Resolved:
+    """Prüft den Entwurf und vergibt die Kennungen. Wirft `SpecError` mit allen Fehlern. `presets`: der `PresetManager` der laufenden Simulation (für die Preset-Wahl)."""
     errors: list[str] = []
+    if not 1 <= len(req.residents) <= MAX_RESIDENTS:
+        raise SpecError([f"Eine Simulation braucht 1 bis {MAX_RESIDENTS} Bewohner (angegeben: {len(req.residents)})."])
+    if len(req.rules.events) > 5 or any(not 1 <= len(e.ops) <= 5 for e in req.rules.events):
+        raise SpecError(["Höchstens 5 Startereignisse mit je 1 bis 5 Operationen."])
     warnings: list[str] = []
     residents: list[Resident] = []
     start = req.world.kind == "start"
@@ -101,9 +111,25 @@ def resolve(req: NewSimRequest) -> Resolved:
             errors += check_story(text)
             warnings += [f"Vorgeschichte {x.a + 1} und {x.b + 1}: {w}" for w in story_warnings(text)]
             stories[(min(x.a, x.b), max(x.a, x.b))] = text
+    params: list[tuple[str, None, Any]] = []
+    rules = req.rules
+    if rules.preset:
+        try:
+            for key, value in (presets.get(rules.preset)["data"] if presets is not None else {}).items():
+                spec = REGISTRY.get(key)
+                if spec is not None and not spec.locked and spec.scope == GLOBAL_PRESET_SCOPE:
+                    params.append((key, None, value))
+        except PresetError as e:
+            errors.append(f"Preset: {e}")
+    for key, value in (("autonomy", rules.autonomy), ("world.scarcity", rules.scarcity)):
+        if value is not None:
+            params.append((key, None, value))
+    params.append(("mode", None, rules.mode))
+    if rules.creator_text is not None and rules.creator_text.strip():
+        params.append(("mode.creator_text", None, rules.creator_text.strip()))
     if errors:
         raise SpecError(errors)
-    return Resolved(req.world.kind, residents, rel, stories, warnings)
+    return Resolved(req.world.kind, residents, rel, stories, warnings, params)
 
 
 def make_new_world(req: NewSimRequest, res: Resolved) -> tuple[dict, Any]:
@@ -147,6 +173,7 @@ def places_for(res: Resident, world: dict) -> list[str]:
 def setup(fresh: Any, res: Resolved, world: dict) -> None:
     """Legt in der frischen Simulation Profile, Beziehungen, Vorgeschichten und Stimmen an (läuft in `Simulation.reset`, vor dem Austausch)."""
     st = fresh.engine.state
+    fresh.params.restore(res.params, persist=True)                          # Preset, Autonomie, Knappheit, Beobachtungsmodus: wie gespeicherte Einstellungen, ohne Ereignis
     for r in res.residents:
         fresh.store.create_profile(r.id, r.profile.model_copy(update={"known_places": places_for(r, world)}), r.personality)
     ids = [r.id for r in res.residents]
@@ -160,3 +187,35 @@ def setup(fresh: Any, res: Resolved, world: dict) -> None:
         voices = {r.id: r.voice for r in res.residents if r.voice}
         if voices:
             st.set_meta("voices", voices)
+
+
+# --- Weltregeln als Startereignisse ---------------------------------------------------------------------------------------------------
+
+def preview_sim(sim: Any, res: Resolved, world: dict) -> Any:
+    """Wegwerf-Simulation im Speicher mit der Welt, den Bewohnern und den Regeln des Entwurfs: darauf werden Weltregeln geprüft (Vorschau, Rückfragen), ohne die laufende Welt anzufassen."""
+    from ..simulation.builder import Simulation
+    tmp = Simulation.create(sim.settings, ":memory:", sim.provider, world=world)
+    tmp.store.ensure_all()
+    setup(tmp, res, world)
+    return tmp
+
+
+def run_start_event(sim: Any, ev: dict) -> None:
+    """Führt ein bestätigtes Startereignis aus (DB-Thread): wie jede Eingabe wird es noch einmal gegen die Welt geprüft. Wirft `SpecError` mit dem Grund."""
+    service = sim.inject
+    pid = service._record(ev["text"], "ready", ev.get("source", "rule"), ev["ops"])["id"]
+    out = service.confirm(pid)
+    if out["status"] != "executed":
+        raise SpecError([f"Startereignis „{ev['text'][:60]}“: {out['reason'] or 'nicht möglich'}"])
+
+
+def check_start_events(tmp: Any, events: list[dict]) -> None:
+    """Probelauf aller Startereignisse in der Wegwerf-Simulation (DB-Thread), bevor die laufende Welt ersetzt wird."""
+    errors: list[str] = []
+    for ev in events:
+        try:
+            run_start_event(tmp, ev)
+        except SpecError as e:
+            errors += e.errors
+    if errors:
+        raise SpecError(errors)

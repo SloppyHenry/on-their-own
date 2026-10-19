@@ -48,6 +48,8 @@ def create_app(sim: Simulation | None = None, settings: Settings | None = None) 
             await app.state.sim.runner.start()
         yield
         await app.state.sim.runner.stop()
+        if getattr(app.state, "rules_sim", None) is not None:
+            app.state.rules_sim[1].close()
         if getattr(app.state, "catalog", None) is not None:
             await app.state.catalog.aclose()
         if sim is None:

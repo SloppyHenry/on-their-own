@@ -5,6 +5,8 @@ import { useEffect, useMemo, useState } from "react";
 import { ResetDialog } from "../controls/ResetDialog";
 import { enterEditor } from "../editor/editorStore";
 import { ApiError, api } from "../net/api";
+import { Assistent } from "../assistent/Assistent";
+import { Charaktereditor } from "../assistent/Charaktereditor";
 import { SaveLoadDialog } from "../saves/SaveLoadDialog";
 import { SettingsContent } from "../settings/ParameterPanel";
 import { activityOf } from "../panels/AgentPanel";
@@ -93,9 +95,9 @@ export function StartMenu() {
       <div className="min-w-0">
         {item?.pane && (
           <section key={item.pane} data-testid={`menu-pane-${item.pane}`} className="max-h-[84vh] overflow-auto rounded-2xl border border-line bg-[rgba(30,22,38,.92)] shadow-[0_20px_60px_#0009] backdrop-blur-md [animation:menu-in_.22s_ease-out]">
-            {item.pane === "newsim" && <NewSimPane onLoad={() => setSel("load")} />}
+            {item.pane === "newsim" && (sub === "define" ? <DefinePane onBack={() => setSub(null)} /> : <NewSimPane onLoad={() => setSel("load")} onDefine={() => setSub("define")} />)}
             {item.pane === "load" && <Pane title="Simulation laden" lead="Die Simulation läuft an der gespeicherten Stelle weiter. Der laufende Stand wird vorher gesichert."><SaveLoadDialog embedded /></Pane>}
-            {item.pane === "editors" && <EditorsPane />}
+            {item.pane === "editors" && (sub === "figuren" ? <FigurenPane onBack={() => setSub(null)} /> : <EditorsPane onFiguren={() => setSub("figuren")} />)}
             {item.pane === "settings" && <SettingsPane />}
           </section>
         )}
@@ -150,7 +152,7 @@ function Tile({ img, title, text, onClick, later, testid }: { img: string; title
     : <button type="button" onClick={onClick} data-testid={testid} className="cursor-pointer overflow-hidden rounded-[14px] border border-line bg-black/20 p-0 text-left transition-transform hover:-translate-y-0.5 hover:border-alex">{body}</button>;
 }
 
-function NewSimPane({ onLoad }: { onLoad: () => void }) {
+function NewSimPane({ onLoad, onDefine }: { onLoad: () => void; onDefine: () => void }) {
   const setMenu = useUiStore((s) => s.setMenu);
   const [resetting, setResetting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -163,23 +165,41 @@ function NewSimPane({ onLoad }: { onLoad: () => void }) {
       <div className="grid grid-cols-2 gap-3">
         <Tile img="start" title="Startwelt neu beginnen" text="Das bekannte Dorf, Alex und Mira von vorn." onClick={() => setResetting(true)} testid="newsim-start" />
         <Tile img="dorf" title="Neues Dorf erzeugen" text="Seed, Seeufer, Gebäudemix, mit Vorschau." onClick={() => { setMenu(null); enterEditor("new"); }} testid="newsim-generate" />
+        <Tile img="figuren" title="Selbst definieren" text="Bewohner, Beziehungen, Regeln und Modell: Schritt für Schritt." onClick={onDefine} testid="newsim-define" />
         <Tile img="welt" title="Selbst gestalten" text="Eigenes Dorf bauen (mit dem Gestalten-Paket)." later="später" />
         <Tile img="haus" title="Aus Spielstand" text="Einen gespeicherten Stand laden." onClick={onLoad} testid="newsim-load" />
       </div>
       {error && <p role="alert" className="mt-3 text-[13px] text-warn">{error}</p>}
-      <p className="mt-3 text-[13px] text-dim">Bewohner, Regeln und Modell frei zusammenstellen folgt mit dem Paket „Simulation selbst definieren“.</p>
       {resetting && <ResetDialog onCancel={() => setResetting(false)} onConfirm={(m, k) => void confirm(m, k)} />}
     </Pane>
   );
 }
 
-function EditorsPane() {
+function DefinePane({ onBack }: { onBack: () => void }) {
+  return (
+    <>
+      <div className="flex items-center gap-3 px-5 pt-4"><button type="button" className="btn" onClick={onBack} data-testid="define-zurueck">← Neue Simulation</button><h2 className="text-[19px] font-bold">Selbst definieren</h2></div>
+      <Assistent />
+    </>
+  );
+}
+
+function FigurenPane({ onBack }: { onBack: () => void }) {
+  return (
+    <>
+      <div className="flex items-center gap-3 px-5 pt-4 pb-3"><button type="button" className="btn" onClick={onBack} data-testid="figuren-zurueck">← Editoren</button><h2 className="text-[19px] font-bold">Charaktereditor</h2></div>
+      <Charaktereditor />
+    </>
+  );
+}
+
+function EditorsPane({ onFiguren }: { onFiguren: () => void }) {
   const setMenu = useUiStore((s) => s.setMenu), setView = useUiStore((s) => s.setView);
   return (
     <Pane title="Editoren" lead="Alles zum Gestalten an einem Ort. Im Editor-Modus steht die Zeit still.">
       <div className="grid grid-cols-2 gap-3">
         <Tile img="welt" title="▦ Welt" text="Weitere Dörfer anfügen; Wege, Seen und Häuser folgen mit dem Gestalten-Paket." onClick={() => { setView("world"); setMenu(null); enterEditor("extend"); }} testid="editor-world" />
-        <Tile img="figuren" title="☺ Figuren" text="Bewohner anlegen und bearbeiten." later="später" />
+        <Tile img="figuren" title="☺ Figuren" text="Vorlagen für Bewohner anlegen, bearbeiten, exportieren und importieren." onClick={onFiguren} testid="editor-figuren" />
         <Tile img="haus" title="⌂ Häuser und Gebäude" text="Eigene Häuser entwerfen: Form, Räume, Aussehen." later="später" />
         <Tile img="ding" title="◆ Dinge und Assets" text="Eigene Objekte zeichnen, mit Wirkungen für die Bewohner." later="später" />
       </div>
