@@ -1,0 +1,66 @@
+# AP17b – Startprompt für die neue Sitzung (19.10.2026)
+
+Diesen Text als erste Nachricht in eine frische Claude-Code-Sitzung im Ordner `/Users/henryroth/Projekte/simulacra` geben.
+
+---
+
+Du arbeitest an **Simulacra** (Ordner `/Users/henryroth/Projekte/simulacra`), einer Simulation, in der KI-Agenten (Alex, Mira …) in einem Pixeldorf leben. Dein Auftrag ist **AP17b – „Simulation selbst definieren“**: ein Assistent „Neue Simulation“ und der Charaktereditor. Antworte Henry auf Deutsch. Er startet für jedes Arbeitspaket eine neue Sitzung und trifft Entscheidungen im Chat.
+
+## 1. Zuerst lesen (in dieser Reihenfolge, bevor du etwas baust)
+1. Dein Gedächtnis (`MEMORY.md`) und darin besonders: Mitspieler-Charaktere, Keine höhere Instanz, Mockup-Treue, Geteiltes Arbeitsverzeichnis, AP17-Entscheidungen, Skalierung.
+2. `docs/arbeitspakete/AP17-plan.md` (Abschnitte „Grundsatz“, „AP17a“, „AP17b“, „Leitgedanke“) und `docs/arbeitspakete/AP17c-plan.md` (nur der Teil, der das Modell betrifft).
+3. `docs/offene-fragen.md`, Fragen 10, 11, 14, 32, 35, 36, 38 (Modellwahl je Simulation, Mitspieler, Generator, Bewohnergrenze, Reihenfolge, Schöpfermodus, Szenen).
+4. `docs/status/AP17a.md` und `docs/mockups/startmenue.html` (das Startmenü ist abgenommen; „Selbst gestalten“ und „Charaktereditor“ sind dort Platzhalter), `docs/status/AP12c.md` und `docs/generator.md` (Welt erzeugen), `docs/agenten.md`, `docs/ereignisse.md`, `docs/spielstaende.md`, `docs/autonomie.md`, `docs/parameter.md`.
+5. Den Code, an dem du ansetzt:
+   - Profile: `backend/simulacra/agents/model.py` (`AgentProfile`, `Personality` mit 12 Werten 0–100), `agents/store.py` (`ensure`, `save_profile`), Startprofile `agents/defaults/alex.json` und `mira.json`.
+   - Beziehungen: `agents/relations.py` (Vertrauen, Sympathie, Spannung, Vertrautheit je Richtung, `DEFAULTS`).
+   - Neue Simulation: `simulation/builder.py` (`Simulation.create`, `reset(world=…, keep_profiles=…)`), `api/routes_world.py` (`/generate`, `/generate/apply`, `_apply_new`), `generator/` (`generate.py`, `kits.py`, `interiors.py`, `service.py`). **Achtung:** Der Generator setzt feste Orts-IDs (`house.bedroom_a`, `house.bedroom_b`, `house.kitchen`, …) und genau zwei Startplätze (`alex`, `mira`). Für mehr Bewohner braucht er Wohnorte und Betten je Bewohner.
+   - Startereignisse: `events_user/` (Ereigniseingabe aus AP08, Operationen, Klärfragen, Vorschau).
+   - Frontend: `frontend/src/layout/StartMenu.tsx` (Bereich „Neue Simulation“, Platzhalter „Selbst gestalten“, „Editoren“), `frontend/src/editor/` (Welteditor, `editorStore`), `frontend/src/store/`, `frontend/src/world/art/people.ts` (`LOOKS` je Kennung; unbekannte Kennungen bekommen ein Aussehen aus der Kennung), `world/art/things.ts` (erkennt Besitzer nur über `["alex","mira"]`), `frontend/src/klang/` und `backend/simulacra/world/voices.py` (Stimme je Bewohner im Spielstand).
+   - Ansicht der Reste von Alex und Mira im Code: `grep -rniE "\b(alex|mira)\b" backend/simulacra frontend/src`. Jede Stelle, die nur für diese zwei gilt, muss für beliebige Bewohner funktionieren (Generator, `events_user/lexicon.py`, `things.ts`, `people.ts`, Tests).
+6. `git log --oneline -15`, `git status`: Branch ist `ap/12c-leitstelle` (17 Commits vor `main`: AP16 Schritt 0, AP17a bis AP17d; AP12c selbst ist schon in `main`). Lege für dein Paket einen eigenen Branch an (`ap/17b-simulation-definieren`), nachdem du das mit `git branch --show-current` geprüft hast.
+
+## 2. Leitplanken (Henrys Grundsätze, nicht verhandelbar)
+- **Keine höhere Instanz:** Die Agenten dürfen nie merken, dass es Leitstelle, Editor, Spieler oder „Simulation“ gibt. Ein neues Dorf ist für sie „schon immer da“ (Frage 36). Weltregeln und Startereignisse erscheinen als natürliche Vorgänge. Kein Prompt-Text, keine Erinnerung, kein Ereignis für Agenten über Eingriffe. Es gibt bereits Tests dafür; erweitere sie für Bewohner, die der Assistent anlegt (Hintergrundtext, Ziele und Beziehungen dürfen keinen Hinweis auf Spieler oder Leitstelle enthalten, und der Assistent soll davor warnen/prüfen).
+- **Mitspieler sind Gleiche** (Frage 11): Wenn der Assistent eine Figur anlegt, kennt die Engine keinen Sonderstatus. Plane die Profilmaske so, dass später ein menschlich gesteuerter Charakter dieselbe Maske nutzt.
+- **Beobachtbarkeit zuerst** (Leitgedanke 17.10.): Menü und Editoren dienen dem Beobachten der Agenten, nicht umgekehrt.
+- **Skalierung:** Henry will später hochskalieren. Entwürfe, die mit vielen Bewohnern/Dörfern wachsen, sind zu bevorzugen. Die vereinbarte Grenze für jetzt: **bis 8 Bewohner** (Frage 32), mit sichtbarem Hinweis auf das Tempo (derzeit ca. 4,5 s je Entscheidung bei einem Slot). Die Grenze steht als eine Konstante und ist leicht änderbar.
+- **Mockup-Treue:** Vor dem Bau ein Mockup (Schritt 0), das Henry abnimmt. „1:1“ heißt ganzes Bild inklusive Ausschnitt. Dein Mockup liegt in `docs/mockups/` (Stil wie `startmenue.html` und `modelle.html`) und zeigt die echten Daten des Projekts, keine Platzhalter.
+- **Geteiltes Arbeitsverzeichnis:** Parallele Sitzungen sind möglich. Nie `git add -A` oder `git add .`; nur Dateien einzeln hinzufügen, die du selbst geändert hast. Vor dem Committen `git status` prüfen. Nichts ausrollen (Ausrollen nur auf Henrys ausdrückliche Freigabe).
+- **Skins:** Beide Ansichten (Tiefe und Flach) bleiben wählbar. Das Dorf selbst (Bild A, AP14) und die Innenräume ändert man nicht.
+- **Kein Ausrollen, keine Downloads großer Modelle** ohne Freigabe. Auf thirdtux gehört die GPU Henrys anderem Dienst (`rea-llm.service`); nicht anfassen.
+- Dateien bleiben unter ca. 400 Zeilen (Zeilengrenze im Projekt), Texte und Oberfläche auf Deutsch, Umlaute richtig.
+
+## 3. Ziel von AP17b (aus Plan und Fragen 32, 36)
+Ein Assistent „Neue Simulation“ im Startmenü in Schritten:
+1. **Welt:** Startwelt (Dorf am See), Generator mit Seed/Seeufer/Gebäudemix (wie AP12c, mit Vorschau unter Schleier) oder „selbst gestaltet“ (AP16 kommt später: Eintrag bleibt „später“).
+2. **Bewohner:** Anzahl (1 bis 8). Je Bewohner: Vorlage wählen (Alex, Mira, weitere Vorlagen anlegen) und anpassen: Name, Geschlecht, Alter, Beschreibung, Hintergrund, Interessen, Abneigungen, Ziele, Kommunikationsstil, die 12 Persönlichkeitswerte (Regler mit deutschen Bezeichnungen aus `PERSONALITY_LABELS`), **Wohnort/Schlafplatz**, bekannte Orte, **Beziehungen zueinander** (Startwerte für Vertrauen, Sympathie, Spannung, Vertrautheit je Richtung, mit Vorgeschichte als kurzem Text), Stimme (aus AP17d, vorhandener Editor), Aussehen (vorerst automatisch aus der Kennung; der Avatar-Editor ist ein eigenes späteres Paket und hängt sich später in diese Maske ein). Nebenfiguren sind im Plan genannt: kläre mit Henry, ob damit Figuren ohne KI gemeint sind (vermutlich später), und baue sie nicht ungefragt.
+3. **Regeln:** Preset der Parameter (die vorhandenen Presets aus AP07), Autonomie, Knappheit; Weltregeln als freier Text, die über die vorhandene Ereigniseingabe (AP08) zu **Startereignissen** werden (Frage 32, Vorschau und Klärfragen wie dort).
+4. **Modell:** Dropdown wie heute (Frage 10: Modell gilt je Simulation fest). Der Bereich Modelle aus AP17c-4 ist noch nicht gebaut; nutze die vorhandene Modellwahl und halte die Stelle austauschbar.
+5. **Schöpfermodus** (Frage 36): beim Anlegen wählbar, Standard Beobachter; im Spiel nur im Editor-Modus änderbar, gilt nur für künftige Mitteilungen, keine Spur für Agenten. Prüfe den Ist-Stand im Code und bau nur, was fehlt.
+6. **Zusammenfassung und Start:** Übersicht, dann „Starten“. Die alte Welt wird wie bisher gesichert („Vor der neuen Simulation“), die neue beginnt angehalten oder läuft, wie in AP12c.
+
+Dazu der **Charaktereditor** im Startmenü (Editoren): dieselbe Profilmaske ohne laufende Simulation, Vorlagen speichern, **Export und Import** als Datei (mit Schema-Prüfung und klaren Fehlermeldungen), Liste der Vorlagen. Im Spiel ist die Profilmaske für bestehende Bewohner bereits teilweise über Parameter/Profile erreichbar: prüfe, was es gibt (`docs/agenten.md`, API), und ändere nur, was nötig ist.
+
+## 4. Offene Punkte, die du früh klären musst (frage Henry gebündelt mit `AskUserQuestion`, mit Empfehlung als erster Option)
+- Wohnorte für 3 bis 8 Bewohner: Soll der Generator (und die Startwelt) mehr Zimmer/Betten erzeugen, oder teilen sich Bewohner Räume? Empfehlung: Der Assistent erzeugt je Bewohner einen Schlafplatz im Heimhaus (Generator erweitert, Startwelt über Patch), damit der Bedarf Schlafen/Ruhen sinnvoll bleibt. Prüfe, wie die Startwelt Betten und Besitzer (`owner`) kennt.
+- Vorlagenbibliothek: Wie viele und welche zusätzlichen Vorlagen (Henry hat „Alex, Mira und weitere“ gesagt) liefern wir mit? Empfehlung: 4 weitere, sehr verschieden (Persönlichkeitsprofile, Berufe, Alter), die gut mit dem Dorf am See zusammenpassen; er liest und ändert die Texte.
+- Zufall/„Würfeln“: Soll der Assistent Namen, Werte, Beziehungen auch auswürfeln können? Empfehlung: ja, als Knopf je Feld, mit Seed.
+- Beziehungen: Startwerte werden in den Beziehungsspeicher geschrieben. Ist das für das Verhalten ausreichend, oder braucht es Erinnerungen als Vorgeschichte („Alex und Mira kennen sich seit …“)? Beachte den Grundsatz: Vorgeschichte als **Erinnerung des Agenten** ist erlaubt, wenn sie wie gelebtes Wissen formuliert ist; Hinweise auf Spieler/Leitstelle nie.
+- Gespeicherte Vorlagen: Ablage in `data/` (Dateien) oder im Spielstand? Empfehlung: Dateien in einem Vorlagenordner neben den Spielständen, Export/Import als einzelne JSON-Dateien mit Schemaversion.
+- Sprache der Bewohner und die Prompts: Profil-Felder gehen in die Prompts. Lege Längengrenzen fest und dokumentiere sie (Token-Budget der Modelle).
+
+## 5. Vorgehen
+1. **Schritt 0:** Plan schreiben (`docs/arbeitspakete/AP17b-plan.md`), Fragen an Henry (gebündelt), **Mockup** `docs/mockups/assistent.html` (Assistent mit allen 5 Schritten und Charaktereditor mit den echten Feldern von Alex und Mira, zusätzliche Bewohner, Beziehungsmatrix, Hinweis auf das Tempo bei vielen Bewohnern), Bericht `docs/status/AP17b-schritt0.md`. **Warte auf Henrys Abnahme**, bevor du Code für die Oberfläche schreibst.
+2. **Teilpakete** (so planen, jedes mit eigenen Tests und Commit): (a) Backend: Profilschema mit Prüfung und Grenzen, Vorlagen-Speicher, Export/Import, API (`/api/templates`, `/api/sim/new` o. Ä.), Generator/Startwelt für N Bewohner, Beziehungen als Startwerte, Test „Prompts enthalten keine Hinweise auf höhere Instanz“; (b) Assistent im Frontend; (c) Charaktereditor und Vorlagen im Startmenü (Editoren); (d) Weltregeln als Startereignisse, Schöpfermodus; (e) Abnahmeprobe mit Fake-Modell und, wenn erreichbar, einem echten Modell.
+3. **Tests:** pytest (Backend), Vitest, Playwright (Assistent komplett durchklicken, 1, 3 und 8 Bewohner, Fehlermeldungen, Export/Import, Neuladen, anderer Browser). Aktueller Stand zu Beginn: pytest 1177, Vitest 140 grün; Playwright gesamt zuletzt 76+ (vollständiger Lauf dauert; Goldbild-Tests `golden.spec.ts`, `flach.spec.ts` dürfen sich nicht ändern, die Startwelt mit Alex und Mira bleibt Pixel für Pixel gleich).
+4. **Doku:** `docs/frontend.md`, `docs/agenten.md`, `docs/schnittstellen.md`, `docs/generator.md`, `docs/konfiguration.md` aktualisieren, `docs/offene-fragen.md` mit Datum und Antworten pflegen, Statusbericht `docs/status/AP17b.md` (was gebaut, was nicht, Tests, wie Henry es ansieht).
+5. **Am Ende** Gedächtnis aktualisieren (`project_ap17-entscheidungen.md`, Stand), nichts ausrollen, Henrys Abnahme abwarten.
+
+## 6. Ausgangslage (Stand 19.10.2026)
+- `main` enthält AP12 bis AP15 samt AP12c und ist (bis AP12b) ausgerollt auf maintux (alter Spielstand ohne `look`, Henry hat noch nicht über das Ersetzen entschieden). Branch `ap/12c-leitstelle` enthält zusätzlich AP16 Schritt 0 (Mockup), AP17a (Startmenü), AP17c-1/-2 (Install-Skript, Hardware, Modellkatalog), AP17d (Klang, Stimmen im Spielstand), letzter Commit `499c04d`. Nichts davon ist in `main`.
+- Abgenommen: Startmenü-Mockup, AP17c-Mockup und die Fragen 39–44, Gestalten-Mockup (Frage 37). Frage 17 (Warten im Langlauf begrenzen) ist noch offen und gehört nicht zu diesem Paket.
+- **Nicht** Teil von AP17b: Avatar-/Figuren-Editor (Aussehen), Gestalten (AP16), Szenen (Frage 38), Modellverwaltung (AP17c-3/-4), Musik-Editor, Epochen.
+- Bekannter Fehler: Playwright-Test K06 scheitert gelegentlich, wenn ein Weg im Boot endet. Er hat nichts mit deinem Paket zu tun.
+
+Beginne mit dem Lesen, melde Henry in wenigen Sätzen, was du verstanden hast und welche Fragen du bündelst, und fange erst nach seinen Antworten und der Abnahme des Mockups mit dem Bau an.
