@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { startKlang } from "../klang/regie";
 import { startLive } from "../net/connect";
 import { useSimStore } from "../store/simStore";
 import { useUiStore } from "../store/uiStore";
@@ -25,6 +26,7 @@ export function AppShell() {
   const hideSide = view === "memory" || view === "stats" || collapsed || appMode !== "game" || title;        // Infoleiste: eingeklappt, in Gedächtnis und Statistik, im Editor und im Startmenü aus
   const tools = appMode !== "game" && view === "world";                                    // Welteditor und Startmenü: Werkzeugleiste statt Infoleiste
   useEffect(() => startLive(), []);
+  useEffect(() => startKlang(), []);                                                       // Musik, Umgebung, Geräusche, Stimmen (AP17d)
 
   return (
     <div className={`grid h-full ${title ? "grid-rows-[1fr]" : "grid-rows-[48px_1fr_auto]"}`} data-menu={menu ?? "zu"}>

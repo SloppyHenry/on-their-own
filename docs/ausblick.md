@@ -36,3 +36,9 @@ Nicht beauftragt, nur vorgemerkt. Reihenfolge nach Henry: erst Gestalten und Fig
 
 ## Nachtrag 17.10.2026 (Henry)
 Auch **Assets und Häuser sollen selbst entworfen werden können** (gehört zu Nr. 4, Baustein-Editor, ergänzt um eigene Gebäudeformen und Räume). Alle Editoren (Welt, Figuren, später Häuser und Gebäude, Dinge und Assets, Epochen) sind im Startmenü unter dem Obermenüpunkt **Editoren** zusammengefasst.
+
+## Nachtrag 18.10.2026 (Henry): Musik-Editor
+Später soll es einen **Musik-Editor** geben, in dem man aus Elementen eigene Hintergrundmusik baut. Er gehört zu den Editoren im Startmenü.
+- **Was schon trägt (AP17d):** Die Musik aus Code ist bereits aus Elementen zusammengesetzt (`frontend/src/klang/musik.ts`): Tonart und Tonleiter, Tempo, Akkordfolge, Melodie-Instrument (Pulswelle, Dreieck, Spieluhr, gezupft), Bass (liegend, laufend, gezupft), Fläche, gebrochene Akkorde, Gegenstimme, Schlagwerk (leicht, voll, Besen), Swing, Form A A′ B A″. Jedes Stück ist ein kleiner Datensatz (`MUS`).
+- **Dazu nötig:** Stücke als Daten statt im Code (wie bei den Objektarten), ein Editor mit diesen Bausteinen und Vorhören (z. B. Spuren mit Takten, Motive zum Ziehen oder Zeichnen), Zuordnung „wann spielt was“ (Tageszeit, Wetter, drinnen, Ort, Epoche), Speichern im Spielstand oder als Datei zum Austausch.
+

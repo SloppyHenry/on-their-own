@@ -8,7 +8,7 @@ from fastapi import Depends, FastAPI
 from .. import __version__
 from ..config import Settings, get_settings
 from ..simulation.builder import Simulation
-from . import auth, routes_autonomy, routes_events, routes_inject, routes_memory, routes_models, routes_params, routes_saves, routes_sim, routes_state, routes_stats, routes_world, ws
+from . import auth, routes_autonomy, routes_events, routes_inject, routes_memory, routes_models, routes_params, routes_saves, routes_sim, routes_state, routes_stats, routes_voices, routes_world, ws
 from .idempotency import Idempotency
 from .static import mount_frontend
 
@@ -85,6 +85,7 @@ def create_app(sim: Simulation | None = None, settings: Settings | None = None) 
     app.include_router(routes_stats.router)
     app.include_router(routes_sim.router)
     app.include_router(routes_world.router)
+    app.include_router(routes_voices.router)
     app.include_router(ws.router)
     app.include_router(auth.router)
     if app.state.settings.static_dir is not None:          # zuletzt: der Auffangpfad darf keine API-Route überdecken

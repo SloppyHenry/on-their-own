@@ -90,6 +90,7 @@ class Simulation:
         kept = [k for k in await self.db.run(self.params.export) if keep_profiles or k[1] is None]      # „komplett Standard“: auch Werte je Agent fallen weg
         presets = await self.db.run(lambda: [tuple(r) for r in self.db.conn.execute("SELECT id, name, description, data, created, updated FROM presets")])
         profiles = await self.db.run(lambda: [tuple(r) for r in self.db.conn.execute("SELECT agent_id, profile, personality FROM agent_profiles")]) if keep_profiles else []
+        kept_voices = await self.db.run(lambda: self.engine.state.get_meta("voices")) if keep_profiles else None   # die Stimme gehört zur Figur
         saved: Path | None = None
         if self.saves is not None:
             entry = await self.db.run(lambda: self.saves.backup(backup_label))
@@ -108,6 +109,9 @@ class Simulation:
         fresh = Simulation.create(self.settings, self.db_path, self.provider, world=world)
         fresh.store.ensure_all()                       # ohne await bis zum Austausch: kein Browser-Aufruf trifft die geschlossene alte Datenbank
         self._restore_kept(fresh, kept, presets, profiles)
+        if kept_voices:
+            with fresh.db.transaction():
+                fresh.engine.state.set_meta("voices", {a: v for a, v in kept_voices.items() if fresh.engine.state.agent(a) is not None})
         self._swap_in(fresh)
         self.engine.emit_event("simulation.reset", data={"backup": str(saved) if saved else None})
         return saved

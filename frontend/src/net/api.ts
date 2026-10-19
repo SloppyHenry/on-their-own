@@ -1,5 +1,5 @@
 // REST-Zugriff. Verändernde Aufrufe tragen einen Idempotency-Key, damit Wiederholungen nichts doppelt tun.
-import type { AgentDetail, AgentNeeds, AgentOverview, DecisionOut, FactorRegistry, FailureOut, GoalOut, RelationOut, EventDetail, EventsPage, Knowledge, LocationDetail, MemoriesPage, MemoryDetail, MemoryStats, RetrievalOut, SimCommandResult, StateSnapshot, ParamPatchOut, ParamSchema, ParamValues, PresetBrief, PresetLoadOut, PresetOut, PresetPreview, StatusOut, InjectProposal, ScheduledOut, SaveOut, StatsOut, AuthStatus, GenerateRequest, GeneratePreview, GenerateApplyRequest, GenerateApplied, PatchPreview } from "../types/generated";
+import type { AgentDetail, AgentNeeds, AgentOverview, DecisionOut, FactorRegistry, FailureOut, GoalOut, RelationOut, EventDetail, EventsPage, Knowledge, LocationDetail, MemoriesPage, MemoryDetail, MemoryStats, RetrievalOut, SimCommandResult, StateSnapshot, ParamPatchOut, ParamSchema, ParamValues, PresetBrief, PresetLoadOut, PresetOut, PresetPreview, StatusOut, InjectProposal, ScheduledOut, SaveOut, StatsOut, AuthStatus, GenerateRequest, GeneratePreview, GenerateApplyRequest, GenerateApplied, PatchPreview, Voice, VoiceOut } from "../types/generated";
 
 export class ApiError extends Error {
   constructor(readonly status: number, readonly detail: string) {
@@ -11,7 +11,7 @@ export const AUTH_REQUIRED = "sim:auth-required";
 
 const key = () => (typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : `k-${Date.now()}-${Math.random().toString(36).slice(2, 12)}`);
 
-async function request<T>(method: "GET" | "POST" | "PATCH" | "DELETE", path: string, body?: unknown): Promise<T> {
+async function request<T>(method: "GET" | "POST" | "PATCH" | "PUT" | "DELETE", path: string, body?: unknown): Promise<T> {
   const headers: Record<string, string> = {};
   if (method !== "GET") {
     headers["Idempotency-Key"] = key();
@@ -99,6 +99,7 @@ export const api = {
   pause: () => request<SimCommandResult>("POST", "/api/sim/pause"),
   resume: () => request<SimCommandResult>("POST", "/api/sim/resume"),
   step: (n = 1) => request<SimCommandResult>("POST", "/api/sim/step", { n }),
+  setVoice: (agent: string, voice: Voice | null) => request<VoiceOut>("PUT", `/api/agents/${encodeURIComponent(agent)}/voice`, { voice }),
   reset: (model?: string, keepProfiles = false) => request<SimCommandResult>("POST", "/api/sim/reset", { confirm: true, keep_profiles: keepProfiles, ...(model ? { model } : {}) }),
   speed: (level: string) => request<SimCommandResult>("POST", "/api/sim/speed", { level }),
   paramSchema: () => request<ParamSchema>("GET", "/api/params/schema"),

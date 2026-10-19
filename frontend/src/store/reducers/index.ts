@@ -32,6 +32,7 @@ export function applySnapshot(s: StateSnapshot): World {
     rules: s.rules,
     links: s.links ?? [],
     look: s.look ?? null,
+    voices: s.voices ?? {},
     stale: false,
   };
 }

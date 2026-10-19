@@ -79,6 +79,7 @@ Schema (`Event`): `seq` (fortlaufende ID), `ts` (UTC), `sim_minute`, `type`, `ag
 | `world.resource_changed` | Quelle gesammelt, verbraucht oder nachgewachsen |
 | `world.weather_changed`, `world.phase_changed`, `world.day_started` | Zeit und Wetter |
 | `simulation.parameter_changed` | Weltregeln geändert |
+| `simulation.voice_changed` | Stimme einer Figur eingestellt oder zurückgesetzt (`agent`, `voice` oder `null`); Kategorie `system`, ohne Agenten in `agents`, damit kein Bewohner davon erfährt |
 | `world.tile_type_added`, `world.tiles_changed`, `world.map_extended`, `world.location_added`, `world.location_updated`, `world.agent_added`, `world.resource_added`, `world.links_added`, `world.look_changed`, `world.patch_applied` | Erweiterungen der Welt (siehe `welt-erweitern.md`) |
 
 ### Wissen und Sichtbarkeit
@@ -155,10 +156,11 @@ Ein Ereignis wird in derselben Transaktion gespeichert wie die Änderung. Vertei
 ### REST (`/api`)
 | Methode | Pfad | Zweck |
 |---|---|---|
-| GET | `/api/state` | Snapshot: Karte (Zeichenzeilen + Legende), Kachelarten, Orte, Objekte, Quellen, Agenten (Körper, Bedürfnisse in Zahlen und Worten, Aktion, Status, Inventar), Uhr, Wetter, Simulationsstatus mit Messwerten, Regeln, `seq`, Übergänge `links` (Kachelpaare, z. B. Haustür ↔ Innenbereich) und Darstellung `look` (Mockup A, sonst `null`) |
+| GET | `/api/state` | Snapshot: Karte (Zeichenzeilen + Legende), Kachelarten, Orte, Objekte, Quellen, Agenten (Körper, Bedürfnisse in Zahlen und Worten, Aktion, Status, Inventar), Uhr, Wetter, Simulationsstatus mit Messwerten, Regeln, `seq`, Übergänge `links` (Kachelpaare, z. B. Haustür ↔ Innenbereich), Darstellung `look` (Mockup A, sonst `null`) und eigene Stimmen der Figuren `voices` (Kennung → Stimme; fehlt eine, nimmt der Browser den Vorschlag aus Geschlecht und Alter) |
 | GET | `/api/events?after_seq=&before_seq=&type=&type_prefix=&agent=&category=&location=&limit=&order=` | Verlauf mit Filtern (Standard 200, höchstens 1000) |
 | GET | `/api/events/{id}` | Einzelereignis per `evt_…` oder Sequenznummer mit `chain` (Ursachen) und `consequences` |
 | GET | `/api/agents/{id}` | Detail: Profil, Persönlichkeit, Stimmung, letzte Entscheidungen mit Optionen, Beobachtungen, Gespräch |
+| PUT | `/api/agents/{id}/voice` (`{"voice": {base, timbre, speed, size, lively, breath, vib, style} \| null}`) | Stimme einer Figur fürs Plappern (AP17d): Grundton 60–400 Hz, Klangfarbe `weich\|klar\|rau\|hohl\|piepsig`, Art `plappern\|summen\|piepsen`; `null` setzt auf den Vorschlag zurück. Gespeichert in der Welt (`meta.voices`), wandert mit Spielstand, Export und Import, bleibt beim Zurücksetzen nur mit „Bewohner behalten“. Meldet `simulation.voice_changed`. Reine Darstellung: kein Prompt, keine Beobachtung. 404 bei unbekannter Figur, 422 bei Werten außerhalb der Grenzen |
 | GET | `/api/locations/{id}` | Ort mit Objekten, Quellen, Anwesenden und jüngsten Ereignissen |
 | POST | `/api/sim/start` (`{"ticks"?}`) · `/pause` · `/resume` · `/step` (`{"n": 1-50}`) | Steuerung; `step` nur pausiert oder gestoppt (sonst 409) |
 | POST | `/api/sim/reset` (`{"confirm": true}`) | Zurücksetzen; ohne Bestätigung 400; die alte Welt wird unter `data/backups/` gesichert |

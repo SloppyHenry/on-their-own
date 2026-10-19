@@ -123,6 +123,10 @@ export interface SimulacraApi {
   TileChanged?: TileChanged;
   TileTypeAdded?: TileTypeAdded;
   TilesChanged?: TilesChanged;
+  Voice?: Voice;
+  VoiceChanged?: VoiceChanged;
+  VoiceOut?: VoiceOut;
+  VoiceSet?: VoiceSet;
   Walking?: Walking;
   WeatherChanged?: WeatherChanged;
   WorldTime?: WorldTime;
@@ -832,6 +836,9 @@ export interface StateSnapshot {
   tile_types: {
     [k: string]: TileTypeInfo;
   };
+  voices: {
+    [k: string]: Voice;
+  };
   weather: WeatherInfo;
   world_name: string;
 }
@@ -961,6 +968,22 @@ export interface TileTypeInfo {
   cost: number;
   label: string;
   walkable: boolean;
+}
+/**
+ * Stimme einer Figur fürs Plappern im Browser (AP17d). Reine Darstellung; die Bewohner erfahren nichts davon.
+ *
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "Voice".
+ */
+export interface Voice {
+  base: number;
+  breath: number;
+  lively: number;
+  size: number;
+  speed: number;
+  style: "plappern" | "summen" | "piepsen";
+  timbre: "weich" | "klar" | "rau" | "hohl" | "piepsig";
+  vib?: number;
 }
 /**
  * This interface was referenced by `SimulacraApi`'s JSON-Schema
@@ -2224,6 +2247,31 @@ export interface TileChange {
 }
 /**
  * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "VoiceChanged".
+ */
+export interface VoiceChanged {
+  agent: string;
+  voice?: {
+    [k: string]: unknown;
+  } | null;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "VoiceOut".
+ */
+export interface VoiceOut {
+  agent: string;
+  voice: Voice | null;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "VoiceSet".
+ */
+export interface VoiceSet {
+  voice?: Voice | null;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
  * via the `definition` "Walking".
  */
 export interface Walking {
@@ -2402,6 +2450,7 @@ export interface EventDataMap {
   "simulation.event_fired": EventFired;
   "simulation.effect_ended": EffectEnded;
   "agent.informed": Informed;
+  "simulation.voice_changed": VoiceChanged;
   "simulation.saved": SimSaved;
   "simulation.loaded": SimLoaded;
   "world.npc_acted": NpcAction;
@@ -2485,6 +2534,7 @@ export const EVENT_CATEGORY: Record<EventType, EventCategory> = {
   "simulation.event_fired": "system",
   "simulation.effect_ended": "system",
   "agent.informed": "dialogue",
+  "simulation.voice_changed": "system",
   "simulation.saved": "system",
   "simulation.loaded": "system",
   "world.npc_acted": "world",

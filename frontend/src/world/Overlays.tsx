@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { activityOf } from "../panels/AgentPanel";
 import { useSimStore } from "../store/simStore";
 import { useUiStore } from "../store/uiStore";
+import { haeltBlase, sprechStand } from "../klang/stimmen";
 import { accentOf } from "./art/people";
 import type { Frame, WorldBridge } from "./worldBridge";
 
@@ -54,15 +55,17 @@ export function Overlays({ bridge }: { bridge: WorldBridge }) {
           if (at) tag.style.transform = `translate(${at.x}px, ${at.y}px) translateX(-50%)${at.up ? " translateY(-100%)" : ""}`;
         }
         if (!bub) continue;
-        const b = bubbles[a.id], show = !!b && on && now - b.shownAt < bubbleDuration(b.text);
+        const b = bubbles[a.id], show = !!b && on && (now - b.shownAt < bubbleDuration(b.text) || haeltBlase(a.id, b.text));
         bub.style.display = show ? "" : "none";
         if (!show || !at) continue;
         if (bub.dataset.id !== b.id) {
           bub.dataset.id = b.id;
           bub.dataset.seq = String(b.seq);
-          bub.textContent = b.text.length > MAX_CHARS ? `${b.text.slice(0, MAX_CHARS - 1)}…` : b.text;
           bub.title = b.text.length > MAX_CHARS ? "Klicken für den ganzen Text im Protokoll" : "";
         }
+        const said = sprechStand(a.id, b.text), text = said == null ? b.text : b.text.slice(0, said);     // spricht die Figur, läuft der Text mit der Stimme mit
+        const shown = text.length > MAX_CHARS ? `${text.slice(0, MAX_CHARS - 1)}…` : text;
+        if (bub.textContent !== shown) bub.textContent = shown;
         const left = Math.max(4, Math.min(at.x - bub.offsetWidth * 0.25, W - bub.offsetWidth - 4));   // nie über den Rand hinaus
         bub.style.transform = `translate(${left}px, ${at.head - 4}px) translateY(-100%)`;
       }

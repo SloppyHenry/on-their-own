@@ -27,7 +27,7 @@ from . import models_world as mw
 
 API_MODELS: list[type[BaseModel]] = [
     api.StateSnapshot, api.AgentDetail, api.LocationDetail, api.EventsPage, api.EventDetail, api.SimCommandResult,
-    api.StartRequest, api.StepRequest, api.ResetRequest, api.SpeedRequest,
+    api.StartRequest, api.StepRequest, api.ResetRequest, api.SpeedRequest, api.Voice, api.VoiceSet, api.VoiceOut,
     api.WsHello, api.WsResync, api.WsPong, api.WsSnapshot, api.WsEvents, api.WsEvent, api.WsPing, api.WsClock, api.WsResyncRequired,
     mm.MemoriesPage, mm.MemoryDetail, mm.Knowledge, mm.RetrievalOut, mm.MemoryStats,
     ma.GoalOut, ma.AgentNeeds, ma.AgentOverview, ma.RelationOut, ma.FailureOut, ma.DecisionOut, ma.FactorRegistry,

@@ -50,6 +50,10 @@ const bubbleOf = (ev: EventOut): Bubble | null => {
   return { id: ev.id, agent: d.speaker, to: d.to, text: d.text, seq: ev.seq, shownAt: Date.now() };
 };
 
+const liveListeners = new Set<(items: EventOut[]) => void>();
+/** Hörer für Live-Ereignisse (Klang, AP17d); nicht für Verlauf und Nachladen. Liefert das Abmelden. */
+export function onLiveEvents(fn: (items: EventOut[]) => void): () => void { liveListeners.add(fn); return () => { liveListeners.delete(fn); }; }
+
 export const useSimStore = create<SimStore>((set) => ({
   world: null,
   events: [],
@@ -61,7 +65,7 @@ export const useSimStore = create<SimStore>((set) => ({
   paramVersion: 0,
   conn: "connecting",
   setSnapshot: (s) => set({ world: applySnapshot(s), events: [], bubbles: {}, pulses: {}, newMemories: {}, memoryVersion: 0, autonomyVersion: 0 }),
-  pushEvents: (items, live) =>
+  pushEvents: (items, live) => {
     set((st) => {
       if (!st.world) return st;
       const bubbles = { ...st.bubbles };
@@ -78,7 +82,9 @@ export const useSimStore = create<SimStore>((set) => ({
         if (ev.type === "agent.memory_retrieved") pulses[ev.agents[0]] = { kind: "recalled", at: Date.now(), text: (ev.data as { items?: { text: string }[] }).items?.[0]?.text };
       }
       return { world: applyEvents(st.world, items), events: mergeEvents(st.events, items), bubbles, pulses, newMemories: fresh, memoryVersion: touched ? st.memoryVersion + 1 : st.memoryVersion, autonomyVersion: auto ? st.autonomyVersion + 1 : st.autonomyVersion, paramVersion: param ? st.paramVersion + 1 : st.paramVersion };
-    }),
+    });
+    if (live && items.length) liveListeners.forEach((fn) => fn(items));
+  },
   setHistory: (items) => set((st) => ({ events: mergeEvents(items, st.events) })),
   setConn: (conn) => set({ conn }),
   setClock: (minute) => set((st) => (st.world && minute > st.world.clock.minute ? { world: applyClock(st.world, minute) } : st)),

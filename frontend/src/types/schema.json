@@ -6586,6 +6586,13 @@
      },
      "type": "object"
     },
+    "voices": {
+     "additionalProperties": {
+      "$ref": "#/$defs/Voice"
+     },
+     "default": {},
+     "type": "object"
+    },
     "weather": {
      "$ref": "#/$defs/WeatherInfo"
     },
@@ -6607,7 +6614,8 @@
     "simulation",
     "rules",
     "links",
-    "look"
+    "look",
+    "voices"
    ],
    "title": "StateSnapshot",
    "type": "object"
@@ -7008,6 +7016,140 @@
     "estimate"
    ],
    "title": "VariantOut",
+   "type": "object"
+  },
+  "Voice": {
+   "additionalProperties": false,
+   "description": "Stimme einer Figur fürs Plappern im Browser (AP17d). Reine Darstellung; die Bewohner erfahren nichts davon.",
+   "properties": {
+    "base": {
+     "maximum": 400,
+     "minimum": 60,
+     "type": "number"
+    },
+    "breath": {
+     "maximum": 0.5,
+     "minimum": 0,
+     "type": "number"
+    },
+    "lively": {
+     "maximum": 2.5,
+     "minimum": 0,
+     "type": "number"
+    },
+    "size": {
+     "maximum": 1.5,
+     "minimum": 0.7,
+     "type": "number"
+    },
+    "speed": {
+     "maximum": 2.0,
+     "minimum": 0.4,
+     "type": "number"
+    },
+    "style": {
+     "enum": [
+      "plappern",
+      "summen",
+      "piepsen"
+     ],
+     "type": "string"
+    },
+    "timbre": {
+     "enum": [
+      "weich",
+      "klar",
+      "rau",
+      "hohl",
+      "piepsig"
+     ],
+     "type": "string"
+    },
+    "vib": {
+     "default": 5,
+     "maximum": 10,
+     "minimum": 0,
+     "type": "number"
+    }
+   },
+   "required": [
+    "base",
+    "timbre",
+    "speed",
+    "size",
+    "lively",
+    "breath",
+    "style"
+   ],
+   "title": "Voice",
+   "type": "object"
+  },
+  "VoiceChanged": {
+   "additionalProperties": false,
+   "properties": {
+    "agent": {
+     "type": "string"
+    },
+    "voice": {
+     "anyOf": [
+      {
+       "additionalProperties": true,
+       "type": "object"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    }
+   },
+   "required": [
+    "agent"
+   ],
+   "title": "VoiceChanged",
+   "type": "object"
+  },
+  "VoiceOut": {
+   "additionalProperties": false,
+   "properties": {
+    "agent": {
+     "type": "string"
+    },
+    "voice": {
+     "anyOf": [
+      {
+       "$ref": "#/$defs/Voice"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    }
+   },
+   "required": [
+    "agent",
+    "voice"
+   ],
+   "title": "VoiceOut",
+   "type": "object"
+  },
+  "VoiceSet": {
+   "additionalProperties": false,
+   "properties": {
+    "voice": {
+     "anyOf": [
+      {
+       "$ref": "#/$defs/Voice"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    }
+   },
+   "title": "VoiceSet",
    "type": "object"
   },
   "WalkInfo": {
@@ -7707,6 +7849,18 @@
   },
   "TilesChanged": {
    "$ref": "#/$defs/TilesChanged"
+  },
+  "Voice": {
+   "$ref": "#/$defs/Voice"
+  },
+  "VoiceChanged": {
+   "$ref": "#/$defs/VoiceChanged"
+  },
+  "VoiceOut": {
+   "$ref": "#/$defs/VoiceOut"
+  },
+  "VoiceSet": {
+   "$ref": "#/$defs/VoiceSet"
   },
   "Walking": {
    "$ref": "#/$defs/Walking"

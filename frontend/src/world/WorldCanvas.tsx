@@ -13,6 +13,7 @@ import { lookOf } from "./dorf/look";
 import { WorldView, type ViewLike } from "./view/WorldView";
 import { createBridge } from "./worldBridge";
 import { ViewControls } from "../layout/ViewSettings";
+import { verbindeBuehne } from "../klang/buehne";
 
 const TILT_MASK = "linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.85) 20%, rgba(0,0,0,0) 36%, rgba(0,0,0,0) 84%, rgba(0,0,0,0.75) 100%)";
 
@@ -34,6 +35,7 @@ export function WorldCanvas() {
   const sideOpen = useUiStore((s) => s.appMode === "game" && !s.sidebarCollapsed);                   // Ansicht steht dann im Reiter der Infoleiste
   const focus = useUiStore((s) => s.focusRequest);
   useEffect(() => { if (focus) bridge.commands.focusTile?.(focus.x, focus.y); }, [focus, bridge]);
+  useEffect(() => verbindeBuehne(bridge, () => ({ w: host.current?.clientWidth ?? 1, h: host.current?.clientHeight ?? 1 })), [bridge]);   // Klang: nur Sichtbares, am Ort im Bild
 
   useEffect(() => {
     const v: ViewLike = lookJson ? new DorfView(canvas.current!, host.current!, bridge, JSON.parse(lookJson))

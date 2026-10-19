@@ -125,6 +125,28 @@ class SimStatus(Out):
     llm: dict[str, Any] = {}
 
 
+class Voice(BaseModel):
+    """Stimme einer Figur fürs Plappern im Browser (AP17d). Reine Darstellung; die Bewohner erfahren nichts davon."""
+    model_config = ConfigDict(extra="forbid")
+    base: float = Field(ge=60, le=400)                    # Grundton in Hz
+    timbre: Literal["weich", "klar", "rau", "hohl", "piepsig"]
+    speed: float = Field(ge=0.4, le=2.0)
+    size: float = Field(ge=0.7, le=1.5)                   # Vokalfarbe (Formanten)
+    lively: float = Field(ge=0, le=2.5)                   # Satzmelodie
+    breath: float = Field(ge=0, le=0.5)
+    vib: float = Field(default=5, ge=0, le=10)
+    style: Literal["plappern", "summen", "piepsen"]
+
+
+class VoiceSet(BaseModel):
+    voice: Voice | None = None                            # None: zurück zum Vorschlag
+
+
+class VoiceOut(Out):
+    agent: str
+    voice: Voice | None = None
+
+
 class StateSnapshot(Out):
     seq: int
     world_name: str
@@ -140,6 +162,7 @@ class StateSnapshot(Out):
     rules: dict[str, Any] = {}
     links: list[list[list[int]]] = []      # Übergänge zwischen Kacheln, die nicht nebeneinander liegen (z. B. Haustür ↔ Innenbereich)
     look: dict[str, Any] | None = None     # Darstellung der Welt (Formen, Bäume, Deko), z. B. die Startwelt nach Mockup A; None = aus den Kacheln
+    voices: dict[str, Voice] = {}        # eigene Stimmen der Figuren (AP17d); fehlt eine, gilt im Browser der Vorschlag aus Geschlecht und Alter
 
 
 class DecisionBrief(Out):

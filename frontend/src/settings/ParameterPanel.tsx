@@ -4,6 +4,7 @@ import { useUiStore } from "../store/uiStore";
 import { ParamGroup } from "./ParamGroup";
 import { PresetManager } from "./PresetManager";
 import { StatusPanels } from "./StatusPanels";
+import { TonSettings } from "./TonSettings";
 import { useParamStore } from "./paramStore";
 
 /** Gruppen, die zusammen auf einer Seite stehen (Persönlichkeit und Charakter gehören zum Agenten). */
@@ -16,7 +17,7 @@ const PAGES: { id: string; label: string; groups: string[] }[] = [
   { id: "sim", label: "Tempo", groups: ["sim"] },
   { id: "mode", label: "Modus", groups: ["mode"] },
 ];
-const EXTRA = [{ id: "presets", label: "Presets" }, { id: "status", label: "Status" }];
+const EXTRA = [{ id: "ton", label: "Ton" }, { id: "presets", label: "Presets" }, { id: "status", label: "Status" }];
 
 /** Schublade über der Welt: Regler nach dem Schema des Backends, Presets und Status. Die Welt bleibt sichtbar, damit man Wirkungen sieht. */
 export function ParameterPanel() {
@@ -68,7 +69,7 @@ export function SettingsContent({ onClose, embedded = false }: { onClose?: () =>
       )}
       <div className="min-h-0 flex-1 overflow-auto px-4 pb-6 pt-2">
         {error && <p role="alert" className="mb-2 text-[13px] text-warn">{error}</p>}
-        {!values ? <p className="text-dim">Lade Einstellungen …</p> : q ? (
+        {tab === "ton" && !q ? <TonSettings /> : !values ? <p className="text-dim">Lade Einstellungen …</p> : q ? (
           found.length ? <ParamGroup specs={found} compact /> : <p className="text-dim">Nichts gefunden für „{query}“.</p>
         ) : tab === "presets" ? <PresetManager /> : tab === "status" ? <StatusPanels /> : (
           <>

@@ -50,6 +50,11 @@ class NpcAction(D):
     what: str
 
 
+class VoiceChanged(D):
+    agent: str
+    voice: dict[str, Any] | None = None   # None: zurück zum Vorschlag aus Geschlecht und Alter
+
+
 class SimSaved(D):
     save_id: str
     name: str
