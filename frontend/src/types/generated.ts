@@ -65,6 +65,11 @@ export interface SimulacraApi {
   MemorySkipped?: MemorySkipped;
   MemoryStats?: MemoryStats;
   Moved?: Moved;
+  NewSimApplied?: NewSimApplied;
+  NewSimApplyRequest?: NewSimApplyRequest;
+  NewSimLimits?: NewSimLimits;
+  NewSimPreview?: NewSimPreview;
+  NewSimRequest?: NewSimRequest;
   NpcAction?: NpcAction;
   ObjectChanged?: ObjectChanged;
   ObjectCreated?: ObjectCreated;
@@ -120,6 +125,9 @@ export interface SimulacraApi {
   StatusOut?: StatusOut;
   StepRequest?: StepRequest;
   Stored?: Stored;
+  TemplateImported?: TemplateImported;
+  TemplateIn?: TemplateIn;
+  TemplateOut?: TemplateOut;
   TileChanged?: TileChanged;
   TileTypeAdded?: TileTypeAdded;
   TilesChanged?: TilesChanged;
@@ -1435,6 +1443,181 @@ export interface Moved {
 }
 /**
  * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "NewSimApplied".
+ */
+export interface NewSimApplied {
+  backup: string | null;
+  counts: {
+    [k: string]: number;
+  };
+  residents: ResidentOut[];
+  seed: number | null;
+  state: string;
+  village: string;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "ResidentOut".
+ */
+export interface ResidentOut {
+  home: number | null;
+  id: string;
+  name: string;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "NewSimApplyRequest".
+ */
+export interface NewSimApplyRequest {
+  confirm?: boolean;
+  digest: string;
+  relations?: RelationIn[];
+  /**
+   * @minItems 1
+   * @maxItems 8
+   */
+  residents:
+    | [ResidentIn]
+    | [ResidentIn, ResidentIn]
+    | [ResidentIn, ResidentIn, ResidentIn]
+    | [ResidentIn, ResidentIn, ResidentIn, ResidentIn]
+    | [ResidentIn, ResidentIn, ResidentIn, ResidentIn, ResidentIn]
+    | [ResidentIn, ResidentIn, ResidentIn, ResidentIn, ResidentIn, ResidentIn]
+    | [ResidentIn, ResidentIn, ResidentIn, ResidentIn, ResidentIn, ResidentIn, ResidentIn]
+    | [ResidentIn, ResidentIn, ResidentIn, ResidentIn, ResidentIn, ResidentIn, ResidentIn, ResidentIn];
+  run?: "paused" | "running";
+  stories?: StoryIn[];
+  world?: WorldSpec;
+}
+/**
+ * Startwerte der Beziehung von Bewohner `a` zu Bewohner `b` (Nummern in `residents`, ab 0).
+ *
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "RelationIn".
+ */
+export interface RelationIn {
+  a: number;
+  b: number;
+  familiarity?: number;
+  sympathy?: number;
+  tension?: number;
+  trust?: number;
+}
+/**
+ * Die Profilmaske eines Bewohners: dieselbe wie im Charaktereditor und in Vorlagen. Kein Feld für Steuerungsart oder Sonderstatus.
+ *
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "ResidentIn".
+ */
+export interface ResidentIn {
+  home?: number | null;
+  known?: ("square" | "garden" | "rooms" | "lake" | "forest")[];
+  personality: {
+    [k: string]: unknown;
+  };
+  profile: {
+    [k: string]: unknown;
+  };
+  template?: string | null;
+  voice?: Voice | null;
+}
+/**
+ * Vorgeschichte eines Paares: wird bei beiden zu einer gewöhnlichen Erinnerung (Art Fakt).
+ *
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "StoryIn".
+ */
+export interface StoryIn {
+  a: number;
+  b: number;
+  text: string;
+}
+/**
+ * `start`: die handgemachte Startwelt (nur Alex und Mira), `generated`: ein Dorf für genau diese Bewohner.
+ */
+export interface WorldSpec {
+  houses?: number | null;
+  kind?: "start" | "generated";
+  lake?: "auto" | "east" | "south";
+  mix?: {
+    [k: string]: number;
+  } | null;
+  seed?: number;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "NewSimLimits".
+ */
+export interface NewSimLimits {
+  max_per_house: number;
+  max_residents: number;
+  seconds_per_decision: number;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "NewSimPreview".
+ */
+export interface NewSimPreview {
+  counts: {
+    [k: string]: number;
+  };
+  digest: string | null;
+  errors: string[];
+  houses: HouseOut[];
+  ok: boolean;
+  report: ReportOut | null;
+  residents: ResidentOut[];
+  seed: number | null;
+  snapshot: StateSnapshot | null;
+  village: string | null;
+  warnings: string[];
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "HouseOut".
+ */
+export interface HouseOut {
+  beds: number;
+  n: number;
+  name: string;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "NewSimRequest".
+ */
+export interface NewSimRequest {
+  relations?: RelationIn[];
+  /**
+   * @minItems 1
+   * @maxItems 8
+   */
+  residents:
+    | [ResidentIn]
+    | [ResidentIn, ResidentIn]
+    | [ResidentIn, ResidentIn, ResidentIn]
+    | [ResidentIn, ResidentIn, ResidentIn, ResidentIn]
+    | [ResidentIn, ResidentIn, ResidentIn, ResidentIn, ResidentIn]
+    | [ResidentIn, ResidentIn, ResidentIn, ResidentIn, ResidentIn, ResidentIn]
+    | [ResidentIn, ResidentIn, ResidentIn, ResidentIn, ResidentIn, ResidentIn, ResidentIn]
+    | [ResidentIn, ResidentIn, ResidentIn, ResidentIn, ResidentIn, ResidentIn, ResidentIn, ResidentIn];
+  run?: "paused" | "running";
+  stories?: StoryIn[];
+  world?: WorldSpec1;
+}
+/**
+ * `start`: die handgemachte Startwelt (nur Alex und Mira), `generated`: ein Dorf für genau diese Bewohner.
+ */
+export interface WorldSpec1 {
+  houses?: number | null;
+  kind?: "start" | "generated";
+  lake?: "auto" | "east" | "south";
+  mix?: {
+    [k: string]: number;
+  } | null;
+  seed?: number;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
  * via the `definition` "NpcAction".
  */
 export interface NpcAction {
@@ -2206,6 +2389,40 @@ export interface Stored {
 }
 /**
  * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "TemplateImported".
+ */
+export interface TemplateImported {
+  template: TemplateOut;
+  warnings: string[];
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "TemplateOut".
+ */
+export interface TemplateOut {
+  builtin: boolean;
+  id: string;
+  personality: {
+    [k: string]: unknown;
+  };
+  profile: {
+    [k: string]: unknown;
+  };
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "TemplateIn".
+ */
+export interface TemplateIn {
+  personality: {
+    [k: string]: unknown;
+  };
+  profile: {
+    [k: string]: unknown;
+  };
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
  * via the `definition` "TileChanged".
  */
 export interface TileChanged {
@@ -2373,6 +2590,21 @@ export interface WsSnapshot {
   seq: number;
   state: StateSnapshot;
   type: "snapshot";
+}
+/**
+ * `start`: die handgemachte Startwelt (nur Alex und Mira), `generated`: ein Dorf für genau diese Bewohner.
+ *
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "WorldSpec".
+ */
+export interface WorldSpec2 {
+  houses?: number | null;
+  kind?: "start" | "generated";
+  lake?: "auto" | "east" | "south";
+  mix?: {
+    [k: string]: number;
+  } | null;
+  seed?: number;
 }
 
 /** Ereignistyp -> Typ der Daten (`data`). */

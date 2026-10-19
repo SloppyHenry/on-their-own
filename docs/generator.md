@@ -10,6 +10,8 @@ Der Generator (`backend/simulacra/generator/`, AP12) erzeugt **Weltdaten**, nie 
 
 Beides kommt aus `compose.build_village`; der Unterschied ist nur der Anschluss und die Namen (die Startwelt nutzt die Rollen-IDs `square`, `garden`, `lake`, `forest`, `house.living` …, ein erweitertes Dorf Vorsilbe `v2`, `v3` …: `v2.square`, `v2_boat`, `house.v2h1_kueche`).
 
+**Dorf nach Maß (AP17b):** `new_world(seed, residents=[{id, name, home}])` erzeugt ein Dorf für genau diese Bewohner (1 bis 8): kein Heimhaus, **höchstens 2 Personen je Haus** (aufgerundet halb so viele Wohnhäuser, `default_mix`; ab 5 Bewohnern ein Stall, ab 7 eine Scheune), jedes Wohnhaus mit **zwei Betten ohne Besitzer** (ein Haus mit nur einem Schlafraum bekommt ein zweites Bett), Startplätze `r0 …` verteilt auf dem Dorfplatz. Nur „wohnt schon in Haus N“ setzt bei einem Bett den Besitzer und legt den Start ins Haus. `world["generator"]` nennt `houses` (Name, Präfix, Betten) und `known` (Platz, Garten, Gemeinschaftsräume). Ohne `residents` bleibt jede Ausgabe wie bisher (Heimhaus für Alex und Mira).
+
 Eingaben (`Params`): `seed`, `lake` (`east` wie in A, `south` mit Brücke über den Bach, oder nach Seed), `mix` (Gebäude je Rolle: `house`, `shop`, `workshop`, `barn`, `stable`; Standard 3 Häuser plus 2 Sondergebäude).
 
 ## Aufbau

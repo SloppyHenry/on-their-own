@@ -1,7 +1,7 @@
 """Verdrahtet alle Teile zu einer lauffähigen Simulation (Engine, Agenten, Modell, Schleife)."""
 
 import shutil
-from typing import Any
+from typing import Any, Callable
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
@@ -80,11 +80,12 @@ class Simulation:
         return sim
 
     async def reset(self, backup_dir: Path | None = None, model: str | None = None, keep_profiles: bool = False, world: dict | None = None,
-                    backup_label: str = "Vor dem Zurücksetzen") -> Path | None:
+                    backup_label: str = "Vor dem Zurücksetzen", setup: Callable[["Simulation"], None] | None = None) -> Path | None:
         """Hält an, sichert den bisherigen Stand (nie löschen: als Spielstand „Vor dem Zurücksetzen“) und legt eine frische Welt an. Gibt den Sicherungspfad zurück.
 
         Parameter und eigene Presets bleiben erhalten; `keep_profiles` behält auch die Profile und Persönlichkeitswerte. `model` wählt das Modell der neuen Simulation.
-        `world` ist eine fertige Weltdatei (z. B. vom Weltgenerator) statt der Standardwelt.
+        `world` ist eine fertige Weltdatei (z. B. vom Weltgenerator) statt der Standardwelt. `setup` richtet die frische Simulation noch vor dem Austausch ein
+        (Bewohner, Beziehungen, Vorgeschichten des Assistenten „Neue Simulation“).
         """
         await self.runner.stop()
         kept = [k for k in await self.db.run(self.params.export) if keep_profiles or k[1] is None]      # „komplett Standard“: auch Werte je Agent fallen weg
@@ -109,6 +110,8 @@ class Simulation:
         fresh = Simulation.create(self.settings, self.db_path, self.provider, world=world)
         fresh.store.ensure_all()                       # ohne await bis zum Austausch: kein Browser-Aufruf trifft die geschlossene alte Datenbank
         self._restore_kept(fresh, kept, presets, profiles)
+        if setup is not None:
+            setup(fresh)
         if kept_voices:
             with fresh.db.transaction():
                 fresh.engine.state.set_meta("voices", {a: v for a, v in kept_voices.items() if fresh.engine.state.agent(a) is not None})

@@ -42,7 +42,7 @@ def _spot(out: Outdoor, x: float, y: float, blocked_ok: bool = False, reach: set
     return best
 
 
-def make_kit(L: Layout, out: Outdoor, nm: Naming, loc_of) -> Kit:
+def make_kit(L: Layout, out: Outdoor, nm: Naming, loc_of, residents: int = 0) -> Kit:
     """`loc_of(i, j)` nennt den Ort einer Kachel (für die Quellen). Alle Kacheln relativ zum Raster des Dorfs im Freien."""
     k = Kit()
     reach = reachable(["".join(r) for r in out.rows], [], out.tile_of(L.sq["x"], L.sq["y"] + 10), set())
@@ -140,9 +140,24 @@ def make_kit(L: Layout, out: Outdoor, nm: Naming, loc_of) -> Kit:
                         "requires_tool": tool, "gather_minutes": mins, "regen_weather": None})
         k.place[nm.obj(rid)] = {"at": [0, 0], "sprite": PLACE_NONE}
     # Startplätze der Agenten
-    k.spots = {"alex": _sp(g["x0"] + 36, g["y0"] + 21), "mira": _sp(sq["x"] - 18, sq["y"] + 16)}
+    if residents:
+        k.spots = resident_spots(residents, L, out, reach)
+    else:
+        k.spots = {"alex": _sp(g["x0"] + 36, g["y0"] + 21), "mira": _sp(sq["x"] - 18, sq["y"] + 16)}
     k.decor = [d for d in decor if d[0] not in ("bm:0", "bm:1", "bm:2") or True]
     return k
+
+
+def resident_spots(n: int, L: Layout, out: Outdoor, reach: set) -> dict[str, tuple[int, int]]:
+    """Startplätze `r0 … r{n-1}` verteilt auf dem Dorfplatz (jeder auf eigener, vom Platz aus erreichbarer Kachel)."""
+    cx, cy = L.sq["x"], L.sq["y"] + 10
+    near = lambda i, j, r: math.hypot(out.center(i, j)[0] - cx, out.center(i, j)[1] - cy) <= r      # noqa: E731
+    for r in (L.sq["r"] * 0.9, L.sq["r"] * 1.6, L.sq["r"] * 3.0):
+        cand = [(i, j) for j in range(out.h) for i in range(out.w) if (i, j) in reach and out.rows[j][i] in WALKABLE and near(i, j, r)]
+        if len(cand) >= n:
+            break
+    cand.sort(key=lambda t: math.atan2(out.center(*t)[1] - cy, out.center(*t)[0] - cx))                # nach Winkel um die Platzmitte: gleichmäßig verteilt
+    return {f"r{i}": cand[i * len(cand) // n] for i in range(n)} if len(cand) >= n else {}
 
 
 def g_beds(L: Layout) -> list[list[int]]:

@@ -291,6 +291,22 @@ Beschreibung des Generators: [generator.md](generator.md). Die Vorschau ändert 
 
 Neuer Ereignistyp: `world.generated` (Kategorie Welt): `kind`, `seed`, `requested_seed`, `village`, `patch`, `summary` (Zähler). Fehler: 422 (Wunsch ungültig oder kein gültiges Dorf nach 8 Versuchen, mit Prüfbericht in der Vorschau), 409 (Welt hat sich geändert, Patch von der Engine abgelehnt).
 
+## Neue Simulation nach Maß und Vorlagen (AP17b)
+Router `api/routes_newsim.py`, Modelle `api/models_newsim.py`, Logik `simulation/newsim.py`, Profilmaske und Grenzen `agents/schema.py`, Vorlagenspeicher `agents/templates.py`.
+
+| Route | Wirkung |
+|---|---|
+| `GET /api/templates`, `GET /api/templates/{id}` | Vorlagen: die sechs mitgelieferten (`alex`, `mira`, `hanne`, `jonas`, `rosa`, `kim`, schreibgeschützt) und eigene (`eigene-<name>`, Dateien in `data/vorlagen/`). |
+| `POST /api/templates`, `PUT /api/templates/{id}`, `DELETE`, `POST /{id}/duplicate` | Eigene Vorlagen anlegen, ändern, löschen, duplizieren. Mitgelieferte: 403. Jeder Verstoß gegen die Grenzen: 422, alle Meldungen im Text (je Zeile eine). |
+| `GET /api/templates/{id}/export` | Datei `{format: "simulacra-vorlage", version: 1, profile, personality}` zum Herunterladen. Die Stimme gehört nicht dazu. |
+| `POST /api/templates/import` | Anfragekörper ist die Datei. Legt **immer eine neue** Vorlage an, nie über eine bestehende. Prüft Größe (413 über 20 KB), JSON, Format, Version (höchstens 1), alle Felder und Grenzen; **alle** Fehler kommen auf einmal (422). Antwort `{template, warnings}`, die Warnungen der Wortprüfung. |
+| `GET /api/sim/new/limits` | `max_residents` (8), `seconds_per_decision` (4,5), `max_per_house` (2). |
+| `POST /api/sim/new/preview` | Entwurf `{world: {kind: "start"\|"generated", seed, lake, houses?, mix?}, residents: [{template?, profile, personality, home?, known?, voice?}], relations: [{a, b, trust, sympathy, tension, familiarity}], stories: [{a, b, text}], run}`. Prüft alles (Fehler in `errors`, Hinweise in `warnings`), erzeugt die Welt und zeigt sie wie `/api/world/generate` im Trockenlauf (`snapshot`, `digest`, `report`); dazu `residents` (vergebene Kennungen) und `houses` (Name und Zahl der Betten). Ändert nichts. |
+| `POST /api/sim/new` | derselbe Entwurf plus `digest`, `confirm: true`, Idempotency-Key. Sichert die alte Welt („Vor der neuen Simulation“), legt Welt, Profile (mit bekannten Orten), Beziehungsstartwerte, Vorgeschichten (Erinnerung Art Fakt bei beiden) und Stimmen an. Die Simulation bleibt angehalten (`state: "stopped"`) oder läuft (`run: "running"`). |
+
+Bewohner-Kennung: Name klein ohne Umlaute (`jörg` → `joerg`), eindeutig mit Zahl; in der Startwelt nur `alex` und `mira` (Zimmer fest). Beziehungs- und Vorgeschichtenindizes zählen ab 0 in `residents`.
+Neues Weltereignis: `world.object_changed` mit `change: "claimed"` (ein Bett gehört nun dem, der sich hineinlegte, siehe [agenten.md](agenten.md)).
+
 ## Zugangsschutz und Oberfläche (AP10)
 
 Nur mit gesetztem `SIM_ACCESS_TOKEN`. Ohne Token verhalten sich alle Pfade wie bisher.

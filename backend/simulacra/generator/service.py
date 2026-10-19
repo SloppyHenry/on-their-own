@@ -36,6 +36,7 @@ class Wish:
     seed: int = 1
     lake: str = "auto"
     mix: tuple[tuple[str, int], ...] | None = None             # Gebäude je Rolle; None = Standard (3 Häuser, 2 Sondergebäude)
+    residents: tuple[tuple[str, str, int | None], ...] | None = None   # Bewohner (Kennung, Name, Haus) für ein Dorf nach Maß (AP17b); None = Heimhaus für Alex und Mira
 
     def __post_init__(self):
         if self.kind not in KINDS or self.lake not in LAKES or not 0 <= self.seed <= 2_000_000_000:
@@ -123,7 +124,8 @@ def apply_extension(sim: Simulation, w: Wish, expect: str) -> dict:
 
 def make_world(w: Wish) -> tuple[dict, object]:
     try:
-        return new_world(w.seed, lake=w.lake, mix=w.mix_dict())
+        residents = None if w.residents is None else [{"id": i, "name": n, "home": h} for i, n, h in w.residents]
+        return new_world(w.seed, lake=w.lake, mix=w.mix_dict(), residents=residents)
     except GenerationError as e:
         raise ServiceError(422, str(e)) from e
 
@@ -140,10 +142,14 @@ async def preview_new(sim: Simulation, w: Wish) -> dict:
     except ServiceError as e:
         return {"kind": "new", "ok": False, "error": e.text, "report": _report(None), "digest": None, "village": None, "seed": None, "focus": None, "region": None,
                 "counts": {}, "snapshot": None}
+    return await preview_world(sim, world, rep)
+
+
+async def preview_world(sim: Simulation, world: dict, rep) -> dict:
     tmp = Simulation.create(sim.settings, ":memory:", sim.provider, world=world)
     try:
         snap = await tmp.engine.db.run(lambda: api_state.snapshot(tmp).model_dump())
     finally:
         tmp.close()
-    return {"kind": "new", "ok": rep.ok, "error": None, "report": _report(rep), "digest": digest(world), "village": world["generator"]["village"],
-            "seed": world["generator"]["seed"], "focus": None, "region": None, "counts": world_counts(world), "snapshot": snap}
+    return {"kind": "new", "ok": rep.ok, "error": None, "report": _report(rep), "digest": digest(world), "village": world.get("generator", {}).get("village") or world["name"],
+            "seed": world.get("generator", {}).get("seed"), "focus": None, "region": None, "counts": world_counts(world), "snapshot": snap}

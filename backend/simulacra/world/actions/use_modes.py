@@ -26,6 +26,10 @@ class Sleep(Mode):
         from .needs import validate_sleep
         return validate_sleep(ctx, actor, o, params)
 
+    def start(self, ctx, actor, o, act):
+        from .needs import claim_bed
+        claim_bed(ctx, actor, o)
+
     def step(self, ctx, actor, o, act):
         from .needs import sleep_step
         sleep_step(ctx, actor, act)

@@ -32,3 +32,10 @@ cd backend
 .venv/bin/python -m simulacra.cli decisions alex --limit 5      # Optionen, Punkte, Faktoren, Wahl, Ergebnis
 .venv/bin/python -m pytest -m integration -s                    # Lauf gegen maintux (nicht im Standardlauf)
 ```
+
+## Profilmaske, Vorlagen und Wohnen (AP17b)
+- **Profilmaske** (`agents/schema.py`): `AgentProfile` und `Personality` mit Grenzen und deutschen Fehlermeldungen. Name 1–24 Zeichen; Beschreibung und Hintergrund je höchstens 600; Kommunikationsstil 160; Interessen und Abneigungen je 8 Einträge zu 40; Ziele 3 zu 120; **alle Texte zusammen höchstens 2 000 Zeichen** (etwa 600 Token im festen Teil des Prompts); Vorgeschichte je Paar 300. Die Maske hat kein Feld für eine Steuerungsart: ein Mitspieler (Frage 11) nutzt dieselbe.
+- **Wortprüfung:** Spieler, Nutzer, Benutzer, Leitstelle, Simulation, Editor, Schöpfer, KI, Sprachmodell, Prompt in Profiltexten und Vorgeschichten ergeben **Warnungen** (keine Sperre). Prompts, Optionen und Erinnerungen neuer Bewohner sind per Test frei von diesen Wörtern.
+- **Vorlagen** (`agents/templates.py`): sechs mitgelieferte in `agents/defaults/`, eigene als Dateien in `data/vorlagen/`. Export und Import je eine JSON-Datei mit Schemaversion.
+- **Neue Simulation** (`simulation/newsim.py`): Bewohner, Beziehungsstartwerte (ohne `relation_log`, ohne Ereignis) und Vorgeschichte (gewöhnliche Erinnerung) entstehen, bevor die frische Simulation die alte ersetzt. Für die Bewohner war das Dorf „schon immer da“.
+- **Bleibe suchen:** Der Assistent weist keine Betten zu. „Zum Schlafen gehen“ (`agents/options.py`) bietet das eigene Bett, sonst die nächsten freien Betten **verschiedener Räume** (höchstens 3). Wer in einem freien Bett schläft, dem gehört es (`world/actions/needs.py: claim_bed`; Name „Bett (Ida)“, Ereignis `world.object_changed` mit `change: "claimed"`); wer schon eines hat, nimmt kein zweites in Besitz. Nur das Vorwort „wohnt schon in Haus N“ setzt vorab den Besitzer.

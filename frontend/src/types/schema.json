@@ -2707,6 +2707,27 @@
    "title": "HardwareOut",
    "type": "object"
   },
+  "HouseOut": {
+   "additionalProperties": false,
+   "properties": {
+    "beds": {
+     "type": "integer"
+    },
+    "n": {
+     "type": "integer"
+    },
+    "name": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "n",
+    "name",
+    "beds"
+   ],
+   "title": "HouseOut",
+   "type": "object"
+  },
   "Informed": {
    "additionalProperties": false,
    "description": "Eine Information, Nachricht, Einladung oder Situation erreicht genau die Empfänger in `agents`.",
@@ -4176,6 +4197,308 @@
    "title": "NeedOut",
    "type": "object"
   },
+  "NewSimApplied": {
+   "additionalProperties": false,
+   "properties": {
+    "backup": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "counts": {
+     "additionalProperties": {
+      "type": "integer"
+     },
+     "default": {},
+     "type": "object"
+    },
+    "residents": {
+     "default": [],
+     "items": {
+      "$ref": "#/$defs/ResidentOut"
+     },
+     "type": "array"
+    },
+    "seed": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "state": {
+     "default": "stopped",
+     "type": "string"
+    },
+    "village": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "village",
+    "seed",
+    "residents",
+    "backup",
+    "counts",
+    "state"
+   ],
+   "title": "NewSimApplied",
+   "type": "object"
+  },
+  "NewSimApplyRequest": {
+   "additionalProperties": false,
+   "properties": {
+    "confirm": {
+     "default": false,
+     "type": "boolean"
+    },
+    "digest": {
+     "maxLength": 32,
+     "type": "string"
+    },
+    "relations": {
+     "default": [],
+     "items": {
+      "$ref": "#/$defs/RelationIn"
+     },
+     "type": "array"
+    },
+    "residents": {
+     "items": {
+      "$ref": "#/$defs/ResidentIn"
+     },
+     "maxItems": 8,
+     "minItems": 1,
+     "type": "array"
+    },
+    "run": {
+     "default": "paused",
+     "enum": [
+      "paused",
+      "running"
+     ],
+     "type": "string"
+    },
+    "stories": {
+     "default": [],
+     "items": {
+      "$ref": "#/$defs/StoryIn"
+     },
+     "type": "array"
+    },
+    "world": {
+     "$ref": "#/$defs/WorldSpec",
+     "default": {
+      "houses": null,
+      "kind": "generated",
+      "lake": "auto",
+      "mix": null,
+      "seed": 1
+     }
+    }
+   },
+   "required": [
+    "residents",
+    "digest"
+   ],
+   "title": "NewSimApplyRequest",
+   "type": "object"
+  },
+  "NewSimLimits": {
+   "additionalProperties": false,
+   "properties": {
+    "max_per_house": {
+     "default": 2,
+     "type": "integer"
+    },
+    "max_residents": {
+     "type": "integer"
+    },
+    "seconds_per_decision": {
+     "type": "number"
+    }
+   },
+   "required": [
+    "max_residents",
+    "seconds_per_decision",
+    "max_per_house"
+   ],
+   "title": "NewSimLimits",
+   "type": "object"
+  },
+  "NewSimPreview": {
+   "additionalProperties": false,
+   "properties": {
+    "counts": {
+     "additionalProperties": {
+      "type": "integer"
+     },
+     "default": {},
+     "type": "object"
+    },
+    "digest": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "errors": {
+     "default": [],
+     "items": {
+      "type": "string"
+     },
+     "type": "array"
+    },
+    "houses": {
+     "default": [],
+     "items": {
+      "$ref": "#/$defs/HouseOut"
+     },
+     "type": "array"
+    },
+    "ok": {
+     "type": "boolean"
+    },
+    "report": {
+     "anyOf": [
+      {
+       "$ref": "#/$defs/ReportOut"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "residents": {
+     "default": [],
+     "items": {
+      "$ref": "#/$defs/ResidentOut"
+     },
+     "type": "array"
+    },
+    "seed": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "snapshot": {
+     "anyOf": [
+      {
+       "$ref": "#/$defs/StateSnapshot"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "village": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "warnings": {
+     "default": [],
+     "items": {
+      "type": "string"
+     },
+     "type": "array"
+    }
+   },
+   "required": [
+    "ok",
+    "errors",
+    "warnings",
+    "residents",
+    "houses",
+    "report",
+    "digest",
+    "village",
+    "seed",
+    "counts",
+    "snapshot"
+   ],
+   "title": "NewSimPreview",
+   "type": "object"
+  },
+  "NewSimRequest": {
+   "additionalProperties": false,
+   "properties": {
+    "relations": {
+     "default": [],
+     "items": {
+      "$ref": "#/$defs/RelationIn"
+     },
+     "type": "array"
+    },
+    "residents": {
+     "items": {
+      "$ref": "#/$defs/ResidentIn"
+     },
+     "maxItems": 8,
+     "minItems": 1,
+     "type": "array"
+    },
+    "run": {
+     "default": "paused",
+     "enum": [
+      "paused",
+      "running"
+     ],
+     "type": "string"
+    },
+    "stories": {
+     "default": [],
+     "items": {
+      "$ref": "#/$defs/StoryIn"
+     },
+     "type": "array"
+    },
+    "world": {
+     "$ref": "#/$defs/WorldSpec",
+     "default": {
+      "houses": null,
+      "kind": "generated",
+      "lake": "auto",
+      "mix": null,
+      "seed": 1
+     }
+    }
+   },
+   "required": [
+    "residents"
+   ],
+   "title": "NewSimRequest",
+   "type": "object"
+  },
   "NpcAction": {
    "additionalProperties": false,
    "properties": {
@@ -5537,6 +5860,52 @@
    "title": "RelationChanged",
    "type": "object"
   },
+  "RelationIn": {
+   "additionalProperties": false,
+   "description": "Startwerte der Beziehung von Bewohner `a` zu Bewohner `b` (Nummern in `residents`, ab 0).",
+   "properties": {
+    "a": {
+     "exclusiveMaximum": 8,
+     "minimum": 0,
+     "type": "integer"
+    },
+    "b": {
+     "exclusiveMaximum": 8,
+     "minimum": 0,
+     "type": "integer"
+    },
+    "familiarity": {
+     "default": 30,
+     "maximum": 100,
+     "minimum": 0,
+     "type": "number"
+    },
+    "sympathy": {
+     "default": 50,
+     "maximum": 100,
+     "minimum": 0,
+     "type": "number"
+    },
+    "tension": {
+     "default": 10,
+     "maximum": 100,
+     "minimum": 0,
+     "type": "number"
+    },
+    "trust": {
+     "default": 50,
+     "maximum": 100,
+     "minimum": 0,
+     "type": "number"
+    }
+   },
+   "required": [
+    "a",
+    "b"
+   ],
+   "title": "RelationIn",
+   "type": "object"
+  },
   "RelationLogItem": {
    "additionalProperties": false,
    "properties": {
@@ -5678,6 +6047,108 @@
     }
    },
    "title": "ResetRequest",
+   "type": "object"
+  },
+  "ResidentIn": {
+   "additionalProperties": false,
+   "description": "Die Profilmaske eines Bewohners: dieselbe wie im Charaktereditor und in Vorlagen. Kein Feld für Steuerungsart oder Sonderstatus.",
+   "properties": {
+    "home": {
+     "anyOf": [
+      {
+       "maximum": 6,
+       "minimum": 1,
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "known": {
+     "default": [
+      "square",
+      "garden",
+      "rooms"
+     ],
+     "items": {
+      "enum": [
+       "square",
+       "garden",
+       "rooms",
+       "lake",
+       "forest"
+      ],
+      "type": "string"
+     },
+     "type": "array"
+    },
+    "personality": {
+     "additionalProperties": true,
+     "type": "object"
+    },
+    "profile": {
+     "additionalProperties": true,
+     "type": "object"
+    },
+    "template": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "voice": {
+     "anyOf": [
+      {
+       "$ref": "#/$defs/Voice"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    }
+   },
+   "required": [
+    "profile",
+    "personality"
+   ],
+   "title": "ResidentIn",
+   "type": "object"
+  },
+  "ResidentOut": {
+   "additionalProperties": false,
+   "properties": {
+    "home": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "id": {
+     "type": "string"
+    },
+    "name": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "id",
+    "name",
+    "home"
+   ],
+   "title": "ResidentOut",
    "type": "object"
   },
   "ResourceAdded": {
@@ -6771,6 +7242,33 @@
    "title": "Stored",
    "type": "object"
   },
+  "StoryIn": {
+   "additionalProperties": false,
+   "description": "Vorgeschichte eines Paares: wird bei beiden zu einer gewöhnlichen Erinnerung (Art Fakt).",
+   "properties": {
+    "a": {
+     "exclusiveMaximum": 8,
+     "minimum": 0,
+     "type": "integer"
+    },
+    "b": {
+     "exclusiveMaximum": 8,
+     "minimum": 0,
+     "type": "integer"
+    },
+    "text": {
+     "maxLength": 2000,
+     "type": "string"
+    }
+   },
+   "required": [
+    "a",
+    "b",
+    "text"
+   ],
+   "title": "StoryIn",
+   "type": "object"
+  },
   "SystemLoad": {
    "additionalProperties": false,
    "properties": {
@@ -6810,6 +7308,73 @@
     "power_save"
    ],
    "title": "SystemLoad",
+   "type": "object"
+  },
+  "TemplateImported": {
+   "additionalProperties": false,
+   "properties": {
+    "template": {
+     "$ref": "#/$defs/TemplateOut"
+    },
+    "warnings": {
+     "default": [],
+     "items": {
+      "type": "string"
+     },
+     "type": "array"
+    }
+   },
+   "required": [
+    "template",
+    "warnings"
+   ],
+   "title": "TemplateImported",
+   "type": "object"
+  },
+  "TemplateIn": {
+   "additionalProperties": false,
+   "properties": {
+    "personality": {
+     "additionalProperties": true,
+     "type": "object"
+    },
+    "profile": {
+     "additionalProperties": true,
+     "type": "object"
+    }
+   },
+   "required": [
+    "profile",
+    "personality"
+   ],
+   "title": "TemplateIn",
+   "type": "object"
+  },
+  "TemplateOut": {
+   "additionalProperties": false,
+   "properties": {
+    "builtin": {
+     "type": "boolean"
+    },
+    "id": {
+     "type": "string"
+    },
+    "personality": {
+     "additionalProperties": true,
+     "type": "object"
+    },
+    "profile": {
+     "additionalProperties": true,
+     "type": "object"
+    }
+   },
+   "required": [
+    "id",
+    "builtin",
+    "profile",
+    "personality"
+   ],
+   "title": "TemplateOut",
    "type": "object"
   },
   "TileChange": {
@@ -7273,6 +7838,64 @@
    "title": "WeatherInfo",
    "type": "object"
   },
+  "WorldSpec": {
+   "additionalProperties": false,
+   "description": "`start`: die handgemachte Startwelt (nur Alex und Mira), `generated`: ein Dorf für genau diese Bewohner.",
+   "properties": {
+    "houses": {
+     "anyOf": [
+      {
+       "maximum": 6,
+       "minimum": 1,
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "kind": {
+     "default": "generated",
+     "enum": [
+      "start",
+      "generated"
+     ],
+     "type": "string"
+    },
+    "lake": {
+     "default": "auto",
+     "enum": [
+      "auto",
+      "east",
+      "south"
+     ],
+     "type": "string"
+    },
+    "mix": {
+     "anyOf": [
+      {
+       "additionalProperties": {
+        "type": "integer"
+       },
+       "type": "object"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "seed": {
+     "default": 1,
+     "maximum": 2000000000,
+     "minimum": 0,
+     "type": "integer"
+    }
+   },
+   "title": "WorldSpec",
+   "type": "object"
+  },
   "WorldTime": {
    "additionalProperties": false,
    "properties": {
@@ -7676,6 +8299,21 @@
   "Moved": {
    "$ref": "#/$defs/Moved"
   },
+  "NewSimApplied": {
+   "$ref": "#/$defs/NewSimApplied"
+  },
+  "NewSimApplyRequest": {
+   "$ref": "#/$defs/NewSimApplyRequest"
+  },
+  "NewSimLimits": {
+   "$ref": "#/$defs/NewSimLimits"
+  },
+  "NewSimPreview": {
+   "$ref": "#/$defs/NewSimPreview"
+  },
+  "NewSimRequest": {
+   "$ref": "#/$defs/NewSimRequest"
+  },
   "NpcAction": {
    "$ref": "#/$defs/NpcAction"
   },
@@ -7840,6 +8478,15 @@
   },
   "Stored": {
    "$ref": "#/$defs/Stored"
+  },
+  "TemplateImported": {
+   "$ref": "#/$defs/TemplateImported"
+  },
+  "TemplateIn": {
+   "$ref": "#/$defs/TemplateIn"
+  },
+  "TemplateOut": {
+   "$ref": "#/$defs/TemplateOut"
   },
   "TileChanged": {
    "$ref": "#/$defs/TileChanged"

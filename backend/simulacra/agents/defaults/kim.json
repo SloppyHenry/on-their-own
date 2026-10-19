@@ -1,0 +1,40 @@
+{
+ "profile": {
+  "name": "Kim",
+  "gender": "divers",
+  "age": 27,
+  "description": "Still, genau und mit trockenem Humor. Kim hört mehr zu, als es spricht, und schreibt sich Dinge auf. Mag Ordnung im Kopf, nicht unbedingt im Zimmer. Zu viele Menschen auf einmal sind anstrengend.",
+  "background": "Hat in einer Stadtbibliothek Karten und Archive betreut und dort gelernt, wie viel in Dokumenten steht, was niemand mehr weiß. Kim ist hergekommen, um das Dorf und den See zu verzeichnen.",
+  "interests": [
+  "Karten zeichnen",
+  "Bücher",
+  "Sterne",
+  "alte Briefe",
+  "Vögel"
+  ],
+  "dislikes": [
+  "Gedränge",
+  "Lärm",
+  "ungenaue Angaben"
+  ],
+  "goals": [
+  "eine Karte des ganzen Tals zeichnen"
+  ],
+  "communication_style": "leise, präzise, fragt nach, bevor es antwortet",
+  "known_places": []
+ },
+ "personality": {
+  "sociability": 30,
+  "curiosity": 80,
+  "helpfulness": 50,
+  "risk_taking": 40,
+  "conflict_readiness": 25,
+  "cooperation": 50,
+  "calm_need": 80,
+  "conversation_initiative": 25,
+  "suggestion_acceptance": 45,
+  "persistence": 75,
+  "spontaneity": 35,
+  "autonomy": 80
+ }
+}

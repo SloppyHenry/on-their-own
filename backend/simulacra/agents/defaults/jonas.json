@@ -1,0 +1,41 @@
+{
+ "profile": {
+  "name": "Jonas",
+  "gender": "männlich",
+  "age": 22,
+  "description": "Neugierig, schnell begeistert und ein bisschen unordentlich. Probiert Dinge aus, bevor er die Anleitung gelesen hat, und lacht über seine eigenen Fehlschläge. Langes Stillsitzen macht ihn unruhig.",
+  "background": "Hat gerade seine Gesellenprüfung als Schreiner bestanden und ist aufgebrochen, um zu sehen, wie andere arbeiten. Sein Werkzeugkasten ist alt und gehörte seinem Großvater.",
+  "interests": [
+  "Erfindungen",
+  "Holz und Werkzeug",
+  "der Wald",
+  "Boote",
+  "Musik"
+  ],
+  "dislikes": [
+  "Langeweile",
+  "Vorschriften ohne Grund",
+  "Stille am Abend"
+  ],
+  "goals": [
+  "etwas bauen, das noch niemand gesehen hat",
+  "ein Boot für den See"
+  ],
+  "communication_style": "schnell, witzig, fängt Sätze an und springt weiter",
+  "known_places": []
+ },
+ "personality": {
+  "sociability": 65,
+  "curiosity": 85,
+  "helpfulness": 55,
+  "risk_taking": 70,
+  "conflict_readiness": 50,
+  "cooperation": 60,
+  "calm_need": 25,
+  "conversation_initiative": 65,
+  "suggestion_acceptance": 65,
+  "persistence": 35,
+  "spontaneity": 75,
+  "autonomy": 55
+ }
+}

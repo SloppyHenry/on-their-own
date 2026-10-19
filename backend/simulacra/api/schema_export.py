@@ -24,6 +24,7 @@ from . import models_llm as ml
 from . import models_params as mp
 from . import models_saves as ms
 from . import models_world as mw
+from . import models_newsim as mn
 
 API_MODELS: list[type[BaseModel]] = [
     api.StateSnapshot, api.AgentDetail, api.LocationDetail, api.EventsPage, api.EventDetail, api.SimCommandResult,
@@ -37,6 +38,7 @@ API_MODELS: list[type[BaseModel]] = [
     ms.SaveOut, ms.SaveCreate, ms.SaveLoadRequest, ms.StatsOut, auth.AuthStatus, auth.LoginRequest,
     ml.HardwareOut, ml.CatalogOut,
     mw.GenerateRequest, mw.GenerateApplyRequest, mw.GeneratePreview, mw.GenerateApplied, mw.PatchPreviewRequest, mw.PatchPreview,
+    mn.NewSimRequest, mn.NewSimApplyRequest, mn.NewSimPreview, mn.NewSimApplied, mn.NewSimLimits, mn.TemplateOut, mn.TemplateIn, mn.TemplateImported,
     EventOut, SimTime,
 ]
 
