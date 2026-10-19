@@ -54,6 +54,11 @@ class OpenAICompatProvider:
         self._transport = transport
         self._client: httpx.AsyncClient | None = None
 
+    def reconfigure(self, base_url: str, api_key: str | None) -> None:
+        """Neuer Endpunkt für die nächsten Anfragen (Betriebsart gewechselt, eingebautes Modell gestartet)."""
+        self.base_url = base_url.rstrip("/")
+        self._headers = {"Authorization": f"Bearer {api_key}"} if api_key else {}
+
     def _http(self) -> httpx.AsyncClient:
         if self._client is None:
             self._client = httpx.AsyncClient(transport=self._transport)

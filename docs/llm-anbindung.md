@@ -71,6 +71,8 @@ Die App spricht jeden OpenAI-kompatiblen Endpunkt an (`/v1/chat/completions`, `/
 
 Voraussetzungen an Modell und Server: JSON-Schema-Zwang (`response_format: json_schema`, bei llama.cpp über Grammatik) oder wenigstens `json_object`; ohne beides steigt die Zahl der Korrekturen stark (Messung oben). Bei Qwen 3.x schaltet `chat_template_kwargs: {"enable_thinking": false}` das Denken ab (`SIM_LLM_THINKING=false`, Standard); andere Modelle ignorieren das Feld. Die Antwortlänge (`SIM_LLM_MAX_TOKENS`, 400) und das Zeitlimit (90 s) passen für 7B–14B-Modelle; größere Modelle brauchen eher ein längeres Zeitlimit.
 
+Seit AP17c lässt sich das auch im Tool einstellen (Menü → Einstellungen → Modelle): Betriebsart **Eingebaut** (Simulacra startet `llama-server` selbst, Modelle von Hugging Face) oder **Externer Server** mit Adresse und Schlüssel; der **Probelauf** dort misst dieselben Dinge wie diese Sondierung (gültige Antworten, Sekunden je Entscheidung, Token/s) mit dem Messprompt von `scripts/probe_llm.py`, aber nur die Standardvariante (Schema, ohne Denken, zehn Anfragen). Eine Umgebungsvariable `SIM_LLM_BASE_URL` geht dem Tool vor. Schnittstelle: [schnittstellen.md](schnittstellen.md#modellverwaltung-ap17c-3--4).
+
 Nach einem Wechsel prüfen: `GET /api/health` (Router erreichbar, Modell bekannt) und einige Entscheidungen im Protokoll ansehen (Anteil gültiger Antworten, Antwortzeit in der Statusanzeige).
 
 ### Messung auf SecondTux (12.10.2026)

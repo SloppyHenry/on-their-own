@@ -1694,6 +1694,29 @@
    "title": "Dialogue",
    "type": "object"
   },
+  "DownloadRequest": {
+   "additionalProperties": false,
+   "properties": {
+    "confirm": {
+     "default": false,
+     "type": "boolean"
+    },
+    "file": {
+     "maxLength": 200,
+     "type": "string"
+    },
+    "repo": {
+     "maxLength": 200,
+     "type": "string"
+    }
+   },
+   "required": [
+    "repo",
+    "file"
+   ],
+   "title": "DownloadRequest",
+   "type": "object"
+  },
   "Drank": {
    "additionalProperties": false,
    "properties": {
@@ -1972,6 +1995,72 @@
     "last_seq"
    ],
    "title": "EventsPage",
+   "type": "object"
+  },
+  "ExternalTest": {
+   "additionalProperties": false,
+   "properties": {
+    "key": {
+     "anyOf": [
+      {
+       "maxLength": 300,
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "url": {
+     "anyOf": [
+      {
+       "maxLength": 300,
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    }
+   },
+   "title": "ExternalTest",
+   "type": "object"
+  },
+  "ExternalTestOut": {
+   "additionalProperties": false,
+   "properties": {
+    "error": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "models": {
+     "items": {
+      "type": "string"
+     },
+     "type": "array"
+    },
+    "reachable": {
+     "type": "boolean"
+    },
+    "url": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "reachable",
+    "models",
+    "error",
+    "url"
+   ],
+   "title": "ExternalTestOut",
    "type": "object"
   },
   "FactorInfo": {
@@ -3040,6 +3129,99 @@
    "title": "Inspected",
    "type": "object"
   },
+  "InstalledOut": {
+   "additionalProperties": false,
+   "properties": {
+    "file": {
+     "type": "string"
+    },
+    "id": {
+     "type": "string"
+    },
+    "is_default": {
+     "type": "boolean"
+    },
+    "is_sim_model": {
+     "type": "boolean"
+    },
+    "license": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "name": {
+     "type": "string"
+    },
+    "probe": {
+     "anyOf": [
+      {
+       "$ref": "#/$defs/ProbeOut"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "quant": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "repo": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "running": {
+     "type": "boolean"
+    },
+    "size_bytes": {
+     "type": "integer"
+    },
+    "size_mb": {
+     "type": "number"
+    },
+    "source": {
+     "enum": [
+      "tool",
+      "extern"
+     ],
+     "type": "string"
+    }
+   },
+   "required": [
+    "id",
+    "file",
+    "name",
+    "repo",
+    "quant",
+    "size_bytes",
+    "size_mb",
+    "license",
+    "source",
+    "running",
+    "is_default",
+    "is_sim_model",
+    "probe"
+   ],
+   "title": "InstalledOut",
+   "type": "object"
+  },
   "InventoryChanged": {
    "additionalProperties": false,
    "properties": {
@@ -3367,6 +3549,105 @@
     "corrections"
    ],
    "title": "LlmStats",
+   "type": "object"
+  },
+  "LlmStatusOut": {
+   "additionalProperties": false,
+   "properties": {
+    "base_url": {
+     "type": "string"
+    },
+    "default_model": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "external_key_set": {
+     "type": "boolean"
+    },
+    "external_url": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "installed": {
+     "items": {
+      "$ref": "#/$defs/InstalledOut"
+     },
+     "type": "array"
+    },
+    "locked": {
+     "type": "boolean"
+    },
+    "mode": {
+     "enum": [
+      "builtin",
+      "external"
+     ],
+     "type": "string"
+    },
+    "probe": {
+     "anyOf": [
+      {
+       "$ref": "#/$defs/ProbeJobOut"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "runtime": {
+     "$ref": "#/$defs/RuntimeOut"
+    },
+    "sim_model": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "sim_running": {
+     "type": "boolean"
+    },
+    "transfer": {
+     "anyOf": [
+      {
+       "$ref": "#/$defs/TransferOut"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    }
+   },
+   "required": [
+    "mode",
+    "locked",
+    "external_url",
+    "external_key_set",
+    "base_url",
+    "sim_model",
+    "sim_running",
+    "default_model",
+    "runtime",
+    "installed",
+    "transfer",
+    "probe"
+   ],
+   "title": "LlmStatusOut",
    "type": "object"
   },
   "LocationChanged": {
@@ -4043,6 +4324,61 @@
     "last_reflection_minute"
    ],
    "title": "MemoryStats",
+   "type": "object"
+  },
+  "ModeSet": {
+   "additionalProperties": false,
+   "properties": {
+    "external_key": {
+     "anyOf": [
+      {
+       "maxLength": 300,
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "external_url": {
+     "anyOf": [
+      {
+       "maxLength": 300,
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "mode": {
+     "enum": [
+      "builtin",
+      "external"
+     ],
+     "type": "string"
+    }
+   },
+   "required": [
+    "mode"
+   ],
+   "title": "ModeSet",
+   "type": "object"
+  },
+  "ModelRef": {
+   "additionalProperties": false,
+   "properties": {
+    "model_id": {
+     "maxLength": 200,
+     "type": "string"
+    }
+   },
+   "required": [
+    "model_id"
+   ],
+   "title": "ModelRef",
    "type": "object"
   },
   "ModelStatus": {
@@ -5778,6 +6114,146 @@
    "title": "PresetSave",
    "type": "object"
   },
+  "ProbeJobOut": {
+   "additionalProperties": false,
+   "properties": {
+    "error": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "model_id": {
+     "type": "string"
+    },
+    "n": {
+     "type": "integer"
+    },
+    "phase": {
+     "enum": [
+      "starting",
+      "running",
+      "done",
+      "failed",
+      "cancelled"
+     ],
+     "type": "string"
+    },
+    "result": {
+     "anyOf": [
+      {
+       "$ref": "#/$defs/ProbeOut"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "step": {
+     "type": "integer"
+    }
+   },
+   "required": [
+    "model_id",
+    "phase",
+    "step",
+    "n",
+    "error",
+    "result"
+   ],
+   "title": "ProbeJobOut",
+   "type": "object"
+  },
+  "ProbeOut": {
+   "additionalProperties": false,
+   "properties": {
+    "at": {
+     "type": "number"
+    },
+    "avg_s": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "errors": {
+     "type": "integer"
+    },
+    "hardware": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "n": {
+     "type": "integer"
+    },
+    "runtime": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "seal": {
+     "enum": [
+      "checked",
+      "limited",
+      "unfit"
+     ],
+     "type": "string"
+    },
+    "seal_label": {
+     "type": "string"
+    },
+    "tokens_per_s": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "valid": {
+     "type": "integer"
+    },
+    "valid_pct": {
+     "type": "number"
+    }
+   },
+   "required": [
+    "n",
+    "valid",
+    "valid_pct",
+    "errors",
+    "avg_s",
+    "tokens_per_s",
+    "seal",
+    "seal_label",
+    "at",
+    "hardware",
+    "runtime"
+   ],
+   "title": "ProbeOut",
+   "type": "object"
+  },
   "ProfileBrief": {
    "additionalProperties": false,
    "properties": {
@@ -6642,6 +7118,102 @@
     }
    },
    "title": "RulesSpec",
+   "type": "object"
+  },
+  "RuntimeInstallRequest": {
+   "additionalProperties": false,
+   "properties": {
+    "confirm": {
+     "default": false,
+     "type": "boolean"
+    }
+   },
+   "title": "RuntimeInstallRequest",
+   "type": "object"
+  },
+  "RuntimeOut": {
+   "additionalProperties": false,
+   "properties": {
+    "binary": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "error": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "installed": {
+     "type": "boolean"
+    },
+    "kind": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "log_tail": {
+     "items": {
+      "type": "string"
+     },
+     "type": "array"
+    },
+    "model_id": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "state": {
+     "enum": [
+      "stopped",
+      "starting",
+      "running",
+      "failed"
+     ],
+     "type": "string"
+    },
+    "version": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    }
+   },
+   "required": [
+    "installed",
+    "version",
+    "kind",
+    "binary",
+    "state",
+    "model_id",
+    "error",
+    "log_tail"
+   ],
+   "title": "RuntimeOut",
    "type": "object"
   },
   "SaveCreate": {
@@ -7741,6 +8313,97 @@
    "title": "TilesChanged",
    "type": "object"
   },
+  "TransferOut": {
+   "additionalProperties": false,
+   "properties": {
+    "done": {
+     "type": "integer"
+    },
+    "error": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "eta_s": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "file": {
+     "type": "string"
+    },
+    "id": {
+     "type": "string"
+    },
+    "kind": {
+     "enum": [
+      "model",
+      "runtime"
+     ],
+     "type": "string"
+    },
+    "label": {
+     "type": "string"
+    },
+    "model_id": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "phase": {
+     "enum": [
+      "preparing",
+      "downloading",
+      "verifying",
+      "unpacking",
+      "done",
+      "failed",
+      "cancelled"
+     ],
+     "type": "string"
+    },
+    "source": {
+     "type": "string"
+    },
+    "speed_bps": {
+     "type": "number"
+    },
+    "total": {
+     "type": "integer"
+    }
+   },
+   "required": [
+    "id",
+    "kind",
+    "label",
+    "file",
+    "source",
+    "total",
+    "done",
+    "phase",
+    "speed_bps",
+    "eta_s",
+    "error",
+    "model_id"
+   ],
+   "title": "TransferOut",
+   "type": "object"
+  },
   "VariantOut": {
    "additionalProperties": false,
    "properties": {
@@ -8205,6 +8868,25 @@
    "title": "WsHello",
    "type": "object"
   },
+  "WsModels": {
+   "additionalProperties": false,
+   "properties": {
+    "status": {
+     "$ref": "#/$defs/LlmStatusOut"
+    },
+    "type": {
+     "const": "models",
+     "default": "models",
+     "type": "string"
+    }
+   },
+   "required": [
+    "type",
+    "status"
+   ],
+   "title": "WsModels",
+   "type": "object"
+  },
   "WsPing": {
    "additionalProperties": false,
    "properties": {
@@ -8362,6 +9044,9 @@
   "Dialogue": {
    "$ref": "#/$defs/Dialogue"
   },
+  "DownloadRequest": {
+   "$ref": "#/$defs/DownloadRequest"
+  },
   "Drank": {
    "$ref": "#/$defs/Drank"
   },
@@ -8385,6 +9070,12 @@
   },
   "EventsPage": {
    "$ref": "#/$defs/EventsPage"
+  },
+  "ExternalTest": {
+   "$ref": "#/$defs/ExternalTest"
+  },
+  "ExternalTestOut": {
+   "$ref": "#/$defs/ExternalTestOut"
   },
   "FactorRegistry": {
    "$ref": "#/$defs/FactorRegistry"
@@ -8452,6 +9143,9 @@
   "LinksAdded": {
    "$ref": "#/$defs/LinksAdded"
   },
+  "LlmStatusOut": {
+   "$ref": "#/$defs/LlmStatusOut"
+  },
   "LocationChanged": {
    "$ref": "#/$defs/LocationChanged"
   },
@@ -8493,6 +9187,12 @@
   },
   "MemoryStats": {
    "$ref": "#/$defs/MemoryStats"
+  },
+  "ModeSet": {
+   "$ref": "#/$defs/ModeSet"
+  },
+  "ModelRef": {
+   "$ref": "#/$defs/ModelRef"
   },
   "Moved": {
    "$ref": "#/$defs/Moved"
@@ -8617,6 +9317,9 @@
   "RulesPreviewRequest": {
    "$ref": "#/$defs/RulesPreviewRequest"
   },
+  "RuntimeInstallRequest": {
+   "$ref": "#/$defs/RuntimeInstallRequest"
+  },
   "SaveCreate": {
    "$ref": "#/$defs/SaveCreate"
   },
@@ -8733,6 +9436,9 @@
   },
   "WsHello": {
    "$ref": "#/$defs/WsHello"
+  },
+  "WsModels": {
+   "$ref": "#/$defs/WsModels"
   },
   "WsPing": {
    "$ref": "#/$defs/WsPing"

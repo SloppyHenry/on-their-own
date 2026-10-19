@@ -2,6 +2,7 @@
 
 from fastapi import APIRouter, HTTPException, Request
 
+from .routes_llm import prepare
 from .models import ResetRequest, SimCommandResult, SpeedRequest, StartRequest, StepRequest
 from .state import SPEED_LEVELS, speed_level
 
@@ -68,6 +69,7 @@ async def reset(request: Request, body: ResetRequest | None = None):
         raise HTTPException(400, "Zurücksetzen braucht die ausdrückliche Bestätigung {\"confirm\": true}. Die bisherige Welt wird gesichert, nicht gelöscht.")
 
     async def action(sim):
+        await prepare(request, body.model, strict=True)
         saved = await sim.reset(model=body.model, keep_profiles=body.keep_profiles)
         return await _result(sim, backup=str(saved) if saved else None)
     return await _command(request, body, action)

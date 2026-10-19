@@ -8,7 +8,7 @@ const values = async (request: import("@playwright/test").APIRequestContext) => 
 async function openTab(page: import("@playwright/test").Page, name: string) {
   if (!(await page.getByTestId("settings").isVisible())) await page.getByTestId("open-settings").click();
   await expect(page.getByTestId("settings")).toBeVisible();
-  await page.getByRole("tab", { name }).click();
+  await page.getByRole("tab", { name, exact: true }).click();
 }
 
 test("Regler Knappheit: Status „übernommen“ und die Welt schrumpft wirklich (§17 Nr. 8)", async ({ page, request }) => {

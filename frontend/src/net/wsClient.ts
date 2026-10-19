@@ -1,5 +1,5 @@
 // WebSocket-Client: hello mit last_seq, Lückenprüfung, Resync, Wiederverbindung mit Backoff, Wächter gegen tote Verbindungen.
-import type { EventOut, StateSnapshot } from "../types/generated";
+import type { EventOut, LlmStatusOut, StateSnapshot } from "../types/generated";
 import type { Conn } from "../store/types";
 import { checkSeq } from "./gap";
 
@@ -18,6 +18,8 @@ export interface WsHandlers {
   onStatus(c: Conn): void;
   /** Uhrtakt ohne Nummer; geht nicht in die Lückenprüfung ein. */
   onClock?(minute: number): void;
+  /** Zustand der Modellverwaltung (Fortschritt, Laufzeit, Probelauf); ebenfalls ohne Nummer. */
+  onModels?(status: LlmStatusOut): void;
 }
 
 export interface WsOptions {
@@ -150,6 +152,9 @@ export class WsClient {
         break;
       case "clock":
         this.h.onClock?.(msg.minute as number);
+        break;
+      case "models":
+        this.h.onModels?.(msg.status as LlmStatusOut);
         break;
       case "resync_required":
         this.resync();

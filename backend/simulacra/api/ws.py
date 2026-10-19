@@ -13,7 +13,9 @@ from ..events.bus import OVERFLOW, Subscription
 from ..events.schema import to_out
 from ..events.store import EventStore
 from . import state
+from .routes_llm import service_of
 from .models import WsClock, WsEvent, WsEvents, WsPing, WsResyncRequired, WsSnapshot
+from .models_runtime import WsModels, status_out
 
 router = APIRouter()
 HELLO_TIMEOUT_S = 10.0
@@ -45,17 +47,19 @@ def _fresh_clock(sub: Subscription, clock: asyncio.Task) -> asyncio.Task:
     return asyncio.create_task(sub.next_clock(CLOCK_MIN_GAP_S))
 
 
-async def _live(ws: WebSocket, sim, sub: Subscription, sent: int, ping_s: float, max_gap: int) -> None:
+async def _live(ws: WebSocket, sim, sub: Subscription, sent: int, ping_s: float, max_gap: int, models=None) -> None:
     recv: asyncio.Task = asyncio.create_task(ws.receive_text())
     queue: asyncio.Task = asyncio.create_task(sub.get())
     clock: asyncio.Task = asyncio.create_task(sub.next_clock())
+    msub = models.hub.subscribe() if models is not None else None                # Modellverwaltung (AP17c-3): Fortschritt, Laufzeit, Probelauf
+    changed: asyncio.Task | None = asyncio.create_task(msub.changed()) if msub is not None else None
     loop = asyncio.get_running_loop()
     last_heard = last_ping = loop.time()
     awaiting_resync = False
     try:
         while True:
             wait = max(0.0, last_ping + ping_s - loop.time())
-            done, _ = await asyncio.wait({recv, queue, clock}, timeout=wait, return_when=asyncio.FIRST_COMPLETED)
+            done, _ = await asyncio.wait({recv, queue, clock, *([changed] if changed else [])}, timeout=wait, return_when=asyncio.FIRST_COMPLETED)
             now = loop.time()
             if now - last_ping >= ping_s:                              # Heartbeat im festen Takt (Uhrtakte zählen nicht als Lebenszeichen des Clients)
                 if now - last_heard > 2 * ping_s:
@@ -86,6 +90,9 @@ async def _live(ws: WebSocket, sim, sub: Subscription, sent: int, ping_s: float,
                         elif e.seq > sent:
                             await ws.send_text(WsEvent(event=to_out(e)).model_dump_json())
                             sent = e.seq
+            if changed is not None and changed in done:
+                changed = asyncio.create_task(msub.changed())
+                await ws.send_text(WsModels(status=status_out(models)).model_dump_json())
             if clock in done:
                 minute = clock.result()
                 clock = asyncio.create_task(sub.next_clock(CLOCK_MIN_GAP_S))
@@ -95,6 +102,10 @@ async def _live(ws: WebSocket, sim, sub: Subscription, sent: int, ping_s: float,
         recv.cancel()
         queue.cancel()
         clock.cancel()
+        if changed is not None:
+            changed.cancel()
+        if msub is not None:
+            msub.close()
 
 
 @router.websocket("/ws")
@@ -109,7 +120,7 @@ async def websocket_endpoint(ws: WebSocket) -> None:
             await ws.close(code=4400, reason="Erste Nachricht muss 'hello' sein")
             return
         sent = await _sync(ws, sim, hello.get("last_seq"), settings.ws_max_gap)
-        await _live(ws, sim, sub, sent, settings.ws_ping_s, settings.ws_max_gap)
+        await _live(ws, sim, sub, sent, settings.ws_ping_s, settings.ws_max_gap, service_of(ws.app))
     except WebSocketDisconnect:
         pass
     except (asyncio.TimeoutError, json.JSONDecodeError, AttributeError, TypeError, RuntimeError) as e:
