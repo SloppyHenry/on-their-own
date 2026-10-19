@@ -24,7 +24,7 @@ Das Skript prüft den Rechner (System, Arbeitsspeicher, Grafikkarte), holt fehle
 - Auf einem Server: `ssh server 'cd simulacra && ./install.sh --yes --headless'`; damit die Dienste ohne Anmeldung laufen, einmal `sudo loginctl enable-linger $USER`.
 - Ein vorhandener Eintrag in `backend/.env` (zum Beispiel `SIM_LLM_BASE_URL`) bleibt unberührt; das Skript schreibt nur seinen eigenen, markierten Block.
 - Die Auswahl der llama.cpp-Datei und des Modells ist mit nachgestellten Rechnern getestet (`backend/tests/test_install_script.py`); ein echter Lauf auf Apple M1 mit Qwen3-4B ist im Bericht [status/AP17c.md](status/AP17c.md) beschrieben.
-- Die Modellwahl rechnet `python -m simulacra.models` (dieselbe Rechnung wie das Tool; kuratierte Liste, geprüft). Die Live-Liste von Hugging Face zeigt das Tool: `GET /api/models/catalog` (Oberfläche folgt mit AP17c-4). Von Hand: `cd backend && .venv/bin/python -m simulacra.models hardware` zeigt den erkannten Rechner, `… catalog --only-fit` die passenden Modelle (Zwischenspeicher 6 Stunden in `data/models/cache/`).
+- Die Modellwahl rechnet `python -m simulacra.models` (dieselbe Rechnung wie das Tool; kuratierte Liste, geprüft). Die Live-Liste von Hugging Face zeigt das Tool: Menü → Einstellungen → **Modelle** (Hardware, Betriebsart, Empfehlungen, Download mit Fortschritt, Messung); die Schnittstelle steht in [schnittstellen.md](schnittstellen.md#modellverwaltung-ap17c-3--4). Von Hand: `cd backend && .venv/bin/python -m simulacra.models hardware` zeigt den erkannten Rechner, `… catalog --only-fit` die passenden Modelle (Zwischenspeicher 6 Stunden in `data/models/cache/`).
 
 Die folgenden Abschnitte beschreiben dasselbe von Hand.
 
@@ -87,6 +87,8 @@ cd backend && .venv/bin/python -c "from simulacra.config import get_settings; s=
 ```
 
 Nach dem Start zeigt `http://127.0.0.1:8090/api/health` unter `llm` an, ob der Router antwortet und das Modell kennt.
+
+**Oder im Tool (ab AP17c):** Menü → Einstellungen → **Modelle**. Dort wählt man die Betriebsart: **Eingebaut** (Simulacra startet `llama-server` selbst; die Laufzeit holt „Laufzeit installieren“ aus den offiziellen llama.cpp-Releases, Modelle lädt man von Hugging Face und misst sie mit dem Probelauf) oder **Externer Server** (Adresse und Schlüssel, mit Verbindungstest). Die Wahl steht in `data/llm.json`. Steht `SIM_LLM_BASE_URL` in der Umgebung oder in `backend/.env` (so schreibt es auch `install.sh`), gewinnt das: die Betriebsart ist dann fest „Externer Server“ und das Tool ändert die Adresse nicht; Modelle lassen sich trotzdem laden und messen.
 
 ## 5. Starten und beenden
 

@@ -25,6 +25,7 @@ class Settings(BaseSettings):
     llm_max_concurrent: int = 1           # passend zu parallel = 1 im Router
     llm_response_format: str = "json_schema"   # json_schema | json_object | none
     llm_thinking: bool = False            # Denkmodus aus (Standardvariante C2)
+    llm_builtin: bool = Field(default=False, exclude=True)   # von der Modellverwaltung gesetzt (eingebauter llama-server, kein Schlüssel); nicht zum Einstellen gedacht
 
     sim_top_k: int = 6                    # Optionen je Entscheidung
     sim_correction_retries: int = 2
@@ -62,6 +63,8 @@ class Settings(BaseSettings):
     @property
     def llm_api_key(self) -> SecretStr | None:
         """Key aus SIM_LLM_API_KEY, sonst aus der Key-Datei; None, wenn beides fehlt."""
+        if self.llm_builtin:
+            return None
         if self.llm_api_key_value is not None:
             return self.llm_api_key_value
         path = self.llm_api_key_file.expanduser()

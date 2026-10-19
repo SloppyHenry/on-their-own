@@ -1,5 +1,5 @@
 // REST-Zugriff. Verändernde Aufrufe tragen einen Idempotency-Key, damit Wiederholungen nichts doppelt tun.
-import type { AgentDetail, AgentNeeds, AgentOverview, DecisionOut, FactorRegistry, FailureOut, GoalOut, RelationOut, EventDetail, EventsPage, Knowledge, LocationDetail, MemoriesPage, MemoryDetail, MemoryStats, RetrievalOut, SimCommandResult, StateSnapshot, ParamPatchOut, ParamSchema, ParamValues, PresetBrief, PresetLoadOut, PresetOut, PresetPreview, StatusOut, InjectProposal, ScheduledOut, SaveOut, StatsOut, AuthStatus, GenerateRequest, GeneratePreview, GenerateApplyRequest, GenerateApplied, PatchPreview, Voice, VoiceOut, NewSimApplied, NewSimLimits, NewSimPreview, NewSimRequest, RulesPreviewRequest, TemplateImported, TemplateOut } from "../types/generated";
+import type { AgentDetail, AgentNeeds, AgentOverview, DecisionOut, FactorRegistry, FailureOut, GoalOut, RelationOut, EventDetail, EventsPage, Knowledge, LocationDetail, MemoriesPage, MemoryDetail, MemoryStats, RetrievalOut, SimCommandResult, StateSnapshot, ParamPatchOut, ParamSchema, ParamValues, PresetBrief, PresetLoadOut, PresetOut, PresetPreview, StatusOut, InjectProposal, ScheduledOut, SaveOut, StatsOut, AuthStatus, GenerateRequest, GeneratePreview, GenerateApplyRequest, GenerateApplied, PatchPreview, Voice, VoiceOut, NewSimApplied, NewSimLimits, NewSimPreview, NewSimRequest, RulesPreviewRequest, TemplateImported, TemplateOut, CatalogOut, HardwareOut, ExternalTestOut, LlmStatusOut, ModeSet } from "../types/generated";
 
 export class ApiError extends Error {
   constructor(readonly status: number, readonly detail: string) {
@@ -161,6 +161,25 @@ export const api = {
   injectHistory: (limit = 30) => request<InjectProposal[]>("GET", `/api/inject/history?limit=${limit}`),
   authStatus: () => request<AuthStatus>("GET", "/api/auth/status"),
   login: (token: string) => request<AuthStatus>("POST", "/api/auth/login", { token }),
+  /** Modellverwaltung (AP17c): jeder verändernde Aufruf liefert den neuen Gesamtzustand. */
+  hardware: () => request<HardwareOut>("GET", "/api/hardware"),
+  catalog: (q: { q?: string; only_fit?: boolean; publishers?: "trusted" | "all"; refresh?: boolean; limit?: number }) => {
+    const p = new URLSearchParams();
+    Object.entries(q).forEach(([k, v]) => v !== undefined && v !== "" && p.set(k, String(v)));
+    return request<CatalogOut>("GET", `/api/models/catalog${p.size ? `?${p}` : ""}`);
+  },
+  llm: () => request<LlmStatusOut>("GET", "/api/llm"),
+  setLlmMode: (body: ModeSet) => request<LlmStatusOut>("PUT", "/api/llm", body),
+  testLlm: (url?: string, key?: string) => request<ExternalTestOut>("POST", "/api/llm/test", { url: url || null, key: key || null }),
+  installRuntime: () => request<LlmStatusOut>("POST", "/api/llm/runtime/install", { confirm: true }),
+  startModel: (model_id: string) => request<LlmStatusOut>("POST", "/api/llm/start", { model_id }),
+  stopModel: () => request<LlmStatusOut>("POST", "/api/llm/stop"),
+  setDefaultModel: (model_id: string) => request<LlmStatusOut>("PUT", "/api/llm/default", { model_id }),
+  downloadModel: (repo: string, file: string) => request<LlmStatusOut>("POST", "/api/models/downloads", { repo, file, confirm: true }),
+  cancelTransfer: () => request<LlmStatusOut>("DELETE", "/api/models/downloads/current"),
+  deleteModel: (id: string) => request<LlmStatusOut>("DELETE", `/api/models/installed/${encodeURIComponent(id)}?confirm=true`),
+  probeModel: (id: string) => request<LlmStatusOut>("POST", `/api/models/installed/${encodeURIComponent(id)}/probe`),
+  cancelProbe: () => request<LlmStatusOut>("DELETE", "/api/models/probe"),
   scheduled: () => request<ScheduledOut[]>("GET", "/api/scheduled"),
   cancelScheduled: (id: string) => request<ScheduledOut>("DELETE", `/api/scheduled/${id}`),
 };

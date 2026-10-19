@@ -20,6 +20,7 @@ export interface SimulacraApi {
   DecisionFailed?: DecisionFailed;
   DecisionOut?: DecisionOut;
   Dialogue?: Dialogue;
+  DownloadRequest?: DownloadRequest;
   Drank?: Drank;
   EffectEnded?: EffectEnded;
   EventDetail?: EventDetail;
@@ -28,6 +29,8 @@ export interface SimulacraApi {
   EventOut?: EventOut;
   EventScheduled?: EventScheduled;
   EventsPage?: EventsPage;
+  ExternalTest?: ExternalTest;
+  ExternalTestOut?: ExternalTestOut;
   FactorRegistry?: FactorRegistry;
   FailureOut?: FailureOut;
   Fished?: Fished;
@@ -50,6 +53,7 @@ export interface SimulacraApi {
   ItemMoved?: ItemMoved;
   Knowledge?: Knowledge;
   LinksAdded?: LinksAdded;
+  LlmStatusOut?: LlmStatusOut;
   LocationChanged?: LocationChanged;
   LocationDetail?: LocationDetail;
   LocationDiscovered?: LocationDiscovered;
@@ -64,6 +68,8 @@ export interface SimulacraApi {
   MemoryRetrieved?: MemoryRetrieved;
   MemorySkipped?: MemorySkipped;
   MemoryStats?: MemoryStats;
+  ModeSet?: ModeSet;
+  ModelRef?: ModelRef;
   Moved?: Moved;
   NewSimApplied?: NewSimApplied;
   NewSimApplyRequest?: NewSimApplyRequest;
@@ -105,6 +111,7 @@ export interface SimulacraApi {
   RetrievalOut?: RetrievalOut;
   Rowed?: Rowed;
   RulesPreviewRequest?: RulesPreviewRequest;
+  RuntimeInstallRequest?: RuntimeInstallRequest;
   SaveCreate?: SaveCreate;
   SaveLoadRequest?: SaveLoadRequest;
   SaveOut?: SaveOut;
@@ -144,6 +151,7 @@ export interface SimulacraApi {
   WsEvent?: WsEvent;
   WsEvents?: WsEvents;
   WsHello?: WsHello;
+  WsModels?: WsModels;
   WsPing?: WsPing;
   WsPong?: WsPong;
   WsResync?: WsResync;
@@ -621,6 +629,15 @@ export interface Dialogue {
 }
 /**
  * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "DownloadRequest".
+ */
+export interface DownloadRequest {
+  confirm?: boolean;
+  file: string;
+  repo: string;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
  * via the `definition` "Drank".
  */
 export interface Drank {
@@ -712,6 +729,24 @@ export interface EventScheduled {
 export interface EventsPage {
   items: EventOut[];
   last_seq: number;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "ExternalTest".
+ */
+export interface ExternalTest {
+  key?: string | null;
+  url?: string | null;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "ExternalTestOut".
+ */
+export interface ExternalTestOut {
+  error: string | null;
+  models: string[];
+  reachable: boolean;
+  url: string;
 }
 /**
  * This interface was referenced by `SimulacraApi`'s JSON-Schema
@@ -1243,6 +1278,104 @@ export interface LinksAdded {
 }
 /**
  * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "LlmStatusOut".
+ */
+export interface LlmStatusOut {
+  base_url: string;
+  default_model: string | null;
+  external_key_set: boolean;
+  external_url: string | null;
+  installed: InstalledOut[];
+  locked: boolean;
+  mode: "builtin" | "external";
+  probe: ProbeJobOut | null;
+  runtime: RuntimeOut;
+  sim_model: string | null;
+  sim_running: boolean;
+  transfer: TransferOut | null;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "InstalledOut".
+ */
+export interface InstalledOut {
+  file: string;
+  id: string;
+  is_default: boolean;
+  is_sim_model: boolean;
+  license: string | null;
+  name: string;
+  probe: ProbeOut | null;
+  quant: string | null;
+  repo: string | null;
+  running: boolean;
+  size_bytes: number;
+  size_mb: number;
+  source: "tool" | "extern";
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "ProbeOut".
+ */
+export interface ProbeOut {
+  at: number;
+  avg_s: number | null;
+  errors: number;
+  hardware: string | null;
+  n: number;
+  runtime: string | null;
+  seal: "checked" | "limited" | "unfit";
+  seal_label: string;
+  tokens_per_s: number | null;
+  valid: number;
+  valid_pct: number;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "ProbeJobOut".
+ */
+export interface ProbeJobOut {
+  error: string | null;
+  model_id: string;
+  n: number;
+  phase: "starting" | "running" | "done" | "failed" | "cancelled";
+  result: ProbeOut | null;
+  step: number;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "RuntimeOut".
+ */
+export interface RuntimeOut {
+  binary: string | null;
+  error: string | null;
+  installed: boolean;
+  kind: string | null;
+  log_tail: string[];
+  model_id: string | null;
+  state: "stopped" | "starting" | "running" | "failed";
+  version: string | null;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "TransferOut".
+ */
+export interface TransferOut {
+  done: number;
+  error: string | null;
+  eta_s: number | null;
+  file: string;
+  id: string;
+  kind: "model" | "runtime";
+  label: string;
+  model_id: string | null;
+  phase: "preparing" | "downloading" | "verifying" | "unpacking" | "done" | "failed" | "cancelled";
+  source: string;
+  speed_bps: number;
+  total: number;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
  * via the `definition` "LocationChanged".
  */
 export interface LocationChanged {
@@ -1430,6 +1563,22 @@ export interface MemoryStats {
   };
   importance_since_reflection: number;
   last_reflection_minute: number | null;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "ModeSet".
+ */
+export interface ModeSet {
+  external_key?: string | null;
+  external_url?: string | null;
+  mode: "builtin" | "external";
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "ModelRef".
+ */
+export interface ModelRef {
+  model_id: string;
 }
 /**
  * Veraltet (bis AP10): ein Schritt je Ereignis. Steht nur noch in älteren Ereignisprotokollen.
@@ -2096,6 +2245,13 @@ export interface RulesPreviewRequest {
 }
 /**
  * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "RuntimeInstallRequest".
+ */
+export interface RuntimeInstallRequest {
+  confirm?: boolean;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
  * via the `definition` "SaveCreate".
  */
 export interface SaveCreate {
@@ -2581,6 +2737,14 @@ export interface WsEvents {
 export interface WsHello {
   last_seq?: number | null;
   type: "hello";
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "WsModels".
+ */
+export interface WsModels {
+  status: LlmStatusOut;
+  type: "models";
 }
 /**
  * This interface was referenced by `SimulacraApi`'s JSON-Schema

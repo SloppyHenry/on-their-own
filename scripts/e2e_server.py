@@ -14,6 +14,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "backend"))
 
 import uvicorn  # noqa: E402
 
+import e2e_models  # noqa: E402
+
 from simulacra.api.app import create_app  # noqa: E402
 from simulacra.config import Settings  # noqa: E402
 from simulacra.llm.providers import FakeProvider  # noqa: E402
@@ -90,6 +92,7 @@ if __name__ == "__main__":
     if args.inject_rate:
         sim.inject.rate = args.inject_rate
     app = create_app(sim, settings=sim.settings)
+    e2e_models.install(app)                          # Modellverwaltung (AP17c-4): kleine Dateien, falscher llama-server, feste Hardware; kein Netz
 
     @app.post("/api/e2e/propose")
     async def e2e_propose(body: dict):

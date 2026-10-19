@@ -1,13 +1,13 @@
 import { useState } from "react";
-import { useHealth } from "../net/useHealth";
+import { useModelChoices } from "../models/useModelChoices";
 
 export const RESET_WORD = "zurücksetzen";
 
 export function ResetDialog({ onConfirm, onCancel }: { onConfirm: (model?: string, keepProfiles?: boolean) => void; onCancel: () => void }) {
   const [text, setText] = useState("");
-  const health = useHealth();
-  const models = health?.llm.models ?? [];
-  const [model, setModel] = useState<string>("");
+  const { current, choices, currentInstalled, initial, manage, builtin } = useModelChoices();
+  const [picked, setPicked] = useState<string | null>(null);
+  const model = picked ?? initial;                                  // das „Standard für neue Simulationen“ ist vorgewählt, bis man selbst wählt
   const [keep, setKeep] = useState(false);
   const ok = text.trim().toLowerCase() === RESET_WORD;
   return (
@@ -19,13 +19,13 @@ export function ResetDialog({ onConfirm, onCancel }: { onConfirm: (model?: strin
           <label className="flex items-center gap-2"><input type="radio" name="profiles" checked={!keep} onChange={() => setKeep(false)} />Komplett Standard (Startprofile von Alex und Mira)</label>
           <label className="mt-1 flex items-center gap-2"><input type="radio" name="profiles" checked={keep} onChange={() => setKeep(true)} data-testid="keep-profiles" />Aktuelle Profile und Persönlichkeitswerte behalten</label>
         </fieldset>
-        {models.length > 0 && (
+        {(choices.length > 0 || builtin) && (
           <label className="mt-4 block text-sm">Modell der neuen Simulation
-            <select className="mt-1 w-full rounded-md border border-line bg-bg px-2 py-1.5" value={model} onChange={(e) => setModel(e.target.value)} aria-label="Modell">
-              <option value="">{health?.llm.configured_model} (bisheriges)</option>
-              {models.filter((m) => m !== health?.llm.configured_model).map((m) => <option key={m} value={m}>{m}</option>)}
+            <select className="mt-1 w-full rounded-md border border-line bg-bg px-2 py-1.5" value={model} onChange={(e) => setPicked(e.target.value)} aria-label="Modell">
+              <option value="">{current} ({currentInstalled ? "bisheriges" : "bisheriges, hier nicht installiert"})</option>
+              {choices.map((m) => <option key={m.value} value={m.value}>{m.label}{m.note ? ` · ${m.note}` : ""}</option>)}
             </select>
-            <span className="mt-1 block text-[11px] text-faint">Das Modell gilt für den ganzen Lauf und lässt sich danach nicht wechseln.</span>
+            <span className="mt-1 block text-[11px] text-faint">Das Modell gilt für den ganzen Lauf und lässt sich danach nicht wechseln. <button type="button" className="underline hover:text-text" data-testid="modelle-verwalten" onClick={manage}>Modelle verwalten …</button></span>
           </label>
         )}
         <label className="mt-4 block text-sm">Zur Bestätigung „{RESET_WORD}“ eingeben

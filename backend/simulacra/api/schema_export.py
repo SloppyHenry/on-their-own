@@ -21,6 +21,7 @@ from . import models_memory as mm
 from . import models_autonomy as ma
 from . import models_inject as mi
 from . import models_llm as ml
+from . import models_runtime as mr
 from . import models_params as mp
 from . import models_saves as ms
 from . import models_world as mw
@@ -37,6 +38,7 @@ API_MODELS: list[type[BaseModel]] = [
     mi.InjectParseRequest, mi.InjectConfirmRequest, mi.InjectProposal, mi.ScheduledOut,
     ms.SaveOut, ms.SaveCreate, ms.SaveLoadRequest, ms.StatsOut, auth.AuthStatus, auth.LoginRequest,
     ml.HardwareOut, ml.CatalogOut,
+    mr.LlmStatusOut, mr.WsModels, mr.ModeSet, mr.ExternalTest, mr.ExternalTestOut, mr.DownloadRequest, mr.RuntimeInstallRequest, mr.ModelRef,
     mw.GenerateRequest, mw.GenerateApplyRequest, mw.GeneratePreview, mw.GenerateApplied, mw.PatchPreviewRequest, mw.PatchPreview,
     mn.NewSimRequest, mn.NewSimApplyRequest, mn.NewSimPreview, mn.NewSimApplied, mn.NewSimLimits, mn.TemplateOut, mn.TemplateIn, mn.TemplateImported, mn.RulesPreviewRequest, mn.StartEvent,
     EventOut, SimTime,
@@ -68,7 +70,7 @@ def _clean(node, top: bool = False):
 
 
 REQUESTS = {mw.PatchPreviewRequest, mw.GenerateRequest, mw.GenerateApplyRequest, ms.SaveCreate, ms.SaveLoadRequest, mi.InjectParseRequest, mi.InjectConfirmRequest, api.StartRequest, api.StepRequest, api.ResetRequest, api.SpeedRequest, mp.ParamPatch, mp.ParamResetRequest, mp.PresetSave, mp.PresetRename,
-            mp.PresetDuplicate, mp.PresetLoadRequest, api.WsHello, api.WsResync, api.WsPong}
+            mp.PresetDuplicate, mp.PresetLoadRequest, mr.ModeSet, mr.ExternalTest, mr.DownloadRequest, mr.RuntimeInstallRequest, mr.ModelRef, api.WsHello, api.WsResync, api.WsPong}
 
 
 def build_schema() -> dict:

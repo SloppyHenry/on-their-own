@@ -321,7 +321,7 @@ Mit Schutz antworten `/api/*` (außer `/api/health` und `/api/auth/*`) ohne Cook
 
 
 ## Hardware und Modellkatalog (AP17c-2)
-Nur lesend; Download, Laufzeit und Probelauf folgen mit AP17c-3. Code: `backend/simulacra/models/` (Kern ohne Zusatzpakete), Antwortmodelle `api/models_llm.py`, Routen `api/routes_models.py`. Typen: `HardwareOut`, `CatalogOut` in `frontend/src/types/`.
+Nur lesend; Download, Laufzeit und Probelauf stehen im nächsten Abschnitt. Code: `backend/simulacra/models/` (Kern ohne Zusatzpakete), Antwortmodelle `api/models_llm.py`, Routen `api/routes_models.py`. Typen: `HardwareOut`, `CatalogOut` in `frontend/src/types/`.
 
 | Aufruf | Zweck |
 |---|---|
@@ -335,3 +335,30 @@ Ein Eintrag (`CatalogItemOut`): `repo`, `name`, `publisher`, `license` (oder `nu
 **Passung** (`models/fit.py`, dieselbe Rechnung wie `install.sh` über `python -m simulacra.models`): nötig = Dateigröße + KV-Cache für Kontext 8192 + 300 MB Puffer; KV-Cache ≈ 120 KB + 4,5 KB je Milliarde Parameter je Token. Verhältnis zum nutzbaren Speicher: ≤ 70 % **passt gut**, ≤ 90 % **passt**, ≤ 100 % **knapp**, darüber **zu groß**. Nutzbar: NVIDIA/AMD 95 % des **freien** Grafikspeichers, Apple Silicon zwei Drittel des gemeinsamen Speichers, sonst 60 % des Arbeitsspeichers. **Zeit je Entscheidung** = 90 Token ÷ (Speicherbandbreite ÷ aktive Dateigröße × 0,7) + 1,2 s; bei MoE zählt der aktive Anteil (`A3B` im Namen). Immer eine Schätzung; die Messung kommt mit 17c-3.
 
 **Filter** (`models/filters.py`): Textmodelle (`pipeline_tag` `text-generation`, fehlend, `image-text-to-text` oder `any-to-any`; Vision-Modelle erkennt der Name oder die Architektur, Bild-, Embedding-, OCR-Modelle fallen raus), keine Merges und Adapter, Herausgeber der Positivliste (Standard), nur Einzeldateien Q4 bis Q8 (kein mmproj, imatrix, keine geteilten Dateien). Kommandozeile: `python -m simulacra.models hardware|recommend|catalog` (`--help`).
+
+
+## Modellverwaltung (AP17c-3, -4)
+Code: `backend/simulacra/models/` (`service.py` verbindet alles; `transfer.py` Download-Kern, `download.py`, `llamacpp.py`, `runtime.py`, `probe.py`, `store.py`, `llmconf.py`, `hub.py`), Antwortmodelle `api/models_runtime.py`, Routen `api/routes_llm.py`. Oberfläche: Menü → Einstellungen → **Modelle** (`frontend/src/models/`). Jeder verändernde Aufruf braucht einen `Idempotency-Key` und liefert den neuen **Gesamtzustand** (`LlmStatusOut`).
+
+| Aufruf | Zweck |
+|---|---|
+| `GET /api/llm` | Gesamtzustand: `mode` (`builtin`/`external`), `locked` (Adresse per `SIM_LLM_BASE_URL` festgelegt), `external_url`, `external_key_set` (der Schlüssel selbst nie), `base_url`, `sim_model`, `sim_running`, `default_model`, `runtime` (`installed`, `version`, `kind`, `state` = `stopped`/`starting`/`running`/`failed`, `model_id`, `error`, `log_tail`), `installed` (Modelle mit `running`, `is_default`, `is_sim_model`, `probe`), `transfer`, `probe` |
+| `PUT /api/llm` | Betriebsart `{mode, external_url?, external_key?}`. 409 bei laufender Simulation oder fester Adresse in der Umgebung; beim Wechsel auf „external“ wird das eingebaute Modell beendet |
+| `POST /api/llm/test` | Verbindungstest `{url?, key?}` → `{reachable, models, error, url}` |
+| `POST /api/llm/runtime/install` | `{confirm: true}`: llama.cpp aus den GitHub-Releases (`ggml-org/llama.cpp`), Prüfsumme gegen `digest`, Probelauf `--version`, `data/runtime/llama.cpp/<Version>-<Art>/` und Verweis `current` |
+| `POST /api/llm/start`, `POST /api/llm/stop` | Modell `{model_id}` im eingebauten Server starten (kehrt sofort zurück; Zustand per WebSocket) bzw. beenden. Nur bei angehaltener Simulation (409) |
+| `PUT /api/llm/default` | `{model_id}`: Modell für neue Simulationen (vorgewählt in Zurücksetzen-Fenster und Assistent) |
+| `POST /api/models/downloads` | `{repo, file, confirm: true}` (ohne `confirm` 400): lädt eine `.gguf`-Datei von Hugging Face. Dateiname, Größe und SHA-256 holt **das Backend** aus der Dateiliste, nie aus der Anfrage. Ein Auftrag zugleich (409). Gesperrte Modelle, fehlende Prüfsumme, Platz < Größe + 10 % (507) werden abgelehnt |
+| `DELETE /api/models/downloads/current` | bricht die laufende Übertragung ab (Teildatei wird entfernt); eine beendete Meldung wird ausgeblendet |
+| `DELETE /api/models/installed/{id}?confirm=true` | löscht Datei und Messergebnis (ohne `confirm` 400) |
+| `POST /api/models/installed/{id}/probe`, `DELETE /api/models/probe` | Probelauf starten (startet das Modell bei Bedarf, kehrt danach zum Modell der Simulation zurück) bzw. abbrechen |
+
+**Dateien:** `data/models/*.gguf` (Kennung = Dateiname ohne `.gguf`, zugleich der `--alias`, den der Server meldet), `installed.json` (Herkunft, SHA-256, Lizenz), `probes.json` (Messergebnisse), `data/llm.json` (Betriebsart, Adresse und Schlüssel des externen Servers mit Rechten 600, Standardmodell, zuletzt gestartetes Modell), `data/logs/llm.log` (Protokoll von `llama-server`). Dateien, die jemand anders in `data/models/` legt (z. B. `install.sh`), erscheinen als `source: "extern"` ohne Herkunft.
+
+**Download:** nur HTTPS, nur Hosts `huggingface.co` und `hf.co` samt Unterdomänen (CDN), für die Laufzeit `github.com` und `githubusercontent.com`; Weiterleitungen folgt der Code von Hand und prüft jeden Schritt gegen die Liste. Fortsetzbar über `Range` (`.part`-Datei), bei Verbindungsabbruch bis zu dreimal weiter; erst nach bestandener SHA-256-Prüfung wird umbenannt und eingetragen. Abbruch durch den Menschen räumt die Teildatei weg, ein Verbindungsfehler lässt sie zum Fortsetzen liegen.
+
+**Laufzeit:** `llama-server` als Kindprozess: `-m <Datei> --alias <Kennung> --host 127.0.0.1 --port <freier Port> -c 8192 -ngl 99 --parallel 1 --jinja`. Bereit, sobald `/health` 200 liefert (bis 10 Minuten); ein Absturz wird als `state: "failed"` mit den letzten Zeilen des Protokolls gemeldet. Im Betrieb „Eingebaut“ zeigt `llm_base_url` auf diesen Server und es wird kein Schlüssel gesendet; **`SIM_LLM_BASE_URL` in der Umgebung oder in `backend/.env` gewinnt immer** (dann `locked: true`, die Betriebsart ist fest „external“). Die Laufzeit **folgt der Simulation**: beim Start des Servers, beim Zurücksetzen, bei einer neuen Simulation und beim Laden eines Spielstands läuft das Modell, das die Simulation hat (`POST /api/sim/reset` und `POST /api/sim/new` mit einem nicht installierten Modell: 422, nichts ändert sich; ein Spielstand mit einem hier nicht installierten Modell lädt trotzdem).
+
+**Probelauf** (Frage 42): zehn Entscheidungen mit dem Messprompt aus AP00 (`models/probe_data.py`, dieselben Daten wie `scripts/probe_llm.py`), `json_schema`, ohne Denken. Gemessen: **gültig in %**, **Ø Sekunden je Entscheidung**, **Token/s**. Siegel: unter 90 % gültig **ungeeignet** (Fehlschläge zählen als ungültig), ab 90 % **geprüft**, bei Ø über 20 s **mit Einschränkung** (die Grenze 20 s ist eine Annahme, siehe Frage 50).
+
+**WebSocket:** Nachricht `{"type": "models", "status": LlmStatusOut}` bei jeder Änderung (Fortschritt höchstens fünfmal je Sekunde). Sie hat keine Nummer und geht nicht in die Lückenprüfung ein; beim Verbinden kommt sie nicht von selbst, die Oberfläche holt `GET /api/llm`.

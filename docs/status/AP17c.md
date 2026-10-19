@@ -1,6 +1,6 @@
 # AP17c – Modelle im Tool und Install-Skript
 
-Teilpakete: [17c-1 Install-Skript](#ap17c-1--install-skript) · [17c-2 Hardware und Katalog](#ap17c-2--hardware-erkennung-und-live-modellkatalog)
+Teilpakete: [17c-1 Install-Skript](#ap17c-1--install-skript) · [17c-2 Hardware und Katalog](#ap17c-2--hardware-erkennung-und-live-modellkatalog) · [17c-3/-4 Download, Laufzeit, Probelauf, Oberfläche](#ap17c-3-und--4--modellverwaltung-im-tool)
 
 # AP17c-1 – Install-Skript
 
@@ -64,3 +64,33 @@ Stand 18.10.2026. Plan: [AP17c-plan.md](../arbeitspakete/AP17c-plan.md) (Baustei
 - Der erste Abruf nach 6 Stunden braucht ein paar Sekunden (gemessen: 2,5 s); er blockiert die Anfrage. Ein Hintergrundabruf kommt bei Bedarf mit der Oberfläche (17c-4).
 - Modelle, die nur aus geteilten Dateien bestehen (große Q8-Modelle), fehlen in der Liste.
 - `models.json` führt kein Siegel „geprüft“ mit Messwerten; das kommt mit dem Probelauf (17c-3).
+
+
+# AP17c-3 und -4 – Modellverwaltung im Tool
+
+Stand 19.10.2026, Branch `ap/17c-modelle` (von `ap/17b-simulation-definieren`, nicht committet bis zur Abnahme). Plan: [AP17c-plan.md](../arbeitspakete/AP17c-plan.md). Mockup: [modelle.html](../mockups/modelle.html) (von Henry am 19.10. abgenommen). Schnittstelle: [schnittstellen.md](../schnittstellen.md#modellverwaltung-ap17c-3--4).
+
+## Gebaut
+- **Download** (`models/transfer.py`, `download.py`): nur nach Bestätigung (`confirm: true`), nur HTTPS von `huggingface.co`/`hf.co` (Weiterleitungen werden von Hand verfolgt und jeder Schritt gegen die Liste geprüft), Dateiname, Größe und SHA-256 holt das Backend selbst aus der Dateiliste, fortsetzbar (`Range`, `.part`), Verbindungsabbruch setzt bis zu dreimal fort, Platzprüfung Größe + 10 %, ein Auftrag zugleich, Prüfsumme vor dem Umbenennen, Abbruch räumt die Teildatei weg.
+- **Laufzeit** (`models/runtime.py`, `service.py`): `llama-server` als Kindprozess auf freiem Port an 127.0.0.1, Kommandozeile wie im Install-Skript, `/health`-Prüfung, Absturzmeldung mit Protokollzeilen, Stopp beim Beenden. Zwei Betriebsarten, gespeichert in `data/llm.json`; `SIM_LLM_BASE_URL` gewinnt (dann fest „Externer Server“). Die Laufzeit folgt der Simulation (Start, Zurücksetzen, neue Simulation, Laden).
+- **Laufzeit installieren** (`models/llamacpp.py`): Python-Fassung der Dateiwahl aus `scripts/install/runtime.sh`, Prüfsumme aus dem `digest`, sicheres Entpacken, Programmprüfung, nächster Kandidat bei Fehler, ältere Versionen werden entfernt.
+- **Probelauf** (`models/probe.py`, `probe_data.py`): zehn Entscheidungen mit dem Messprompt aus AP00 (`scripts/probe_llm.py` liest die Daten jetzt von dort), Siegel geprüft / mit Einschränkung / ungeeignet, Ergebnis in `data/models/probes.json`.
+- **API/WebSocket:** `GET/PUT /api/llm`, `POST /api/llm/{test,runtime/install,start,stop}`, `PUT /api/llm/default`, Downloads, Löschen, Probelauf; WebSocket-Nachricht `models`. Typen neu erzeugt.
+- **Oberfläche** (`frontend/src/models/`): Einstellungen → **Modelle** (Hardware, Betriebsart mit Laufzeit und externer Adresse, Fortschritt, Probelauf, Installiert mit Siegel, Empfohlen, Suche mit „nur passende“ / „alle Herausgeber“ / „Liste aktualisieren“, Bestätigungsfenster mit Datei, Quelle, Größe, Platz). Automatischer Probelauf nach dem Laden (Frage 42), wenn der Browser das Ende miterlebt. Das **Zurücksetzen-Fenster** und der Schritt **Modell** im Assistenten bieten im eingebauten Betrieb die installierten Modelle mit Siegel an und wählen das „Standard für neue Simulationen“ vor; „Modelle verwalten …“ führt zur Seite.
+
+## Geprüft
+- **Backend:** 93 neue Tests in `backend/tests/models/` (Übertragung: Host-Liste, Weiterleitung auf fremden Host, Fortsetzen, Server ohne `Range`, Verbindungsabbruch; Download: Prüfsumme, Abbruch, Platz, gesperrt, ungültige Namen; Laufzeit mit einem **echten Kindprozess** (falscher `llama-server` auf einem Port: Start, langsames Laden, Wechsel, Absturz, Zeitüberschreitung, Abbruch beim Start); llama.cpp-Auswahl je Rechner und Einrichten inklusive Archiv mit Pfad nach draußen; Probelauf-Grenzen; API: Bestätigungspflicht, Idempotenz, Betriebsart, feste Adresse, Folgen für Zurücksetzen, Autostart, WebSocket-Fortschritt). **Gesamtlauf 19.10.2026:** pytest 1349 bestanden (1 übersprungen, 3 abgewählt), Vitest 175, Playwright 104 (davon 10 neu), Typen aktuell.
+- **Oberfläche:** Vitest (Store, automatischer Probelauf, WebSocket-Nachricht, Anzeigehilfen), Playwright `modelle.spec.ts` (10 Tests gegen das echte Backend mit kleinen Dateien, falschem `llama-server` und fester Hardware aus `scripts/e2e_models.py`; kein Netz).
+- Beim Bauen gefunden und behoben: ein Spielstand-Laden mit unbekannter Kennung scheiterte an meinem neuen Aufruf (jetzt nur, wenn die Metadaten lesbar sind); `aiter_bytes` verwarf bei einem Abbruch bis zu 1 MB Gepuffertes (jetzt `aiter_raw`, Fortsetzen verliert nichts); die bestehende Browser-Prüfung nach dem Reiter „Modell“ traf auch „Modelle“ (jetzt `exact`).
+
+## Nicht geprüft
+- **Kein Probelauf mit einem echten Modell und keine echten Downloads** (alles gegen Attrappen): weder auf diesem Mac noch auf thirdtux (Grafikkarte durch `rea-llm` belegt) noch auf maintux (offline). Das Siegel und die 20-Sekunden-Grenze sind damit nur mit dem falschen Server geprüft.
+- „Laufzeit installieren“ gegen die echten GitHub-Releases (Dateinamen und `digest` kommen aus dem Skript, dort an der echten API geprüft, hier nur mit nachgebauten Antworten).
+- Der Fall „Eingebaut“ auf einem Rechner, den `install.sh` mit Modelldienst und `SIM_LLM_BASE_URL` eingerichtet hat: dort bleibt die Betriebsart fest „Externer Server“ (Fragen 50, 51).
+- Mehrere Browser gleichzeitig; sehr lange Downloads über Stunden; Rechte von `llm.json` auf anderen Systemen als macOS.
+
+## Einschränkungen
+- Gesperrte Modelle (Anmeldung) sind gekennzeichnet, nicht ladbar (Frage 43). Modelle aus geteilten Dateien fehlen (wie in 17c-2).
+- Nach dem Absturz eines Modells startet das Tool es nicht neu; die Oberfläche zeigt Fehler und Protokollzeilen, „Starten“ versucht es erneut.
+- Die Wahl des Modells wirkt auf die Simulation erst beim Zurücksetzen/neuen Anlegen; wer von Hand ein anderes Modell startet, während die Simulation ein anderes gespeichert hat, sieht in der Kopfzeile „Modell nicht verfügbar“ (Frage 10 bleibt: das Modell gehört zur Simulation).
+

@@ -1,4 +1,5 @@
 // Verbindet WebSocket, REST und Store. Ereignisse werden gebündelt, damit bei höchstem Tempo nicht jedes einzeln rendert.
+import { useModelStore } from "../models/modelStore";
 import { useSimStore } from "../store/simStore";
 import type { EventOut } from "../types/generated";
 import { api } from "./api";
@@ -59,6 +60,7 @@ export function startLive(url = defaultUrl()): () => void {
         clock = Math.max(clock ?? 0, minute);
         timer ??= setTimeout(flush, 40);
       },
+      onModels: (s) => useModelStore.getState().setStatus(s),
       onStatus: (c) => st().setConn(c),
     },
   );

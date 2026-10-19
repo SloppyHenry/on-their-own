@@ -13,6 +13,7 @@ from ..simulation import newsim
 from ..simulation.newsim import SpecError
 from ..events_user.service import InjectError
 from .models_inject import InjectProposal
+from .routes_llm import prepare
 from .models_newsim import (HouseOut, NewSimApplied, NewSimApplyRequest, NewSimLimits, NewSimPreview, NewSimRequest, ResidentOut, RulesPreviewRequest, TemplateImported, TemplateIn,
                             TemplateOut)
 
@@ -187,6 +188,7 @@ async def apply(request: Request, body: NewSimApplyRequest):
     async def action(sim):
         if sim.runner.state.value == "running":
             await sim.runner.pause()
+        await prepare(request, body.model, strict=True)
         saved = await sim.reset(model=body.model, world=world, backup_label="Vor der neuen Simulation", setup=lambda fresh: newsim.setup(fresh, res, world))
         gen = world.get("generator")
         if gen:

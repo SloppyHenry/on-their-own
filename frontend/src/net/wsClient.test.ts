@@ -19,14 +19,14 @@ class FakeSocket implements SocketLike {
 function setup(initialSeq: number | null = null) {
   const sockets: FakeSocket[] = [];
   const timers: { fn: () => void; ms: number; id: number; live: boolean }[] = [];
-  const got = { snaps: 0, events: [] as EventOut[], live: [] as boolean[], status: [] as Conn[], clock: [] as number[] };
+  const got = { snaps: 0, events: [] as EventOut[], live: [] as boolean[], status: [] as Conn[], clock: [] as number[], models: [] as unknown[] };
   const client = new WsClient(
     {
       url: "ws://x", initialSeq, backoffMs: [100, 200],
       socketFactory: () => { const s = new FakeSocket(); sockets.push(s); return s; },
       timers: { set: (fn, ms) => { const t = { fn, ms, id: timers.length, live: true }; timers.push(t); return t.id; }, clear: (id) => { const t = timers[id as number]; if (t) t.live = false; } },
     },
-    { onSnapshot: () => { got.snaps += 1; }, onEvents: (i, l) => { got.events.push(...i); got.live.push(l); }, onStatus: (c) => got.status.push(c), onClock: (m) => got.clock.push(m) },
+    { onSnapshot: () => { got.snaps += 1; }, onEvents: (i, l) => { got.events.push(...i); got.live.push(l); }, onStatus: (c) => got.status.push(c), onClock: (m) => got.clock.push(m), onModels: (m) => got.models.push(m) },
   );
   const fire = (ms: number) => timers.filter((t) => t.live && t.ms === ms).forEach((t) => { t.live = false; t.fn(); });
   return { client, sockets, got, fire, timers };
@@ -61,6 +61,17 @@ describe("WsClient", () => {
     sockets[0].recv({ type: "clock", minute: 431 });
     sockets[0].recv({ type: "event", event: ev("agent.walking", {}, { seq: 11 }) });
     expect(got.clock).toEqual([431]);
+    expect(client.seq).toBe(11);
+    expect(sockets[0].sent.filter((m) => m.type === "resync")).toEqual([]);
+  });
+
+  it("Zustand der Modellverwaltung geht weiter, ohne die Nummernfolge zu berühren", () => {
+    const { client, sockets, got } = setup();
+    client.start(); sockets[0].open();
+    sockets[0].recv({ type: "snapshot", seq: 10, state: makeSnapshot() });
+    sockets[0].recv({ type: "models", status: { mode: "builtin" } });
+    sockets[0].recv({ type: "event", event: ev("agent.walking", {}, { seq: 11 }) });
+    expect(got.models).toEqual([{ mode: "builtin" }]);
     expect(client.seq).toBe(11);
     expect(sockets[0].sent.filter((m) => m.type === "resync")).toEqual([]);
   });

@@ -1,12 +1,15 @@
 """Spielstände: speichern, laden, löschen, exportieren, importieren. Verändernde Anfragen brauchen einen Idempotency-Key; Destruktives braucht eine Bestätigung."""
 
 import hashlib
+import sqlite3
 
 from fastapi import APIRouter, HTTPException, Query, Request
 from fastapi.responses import Response
 
+from ..saves import snapshot as snap
 from ..saves.service import SaveError
 from .models_saves import ImportMeta, SaveCreate, SaveLoadRequest, SaveOut
+from .routes_llm import prepare
 
 router = APIRouter(prefix="/api/saves")
 MAX_UPLOAD = 520 * 1024 * 1024
@@ -58,6 +61,13 @@ async def load(request: Request, save_id: str, body: SaveLoadRequest | None = No
         raise HTTPException(400, "Laden ersetzt den aktuellen Stand (er wird vorher als „Vor dem Laden“ gesichert). Bestätige mit {\"confirm\": true}.")
 
     async def action(sim):
+        if sim.saves is not None:                                          # das Modell des Spielstands läuft, wenn es hier installiert ist (sonst bleibt alles, wie es ist)
+            try:
+                model = snap.read_meta(sim.saves.index.path(save_id)).get("llm_model")
+            except (OSError, KeyError, ValueError, sqlite3.Error):
+                model = None                                               # unbekannter oder beschädigter Spielstand: `load_save` meldet den Fehler
+            if model:
+                await prepare(request, str(model), strict=False)
         entry = await sim.load_save(save_id)
         return _out(sim, entry)
     return await _command(request, body, action)
