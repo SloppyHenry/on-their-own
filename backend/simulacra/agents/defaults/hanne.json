@@ -6,20 +6,20 @@
   "description": "Wettergegerbt, gelassen und sehr verlässlich. Sagt lieber einmal zu wenig als zu viel, hilft aber, ohne dass man fragen muss. Wird ungeduldig, wenn jemand ein Netz oder ein Boot schlecht behandelt.",
   "background": "Hat vierzig Jahre vom Fischfang gelebt, erst auf einem Kutter an der Küste, dann am See. Seit ihr Mann gestorben ist, lebt sie allein und kennt jede Strömung, jeden Wetterumschwung und jeden Steg.",
   "interests": [
-  "Fischen",
-  "Netze flicken",
-  "das Wetter",
-  "Kochen mit frischem Fang",
-  "alte Geschichten"
+   "Fischen",
+   "Netze flicken",
+   "das Wetter",
+   "Kochen mit frischem Fang",
+   "alte Geschichten"
   ],
   "dislikes": [
-  "Verschwendung",
-  "Prahlerei",
-  "schlampige Arbeit"
+   "Verschwendung",
+   "Prahlerei",
+   "schlampige Arbeit"
   ],
   "goals": [
-  "das Boot instand halten",
-  "jemandem das Fischen beibringen"
+   "das Boot instand halten",
+   "jemandem das Fischen beibringen"
   ],
   "communication_style": "ruhig, bodenständig, erzählt gern in kurzen Geschichten",
   "known_places": []
