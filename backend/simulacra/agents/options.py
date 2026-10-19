@@ -20,6 +20,7 @@ USE_KIND = {"sleep": "sleep", "sit": "rest", "cook": "cook", "read": "read", "wr
             "extinguish": "extinguish", "unlock": "unlock", "fish": "fish", "harvest": "harvest",
             "row": "row", "collect": "collect", "fix": "fix", "pet": "pet"}
 CONTAINERS = ("chest", "wardrobe", "crate")
+WAIT_LIMIT = 4            # so oft in Folge darf ein Agent abwarten; danach bietet die nächste Entscheidung kein „Abwarten“ an (Frage 17)
 
 
 def fmt_eta(minutes: int | None) -> str:
@@ -170,6 +171,11 @@ def build_options(engine: WorldEngine, store: AgentStore, p: Perception, tuning:
     locks = p.ctx.locks if p.ctx is not None else {}
     for key in [k for k, o in valid.items() if locks.get(o.key, 0) > p.minute and o.kind not in ("reply", "end_talk", "accept", "decline")]:
         del valid[key]                                           # gesperrte Aktion (Wiederholungsschutz) wird gar nicht erst angeboten; „Abwarten“ wird nie gesperrt
+    if len(recent) >= WAIT_LIMIT and all(r["action"] == "wait" for r in recent[:WAIT_LIMIT]):
+        waits = [k for k, o in valid.items() if o.kind == "wait"]
+        if len(waits) < len(valid):                              # keine Sperre und kein Ereignis: nur diese eine Entscheidung ohne „Abwarten“, wenn es Alternativen gibt
+            for k in waits:
+                del valid[k]
     for o in valid.values():
         indoors = (o.target_loc or p.location_id).startswith("house.")
         loc = st_locs.get(o.target_loc or p.location_id)
