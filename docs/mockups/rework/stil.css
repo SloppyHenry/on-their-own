@@ -1,0 +1,62 @@
+/* Rework-Mockup (AP18 Schritt 0): eine Formensprache für alles, abgeleitet aus dem Startmenü (AP17a).
+   Warmes dunkles Glas, Gold als einzige Akzentfarbe, Creme für alles, was „in der Welt“ steht (Blasen, Schilder). */
+:root {
+  --glass: rgba(30, 22, 38, .90); --glass2: rgba(46, 35, 56, .94); --glass-soft: rgba(30, 22, 38, .72);
+  --edge: rgba(255, 236, 210, .13); --edge2: rgba(255, 236, 210, .24);
+  --acc: #e8ac5c; --acc2: #ffd36e; --cream: #fff8ec; --ink: #2b2233; --ink2: #5a4a3a;
+  --txt: #efe9f3; --dim: #a99fb3; --faint: #6f6579; --ok: #93c79f; --warn: #e0806f; --plan: #b99be6; --sky: #74aadc;
+  --alex: #e8ac5c; --mira: #93c79f; --hanne: #d98fb0;
+  --r: 14px; --shadow: 0 18px 50px #0009;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: #0e1115; color: var(--txt); font: 500 14px/1.45 "Inter", "Helvetica Neue", Arial, system-ui, sans-serif; overflow: hidden; }
+button, select, input, textarea { font: inherit; color: var(--txt); }
+button { cursor: pointer; }
+kbd { font: 600 10px ui-monospace, Menlo, monospace; color: var(--dim); border: 1px solid var(--edge2); border-bottom-width: 2px; border-radius: 5px; padding: 0 5px; background: #ffffff08; }
+small, .dim { color: var(--dim); }
+
+/* Bühne: die Welt füllt immer den ganzen Bildschirm. Bild und Figurenpunkte skalieren gemeinsam (data-Koordinaten im Bild 1440 × 910). */
+#stage { position: fixed; inset: 0; overflow: hidden; }
+.world { position: absolute; left: 50%; top: 50%; width: 1440px; height: 910px; transform: translate(-50%, -50%) scale(var(--s, 1)); transform-origin: center; }
+.world > img { position: absolute; inset: 0; width: 100%; height: 100%; image-rendering: pixelated; }
+.world .anchor { position: absolute; width: 0; height: 0; }
+#hud { position: fixed; inset: 0; pointer-events: none; z-index: 5; }
+#hud > * { pointer-events: auto; }
+
+/* Bausteine */
+.glass { background: var(--glass); border: 1px solid var(--edge); border-radius: var(--r); box-shadow: var(--shadow); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+.pill { display: inline-flex; align-items: center; gap: 8px; border-radius: 999px; padding: 6px 12px; }
+.b { display: inline-flex; align-items: center; justify-content: center; gap: 6px; border: 1px solid var(--edge); background: #ffffff0a; border-radius: 10px; padding: 6px 12px; white-space: nowrap; }
+.b:hover { border-color: var(--acc); }
+.b.on { border-color: var(--acc); color: var(--acc2); background: linear-gradient(180deg, rgba(255, 211, 110, .16), rgba(255, 211, 110, .04)); }
+.b.gold { background: var(--acc); color: var(--ink); border-color: var(--acc); font-weight: 700; }
+.b.ghost { border-color: transparent; background: transparent; }
+.b.icon { width: 34px; height: 34px; padding: 0; border-radius: 999px; }
+.seg { display: inline-flex; padding: 3px; gap: 2px; border-radius: 999px; background: #0000002e; }
+.seg button { border: 0; background: transparent; color: var(--dim); border-radius: 999px; padding: 3px 10px; font-weight: 600; font-size: 12px; }
+.seg button.on { background: var(--acc); color: var(--ink); }
+.sub { margin: 14px 0 6px; font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--dim); }
+.bar { height: 6px; border-radius: 99px; background: #ffffff14; overflow: hidden; } .bar i { display: block; height: 100%; border-radius: 99px; background: var(--ok); }
+.chip { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--edge); border-radius: 999px; padding: 2px 10px; font-size: 12px; background: #ffffff08; }
+.chip.on { border-color: var(--acc); color: var(--acc2); }
+.portrait { image-rendering: pixelated; border-radius: 12px; background: #3b2c3d; display: block; }
+
+/* Mockup-Leiste (gehört nicht zum Entwurf) */
+#mocktab { position: fixed; left: 50%; top: 0; transform: translateX(-50%); z-index: 51; padding: 3px 14px 5px; border-radius: 0 0 10px 10px; background: #101014f2; border: 1px dashed #ffffff50; border-top: 0;
+  color: #ffffffc0; font-size: 12px; cursor: pointer; }
+#mockbar { position: fixed; left: 50%; top: 26px; transform: translateX(-50%); z-index: 50; display: none; flex-wrap: wrap; justify-content: center; gap: 6px; align-items: center; width: min(760px, 96vw);
+  padding: 10px; border-radius: 12px; background: #101014f2; border: 1px dashed #ffffff50; font-size: 12px; }
+#mockbar.open { display: flex; }
+#mockbar button { border: 1px solid #ffffff30; background: transparent; color: #ddd; border-radius: 8px; padding: 3px 9px; font-size: 12px; }
+#mockbar button.on { background: #fff; color: #111; }
+#mockbar .sep { width: 1px; height: 20px; background: #ffffff30; margin: 0 4px; }
+#note { position: fixed; left: 16px; top: 50%; transform: translateY(-50%); z-index: 40; width: 260px; padding: 12px 14px; font-size: 12px; line-height: 1.5; color: #ddd; background: #101014e6; border: 1px dashed #ffffff40; border-radius: 12px; display: none; }
+#note.show { display: block; } #note b { color: #fff; } #note h4 { margin: 0 0 6px; font-size: 12px; color: var(--acc2); letter-spacing: .08em; text-transform: uppercase; }
+
+/* Hinweis bei Esc (zeigt die Rückwärts-Navigation) */
+#toast { position: fixed; left: 50%; bottom: 28px; transform: translate(-50%, 20px); opacity: 0; z-index: 45; transition: all .25s; pointer-events: none; }
+#toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+@keyframes pop { from { transform: translateY(6px) scale(.96); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes fadeout { 0%, 75% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes dots { 0%, 20% { opacity: .25; } 50% { opacity: 1; } 100% { opacity: .25; } }

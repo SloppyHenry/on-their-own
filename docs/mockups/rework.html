@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SIMULACRA · Rework (AP18 Schritt 0)</title>
+<link rel="stylesheet" href="rework/stil.css">
+<link rel="stylesheet" href="rework/spiel.css">
+<link rel="stylesheet" href="rework/menue.css">
+<link rel="stylesheet" href="rework/editor.css">
+</head>
+<body>
+<div id="stage"><div class="world" id="world"><img id="bg" src="rework/img/dorf-tiefe.jpg" alt=""><div id="signs"></div></div></div>
+<div id="hud"></div>
+<div id="note"></div>
+<div id="toast" class="glass pill"></div>
+<div id="mocktab" title="Mockup-Bildschirme (Taste M)">Mockup ▾</div>
+<div id="mockbar"></div>
+<script src="rework/figuren.js"></script>
+<script src="rework/spiel.js"></script>
+<script src="rework/generator.js"></script>
+<script src="rework/menue.js"></script>
+<script src="rework/editor.js"></script>
+<script>
+// Ablauf des Mockups: ein Zustand S, alles wird daraus gezeichnet. Esc nimmt immer genau eine Ebene zurück.
+const S = { screen: "spiel", mode: "leben", variant: "A", beat: 0, drawer: null, card: null, pop: null, help: false, menuSel: "neu", path: ["spielart"], pick: "leben", figur: false,
+  gen: { ...GEN0 }, ed: JSON.parse(JSON.stringify(ED0)), edCtx: "werkstatt", note: true };
+const SCREENS = [
+  ["1 Spiel", { screen: "spiel", mode: "leben" }, "Spiel · Leben", "Die Welt füllt den ganzen Bildschirm. Keine Kopfzeile, keine Infoleiste, keine Ereigniszeile, keine Hinweisschrift. <b>Oben links</b> Uhr, Zeit, Spielart; <b>oben rechts</b> Modell, Ton, Hilfe, Menü; <b>unten links</b> die Bewohner (Bildnis, Laune, Zustand); <b>unten rechts</b> Einblicke und ein leiser Ticker der letzten drei Ereignisse. <kbd>?</kbd> zeigt die Steuerung. Varianten der Schilder und Blasen: Mockup-Leiste oben, A · B · C."],
+  ["2 Bewohner", { screen: "spiel", mode: "leben", card: "alex" }, "Bewohner-Karte", "Klick auf ein Bildnis (oder eine Figur) öffnet die Karte: was die Figur gerade tut und will, Bedürfnisse, Beziehungen, letzte Entscheidung mit Begründung. Reiter für Ziele, Entscheidungen, Fehlschläge; Gedächtnis und Stimme als Knöpfe. Ersetzt Reiter „Bewohner“ und das Detail der alten Infoleiste. <kbd>Esc</kbd> schließt."],
+  ["3 Tagebuch", { screen: "spiel", mode: "leben", drawer: "tagebuch" }, "Tagebuch", "Protokoll und Verlauf werden ein Ding: das <b>Tagebuch</b> (<kbd>T</kbd>). Gespräche als Zitate, Handlungen, Pläne, Erinnerungen; Filter als Chips; „Alles · Ausfuhr“ öffnet die volle Ansicht mit Suche und Export (heute „Verlauf“). Gedächtnis, Statistik und Wissen bleiben Einblicke im selben Glas-Stil."],
+  ["4 Mit Figur", { screen: "spiel", mode: "figur", pop: "bauen" }, "Leben mit eigener Figur", "Spielart <b>Leben</b> mit eigener Figur: Unten in der Mitte die Handlungsleiste (Sagen, Benutzen, Bauen, Gehen) und das Gepäck. Bauen zeigt dieselben Bauvorlagen, die auch die Bewohner haben – heute sechs, <span style='color:var(--plan)'>neu</span> vorgeschlagen sind Wege, Beete, Bäume, Laternen, Brunnen, Hütte (AP18g). Ohne Figur fällt die Leiste weg."],
+  ["5 Gott", { screen: "spiel", mode: "gott", pop: "ereignis" }, "Spielart Gott", "Spielart <b>Gott</b>: unten in der Mitte die Werkzeuge von außen – Ereignis (<kbd>E</kbd>), Gestalten (<kbd>B</kbd>), Bewohner, Weltregeln. Die Ereigniseingabe ist kein Dauerbalken mehr, sondern öffnet sich nur hier. Im Leben-Modus gibt es diese Leiste nicht."],
+  ["6 Gestalten", { screen: "editor", edCtx: "spiel" }, "Gestalten im Spiel (Gott)", "Gestalten im laufenden Spiel (nur Gott): die Zeit steht still, Werkzeuge links (wie im abgenommenen AP16-Mockup), Katalog, Entwurf und Prüfung rechts, <b>Übernehmen</b> mit Sicherung. <b>Kein Generator</b> im Spiel. <kbd>Esc</kbd> oder „Fertig“ führt zurück ins Spiel (mit Rückfrage, wenn der Entwurf nicht leer ist)."],
+  ["7 Neue Simulation", { screen: "menu", menuSel: "neu", path: ["spielart"] }, "Neue Simulation", "Das Menü bleibt, wie es ist. Neu im Inhalt: <b>Schnellstart</b>, <b>Einrichten</b> (Spielart → Welt → Bewohner → Regeln → Modell → Start) und Brotkrumen oben. <b>Esc geht immer genau eine Ebene zurück</b> – Schritt, Bereich, Liste – und nie aus Versehen ins Spiel. Probier es: Esc, Weiter, Esc."],
+  ["8 Welten", { screen: "menu", menuSel: "editoren", path: ["welten"] }, "Editoren › Welten", "Die <b>Weltenbibliothek</b>: Welten sind eigene Dateien, getrennt von Spielständen. Leere Welt, Welt erzeugen, mitgelieferte Welten (schreibgeschützt, „Kopie bearbeiten“), eigene und erzeugte Welten mit Öffnen, Duplizieren, Umbenennen, Export, Löschen. Jede Welt lässt sich bei „Neue Simulation“ wählen."],
+  ["9 Welt erzeugen", { screen: "menu", menuSel: "editoren", path: ["welten", "erzeugen"] }, "Welt erzeugen", "Der Generator gibt es nur noch beim Erschaffen einer Welt. Er würfelt jetzt die <b>Dorfform</b> (Straßendorf, Haufendorf, Anger, am Fluss, Streusiedlung), Häuser auf beiden Seiten der Wege, beliebig viele Seen, Bach oder Fluss mit Brücken, Waldmenge, Gärten, Felder. Alle Stellgrößen sind wählbar; der Plan hier ist eine echte Skizze des Verfahrens – klick dich durch."],
+  ["10 Editor", { screen: "editor", edCtx: "werkstatt" }, "Welt-Werkstatt", "Editoren › Welten › <b>Leere Welt</b> öffnet wirklich eine leere Wiese mit allen Werkzeugen (Weg, See, Garten, Haus, Baum und Deko, Startplatz, Gebiet erzeugen, Löschen). Klick in die Wiese setzt das gewählte Ding. Oben: Name, „ungespeichert“, Speichern, „Damit spielen …“. <kbd>Esc</kbd> führt zurück zur Bibliothek."],
+];
+const $ = (q) => document.querySelector(q);
+function fit() { document.documentElement.style.setProperty("--s", Math.max(innerWidth / 1440, innerHeight / 910)); }
+function toast(t) { const el = $("#toast"); el.innerHTML = t; el.classList.add("show"); clearTimeout(toast.t); toast.t = setTimeout(() => el.classList.remove("show"), 1600); }
+
+function render() {
+  const hud = $("#hud"), bg = $("#bg");
+  bg.src = S.screen === "editor" ? (S.edCtx === "spiel" ? "rework/img/dorf-flach.jpg" : "rework/img/leer-flach.jpg") : "rework/img/dorf-tiefe.jpg";
+  hud.innerHTML = S.screen === "spiel" ? renderGame(S) : S.screen === "menu" ? renderMenu(S) : renderEditor(S);
+  signs(); faces(hud); if (S.screen === "menu") drawGenerator(hud, S);
+  const cur = SCREENS.find(([, st]) => Object.entries(st).every(([k, v]) => JSON.stringify(S[k]) === JSON.stringify(v)));
+  $("#mockbar").innerHTML = SCREENS.map(([l, st], i) => `<button data-scr="${i}" class="${cur && cur[0] === l ? "on" : ""}">${l}</button>`).join("")
+    + `<span class="sep"></span>Blasen ${["A", "B", "C"].map((v) => `<button data-var="${v}" class="${S.variant === v ? "on" : ""}" title="${{ A: "A Wolke", B: "B leise", C: "C Karte" }[v]}">${v}</button>`).join("")}
+    <span class="sep"></span><button data-note class="${S.note ? "on" : ""}">Erklärung</button>`;
+  const n = cur || SCREENS.find(([, st]) => st.screen === S.screen && (S.screen !== "menu" || st.menuSel === S.menuSel));
+  $("#note").className = S.note && n ? "show" : ""; if (n) $("#note").innerHTML = `<h4>${n[2]}</h4>${n[3]}${S.screen === "spiel" ? `<p style="margin:8px 0 0"><b>Blasen ${S.variant}:</b> ${{ A: "Name klein am Fuß, Gedanke als Wolke mit Bläschen, Rede als Sprechblase; Gemerktes als kleines Zeichen, das verblasst.", B: "Leise: nur „•••“ über dem Kopf, Gedanke erst beim Zeigen; Rede bleibt sichtbar. Am wenigsten Text in der Welt.", C: "Kleine Karte über dem Kopf: Name, Handlung, Gedanke in höchstens zwei Zeilen." }[S.variant]} Alle umbrechen statt in die Breite zu laufen; im Haus zeigt das Dach kleine Bildnisse.</p>` : ""}`;
+}
+function signs() { $("#signs").innerHTML = S.screen === "spiel" ? worldSigns(S.variant, S.beat) : S.screen === "editor" ? edWorld(S) : ""; faces($("#signs")); }
+
+function back() {
+  if (S.screen === "spiel") {
+    if (S.help) S.help = false; else if (S.pop) S.pop = null; else if (S.card) S.card = null; else if (S.drawer) S.drawer = null;
+    else { Object.assign(S, { screen: "menu", menuSel: "neu", path: [] }); toast("<kbd>Esc</kbd> Menü · die Welt läuft dahinter weiter"); }
+  } else if (S.screen === "editor") {
+    if (S.edCtx === "spiel") { Object.assign(S, { screen: "spiel", mode: "gott", pop: null }); toast("Zurück im Spiel · die Zeit läuft wieder"); }
+    else { Object.assign(S, { screen: "menu", menuSel: "editoren", path: ["welten"] }); toast("← zurück zu <b>Welten</b>"); }
+  } else if (S.path.length) { S.path.pop(); toast(`← zurück zu <b>${LABEL[S.path[S.path.length - 1] || S.menuSel]}</b>`); }
+  else toast("Ganz oben · <kbd>Enter</kbd> auf „Fortsetzen“ geht ins Spiel");
+  render();
+}
+
+document.addEventListener("click", (e) => {
+  if (e.target.closest("#mocktab")) { $("#mockbar").classList.toggle("open"); return; }
+  const m = e.target.closest("#mockbar button");
+  if (m) { if (m.dataset.scr) { const st = SCREENS[m.dataset.scr][1]; Object.assign(S, { drawer: null, card: null, pop: null, help: false, path: [] }, JSON.parse(JSON.stringify(st))); }
+    if (m.dataset.var) S.variant = m.dataset.var; if ("note" in m.dataset) S.note = !S.note; if (m.dataset.scr) $("#mockbar").classList.remove("open"); return render(); }
+  const a = e.target.closest("[data-act]"); const act = a?.dataset.act, id = a?.dataset.id;
+  if (!a) { if (S.screen === "editor" && S.edCtx === "werkstatt" && e.target.closest("#stage")) { const r = $("#world").getBoundingClientRect(), s = r.width / 1440;
+      const t = { haus: "house", natur: "tree", see: "lake", garten: "garden" }[S.ed.tool]; if (t) { S.ed.items.push({ t, x: (e.clientX - r.left) / s, y: (e.clientY - r.top) / s + (t === "lake" ? 0 : 40) }); signs(); toast(`gesetzt · im Entwurf`); } } return; }
+  if (act === "drawer") S.drawer = S.drawer === id ? null : id, S.card = null;
+  else if (act === "card") S.card = S.card === id ? null : id, S.drawer = null;
+  else if (act === "close") S.card = null, S.drawer = null;
+  else if (act === "pop") S.pop = S.pop === id ? null : id;
+  else if (act === "help") S.help = !S.help;
+  else if (act === "menu") return back();
+  else if (act === "msel") S.menuSel = id, S.path = [];
+  else if (act === "push") S.path.push(id);
+  else if (act === "back") return back();
+  else if (act === "crumb") S.path = S.path.slice(0, Number(a.dataset.n));
+  else if (act === "pick") S.pick = id;
+  else if (act === "figur") { S.figur = a.checked; S.pick = "leben"; }
+  else if (act === "wsel") S.wsel = id;
+  else if (act === "tool") S.ed.tool = id;
+  else if (act === "gen") S.gen[a.dataset.k] = a.dataset.v === "roll" ? 1 + Math.floor(Math.random() * 99999) : isNaN(a.dataset.v) ? a.dataset.v : Number(a.dataset.v);
+  else if (act === "go") { if (id === "spiel") Object.assign(S, { screen: "spiel", mode: S.mode === "gott" ? "gott" : "leben" }); if (id === "editor") Object.assign(S, { screen: "editor", edCtx: "werkstatt" });
+    if (id === "editor-spiel") Object.assign(S, { screen: "editor", edCtx: "spiel", pop: null }); if (id === "welten") return back(); }
+  else return;
+  render();
+});
+document.addEventListener("change", (e) => { if (e.target.dataset.act === "seed") { S.gen.seed = Number(e.target.value) || 1; render(); } });
+document.addEventListener("keydown", (e) => {
+  if (e.target.matches("input, textarea")) { if (e.key === "Escape") e.target.blur(); return; }
+  const k = e.key;
+  if (k === "m" || k === "M") return $("#mockbar").classList.toggle("open");
+  if (k === "Escape" && $("#mockbar").classList.contains("open")) return $("#mockbar").classList.remove("open");
+  if (k === "Escape") { e.preventDefault(); return back(); }
+  if (S.screen === "spiel") { if (k === "?") S.help = !S.help; else if (k === "t" || k === "T") S.drawer = S.drawer ? null : "tagebuch"; else if ((k === "e" || k === "E") && S.mode === "gott") S.pop = S.pop === "ereignis" ? null : "ereignis";
+    else if ((k === "b" || k === "B") && S.mode === "gott") Object.assign(S, { screen: "editor", edCtx: "spiel", pop: null }); else if ((k === "b" || k === "B") && S.mode === "figur") S.pop = S.pop ? null : "bauen"; else return; }
+  else if (S.screen === "editor" && /^[1-9]$/.test(k)) { const t = TOOLS.filter((x) => !(S.edCtx === "spiel" && x[3]))[Number(k) - 1]; if (!t) return; S.ed.tool = t[0]; }
+  else if (S.screen === "menu" && k === "Enter" && !S.path.length && S.menuSel === "neu") S.path.push("spielart");
+  else return;
+  render();
+});
+addEventListener("resize", fit); fit();
+setInterval(() => { if (S.screen === "spiel") { S.beat++; signs(); } }, 4500);
+render();
+</script>
+</body>
+</html>

@@ -22,6 +22,7 @@ Jedes Paket hat eine eigene Datei unter [arbeitspakete/](arbeitspakete/) mit Zie
 | AP14 | [AP14-startwelt-innenbereiche.md](arbeitspakete/AP14-startwelt-innenbereiche.md) · [Plan](arbeitspakete/AP14-plan.md) | Welt genau wie Mockup A: Startwelt nach dem Bild, Haus innen hinter der Tür als Übergang, Dorfansicht mit Zoom in ganzen Stufen | Zusatz Henry | AP13 | L |
 | AP15 | [AP15-dinge.md](arbeitspakete/AP15-dinge.md) | Dinge im Dorf: Deko aus Mockup A und innen2 wird benutzbar (Boot, Laternen, Briefkasten, Ernte, Katze, Ablagen …) | Zusatz Henry | AP14 | L |
 | AP16 | [AP16-plan.md](arbeitspakete/AP16-plan.md) | Gestalten: Wege, Seen, Gärten, Häuser, Bäume und Deko selbst setzen, Häuser von innen einrichten (Entwurf, Vorschau, Übernehmen); Plan vom 14.10.2026, wartet auf Fragen 27–30 | Zusatz Henry (Ausblick) | AP12c | L |
+| AP18 | [AP18-plan.md](arbeitspakete/AP18-plan.md) · [Startprompts](arbeitspakete/AP18-start-prompts.md) | Rework „ein Spiel aus einem Guss“: Esc-Rückweg (a), HUD und Formensprache des Menüs (b), Sprech- und Denkblasen (c), Spielarten Leben/Gott (d), Weltenbibliothek und Welt-Werkstatt mit leerer Welt (e), Generator mit Dorfformen und Stellgrößen (f), mehr Bauvorlagen für Bewohner (g), Mitleben mit eigener Figur (h), Ereignisse von allein (i); Mockup `docs/mockups/rework.html`, Schritt 0 vom 19.10.2026 | Zusatz Henry | AP17, AP16 (Werkzeuge zwischen e und f) | XL |
 
 Umfang: S = etwa eine Sitzung, M = zwei bis drei, L = drei bis fünf.
 
