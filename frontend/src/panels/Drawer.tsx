@@ -1,8 +1,10 @@
 import type { ReactNode } from "react";
 import { useUiStore } from "../store/uiStore";
+import { EBENE, useRueckweg } from "../ui/zurueck";
 
 export function Drawer({ title, sub, children, head }: { title: ReactNode; sub?: ReactNode; children: ReactNode; head?: ReactNode }) {
   const select = useUiStore((s) => s.select);
+  useRueckweg(true, EBENE.Auswahl, () => select(null));
   return (
     <div className="absolute inset-0 z-10 overflow-auto bg-panel px-4 py-3.5" data-testid="drawer">
       <button className="btn float-right" onClick={() => select(null)} aria-label="Schließen">✕</button>

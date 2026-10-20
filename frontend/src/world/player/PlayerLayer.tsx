@@ -1,5 +1,6 @@
 // Oberfläche der Mitspieler-Vorschau: Hinweis „nichts wird gesendet“, Kontextmenü, Feld „Sagen …“, Dauer am Ziel des Weges.
 import { useEffect, useRef } from "react";
+import { EBENE, useRueckweg } from "../../ui/zurueck";
 import { useSimStore } from "../../store/simStore";
 import type { ViewLike } from "../view/WorldView";
 import type { WorldBridge } from "../worldBridge";
@@ -18,12 +19,7 @@ export function PlayerLayer({ bridge, view, pc }: { bridge: WorldBridge; view: V
     if (f.goal) el.style.transform = `translate(${f.goal.x}px, ${f.goal.y + 10}px) translateX(-50%)`;
   }), [bridge]);
 
-  useEffect(() => {
-    if (!menu) return;
-    const close = (e: KeyboardEvent) => { if (e.key === "Escape") { e.preventDefault(); usePlayer.setState({ menu: null }); } };
-    window.addEventListener("keydown", close, true);
-    return () => window.removeEventListener("keydown", close, true);
-  }, [menu]);
+  useRueckweg(!!menu, EBENE.Popover, () => usePlayer.setState({ menu: null }));
 
   const choose = (c: Choice) => {
     const t = usePlayer.getState().menu?.target;

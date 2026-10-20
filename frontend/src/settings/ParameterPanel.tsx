@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSimStore } from "../store/simStore";
 import { useUiStore } from "../store/uiStore";
+import { EBENE, useRueckweg } from "../ui/zurueck";
 import { ParamGroup } from "./ParamGroup";
 import { PresetManager } from "./PresetManager";
 import { ModelleSeite } from "../models/ModelleSeite";
@@ -24,12 +25,7 @@ const EXTRA = [{ id: "models", label: "Modelle" }, { id: "ton", label: "Ton" }, 
 export function ParameterPanel() {
   const open = useUiStore((s) => s.settingsOpen);
   const close = useUiStore((s) => s.closeSettings);
-  useEffect(() => {
-    if (!open) return;
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && close();
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [open, close]);
+  useRueckweg(open, EBENE.Schublade, close);
   if (!open) return null;
   return (
     <aside className="absolute inset-y-0 right-0 z-40 flex w-[min(660px,100%)] flex-col border-l border-line bg-panel shadow-2xl" role="complementary" aria-label="Einstellungen" data-testid="settings">

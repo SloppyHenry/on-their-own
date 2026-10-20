@@ -14,6 +14,7 @@ import { WorldView, type ViewLike } from "./view/WorldView";
 import { createBridge } from "./worldBridge";
 import { ViewControls } from "../layout/ViewSettings";
 import { verbindeBuehne } from "../klang/buehne";
+import { EBENE, anmelden } from "../ui/zurueck";
 
 const TILT_MASK = "linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.85) 20%, rgba(0,0,0,0) 36%, rgba(0,0,0,0) 84%, rgba(0,0,0,0.75) 100%)";
 
@@ -50,10 +51,11 @@ export function WorldCanvas() {
       if (e.key === "Enter" && bridge.playerPreview()) { e.preventDefault(); const sel = bridge.selection(); usePlayer.setState({ say: { open: true, to: sel?.kind === "agent" ? sel.id : null }, menu: null }); return; }
       if (e.key === "0") bridge.commands.fit?.();
       if (e.key === "f" || e.key === "F") bridge.commands.toggleFollow?.();
-      if (e.key === "Escape" && v.interior >= 0) { e.preventDefault(); bridge.commands.leaveInterior?.(); }          // Esc gehört zuerst der Innenansicht, erst dann dem Menü
     };
     window.addEventListener("keydown", onKey);
+    const offEsc = anmelden(EBENE.Innenansicht, () => { if (v.interior < 0) return false; bridge.commands.leaveInterior?.(); });          // Esc gehört zuerst der Innenansicht (Raum → Haus → Dorf), erst dann dem Menü
     return () => {
+      offEsc();
       window.removeEventListener("keydown", onKey);
       if (v instanceof DorfView) cam.current = { key, x: v.kam.x, y: v.kam.y, level: v.kam.level };
       v.destroy();

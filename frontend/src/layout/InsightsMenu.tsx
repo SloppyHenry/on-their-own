@@ -2,6 +2,7 @@
 // darum stehen sie nicht als eigene Knöpfe in der Kopfzeile. Ist ein Einblick offen, führt „← Zur Welt“ zurück.
 import { useEffect, useRef, useState } from "react";
 import { useUiStore, type View } from "../store/uiStore";
+import { EBENE, useRueckweg } from "../ui/zurueck";
 
 const ITEMS: [Exclude<View, "world">, string, string][] = [
   ["history", "Verlauf", "open-history-view"],
@@ -16,11 +17,11 @@ export function InsightsMenu() {
   useEffect(() => {
     if (!open) return;
     const close = (e: MouseEvent) => { if (!root.current?.contains(e.target as Node)) setOpen(false); };
-    const esc = (e: KeyboardEvent) => { if (e.key === "Escape") { e.preventDefault(); setOpen(false); } };
     document.addEventListener("mousedown", close);
-    document.addEventListener("keydown", esc);
-    return () => { document.removeEventListener("mousedown", close); document.removeEventListener("keydown", esc); };
+    return () => document.removeEventListener("mousedown", close);
   }, [open]);
+  useRueckweg(open, EBENE.Popover, () => setOpen(false));                  // Esc schließt erst das Untermenü, dann den Einblick
+  useRueckweg(view !== "world", EBENE.Einblick, () => setView("world"));
   const current = ITEMS.find(([v]) => v === view);
   const choose = (v: Exclude<View, "world">) => { setOpen(false); if (v === "memory") openMemory(useUiStore.getState().lastAgent); else setView(v); };
   return (

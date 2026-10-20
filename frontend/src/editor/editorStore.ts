@@ -5,7 +5,7 @@ import { ApiError, api } from "../net/api";
 import { applySnapshot } from "../store/reducers";
 import { useSimStore } from "../store/simStore";
 import type { World } from "../store/types";
-import { useUiStore } from "../store/uiStore";
+import { useUiStore, type MenuStelle } from "../store/uiStore";
 import type { CheckOut, GenerateApplied, GenerateRequest } from "../types/generated";
 
 export type Kind = "extend" | "new";
@@ -133,12 +133,16 @@ function liveCaughtUp(p: Preview): Promise<void> {
   });
 }
 
-/** Beim Verlassen des Editors: Vorschau und Meldungen weg. */
+/** Beim Verlassen des Editors: Vorschau und Meldungen weg. Kam man aus dem Menü, geht es dorthin zurück (AP18a), sonst ins Spiel. */
 export function leaveEditor() {
   useEditorStore.setState({ preview: null, error: null, checks: [], done: null });
-  useUiStore.getState().setAppMode("game");
+  const ui = useUiStore.getState(), back = ui.returnTo;
+  ui.setAppMode("game");
+  if (back) ui.openMenuAt(back); else ui.setReturnTo(null);
 }
 
-export function enterEditor(tab: Kind = "extend") {
+/** `from`: die Menüstelle, aus der man kommt (dorthin führt Esc zurück); null = aus dem Spiel; weggelassen = unverändert (Wechsel zwischen den Reitern). */
+export function enterEditor(tab: Kind = "extend", from?: MenuStelle | null) {
+  if (from !== undefined) useUiStore.getState().setReturnTo(from);
   useEditorStore.getState().setTab(tab);
 }

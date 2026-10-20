@@ -51,7 +51,7 @@ export function Header() {
       {/* Bedienknöpfe dürfen bei schmalem Fenster seitlich rollen; Verbindung und Modell rechts bleiben immer sichtbar. */}
       <nav className="flex min-w-0 shrink items-center gap-2 overflow-x-auto [scrollbar-width:none]" aria-label="Bereiche">
       <button className={`btn ${settingsOpen ? "on" : ""}`} onClick={() => (settingsOpen ? closeSettings() : openSettings())} aria-pressed={settingsOpen} data-testid="open-settings">Einstellungen</button>
-      <button className={`btn ${appMode !== "game" ? "on" : ""}`} onClick={() => (appMode === "game" ? (setView("world"), enterEditor()) : leaveEditor())} aria-pressed={appMode !== "game"} data-testid="open-editor">Welt gestalten</button>
+      <button className={`btn ${appMode !== "game" ? "on" : ""}`} onClick={() => (appMode === "game" ? (setView("world"), enterEditor("extend", null)) : leaveEditor())} aria-pressed={appMode !== "game"} data-testid="open-editor">Welt gestalten</button>
       {appMode === "game" && view !== "memory" && view !== "stats" && (
         <button className={`btn ${collapsed ? "" : "on"}`} onClick={toggleSidebar} aria-pressed={!collapsed} title={collapsed ? "Infoleiste (Bewohner, Protokoll) einblenden" : "Infoleiste (Bewohner, Protokoll) ausblenden"} data-testid="toggle-sidebar" aria-label="Infoleiste">{collapsed ? "«" : "»"}</button>
       )}

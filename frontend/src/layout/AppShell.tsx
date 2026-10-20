@@ -3,6 +3,7 @@ import { startKlang } from "../klang/regie";
 import { startLive } from "../net/connect";
 import { useSimStore } from "../store/simStore";
 import { useUiStore } from "../store/uiStore";
+import { starteEsc } from "../ui/zurueck";
 import { EventHistory } from "../history/EventHistory";
 import { SaveLoadDialog } from "../saves/SaveLoadDialog";
 import { StatsView } from "../stats/StatsView";
@@ -26,6 +27,7 @@ export function AppShell() {
   const hideSide = view === "memory" || view === "stats" || collapsed || appMode !== "game" || title;        // Infoleiste: eingeklappt, in Gedächtnis und Statistik, im Editor und im Startmenü aus
   const tools = appMode !== "game" && view === "world";                                    // Welteditor und Startmenü: Werkzeugleiste statt Infoleiste
   useEffect(() => startLive(), []);
+  useEffect(() => starteEsc(), []);                                                        // Esc: eine Ebene zurück (AP18a, ui/zurueck.ts)
   useEffect(() => startKlang(), []);                                                       // Musik, Umgebung, Geräusche, Stimmen (AP17d)
 
   return (

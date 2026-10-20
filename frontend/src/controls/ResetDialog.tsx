@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { useModelChoices } from "../models/useModelChoices";
+import { EBENE, useRueckweg } from "../ui/zurueck";
 
 export const RESET_WORD = "zurücksetzen";
 
 export function ResetDialog({ onConfirm, onCancel }: { onConfirm: (model?: string, keepProfiles?: boolean) => void; onCancel: () => void }) {
   const [text, setText] = useState("");
+  useRueckweg(true, EBENE.Dialog, () => { onCancel(); });                       // Esc heißt Abbrechen
   const { current, choices, currentInstalled, initial, manage, builtin } = useModelChoices();
   const [picked, setPicked] = useState<string | null>(null);
   const model = picked ?? initial;                                  // das „Standard für neue Simulationen“ ist vorgewählt, bis man selbst wählt

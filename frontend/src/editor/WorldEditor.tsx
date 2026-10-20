@@ -1,6 +1,8 @@
 // Werkzeugleiste des Welteditors (AP12c): Dorf anfügen (Erweiterung der laufenden Welt) und neue Simulation mit einem erzeugten Dorf.
 // Ablauf immer gleich: Wunsch einstellen → Vorschau (Trockenlauf im Backend, die Welt wird unter einem Schleier angezeigt) → Prüfbericht ansehen → Übernehmen.
 import { useState } from "react";
+import { useUiStore } from "../store/uiStore";
+import { EBENE, useRueckweg } from "../ui/zurueck";
 import { MAX_EACH, MAX_TOTAL, ROLES, enterEditor, leaveEditor, mixTotal, useEditorStore, wishKey, type Kind, type Lake } from "./editorStore";
 
 const LAKES: [Lake, string][] = [["auto", "Nach Zufall"], ["east", "Im Osten (wie im Startdorf)"], ["south", "Im Süden, mit Brücke"]];
@@ -9,13 +11,14 @@ export const NEW_WORD = "neu starten";
 const field = "rounded-md border border-line bg-bg px-2 py-1";
 
 export function WorldEditor() {
-  const tab = useEditorStore((s) => s.tab);
+  const tab = useEditorStore((s) => s.tab), fromMenu = useUiStore((s) => s.returnTo !== null);
+  useRueckweg(true, EBENE.Werkstatt, leaveEditor);                                                  // Esc und „Zurück“ gehen an dieselbe Stelle: ins Menü, wenn man von dort kam
   return (
     <aside data-testid="editor-panel" className="relative flex min-h-0 flex-col overflow-y-auto border-l border-line bg-panel">
       <header className="flex items-center gap-2 border-b border-line px-4 py-3">
         <h2 className="text-[15px] font-semibold">Welt gestalten</h2>
         <span className="flex-1" />
-        <button type="button" className="btn" onClick={leaveEditor} data-testid="editor-close">Zurück ins Spiel</button>
+        <button type="button" className="btn" onClick={leaveEditor} data-testid="editor-close">{fromMenu ? "← Zurück zum Menü" : "Zurück ins Spiel"}</button>
       </header>
       <div className="flex gap-1 border-b border-line px-3 py-2" role="tablist" aria-label="Werkzeug">
         {([["extend", "Dorf anfügen"], ["new", "Neue Simulation"]] as [Kind, string][]).map(([k, label]) => (

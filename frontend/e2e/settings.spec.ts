@@ -102,6 +102,7 @@ test("Suche findet Einstellungen über alle Bereiche", async ({ page }) => {
   await expect(page.getByTestId("param-llm.temperature")).toBeVisible();
   await page.getByLabel("Einstellungen durchsuchen").fill("gibtesnicht");
   await expect(page.getByText(/Nichts gefunden/)).toBeVisible();
+  await page.keyboard.press("Escape");                                                    // im Suchfeld mit Text: das erste Esc nimmt den Fokus (AP18a)
   await page.keyboard.press("Escape");
   await expect(page.getByTestId("settings")).toHaveCount(0);
 });

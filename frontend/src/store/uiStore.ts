@@ -35,6 +35,8 @@ export type AppMode = "game" | "editor" | "menu";
 /** Menü (AP17a): Titelbild beim Öffnen, Pausenmenü mit Esc. Die Simulation läuft in beiden weiter; das Menü betrifft nur diesen Browser. */
 export type MenuMode = "title" | "pause" | null;
 export type MenuPane = "newsim" | "load" | "editors" | "settings";
+/** Eine Stelle im Menü (Bereich und Unterebene): dorthin kehrt Esc zurück, wenn man das Menü für einen Editor verlassen hat (AP18a). */
+export interface MenuStelle { menu: Exclude<MenuMode, null>; sel: string | null; sub: string | null }
 
 interface UiStore {
   view: View;
@@ -67,7 +69,18 @@ interface UiStore {
   appMode: AppMode;
   setAppMode: (m: AppMode) => void;
   menu: MenuMode;
+  /** Öffnet oder schließt das Menü. Beim Öffnen steht die Auswahl wieder auf dem ersten Punkt. */
   setMenu: (m: MenuMode) => void;
+  /** Gewählter Menüpunkt (null = der erste) und Unterebene darin (z. B. Assistent, Charaktereditor). */
+  menuSel: string | null;
+  menuSub: string | null;
+  setMenuSel: (id: string | null) => void;
+  setMenuSub: (sub: string | null) => void;
+  /** Wohin Esc oder „Zurück“ aus einem Editor führt, den man aus dem Menü geöffnet hat; null = ins Spiel. */
+  returnTo: MenuStelle | null;
+  setReturnTo: (s: MenuStelle | null) => void;
+  /** Öffnet das Menü genau an dieser Stelle. */
+  openMenuAt: (s: MenuStelle) => void;
   /** Titelbild beim Öffnen (je Gerät gemerkt, Standard an). */
   titleOnStart: boolean;
   setTitleOnStart: (on: boolean) => void;
@@ -107,7 +120,14 @@ export const useUiStore = create<UiStore>((set) => ({
   appMode: "game",
   setAppMode: (appMode) => set({ appMode }),
   menu: load<boolean>("simulacra.titelbild", true) === false ? null : "title",
-  setMenu: (menu) => set({ menu }),
+  setMenu: (menu) => set({ menu, menuSel: null, menuSub: null }),
+  menuSel: null,
+  menuSub: null,
+  setMenuSel: (menuSel) => set({ menuSel }),
+  setMenuSub: (menuSub) => set({ menuSub }),
+  returnTo: null,
+  setReturnTo: (returnTo) => set({ returnTo }),
+  openMenuAt: (s) => set({ menu: s.menu, menuSel: s.sel, menuSub: s.sub, returnTo: null }),
   titleOnStart: load<boolean>("simulacra.titelbild", true) !== false,
   setTitleOnStart: (titleOnStart) => { keep("simulacra.titelbild", titleOnStart); set({ titleOnStart }); },
   sidebarCollapsed: load<boolean>("simulacra.infoleiste-zu", false) === true,

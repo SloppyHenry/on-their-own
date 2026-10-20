@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ApiError, api, exportUrl } from "../net/api";
 import { useUiStore } from "../store/uiStore";
+import { EBENE, useRueckweg } from "../ui/zurueck";
 import type { SaveOut } from "../types/generated";
 
 const KIND: Record<string, [string, string]> = { manual: ["Manuell", "text-alex"], auto: ["Auto", "text-dim"], backup: ["Sicherung", "text-plan"], import: ["Import", "text-world"] };
@@ -21,12 +22,7 @@ export function SaveLoadDialog({ embedded = false }: { embedded?: boolean } = {}
 
   const reload = useCallback(() => api.saves().then(setItems).catch(() => setMsg({ text: "Spielstände nicht erreichbar", bad: true })), []);
   useEffect(() => { void reload(); }, [reload]);
-  useEffect(() => {
-    if (embedded) return;                                                    // im Menü schließt Esc das Menü
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && close(false);
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [close, embedded]);
+  useRueckweg(!embedded, EBENE.Dialog, () => { close(false); });             // im Menü führt der Rückweg des Menüs zurück
 
   const act = async (fn: () => Promise<unknown>, ok: string) => {
     setBusy(true);

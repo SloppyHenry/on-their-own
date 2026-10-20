@@ -73,7 +73,7 @@ test("Editoren → Welt öffnet den Welteditor, Neue Simulation → Startwelt fr
   await expect(page.getByTestId("editor-panel")).toBeVisible();
   await expect(page.getByTestId("start-menu")).toHaveCount(0);
   await page.getByTestId("editor-close").click();
-  await page.getByTestId("open-menu").click();
+  await expect(page.getByTestId("menu-pane-editors")).toBeVisible();                     // zurück an dieselbe Stelle im Menü (AP18a), nicht ins Spiel
   await page.getByTestId("menu-title").click();
   await page.getByTestId("menu-newsim").click();
   await page.getByTestId("newsim-start").click();

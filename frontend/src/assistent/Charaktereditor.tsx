@@ -2,6 +2,9 @@
 // sind schreibgeschützt (Duplizieren legt eine eigene an). Export und Import prüfen jedes Feld und melden alle Fehler auf einmal.
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ApiError, api } from "../net/api";
+import { Brotkrumen } from "../ui/Brotkrumen";
+import { Rueckfrage } from "../ui/Rueckfrage";
+import { EBENE, useRueckweg } from "../ui/zurueck";
 import type { TemplateOut } from "../types/generated";
 import { type Personality, type Profile } from "./begrenzung";
 import { blankPersonality, blankProfile } from "./entwurf";
@@ -10,7 +13,8 @@ import { ProfilMaske, type MaskValue } from "./ProfilMaske";
 const lines = (e: unknown) => (e instanceof ApiError ? e.detail.split("\n").filter(Boolean) : ["Backend nicht erreichbar"]);
 const toMask = (t: TemplateOut): MaskValue => ({ profile: structuredClone(t.profile) as unknown as Profile, personality: structuredClone(t.personality) as unknown as Personality });
 
-export function Charaktereditor() {
+/** `onBack`: zurück zu „Editoren“. Hat die Vorlage ungespeicherte Änderungen, fragt der Editor vorher nach. */
+export function Charaktereditor({ onBack }: { onBack: () => void }) {
   const [list, setList] = useState<TemplateOut[]>([]);
   const [sel, setSel] = useState<string>("alex");
   const [value, setValue] = useState<MaskValue | null>(null);
@@ -19,6 +23,9 @@ export function Charaktereditor() {
   const [info, setInfo] = useState<string | null>(null);
   const file = useRef<HTMLInputElement>(null);
   const current = list.find((t) => t.id === sel);
+  const [asking, setAsking] = useState(false);
+  const leave = () => { if (dirty) setAsking(true); else onBack(); };
+  useRueckweg(true, EBENE.MenueUnter, leave);
 
   const reload = useCallback(async (select?: string) => {
     const l = await api.templates();
@@ -49,8 +56,10 @@ export function Charaktereditor() {
     });
     if (file.current) file.current.value = "";
   };
-  return (
-    <div className="grid grid-cols-[240px_minmax(0,1fr)] gap-4 px-5 pb-5 pt-1 max-[860px]:grid-cols-1" data-testid="charaktereditor">
+  return (<>
+    <Brotkrumen pfad={[{ label: "Editoren", onClick: leave }, { label: "Charaktereditor" }]} escZu="zurück zu Editoren" />
+    {asking && <Rueckfrage titel="Änderungen verwerfen?" text={`Die Vorlage „${value?.profile.name ?? ""}“ hat Änderungen, die noch nicht gespeichert sind.`} ja="Verwerfen und zurück" nein="Weiter bearbeiten" onJa={onBack} onNein={() => setAsking(false)} testid="vorlage-rueckfrage" />}
+    <div className="grid grid-cols-[240px_minmax(0,1fr)] gap-4 px-5 pb-5 pt-3 max-[860px]:grid-cols-1" data-testid="charaktereditor">
       <div>
         <div className="grid content-start gap-1.5" data-testid="vorlagen-liste">
           {list.map((t) => { const p = t.profile as unknown as Profile; return (
@@ -85,5 +94,5 @@ export function Charaktereditor() {
         )}
       </div>
     </div>
-  );
+  </>);
 }
