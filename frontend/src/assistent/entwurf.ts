@@ -1,6 +1,6 @@
 // Entwurf der neuen Simulation (AP17b): alles, was der Assistent erfasst, und der Anfragekörper daraus. Reine Funktionen ohne Zustand.
 import type { NewSimRequest, TemplateOut, Voice } from "../types/generated";
-import { VORGABE, anfrage, type Stil } from "../welten/stellgroessen";
+import { START, anfrage, type Stil } from "../welten/stellgroessen";
 import { PKEYS, type Personality, type Profile } from "./begrenzung";
 import { REL_DEFAULT, type Rel } from "./wuerfeln";
 
@@ -50,7 +50,7 @@ export const fromTemplate = (t: TemplateOut): ResidentDraft => ({ ...blankReside
 
 export const newDraft = (seed = 1 + Math.floor(Math.random() * 99999)): Draft => ({
   playMode: "leben",
-  world: { kind: "generated", libraryId: null, stil: { ...VORGABE }, seed, lake: "auto", houses: null, mix: null },
+  world: { kind: "generated", libraryId: null, stil: { ...START }, seed, lake: "auto", houses: null, mix: null },
   residents: [],
   rel: {},
   stories: {},

@@ -6,7 +6,8 @@ dasselbe Dorf. Was nicht passt (zu viele Gebäude für die Fläche), lässt der 
 
 from dataclasses import dataclass, fields
 
-FORMEN = ("strasse", "beidseitig", "haufen", "zufall")
+FORMEN = ("strasse", "beidseitig", "haufen", "anger", "fluss", "streu", "zufall")
+ECHTE_FORMEN = FORMEN[:-1]                  # alles außer „zufall“: daraus würfelt der Seed
 GROESSEN = ("klein", "mittel", "gross")
 WASSER = ("keiner", "bach", "fluss")
 WALD = ("licht", "mittel", "dicht")
@@ -20,9 +21,15 @@ class StilError(ValueError):
     pass
 
 
+def echte_form(seed: int, form: str) -> str:
+    """„zufall“ wird vom Seed zu einer der echten Formen; die anderen bleiben, wie sie sind."""
+    from .rng import Rng
+    return form if form != "zufall" else Rng(seed * 3 + 5).pick(list(ECHTE_FORMEN))
+
+
 @dataclass(frozen=True)
 class Stil:
-    form: str = "strasse"            # Straßendorf (Häuser auf einer Seite, wie bisher), beidseitig, Haufendorf oder nach Seed
+    form: str = "strasse"            # Straßendorf (Häuser auf einer Seite, wie bisher), beidseitig, Haufendorf, Anger, Fluss quer, Streusiedlung oder nach Seed
     groesse: str = "klein"           # Länge der Hauptstraße: klein wie bisher, mittel und groß verlängern sie nach Westen
     seen: int = 1                    # Zahl der Seen (0 bis 4); der erste ist der große See mit Steg und Boot, die weiteren sind Teiche
     wasser: str = "bach"             # keiner, Bach (wie bisher) oder breiter Fluss

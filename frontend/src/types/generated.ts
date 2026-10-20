@@ -907,7 +907,7 @@ export interface GenerateApplyRequest {
 export interface Stellgroessen {
   baeume?: number;
   felder?: number;
-  form?: "strasse" | "beidseitig" | "haufen" | "zufall";
+  form?: "strasse" | "beidseitig" | "haufen" | "anger" | "fluss" | "streu" | "zufall";
   gaerten?: number;
   groesse?: "klein" | "mittel" | "gross";
   seen?: number;

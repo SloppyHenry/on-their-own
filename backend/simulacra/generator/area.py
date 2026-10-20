@@ -11,12 +11,14 @@ from .generate import MAX_MAP, TILE_TYPES, TRIES, GenerationError, WorldInfo, _o
 from .layout import Params
 from .names import Naming, village_name
 from .rng import Rng
+from .stil import Stil
 from .validate import Report, check_world
 
 FREE = ".T"                                                         # Wiese und Wald dürfen einem Dorf weichen
 
 
-def area_patch(info: WorldInfo, seed: int, at: tuple[int, int], *, lake: str = "auto", mix: dict[str, int] | None = None) -> tuple[dict, Report]:
+def area_patch(info: WorldInfo, seed: int, at: tuple[int, int], *, lake: str = "auto", mix: dict[str, int] | None = None, stil: Stil | None = None) -> tuple[dict, Report]:
+    """Ohne `stil` entscheidet der Seed über die Dorfform (alle sechs): jedes Gebiet sieht anders aus."""
     regions = info.look["regions"]
     n = 2
     while f"v{n}" in {r["id"] for r in regions} or any(i.startswith(f"v{n}_") or i.startswith(f"v{n}.") for i in info.ids):
@@ -28,7 +30,7 @@ def area_patch(info: WorldInfo, seed: int, at: tuple[int, int], *, lake: str = "
     for attempt in range(TRIES):
         s = seed + attempt * 1000003
         vn = village_name(Rng(s), {nm.split(" bei ")[-1].split(" in ")[-1].replace("Platz von ", "") for nm in info.names})
-        v = build_village(Params(s, lake, mix, home=False), Naming(prefix, vn), vn)
+        v = build_village(Params(s, lake, mix, home=False, stil=stil or Stil(form="zufall")), Naming(prefix, vn), vn)
         d = place(v, tx0, ty0)
         W, H = d["size"]
         newW, newH = max(info.size[0], tx0 + W), max(info.size[1], ty0 + H)

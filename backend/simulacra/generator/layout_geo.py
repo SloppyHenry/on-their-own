@@ -29,6 +29,9 @@ def blocked_pt(lay, x: float, y: float, pad: float, paths: bool = True, houses: 
             return True
     if square and math.hypot(x - lay.sq["x"], (y - lay.sq["y"]) * 1.08) < lay.sq["r"] + pad:
         return True
+    for kx, ky, krx, kry in lay.keepout:
+        if ((x - kx) / (krx + pad)) ** 2 + ((y - ky) / (kry + pad * 0.8)) ** 2 < 1:
+            return True
     if lay.dock and lay.dock["x0"] - pad < x < lay.dock["x1"] + pad and lay.dock["y0"] - pad < y < lay.dock["y1"] + pad:
         return True
     if water_lines(lay) and line_dist(water_lines(lay), x, y) < pad + 2:
@@ -37,7 +40,7 @@ def blocked_pt(lay, x: float, y: float, pad: float, paths: bool = True, houses: 
         return True
     if lay.bridge and lay.bridge["x0"] - pad < x < lay.bridge["x1"] + pad and lay.bridge["y0"] - pad < y < lay.bridge["y1"] + pad:
         return True
-    return houses and any(b0 - pad * 0.3 < x < b1 + pad * 0.3 and c0 < y < c1 for b0, b1, c0, c1 in (box_of(b) for b in lay.buildings))
+    return houses and any(x0 - pad * 0.3 < x < x1 + pad * 0.3 and y0 < y < y1 for x0, y0, x1, y1 in (box_of(b) for b in lay.buildings))
 
 
 def clear_trees(lay, box: tuple[float, float, float, float]) -> None:
@@ -58,6 +61,6 @@ BASE_BOTTOM = 232                                                           # un
 
 def needed_height(lay) -> int:
     """Wie viel das Dorf nach Süden wachsen muss, damit Häuser samt Türweg, Teiche, Gärten und Felder darin liegen (Vielfaches von 16)."""
-    bottoms = [b.base + 26 for b in lay.buildings] + [k["y"] + k["ry"] + 12 for k in lay.ponds] + [g["y1"] + 14 for g in lay.gardens2]
+    bottoms = [b.base + 26 for b in lay.buildings] + [k["y"] + k["ry"] + 12 for k in [*lay.ponds, *([lay.lake] if lay.lake else [])]] + [g["y1"] + 14 for g in [*lay.gardens2, *([lay.garden] if lay.garden else [])]]
     need = max(bottoms, default=0) - BASE_BOTTOM
     return max(0, int(math.ceil(need / 16.0)) * 16)

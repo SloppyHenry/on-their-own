@@ -2,13 +2,19 @@
 import type { Stellgroessen } from "../types/generated";
 
 export type Stil = Required<Stellgroessen>;
+/** Was der Generator ohne Angabe nimmt (das Dorf wie bisher): nur davon abweichende Werte gehen in die Anfrage. */
 export const VORGABE: Stil = { form: "strasse", groesse: "klein", seen: 1, wasser: "bach", wald: "mittel", baeume: 10, gaerten: 1, felder: 0, wege: "geschwungen" };
+/** Womit die Oberfläche beginnt: wie die Vorgabe, aber die Dorfform entscheidet der Seed, damit jedes Dorf anders aussieht. */
+export const START: Stil = { ...VORGABE, form: "zufall" };
 
 export const FORMEN: [Stil["form"], string, string][] = [
   ["strasse", "Straßendorf", "Häuser an einer Seite der Straße (wie bisher)"],
   ["beidseitig", "Beidseitig", "Häuser auf beiden Seiten der Straße, Türwege um die Häuser herum"],
   ["haufen", "Haufendorf", "Häuser um den Platz verstreut, Türwege zum Platz"],
-  ["zufall", "Nach Zufall", "eine der drei Formen, passend zum Seed"],
+  ["anger", "Anger", "Dorfwiese mit Platz in der Mitte, Ringstraßen darum, Häuser an den Ringen"],
+  ["fluss", "Fluss quer", "ein Fluss quer durch die Karte, die Straße am Ufer, eine Brücke nach Süden"],
+  ["streu", "Streusiedlung", "Einzelhöfe an eigenen Gassen, weit auseinander, ein kleiner Platz in der Mitte"],
+  ["zufall", "Nach Zufall", "eine der sechs Formen, passend zum Seed"],
 ];
 export const GROESSEN: [Stil["groesse"], string][] = [["klein", "Klein"], ["mittel", "Mittel"], ["gross", "Groß"]];
 export const WASSER: [Stil["wasser"], string][] = [["keiner", "Keiner"], ["bach", "Bach"], ["fluss", "Fluss"]];
@@ -21,4 +27,4 @@ export function anfrage(s: Stil): Stellgroessen | null {
   const diff = Object.fromEntries((Object.keys(VORGABE) as (keyof Stil)[]).filter((k) => s[k] !== VORGABE[k]).map((k) => [k, s[k]]));
   return Object.keys(diff).length ? (diff as Stellgroessen) : null;
 }
-export const geaendert = (s: Stil) => anfrage(s) !== null;
+export const geaendert = (s: Stil) => (Object.keys(START) as (keyof Stil)[]).some((k) => s[k] !== START[k]);

@@ -12,11 +12,11 @@ const MIX: [string, string][] = [["shop", "Läden"], ["workshop", "Werkstätten"
 function Stepper({ label, value, onChange, min = 0, max = 12, testid, extra }: { label: string; value: number; onChange: (n: number) => void; min?: number; max?: number; testid: string; extra?: React.ReactNode }) {
   return (
     <div className="mb-1.5 flex items-center gap-2.5 text-[13px]" data-testid={testid}>
-      <span className="w-24 text-dim">{label}</span>
+      <span className="w-28 shrink-0 text-dim">{label}</span>
       <button type="button" className="btn px-2 py-0" aria-label={`${label} weniger`} disabled={value <= min} onClick={() => onChange(value - 1)}>−</button>
       <b className="w-5 text-center text-base">{value}</b>
       <button type="button" className="btn px-2 py-0" aria-label={`${label} mehr`} disabled={value >= max} onClick={() => onChange(value + 1)}>＋</button>
-      {extra}
+      {extra && <span className="min-w-0 flex-1">{extra}</span>}
     </div>
   );
 }

@@ -23,7 +23,7 @@ export function Vorschaufenster({ world, caption, level = 0.5 }: { world: World;
   useEffect(() => {
     if (!look || !host.current || !canvas.current) return;
     const bridge = vorschauBruecke(() => world), view = new DorfView(canvas.current, host.current, bridge, look);
-    const t = requestAnimationFrame(() => view.zoomLevel(level));                  // erst nach der ersten Größenmessung
+    const t = requestAnimationFrame(() => { view.zoomLevel(level); view.centerWorld(); });                  // erst nach der ersten Größenmessung
     return () => { cancelAnimationFrame(t); view.destroy(); };
   }, [look, world, level, mode]);
   return (

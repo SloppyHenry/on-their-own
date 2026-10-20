@@ -9,7 +9,7 @@ from .models import Out, StateSnapshot
 
 class Stellgroessen(BaseModel):
     """Stellgrößen des Generators (AP18f); jede ist optional, ohne Angabe gilt die Vorgabe (das Dorf wie bisher)."""
-    form: Literal["strasse", "beidseitig", "haufen", "zufall"] = "strasse"
+    form: Literal["strasse", "beidseitig", "haufen", "anger", "fluss", "streu", "zufall"] = "strasse"
     groesse: Literal["klein", "mittel", "gross"] = "klein"
     seen: int = Field(1, ge=0, le=4)
     wasser: Literal["keiner", "bach", "fluss"] = "bach"

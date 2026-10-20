@@ -10,7 +10,7 @@ from dataclasses import dataclass, field
 from .geometry import Pt, lerp_y, line_dist
 from .rng import Rng, jr
 from .layout_extra import apply_stil
-from .stil import Stil
+from .stil import Stil, echte_form
 
 ROOFS = ["rot", "blau", "stroh", "moos", "schiefer", "holz"]
 WALLS = ["creme", "rosa", "gelb", "blau", "holz"]
@@ -67,11 +67,16 @@ class Layout:
     skipped: int = 0                                                # Gebäude, die nicht passten
     notes: list[str] = field(default_factory=list)                   # was sonst nicht passte (Teich, Garten, Feld), für den Prüfbericht
     form: str = "strasse"
+    keepout: list[list[float]] = field(default_factory=list)       # Flächen, die frei bleiben (Anger): Ellipsen [x, y, rx, ry]
+    clearing_x: tuple[float, float] | None = None                  # freie Dorfformen: von bis wo die betretbare Reihe im Wald liegt (sonst 0 bis 2 · Platz)
     spare: list["Building"] = field(default_factory=list)          # Gebäude für die zweite Zeile oder den Haufen, noch nicht gesetzt
 
 
 def make_layout(p: Params) -> Layout:
     seed = p.seed
+    if echte_form(seed, p.stil.form) in ("anger", "fluss", "streu"):                      # freie Dorfformen (AP18f): eigenes Layout, gleiche Ausgabe
+        from .layout_frei import make_frei
+        return make_frei(p, echte_form(seed, p.stil.form))
     R, R2 = Rng(seed * 7919 + 13), Rng(seed * 104729 + 11)
     rnd = R.rnd
     decor: list[list] = []
@@ -84,7 +89,7 @@ def make_layout(p: Params) -> Layout:
     y0 = sq["y"]
 
     st = p.stil
-    form = st.form if st.form != "zufall" else Rng(seed * 3 + 5).pick(["strasse", "beidseitig", "haufen"])
+    form = echte_form(seed, st.form)
     # Gebäude der Häuserzeile festlegen (Rollen, Breiten), daraus die Breite des Dorfs
     roles = _roles(p, R)
     items: list[Building] = []

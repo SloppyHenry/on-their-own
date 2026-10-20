@@ -6,7 +6,7 @@ import { applySnapshot } from "../store/reducers";
 import { useSimStore } from "../store/simStore";
 import type { World } from "../store/types";
 import type { CheckOut, HouseOut, NewSimApplied, NewSimLimits, ResidentOut, TemplateOut } from "../types/generated";
-import { VORGABE } from "../welten/stellgroessen";
+import { START } from "../welten/stellgroessen";
 import { FALLBACK_LIMITS } from "./begrenzung";
 import { blankResident, fromTemplate, newDraft, pairKey, START_IDS, toRequest, type Draft, type ResidentDraft, type WorldDraft } from "./entwurf";
 import { wuerfelBeziehung, wuerfelFigur, type Rel } from "./wuerfeln";
@@ -69,7 +69,7 @@ function stored(): { draft: Draft; step: number; sel: number } | null {
   try {
     const j = JSON.parse(localStorage.getItem(STORAGE) ?? "null");
     if (!j || !j.draft || !Array.isArray(j.draft.residents)) return null;
-    j.draft.world = { libraryId: null, ...j.draft.world, stil: { ...VORGABE, ...(j.draft.world?.stil ?? {}) } };
+    j.draft.world = { libraryId: null, ...j.draft.world, stil: { ...START, ...(j.draft.world?.stil ?? {}) } };
     j.draft.playMode = j.draft.playMode === "gott" ? "gott" : "leben";
     j.draft.rules = { ...newDraft().rules, ...j.draft.rules };                          // Entwürfe aus älteren Fassungen bekommen die neuen Felder
     return j;

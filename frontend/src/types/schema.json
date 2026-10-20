@@ -8467,6 +8467,9 @@
       "strasse",
       "beidseitig",
       "haufen",
+      "anger",
+      "fluss",
+      "streu",
       "zufall"
      ],
      "type": "string"

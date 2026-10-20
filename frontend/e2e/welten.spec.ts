@@ -122,6 +122,21 @@ test("Welt erzeugen: Vorschau, Stellgrößen und vier Pläne; „In die Biblioth
   expect(doc.world.generator.stil.form).toBe("beidseitig");
 });
 
+test("Welt erzeugen: die Dorfform beginnt bei „Nach Zufall“, Anger, Fluss quer und Streusiedlung lassen sich wählen", async ({ page, request }) => {
+  await zuWelten(page);
+  await page.getByTestId("welt-erzeugen").click();
+  await expect(page.getByTestId("stell-form-zufall")).toHaveAttribute("aria-pressed", "true");
+  for (const f of ["anger", "fluss", "streu"]) {
+    await page.getByTestId(`stell-form-${f}`).click();
+    await expect(page.getByTestId(`stell-form-${f}`)).toHaveAttribute("aria-pressed", "true");
+    await expect(page.getByTestId("vorschau-pixels")).toBeVisible({ timeout: 20_000 });          // die Vorschau wird nach jeder Änderung neu erzeugt
+  }
+  await page.getByTestId("erzeugen-name").fill("Streuhof");
+  await page.getByTestId("erzeugen-anlegen").click();
+  await expect(page.getByTestId("welt-streuhof")).toContainText("erzeugt");
+  expect((await (await request.get("/api/worlds/streuhof")).json()).world.generator.stil.form).toBe("streu");
+});
+
 test("Damit spielen: Neue Simulation › Selbst definieren mit dieser Welt vorgewählt", async ({ page, request }) => {
   const info = await (await request.post("/api/worlds/blank", { data: { name: "Spielwiese", size: "klein", edge: "wald" }, headers: { "Idempotency-Key": crypto.randomUUID() } })).json();
   const doc = await (await request.get(`/api/worlds/${info.id}`)).json();

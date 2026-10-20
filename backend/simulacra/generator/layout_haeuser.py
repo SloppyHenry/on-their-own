@@ -37,7 +37,7 @@ def _path_ok(lay, path, own) -> bool:
         n = max(1, int(math.hypot(bx - ax, by - ay) / 4))
         for k in range(n + 1):
             x, y = ax + (bx - ax) * k / n, ay + (by - ay) * k / n
-            if not (-lay.ext_l - 30 < x < 296 and -4 < y < CAP):
+            if not (-lay.ext_l - 30 < x < 296 and -4 < y < BASE_BOTTOM + max(96, lay.extra_h)):
                 return False
             for o in lay.buildings:
                 if o is not own and o is not None:

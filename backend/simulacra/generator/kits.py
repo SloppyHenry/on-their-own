@@ -137,7 +137,7 @@ def make_kit(L: Layout, out: Outdoor, nm: Naming, loc_of, residents: int = 0) ->
         source("field_rocks", "stone", "Steine", _sp(rocks[0][1], rocks[0][2]), rocks, 6, 6, 0.05, tool="pickaxe", minutes=10)
     # Wald: eine betretbare Reihe nördlich der Wiese mit Holz, Pilzen und Samen
     cj = out.tile_of(0, -10)[1]
-    ci0, ci1 = out.tile_of(0, 0)[0], out.tile_of(L.sq["x"] * 2, 0)[0]
+    ci0, ci1 = (out.tile_of(L.clearing_x[0], 0)[0], out.tile_of(L.clearing_x[1], 0)[0]) if L.clearing_x else (out.tile_of(0, 0)[0], out.tile_of(L.sq["x"] * 2, 0)[0])
     k.clearing = [ci0, cj, max(8, min(ci1, out.w - 2) - ci0), 1]
     for n, (rid, res, label, amount, cap, regen, tool, mins) in enumerate([("forest_wood", "wood", None, 40, 40, 1.5, "axe", 8), ("forest_mushrooms", "food", None, 8, 8, 0.3, None, 5),
                                                                           ("forest_seeds", "seeds", None, 6, 10, 0.1, None, 4)]):

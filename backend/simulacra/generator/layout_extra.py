@@ -50,3 +50,10 @@ def _drop_garden(lay) -> None:
     lay.decor = [d for d in lay.decor if not (d[0] in ("fence", "post", "sun", "tomato", "scare") and inside(d)) and not (d[0] == "barrel" and d[3] == 7)]
     lay.paths = [pl for pl in lay.paths if not (len(pl) == 4 and abs(pl[0][0] - g["x1"]) < 0.5 and abs(pl[1][0] - g["x1"] - 10) < 0.5)]
     lay.garden, lay.beds = None, []
+
+
+def apply_rest(lay, rng, st) -> None:
+    """Für die freien Dorfformen: Teiche (der Teich auf der Dorfwiese zählt mit), weitere Gärten und Felder; die Höhe nach Süden hat der Aufrufer schon gesetzt."""
+    add_ponds(lay, rng, st.seen - 1 - len(lay.ponds))
+    add_gardens(lay, rng, st.gaerten - 1)
+    add_fields(lay, rng, st.felder)

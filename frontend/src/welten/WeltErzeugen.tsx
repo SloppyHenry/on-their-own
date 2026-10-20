@@ -5,7 +5,7 @@ import { ApiError, api } from "../net/api";
 import { applySnapshot } from "../store/reducers";
 import { Plan } from "./Plaene";
 import { StellgroessenFeld } from "./StellgroessenFeld";
-import { VORGABE, anfrage, type Stil } from "./stellgroessen";
+import { START, anfrage, type Stil } from "./stellgroessen";
 import type { World } from "../store/types";
 
 type Lake = "auto" | "east" | "south";
@@ -14,7 +14,7 @@ const field = "rounded-md border border-line bg-bg px-2 py-1";
 const detail = (e: unknown) => (e instanceof ApiError ? e.detail : "Backend nicht erreichbar");
 
 export function WeltErzeugen({ fertig }: { fertig: () => Promise<void> }) {
-  const [seed, setSeed] = useState(() => 1 + Math.floor(Math.random() * 99999)), [lake, setLake] = useState<Lake>("auto"), [name, setName] = useState(""), [stil, setStil] = useState<Stil>({ ...VORGABE });
+  const [seed, setSeed] = useState(() => 1 + Math.floor(Math.random() * 99999)), [lake, setLake] = useState<Lake>("auto"), [name, setName] = useState(""), [stil, setStil] = useState<Stil>({ ...START });
   const [plaene, setPlaene] = useState<(World | null)[]>([null, null, null, null]);
   const style = anfrage(stil);
   const key = JSON.stringify([seed, lake, style]);

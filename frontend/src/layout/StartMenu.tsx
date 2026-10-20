@@ -79,9 +79,9 @@ export function StartMenu() {
         )}
         <div role="menu" aria-label="Menü" className="grid gap-0.5">
           {items.map((it, i) => it === "sep" ? <div key={i} className="mx-3 my-2 h-px bg-line/70" /> : it.resume && menu === "title" ? (
-            <ResumeCard key={it.id} selected={sel === it.id} onSelect={() => choose(it.id)} onGo={() => setMenu(null)} />
+            <ResumeCard key={it.id} selected={sel === it.id} onGo={() => setMenu(null)} />
           ) : (
-            <button key={it.id} role="menuitem" data-testid={`menu-${it.id}`} aria-selected={sel === it.id} onClick={() => { choose(it.id, true); setSub(null); }} onMouseEnter={() => { if (!it.resume && it.id !== "title") { choose(it.id); setSub(null); } }}
+            <button key={it.id} role="menuitem" data-testid={`menu-${it.id}`} aria-selected={sel === it.id} onClick={() => { choose(it.id, true); setSub(null); }}
               className={`grid cursor-pointer grid-cols-[28px_1fr] items-center gap-x-2 rounded-r-[10px] border-l-[3px] bg-transparent px-3 py-2 text-left text-base transition-all ${sel === it.id ? "translate-x-1.5 border-alex bg-[linear-gradient(90deg,rgba(255,211,110,.16),transparent)] text-text" : "border-transparent text-dim hover:text-text"}`}>
               <span className="text-lg opacity-80">{it.icon}</span><span>{it.label}</span>
               {sel === it.id && it.hint && <small className="col-start-2 text-xs text-dim">{it.hint}</small>}
@@ -113,12 +113,12 @@ function Logo() {
 }
 
 /** Fortsetzen: zeigt, was gerade im Dorf passiert (dieselben Texte wie die Schilder). */
-function ResumeCard({ selected, onSelect, onGo }: { selected: boolean; onSelect: () => void; onGo: () => void }) {
+function ResumeCard({ selected, onGo }: { selected: boolean; onGo: () => void }) {
   const w = useSimStore((s) => s.world);
   const lines = w ? w.agentOrder.slice(0, 4).map((id) => `${w.agents[id].name}: ${activityOf(w.agents[id], w).text}`) : [];
   const names = w ? w.agentOrder.map((id) => w.agents[id].name).join(", ") : "";
   return (
-    <button role="menuitem" data-testid="menu-resume" aria-selected={selected} onClick={onGo} onMouseEnter={onSelect}
+    <button role="menuitem" data-testid="menu-resume" aria-selected={selected} onClick={onGo}
       className={`mb-2 grid cursor-pointer gap-1 rounded-2xl border-2 bg-alex px-4 py-3.5 text-left text-[17px] text-[#2b2233] ${selected ? "border-white shadow-[0_6px_24px_#0008]" : "border-transparent"}`}>
       <b>▶ Fortsetzen</b>
       {w && <small className="text-xs text-[#5a4a3a]">{w.worldName ? `${w.worldName} · ` : ""}Tag {w.clock.day}, {w.clock.time} · {names}</small>}

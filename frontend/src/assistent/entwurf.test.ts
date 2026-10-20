@@ -24,7 +24,7 @@ describe("Entwurf: Gebäude und Anfragekörper", () => {
   it("der Anfragekörper enthält nur Geändertes", () => {
     const d = draft(3);
     const base = toRequest(d);
-    expect(base.world).toEqual({ kind: "generated", seed: 5, lake: "auto" });
+    expect(base.world).toEqual({ kind: "generated", seed: 5, lake: "auto", style: { form: "zufall" } });                  // die Dorfform entscheidet der Seed
     expect(base.relations).toEqual([]);
     expect(base.stories).toEqual([]);
     expect(base.rules).toEqual({ mode: "observer" });
@@ -38,7 +38,7 @@ describe("Entwurf: Gebäude und Anfragekörper", () => {
       model: "m1",
       run: "running",
     });
-    expect(changed.world).toEqual({ kind: "generated", seed: 5, lake: "auto", houses: 3, mix: { workshop: 1 } });
+    expect(changed.world).toEqual({ kind: "generated", seed: 5, lake: "auto", houses: 3, mix: { workshop: 1 }, style: { form: "zufall" } });
     expect(changed.relations).toEqual([{ a: 0, b: 1, trust: 80, sympathy: 70, tension: 5, familiarity: 60 }]);      // Standard und unbekannte Bewohner entfallen
     expect(changed.stories).toEqual([{ a: 0, b: 1, text: "Sie kennen sich vom Markt." }]);
     expect(changed.rules).toMatchObject({ preset: "hohe-autonomie", autonomy: 80, scarcity: 0, mode: "creator", events: [{ text: "Heute regnet es.", source: "rule", ops: [{ op: "set_weather" }] }] });

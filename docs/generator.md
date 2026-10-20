@@ -18,7 +18,7 @@ Eingaben (`Params`): `seed`, `lake` (`east` wie in A, `south` mit Brücke über 
 
 | Stellgröße | Werte | Wirkung |
 |---|---|---|
-| `form` | `strasse` (Vorgabe), `beidseitig`, `haufen`, `zufall` | Häuser nur nördlich der Straße (wie bisher), zusätzlich eine zweite Zeile südlich der Straße oder verstreut um den Platz; `zufall` wählt eine der drei nach Seed |
+| `form` | `strasse` (Vorgabe der Engine), `beidseitig`, `haufen`, `anger`, `fluss`, `streu`, `zufall` | Straße, Häuser nur nördlich der Straße (wie bisher), beidseitig, Haufendorf, **Anger**, **Fluss quer**, **Streusiedlung** (siehe unten); `zufall` wählt eine der sechs nach Seed. Die Oberfläche beginnt mit `zufall`, damit jedes Dorf anders aussieht |
 | `groesse` | `klein` (Vorgabe), `mittel`, `gross` | Länge der Hauptstraße nach Westen (mehr Platz für Gebäude) |
 | `seen` | 0 bis 4 (Vorgabe 1) | der große See mit Steg und Boot, dazu Teiche; bei 0 entfallen See, Steg, Boot und Angelplatz (Wasser gibt es dann nur am Brunnen und am Wasserlauf) |
 | `wasser` | `keiner`, `bach` (Vorgabe), `fluss` | Wasserlauf aus dem Nordwald; ein Fluss ist drei Stränge breit, die Brücke wird breiter |
@@ -30,7 +30,15 @@ Eingaben (`Params`): `seed`, `lake` (`east` wie in A, `south` mit Brücke über 
 
 `layout.make_layout` baut zuerst das Grundlayout wie bisher; `layout_extra.apply_stil` setzt danach die Stellgrößen um (eigener Zufallsstrom aus dem Seed): `layout_haeuser.py` (zweite Zeile, Haufendorf, **Türwege um die Häuser herum**, weil die Tür immer nach Süden zeigt), `layout_gaerten.py` (Teiche, Gärten, Felder), `layout_welt.py` (gerade Wege, Wasserlauf, Bäume, Wald), `layout_geo.py` (Platzprüfung). Das Dorf darf dabei nach Süden wachsen (`Layout.extra_h`, Vielfaches von 16). Weitere Seen, Wasserstränge, Gärten und Brücken stehen als Listen in den Formen des Gebiets (`shapes.lakes`, `streams`, `gardens`, `bridges`), die die Weltansicht schon immer zeichnen konnte. Bei 0 Seen oder Gärten fehlen die Orte „See“ beziehungsweise „Garten“.
 
-**Nicht umgesetzt (offen):** Anger (Ringstraße um eine Wiese mit Teich), Fluss quer durch die ganze Karte mit Straße am Ufer und Streusiedlung mit eigenen Wegen je Hof; dazu Dörfer mit mehreren Plätzen. Die Dorfformen gelten für „Welt erzeugen“ und den Assistenten, nicht für „Dorf anfügen“ im Spiel.
+**Freie Dorfformen (`layout_frei.py`, `formen.py`, `layout_wasser.py`, `layout_trees.py`):** Anger, Fluss quer und Streusiedlung haben kein festes Gerüst. `layout.make_layout` übergibt sie an `layout_frei.make_frei`, das dieselbe `Layout`-Struktur füllt (Kacheln, Orte, Innenräume und Prüfung bleiben unverändert); das Straßendorf mit den Vorgaben bleibt Byte für Byte, was es war. Ablauf: Plan der Form (Straßen, Platz, Häuser) → See mit Steg und Bach → Gemeinschaftsgarten → Teiche, Gärten, Felder → Höhe → Wald und Bäume. Alles hängt vom Seed ab (Lage, Maße, Zahl der Ausfahrten, Wackeln der Wege), was nicht passt, steht im Prüfbericht.
+
+| Form | Aufbau |
+|---|---|
+| `anger` | Dorfwiese (`Layout.keepout`: bleibt frei von Bäumen, Teichen und Häusern) mit kleinem Platz in der Mitte, ein bis drei Ringstraßen darum (je nach Gebäudezahl), Häuser außen an den Ringen (erst der innere Ring, dann der nächste), Ausfahrten nach West, Süd und meistens Ost führen quer durch die Ringe. Ab `seen` 2 liegt ein Teich auf der Wiese. Nach dem Setzen rückt das Dorf rechtsbündig nach oben, die Westseite wird auf den Bedarf gekürzt |
+| `fluss` | Die Hauptstraße steigt oder fällt leicht über die ganze Breite, der Fluss läuft im Abstand von etwa 140 Pixeln südlich davon (drei Stränge bei `bach`, fünf bei `fluss`), vordere Häuserzeile nördlich der Straße, zweite Zeile zwischen Straße und Ufer (Weg ums Haus), die Südstraße kreuzt den Fluss unter einer Brücke. Bei `seen` ≥ 1 weitet sich der Fluss zum Mühlteich mit Steg am Nordufer. Ohne Wasserlauf (`keiner`) bleibt es bei einem Bach (Hinweis im Bericht) |
+| `streu` | Ein kleiner Platz, wo sich Hauptwege nach West, Ost und Süd treffen; je Hof ein Ankerpunkt (mindestens 105 Pixel auseinander) mit eigener Gasse zur nächsten Straße, zwei bis drei Gebäude je Hof an der Gasse oder um den Ankerpunkt; die Karte wächst mit der Zahl der Höfe (`_extent`). Was an seinem Hof nicht mehr unterkommt, sucht sich irgendeinen Platz an einer Straße |
+
+Gemeinsam: `layout_frei.try_place` prüft Fläche und **Türweg** (`connect`: gerade hinunter zur Straße, sonst seitlich ums Haus herum, die Tür zeigt immer nach Süden); `layout_wasser.add_lake` sucht eine freie Stelle für See und Steg samt Weg, `add_stream` legt den Bach per Wegsuche (A* auf einem 12-Pixel-Raster) um Häuser, Gärten und Türwege herum in den See oder zum Südrand, an jeder Kreuzung mit einer Straße steht eine Brücke. Nicht gebaut: mehrere Plätze, Dörfer mit Dorfplatz an einem Fluss mit Landungsplatz. Die Dorfformen gelten für „Welt erzeugen“, „Gebiet erzeugen“ und den Assistenten, nicht für „Dorf anfügen“ im Spiel.
 
 
 ## Aufbau

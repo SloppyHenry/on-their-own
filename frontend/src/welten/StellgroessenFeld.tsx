@@ -1,6 +1,6 @@
 // Bedienteile für die Stellgrößen des Generators (AP18f, Mockup Bild 9): Dorfform, Kartengröße, Seen, Wasserlauf, Wald, Bäume, Gärten, Felder und Wege.
 // Gilt für „Selbst definieren › Welt“ und „Editoren › Welten › Welt erzeugen“. Was nicht passt, lässt der Generator weg; der Prüfbericht nennt es.
-import { FORMEN, GROESSEN, VORGABE, WALD, WASSER, WEGE, ZAHLEN, geaendert, type Stil } from "./stellgroessen";
+import { FORMEN, GROESSEN, START, WALD, WASSER, WEGE, ZAHLEN, geaendert, type Stil } from "./stellgroessen";
 
 function Segment<T extends string>({ wert, opts, onChange, tid }: { wert: T; opts: [T, string][]; onChange: (v: T) => void; tid: string }) {
   return <span className="segment" role="group">{opts.map(([v, l]) => <button key={v} type="button" className={wert === v ? "on" : ""} aria-pressed={wert === v} onClick={() => onChange(v)} data-testid={`${tid}-${v}`}>{l}</button>)}</span>;
@@ -15,9 +15,9 @@ export function StellgroessenFeld({ stil, onChange }: { stil: Stil; onChange: (s
   return (
     <section className="rounded-xl border border-line bg-black/15 p-3" data-testid="stellgroessen">
       <div className="mb-2 flex items-center gap-2"><h3 className="sub m-0">Stellgrößen</h3>
-        {geaendert(stil) && <button type="button" className="ml-auto text-xs underline text-dim hover:text-text" onClick={() => onChange({ ...VORGABE })} data-testid="stell-zurueck">auf Vorgaben</button>}</div>
+        {geaendert(stil) && <button type="button" className="ml-auto text-xs underline text-dim hover:text-text" onClick={() => onChange({ ...START })} data-testid="stell-zurueck">auf Vorgaben</button>}</div>
       <Zeile label="Dorfform">
-        <span className="segment" role="group" aria-label="Dorfform">{FORMEN.map(([v, l, tip]) => <button key={v} type="button" title={tip} className={stil.form === v ? "on" : ""} aria-pressed={stil.form === v} onClick={() => set("form", v)} data-testid={`stell-form-${v}`}>{l}</button>)}</span>
+        <span className="segment max-w-full flex-wrap !rounded-2xl" role="group" aria-label="Dorfform">{FORMEN.map(([v, l, tip]) => <button key={v} type="button" title={tip} className={stil.form === v ? "on" : ""} aria-pressed={stil.form === v} onClick={() => set("form", v)} data-testid={`stell-form-${v}`}>{l}</button>)}</span>
       </Zeile>
       <small className="mb-2 block pl-[7.5rem] text-xs text-dim" data-testid="stell-form-text">{FORMEN.find(([v]) => v === stil.form)?.[2]}</small>
       <Zeile label="Kartengröße"><Segment wert={stil.groesse} opts={GROESSEN} onChange={(v) => set("groesse", v)} tid="stell-groesse" /></Zeile>
