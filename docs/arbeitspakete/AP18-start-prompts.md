@@ -79,5 +79,6 @@ Den Startprompt bildet der gemeinsame Teil plus [AP16-plan.md](AP16-plan.md) mit
 **Fertig, wenn:** Mit Häufigkeit „oft“ geschehen in einem Lauf mit Fake-Modell mehrere passende Ereignisse, die Bewohner reagieren darauf wie auf Wetter, gleicher Seed ergibt denselben Ablauf, und kein Prompt nennt einen Urheber.
 
 ## AP18h – Mitleben mit eigener Figur
-**Ziel:** Du lebst als Bewohner unter Bewohnern (Spielart „Leben mit eigener Figur“; Mockup Bild 4). Beginne mit einem **eigenen Schritt 0** (Plan, Fragen, Mockup des Ablaufs), denn Takt, Spracheingabe und mehrere Menschen sind offen (Frage 11).
-**Ansetzen:** `docs/ARBEITSPAKETE.md` (Abschnitt Mitspieler-Charaktere), `docs/offene-fragen.md` Frage 11, `frontend/src/world/player/` (Vorschau aus AP13), `WorldEngine.propose`, Wahrnehmung in `agents/`.
+**Ziel:** Du lebst als Bewohner unter Bewohnern (Spielart „Leben mit eigener Figur“; Mockup Bild 4). **Der Plan steht in [AP18h-plan.md](AP18h-plan.md)** (Teilpakete a Backend, b Handlungsleiste, c Assistent und Härtung; Fragen 73–75 mit Vorschlag als Arbeitsannahme). Je Sitzung ein Teilpaket.
+**Ansetzen:** wie im Plan, Abschnitt „Ausgangslage“: `simulation/runner.py` (`_due_agents`), `agents/store.py` (`ai_agent_ids`), `agents/conversation.py`, `WorldEngine.propose`, `frontend/src/world/player/` (Vorschau aus AP13).
+**Fertig, wenn:** die Abnahme im Plan erfüllt ist und der Test „kein Hinweis auf den Menschen in irgendeinem Prompt“ grün ist.

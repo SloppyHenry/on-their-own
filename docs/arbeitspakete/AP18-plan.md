@@ -2,7 +2,7 @@
 
 **Auftrag:** Henry, 19.10.2026: „Unser Tool wirkt zusammengewürfelt und unübersichtlich … ein wirkliches Rework – das Einzige, was Bestand hat, ist das Menü.“ Dazu: Spielmodi (nur Bewohner verändern die Welt oder man ist Gott), Welt individuell weitergestalten statt nur Seeds, Generator nur beim Erschaffen und viel abwechslungsreicher mit Stellgrößen, keine Hinweisschrift über der Welt, neue Denkblasen, Esc führt immer zum vorherigen Menü, Editor › Welt öffnet eine leere Welt mit Werkzeugen, Welten einzeln speichern.
 **Mockup:** [`docs/mockups/rework.html`](../mockups/rework.html) (zehn Bildschirme, Blasen-Varianten A/B/C, Erklärung je Bild). **Befund und Bilder:** [`docs/status/AP18-schritt0.md`](../status/AP18-schritt0.md). **Startprompts je Teilpaket:** [`AP18-start-prompts.md`](AP18-start-prompts.md).
-**Umfang:** XL, neun Teilpakete (je eine Sitzung oder mehr) plus das schon geplante AP16. **Status:** Schritt 0 (Plan, Mockup, Fragen 52–61) gebaut, wartet auf Henrys Abnahme.
+**Umfang:** XL, neun Teilpakete (je eine Sitzung oder mehr) plus das schon geplante AP16. **Status:** Schritt 0 abgenommen (Henry, 20.10.2026, Fragen 52–63 entschieden). AP18a gebaut, wartet aufs Zusammenführen. AP18h hat einen eigenen ausführlichen Plan: [AP18h-plan.md](AP18h-plan.md).
 
 ## Befund (kurz, Einzelheiten im Bericht)
 1. **Zwei Formensprachen.** Das Menü (warmes Glas, Gold, große Kacheln) passt nicht zur Spieloberfläche (graue Werkzeugleisten, kleine Knöpfe).
@@ -73,7 +73,7 @@ Mockup `docs/mockups/rework.html` mit `rework/` (Stil, Spiel, Menü, Editor, Gen
 1. Backend: `play_mode` (`leben` | `gott`) und `player` (Kennung der eigenen Figur oder leer) im Spielstand (`meta`). Gesetzt wird beides beim Anlegen (`POST /api/sim/new`, Assistent), gewechselt nur über Menü › Einstellungen › Spielart mit Bestätigung (Frage 55). Das Systemereignis `simulation.play_mode_changed` hat keine Agenten und steht nie in einem Prompt.
 2. **Schutz im Backend:** In der Spielart Leben lehnen Ereigniseingabe, Gestalten-Entwürfe, Weltpatches und das Bearbeiten von Bewohnern mit 403 und klarem Text ab. Die Regler bleiben erlaubt (Frage 56).
 3. Der bisherige `mode` heißt im Text „Wissen der Bewohner“ (Beobachter, Schöpfer, Eingriff) und steht unter „Erweitert“. Am Verhalten ändert sich nichts (Frage 57).
-4. Frontend: Der Assistent bekommt als ersten Schritt „Spielart“ (Mockup Bild 7). Neu ist „Schnellstart“ (Dorf am See, Leben). Das HUD zeigt die Werkzeuge der Spielart: Gott hat Ereignis (`E`), Gestalten (`B`), Bewohner und Weltregeln. Leben hat keine Leiste.
+4. Frontend: **Neue Simulation hat nur noch zwei Kacheln** (Frage 63, Mockup Bild 7): „Schnellstart“ (immer Dorf am See mit Alex und Mira, Leben, ein Klick) und „Selbst definieren“ (der Assistent, erster Schritt „Spielart“). Darunter steht nur ein Verweis „Einen Spielstand laden →“ auf Menü › Simulation laden. Es fallen weg: „Startwelt neu beginnen“ (geht im Schnellstart auf), „Neues Dorf erzeugen“ (wandert in den Schritt Welt, AP18e/f), „Selbst gestalten“ (wird Editoren › Welten, AP18e) und die Kachel „Aus Spielstand“. Das HUD zeigt die Werkzeuge der Spielart: Gott hat Ereignis (`E`), Gestalten (`B`), Bewohner und Weltregeln. Leben hat keine Leiste.
 5. Gestalten im Spiel öffnet bis AP16b den heutigen Editor ohne Generator: „Dorf anfügen“ fällt im Spiel weg, der Generator gibt es nur beim Erschaffen (AP18e/f).
 6. „Leben mit eigener Figur“ steht im Assistenten als Möglichkeit, ist aber bis AP18h ausgegraut („kommt mit Mitleben“).
 7. Tests: Spielart im Spielstand (speichern, laden, alte Stände gelten als Gott), Schutz je Endpunkt, HUD je Spielart, Prompt-Test: kein Wort zur Spielart im Prompt.
@@ -84,7 +84,7 @@ Mockup `docs/mockups/rework.html` mit `rework/` (Stil, Spiel, Menü, Editor, Gen
 3. **Leere Welt:** `generator.blank_world(size, edge)` erzeugt Wiese, wahlweise mit Waldrand oder Seeufer, ohne Häuser und ohne Startplatz. Speichern geht immer, Starten erst mit Startplatz (Prüfung).
 4. **Editoren › Welten** (Mockup Bild 8): Bibliothek mit Leere Welt, Welt erzeugen (vorerst der heutige Generator), Karten mit Öffnen, Duplizieren, Umbenennen, Export und Löschen.
 5. **Welt-Werkstatt** (Mockup Bild 10): ganzseitiger Editor auf einer Datei, nicht auf der laufenden Simulation. Er arbeitet in einer Wegwerf-Simulation im Speicher, wie die Vorschau „Neue Simulation“ in AP12c. Oben stehen Name, „ungespeichert“, Speichern, Speichern als und „Damit spielen …“ (führt zu Neue Simulation mit vorgewählter Welt), links die Werkzeugleiste. In AP18e gibt es nur Zeiger, Startplatz und „Gebiet erzeugen“ (der vorhandene Generator als Rechteck). Die übrigen Werkzeuge kommen mit AP16b und AP16c.
-6. **Neue Simulation › Welt** wählt aus der Bibliothek. Die Welt wird kopiert, die Bibliothek bleibt unverändert.
+6. **Neue Simulation › Selbst definieren › Welt** wählt aus der Bibliothek: Dorf am See, eigene Welten aus der Werkstatt, oder „Neue Welt erzeugen“ (Generator, AP18f). Eine leere Welt legt man nur in der Bibliothek an, nicht im Assistenten. Die Welt wird kopiert, die Bibliothek bleibt unverändert.
 7. Tests: Welt anlegen, speichern, laden, duplizieren, exportieren und importieren (byte-gleich), alte Spielstände unberührt, leere Welt ohne Startplatz nicht startbar, Esc aus der Werkstatt führt zur Bibliothek.
 
 ### AP16 – Gestalten-Werkzeuge (bestehender Plan, angepasst)
@@ -114,10 +114,10 @@ Henry (Frage 54): „Es sollte schon Wetter und Ereignisse geben, die wir nicht 
 4. Sichtbare Szenen (Blitz, umgestürzter Baum, Hochwasser als Bild) kommen mit dem Paket **Szenen** (Frage 38). Bis dahin zeigen sich die Ereignisse über Wetter, veränderte Dinge und das Tagebuch.
 5. Tests: gleicher Seed ergibt dieselben Ereignisse zur selben Zeit, Bedingungen werden eingehalten, bei „aus“ geschieht nichts, kein Prompt enthält einen Urheber, das Wissen kommt nur bei denen an, die es wahrnehmen.
 
-### AP18h – Mitleben mit eigener Figur (L, eigenes Schritt-0)
-Die menschliche Figur ist ein Bewohner wie die anderen ([Mitspieler-Charaktere](../ARBEITSPAKETE.md#vorgemerkt-mitspieler-charaktere), Frage 11): derselbe Körper, dieselbe `propose`-Schnittstelle, keine Kennzeichnung im Prompt der anderen. Dazu kommen die Handlungsleiste aus dem Mockup (Bild 4: Sagen, Benutzen, Bauen, Gehen, Gepäck) auf Basis der Mitspieler-Vorschau aus AP13 und ein Takt, der auf den Menschen wartet oder weiterläuft (offen). Den genauen Plan schreibt das eigene Schritt 0.
+### AP18h – Mitleben mit eigener Figur (L, eigener Plan)
+Ausführlicher Plan mit Teilpaketen a–c und den Festlegungen zu Takt, Autopilot, Gedächtnis und Sicht (Fragen 73–75): **[AP18h-plan.md](AP18h-plan.md)**. Kurz: Die menschliche Figur ist ein Bewohner wie die anderen ([Mitspieler-Charaktere](../ARBEITSPAKETE.md#vorgemerkt-mitspieler-charaktere), Frage 11), derselbe Körper, dieselbe `propose`-Schnittstelle, keine Kennzeichnung im Prompt der anderen; dazu die Handlungsleiste aus Mockup Bild 4.
 
-## Reihenfolge (Vorschlag, Frage 61)
+## Reihenfolge (Frage 61, Henry 20.10.2026: wie vorgeschlagen)
 1. **AP18a** Esc (klein, sofort möglich), 2. **AP18b** HUD und Formensprache, 3. **AP18c** Blasen, 4. **AP18d** Spielarten, 5. **AP18i** Ereignisse von allein, 6. **AP18e** Weltenbibliothek und Werkstatt, 7. **AP16a–d** Gestalten-Werkzeuge, 8. **AP18f** Generator, 9. **AP18g** Bauen im Spiel, 10. **AP18h** Mitleben.
 AP18f hängt nur an AP18e (Speichern der erzeugten Welt) und kann auch vor AP16 kommen, wenn dir die Vielfalt wichtiger ist als die Werkzeuge. AP17b und AP17c-3/-4 hat Henry am 19.10.2026 zum Zusammenführen freigegeben; die AP18-Pakete beginnen auf dem Stand von `main` danach.
 
