@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { clickFigure, freshWorld, moveAgent, openApp, openHouse, post, settled, settledTag, setView, viewMenu } from "./helpers";
+import { clickFigure, expectView, freshWorld, moveAgent, openApp, openHouse, post, setView, settled, settledTag } from "./helpers";
 
 test.beforeEach(async ({ request }) => { await freshWorld(request); });
 
@@ -131,11 +131,11 @@ test("Dinge im Dorf: wer rudert, sitzt im Boot und das Schild sagt es", async ({
 
 test("Ansicht umschalten: Tiefe und Flach, die Wahl bleibt nach dem Neuladen", async ({ page }) => {
   await openApp(page);
-  await expect((await viewMenu(page)).getByRole("button", { name: "Tiefe", exact: true })).toHaveAttribute("aria-pressed", "true");
+  await expectView(page, "Tiefe");
   const tag = await settledTag(page, "alex");
   await setView(page, "Flach");
   await expect.poll(async () => JSON.stringify(await page.locator('[data-tag="alex"]').boundingBox())).not.toBe(JSON.stringify(tag));
   await page.reload();
-  await expect((await viewMenu(page)).getByRole("button", { name: "Flach", exact: true })).toHaveAttribute("aria-pressed", "true");
+  await expectView(page, "Flach");
   await setView(page, "Tiefe");
 });

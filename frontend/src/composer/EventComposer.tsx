@@ -11,7 +11,7 @@ const PRESETS: [string, When][] = [["Sofort", { kind: "now" }], ["In 30 Min.", {
 const dayOf = (minute: number) => Math.floor(minute / 1440) + 1;
 const fmt = (m: number) => `Tag ${dayOf(m)}, ${String(Math.floor((m % 1440) / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`;
 
-/** Dauerhafte Leiste am unteren Rand: Enter sendet, Shift+Enter macht eine neue Zeile. Das Backend liest, fragt nach, zeigt eine Vorschau und führt aus. */
+/** Ereigniseingabe als Popover der Gott-Werkzeuge (AP18b): Enter sendet, Shift+Enter macht eine neue Zeile. Das Backend liest, fragt nach, zeigt eine Vorschau und führt aus. */
 export function EventComposer() {
   const c = useComposer();
   const world = useSimStore((s) => s.world);
@@ -24,7 +24,7 @@ export function EventComposer() {
   const list = useMemo(() => (focused && c.phase !== "reading" ? suggest(c.text, world) : []), [focused, c.text, c.phase, world]);
   const busy = c.phase === "reading" || c.phase === "executing";
 
-  useEffect(() => { void c.loadHistory(); }, []);                           // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { void c.loadHistory(); box.current?.focus(); }, []);                           // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {                                                          // Textfeld wächst mit dem Inhalt (bis vier Zeilen)
     const el = box.current;
     if (el) { el.style.height = "auto"; el.style.height = `${Math.min(el.scrollHeight, 96)}px`; }
@@ -42,7 +42,7 @@ export function EventComposer() {
   }[c.phase];
 
   return (
-    <footer className="relative border-t border-line bg-panel px-3 py-2" data-testid="composer">
+    <div className="relative px-3 py-2.5" data-testid="composer">
       <div className="pointer-events-none absolute inset-x-3 bottom-full z-30 mb-1 flex flex-col gap-2">
         <div className="pointer-events-auto max-w-[44rem]">
           {c.phase === "clarify" && c.proposal && <ClarifyCard p={c.proposal} />}
@@ -82,6 +82,6 @@ export function EventComposer() {
           onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); void c.submit(); } if (e.key === "Escape") { c.cancel(); box.current?.blur(); } }} data-testid="composer-input" />
         <button className="btn on" type="submit" disabled={busy || !c.text.trim() || c.phase === "clarify" || c.phase === "preview"} data-testid="composer-send">{busy ? "…" : "Senden"}</button>
       </form>
-    </footer>
+    </div>
   );
 }

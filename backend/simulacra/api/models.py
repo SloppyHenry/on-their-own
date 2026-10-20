@@ -162,6 +162,7 @@ class StateSnapshot(Out):
     rules: dict[str, Any] = {}
     links: list[list[list[int]]] = []      # Übergänge zwischen Kacheln, die nicht nebeneinander liegen (z. B. Haustür ↔ Innenbereich)
     look: dict[str, Any] | None = None     # Darstellung der Welt (Formen, Bäume, Deko), z. B. die Startwelt nach Mockup A; None = aus den Kacheln
+    play_mode: Literal["leben", "gott"] = "gott"   # Spielart (AP18d): Leben = nur die Bewohner verändern die Welt, Gott = von außen; alte Spielstände gelten als Gott
     voices: dict[str, Voice] = {}        # eigene Stimmen der Figuren (AP17d); fehlt eine, gilt im Browser der Vorschlag aus Geschlecht und Alter
 
 
@@ -234,6 +235,12 @@ class ResetRequest(BaseModel):
     confirm: bool = False
     model: str | None = None             # Modell der neuen Simulation (gilt für den ganzen Lauf)
     keep_profiles: bool = False          # Profile und Persönlichkeitswerte der Agenten behalten (sonst komplett Standard)
+    play_mode: Literal["leben", "gott"] | None = None   # Spielart der neuen Simulation; ohne Angabe bleibt die bisherige
+
+
+class PlayModeRequest(BaseModel):
+    play_mode: Literal["leben", "gott"]
+    confirm: bool = False
 
 
 class SpeedRequest(BaseModel):

@@ -3,7 +3,8 @@
 from fastapi import APIRouter, HTTPException, Request
 
 from .routes_llm import prepare
-from .models import ResetRequest, SimCommandResult, SpeedRequest, StartRequest, StepRequest
+from ..world import spielart
+from .models import PlayModeRequest, ResetRequest, SimCommandResult, SpeedRequest, StartRequest, StepRequest
 from .state import SPEED_LEVELS, speed_level
 
 router = APIRouter(prefix="/api/sim")
@@ -70,7 +71,7 @@ async def reset(request: Request, body: ResetRequest | None = None):
 
     async def action(sim):
         await prepare(request, body.model, strict=True)
-        saved = await sim.reset(model=body.model, keep_profiles=body.keep_profiles)
+        saved = await sim.reset(model=body.model, keep_profiles=body.keep_profiles, play_mode=body.play_mode)
         return await _result(sim, backup=str(saved) if saved else None)
     return await _command(request, body, action)
 
@@ -84,5 +85,23 @@ async def speed(request: Request, body: SpeedRequest):
         delay = SPEED_LEVELS[body.level] if body.level else body.tick_delay_s
         sim.runner.set_speed(delay)
         await sim.engine.db.run(lambda: sim.engine.emit_event("simulation.speed_changed", data={"tick_delay_s": delay, "level": speed_level(delay)}))
+        return await _result(sim)
+    return await _command(request, body, action)
+
+
+@router.put("/play-mode", response_model=SimCommandResult)
+async def play_mode(request: Request, body: PlayModeRequest):
+    """Wechselt die Spielart (Menü › Einstellungen › Spielart, mit Bestätigung, in beide Richtungen). Vermerkt nur im Protokoll der Leitstelle; die Bewohner merken nichts."""
+    if not body.confirm:
+        raise HTTPException(400, "Das Wechseln der Spielart braucht die ausdrückliche Bestätigung {\"confirm\": true}.")
+
+    async def action(sim):
+        def work():
+            if spielart.get(sim.engine.state) == body.play_mode and sim.engine.state.get_meta("play_mode") == body.play_mode:
+                return
+            with sim.db.transaction():
+                spielart.set_mode(sim.engine.state, body.play_mode)
+            sim.engine.emit_event("simulation.play_mode_changed", data={"play_mode": body.play_mode})
+        await sim.engine.db.run(work)
         return await _result(sim)
     return await _command(request, body, action)

@@ -11,10 +11,10 @@ export default defineConfig({
   workers: 1,
   fullyParallel: false,
   reporter: [["list"]],
-  // Das Titelbild (AP17a) ist je Gerät abschaltbar; die Tests starten ohne, damit sie direkt im Spiel sind. menue.spec.ts schaltet es wieder an.
+  // Das Titelbild (AP17a) und die Hilfe beim ersten Start (AP18b) sind je Gerät abschaltbar; die Tests starten ohne, damit sie direkt im Spiel sind. menue.spec.ts schaltet das Titelbild wieder an.
   use: {
     baseURL: `http://127.0.0.1:${FRONTEND}`, viewport: { width: 1440, height: 900 }, trace: "retain-on-failure", screenshot: "only-on-failure",
-    storageState: { cookies: [], origins: [{ origin: `http://127.0.0.1:${FRONTEND}`, localStorage: [{ name: "simulacra.titelbild", value: "false" }] }] },
+    storageState: { cookies: [], origins: [{ origin: `http://127.0.0.1:${FRONTEND}`, localStorage: [{ name: "simulacra.titelbild", value: "false" }, { name: "simulacra.hilfe-gesehen", value: "true" }] }] },
   },
   webServer: [
     {

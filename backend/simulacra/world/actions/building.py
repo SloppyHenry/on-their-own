@@ -2,7 +2,7 @@
 
 import math
 
-from .. import object_kinds, weather
+from .. import build_look, object_kinds, weather
 from ..models import Accepted, ActiveAction, AgentBody, RejectCode, Rejected, WorldObject
 from .base import Action, Ctx, find_object, local_objects, rej
 
@@ -50,6 +50,9 @@ class Build(Action):
         st, grid = ctx.state, ctx.state.grid
         taken = {(o.x, o.y) for o in st.objects_at(actor.location_id)}
         pier = bp.get("tile_effect") == "floor"
+        nodes = {(n.x, n.y) for n in st.all_nodes()}
+        effect = grid.types.get(bp.get("tile_effect") or "")
+        blocks_ok = effect is None or effect.walkable                    # eine Kachel, die danach nicht mehr begehbar ist (Baum), nie unter den Füßen des Bauenden
 
         def ok(x: int, y: int) -> bool:
             if not grid.in_bounds(x, y) or st.location_at(x, y) != actor.location_id or (x, y) in taken:
@@ -57,6 +60,12 @@ class Build(Action):
             if pier:
                 return grid.tile(x, y) == "water" and any(grid.in_bounds(x + dx, y + dy) and grid.tile(x + dx, y + dy) == "floor"
                                                           for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)))
+            if bp.get("tile_from") and grid.tile(x, y) not in bp["tile_from"]:
+                return False
+            if (x, y) in nodes or (not blocks_ok and (x, y) == actor.pos):
+                return False                                              # nicht auf eine Quelle bauen und sich nicht selbst einmauern
+            if bp.get("tile_effect") and bp["tile_effect"] not in grid.types:
+                return False                                              # diese Welt kennt die Kachelart nicht
             return grid.walkable(x, y) and (x, y) not in grid.blocked
 
         radius = PIER_RADIUS if pier else SEARCH_RADIUS
@@ -99,13 +108,18 @@ class Build(Action):
         bp = ctx.blueprints[site.state["blueprint"]]
         ctx.state.remove_object(site.id)
         ctx.emit("world.object_removed", [actor.id], site.location_id, {"object": ctx.object_data(site), "cause": "build_done"})
-        obj = WorldObject(id=ctx.state.next_object_id(bp["kind"]), kind=bp["kind"], name=bp["name"], location_id=site.location_id,
-                          x=site.x, y=site.y, created_by=actor.id, created_at=ctx.minute, portable=object_kinds.spec(bp["kind"]).portable,
-                          state=object_kinds.normalize_state(bp["kind"], {}))
-        ctx.state.save_object(obj, new=True)
+        obj = None
+        if bp.get("object", True):
+            obj = WorldObject(id=ctx.state.next_object_id(bp["kind"]), kind=bp["kind"], name=bp["name"], location_id=site.location_id,
+                              x=site.x, y=site.y, created_by=actor.id, created_at=ctx.minute, portable=object_kinds.spec(bp["kind"]).portable,
+                              state=object_kinds.normalize_state(bp["kind"], {}))
+            ctx.state.save_object(obj, new=True)
         if bp.get("tile_effect"):
             ctx.state.conn.execute("UPDATE tiles SET type=? WHERE x=? AND y=?", (bp["tile_effect"], site.x, site.y))
             ctx.state.grid.set_tile(site.x, site.y, bp["tile_effect"])
             ctx.emit("world.tile_changed", [actor.id], site.location_id, {"x": site.x, "y": site.y, "type": bp["tile_effect"]})
-        ctx.emit("world.object_created", [actor.id], obj.location_id, {"object": ctx.object_data(obj), "cause": "build_done"})
+        if bp.get("look"):
+            build_look.add(ctx, bp["look"], obj.id if obj else None, site.x, site.y)
+        if obj is not None:
+            ctx.emit("world.object_created", [actor.id], obj.location_id, {"object": ctx.object_data(obj), "cause": "build_done"})
         return None

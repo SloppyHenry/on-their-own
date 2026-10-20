@@ -1,13 +1,15 @@
 @import "tailwindcss";
 
 @theme {
-  --color-bg: #14171c;
-  --color-panel: #1b2028;
-  --color-panel2: #232a35;
-  --color-line: #2d3644;
-  --color-text: #e2e7ef;
-  --color-dim: #8f99aa;
-  --color-faint: #5d6778;
+  --color-bg: #17121d;
+  --color-panel: #1e1626;
+  --color-panel2: #2e2338;
+  --color-line: #3f3548;
+  --color-text: #efe9f3;
+  --color-dim: #a99fb3;
+  --color-faint: #6f6579;
+  --color-cream: #fff8ec;
+  --color-ink: #2b2233;
   --color-alex: #e8ac5c;
   --color-mira: #93c79f;
   --color-sys: #8396b0;
@@ -46,25 +48,67 @@ body {
   mask: var(--m) center / contain no-repeat;
 }
 
+/* Formensprache des Menüs (AP18b): warmes dunkles Glas, Gold als einzige Akzentfarbe, Creme für alles, was in der Welt steht. */
+.glas {
+  background: rgba(30, 22, 38, .9); border: 1px solid rgba(255, 236, 210, .13); border-radius: 14px;
+  box-shadow: 0 18px 50px #0009; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+}
+.glas-weich { background: rgba(30, 22, 38, .72); border: 1px solid rgba(255, 236, 210, .13); border-radius: 10px; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+.pille { display: inline-flex; align-items: center; gap: 8px; border-radius: 999px; padding: 6px 12px; }
 .btn {
-  @apply cursor-pointer whitespace-nowrap rounded-md border border-line bg-panel2 px-2.5 py-1 text-[13px] text-text hover:border-faint disabled:cursor-not-allowed disabled:opacity-40;
+  @apply inline-flex cursor-pointer items-center justify-center gap-1.5 whitespace-nowrap rounded-[10px] border bg-white/5 px-3 py-1.5 text-[13px] text-text hover:border-alex disabled:cursor-not-allowed disabled:opacity-40;
+  border-color: rgba(255, 236, 210, .13);
 }
-.btn.on {
-  @apply border-alex text-alex;
-}
+.btn.on { border-color: var(--color-alex); color: #ffd36e; background: linear-gradient(180deg, rgba(255, 211, 110, .16), rgba(255, 211, 110, .04)); }
+.btn.gold { background: var(--color-alex); color: var(--color-ink); border-color: var(--color-alex); font-weight: 700; }
+.btn.rund { width: 34px; height: 34px; padding: 0; border-radius: 999px; }
+.btn.leise { border-color: transparent; background: transparent; }
+.segment { display: inline-flex; padding: 3px; gap: 2px; border-radius: 999px; background: rgba(0, 0, 0, .18); }
+.segment button { cursor: pointer; border: 0; background: transparent; color: var(--color-dim); border-radius: 999px; padding: 3px 10px; font-weight: 600; font-size: 12px; }
+.segment button.on { background: var(--color-alex); color: var(--color-ink); }
+.chip { @apply inline-flex cursor-pointer items-center gap-1.5 rounded-full border bg-white/[.03] px-2.5 py-0.5 text-xs text-dim; border-color: rgba(255, 236, 210, .13); }
+.chip.on { border-color: var(--color-alex); color: #ffd36e; }
+@keyframes hud-pop { from { transform: translateY(6px) scale(.96); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes ticker-aus { 0%, 70% { opacity: 1; } 100% { opacity: 0; } }
+.hud-pop { animation: hud-pop .2s; }
 
 .sub {
   @apply mb-1 mt-4 text-[11px] font-semibold uppercase tracking-[0.1em] text-dim;
 }
 
-.bubble {
-  background: #fffaf0;
-  color: #33281e;
-  border: 2px solid #33281e;
-  border-radius: 4px;
-  box-shadow: 2px 2px 0 #0007;
-}
 
+
+/* Schilder und Blasen in der Welt (AP18c, Mockup Variante A): Name am Fuß, Rede als Sprechblase, Gedanke als Wolke, Gemerktes als kleines Zeichen, im Haus Bildnisse auf dem Dach. */
+.w-tag { position: absolute; left: 0; top: 0; white-space: nowrap; font-size: 11px; font-weight: 700; padding: 1px 8px 1px 6px; border-radius: 999px; background: #2b2233d9; color: var(--color-cream);
+  display: flex; align-items: center; gap: 5px; border: 1px solid transparent; z-index: 2; }
+.w-tag i { width: 7px; height: 7px; border-radius: 50%; background: var(--c); flex: none; }
+.w-say { position: absolute; left: 0; top: 0; width: max-content; max-width: 230px; padding: 7px 11px; font-size: 12.5px; line-height: 1.35; background: var(--color-cream); color: var(--color-ink);
+  border: 2px solid var(--color-ink); border-radius: 10px; box-shadow: 3px 3px 0 #0006; z-index: 4; cursor: pointer; --zeiger: 30%; }
+.w-say b { display: block; font-size: 10.5px; letter-spacing: .04em; color: var(--c2, #8a5a3c); }
+.w-say::after { content: ""; position: absolute; left: var(--zeiger); bottom: -9px; border: 8px solid transparent; border-top-color: var(--color-ink); border-bottom: 0; transform: translateX(-50%); }
+.w-say::before { content: ""; position: absolute; left: var(--zeiger); bottom: -5px; border: 6px solid transparent; border-top-color: var(--color-cream); border-bottom: 0; transform: translateX(-50%); z-index: 1; }
+.w-think { position: absolute; left: 0; top: 0; display: none; width: max-content; max-width: 210px; padding: 8px 13px; font-size: 12px; line-height: 1.35; font-style: italic; color: #4a3d52;
+  background: #fbf6ffee; border-radius: 22px; box-shadow: 0 4px 14px #0005; z-index: 3; --zeiger: 46%; }
+.w-think[data-show="1"] { display: block; }
+.w-think .was { display: block; font-style: normal; font-weight: 700; font-size: 10.5px; color: #7b6a86; margin-bottom: 1px; }
+.w-think .denkt { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
+.w-think::before, .w-think::after { content: ""; position: absolute; background: #fbf6ffee; border-radius: 50%; left: var(--zeiger); }
+.w-think::before { width: 12px; height: 12px; bottom: -14px; } .w-think::after { width: 7px; height: 7px; bottom: -24px; margin-left: -4px; }
+.w-mark { position: absolute; left: 0; top: 0; display: none; place-items: center; min-width: 30px; height: 24px; padding: 0 8px; border-radius: 999px; background: #fbf6ffee; color: #4a3d52; font-weight: 900; letter-spacing: 2px; box-shadow: 0 3px 10px #0005; z-index: 3; }
+.w-mark[data-show="1"] { display: grid; pointer-events: auto; cursor: default; }
+.w-mark i { font-style: normal; animation: w-punkte 1.4s infinite; } .w-mark i:nth-child(2) { animation-delay: .2s; } .w-mark i:nth-child(3) { animation-delay: .4s; }
+@keyframes w-punkte { 0%, 20% { opacity: .25; } 50% { opacity: 1; } 100% { opacity: .25; } }
+.w-vb .w-think[data-show="1"] { display: none; translate: 0 calc(-100% - 8px); }
+.w-vb .w-mark:hover + .w-think[data-show="1"] { display: block; }
+.w-memo { position: absolute; left: 0; top: 0; display: none; align-items: center; gap: 6px; max-width: 200px; padding: 3px 10px 3px 4px; border-radius: 999px; font-size: 11px; font-weight: 600; z-index: 3;
+  background: #1f2a22e8; color: #dff3e4; border: 1px solid #93c79f80; }
+.w-memo[data-show="1"] { display: flex; animation: hud-pop .3s, ticker-aus 4s forwards; }
+.w-memo span { width: 18px; height: 18px; border-radius: 50%; display: grid; place-items: center; background: var(--color-ok); color: var(--color-ink); font-size: 12px; flex: none; }
+.w-memo[data-art="recalled"] { background: #2a2235e8; color: #ece2ff; border-color: #b99be680; } .w-memo[data-art="recalled"] span { background: var(--color-plan); }
+.w-memo em { font-style: normal; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.w-roof { position: absolute; left: 0; top: 0; display: flex; gap: 3px; z-index: 2; }
+.w-roof .chipw { display: flex; align-items: center; gap: 4px; padding: 2px 8px 2px 2px; border-radius: 999px; background: #2b2233e0; font-size: 11px; font-weight: 700; color: var(--color-cream); white-space: nowrap; }
+.w-roof canvas { width: 20px; height: 20px; border-radius: 50%; }
 [data-tag][data-pulse="saved"] { box-shadow: 0 0 10px var(--color-ok); border-color: var(--color-ok) !important; }
 [data-tag][data-pulse="recalled"] { box-shadow: 0 0 10px var(--color-plan); border-color: var(--color-plan) !important; }
 

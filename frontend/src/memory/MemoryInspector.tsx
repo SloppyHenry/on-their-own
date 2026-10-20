@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Portrait } from "../lib/Portrait";
 import { useNames } from "../lib/useNames";
 import { api } from "../net/api";
@@ -30,7 +30,9 @@ export function MemoryInspector() {
   const openMemory = useUiStore((s) => s.openMemory);
   const agents = world.agentOrder.filter((id) => world.agents[id]?.profile);      // Nebenfiguren haben kein Gedächtnis
   const agent = stored && agents.includes(stored) ? stored : agents[0];
-  const [tab, setTab] = useState<Tab>("memories");
+  const startTab = useUiStore((s) => s.memoryTab);
+  const [tab, setTab] = useState<Tab>(startTab === "knowledge" || startTab === "retrievals" ? startTab : "memories");
+  useEffect(() => { if (startTab === "knowledge" || startTab === "retrievals" || startTab === "memories") setTab(startTab); }, [startTab]);
   const [f, setF] = useState<Filters>(EMPTY);
   const [pick, setPick] = useState<{ agent: string; id: string } | null>(null);
   const [side, setSide] = useState(false);
@@ -42,8 +44,8 @@ export function MemoryInspector() {
   const locations = Object.values(world.locations).filter((l) => !l.props.fallback);
 
   return (
-    <div className="grid h-full min-h-0 grid-cols-[250px_1fr] bg-bg" data-testid="memory-inspector">
-      <div className="min-h-0 space-y-4 overflow-auto border-r border-line bg-panel p-4">
+    <div className="grid h-full min-h-0 grid-cols-[250px_1fr]" data-testid="memory-inspector">
+      <div className="min-h-0 space-y-4 overflow-auto border-r border-line bg-black/10 p-4">
         <div className="flex gap-2">{agents.map((a) => (
           <button key={a} data-testid={`memory-agent-${a}`} onClick={() => openMemory(a)} aria-pressed={a === agent} className="flex cursor-pointer items-center gap-2 rounded-lg border px-2 py-1" style={{ borderColor: a === agent ? accentOf(a) : "var(--color-line)", opacity: a === agent ? 1 : 0.6 }}>
             <Portrait id={a} size={28} /><b style={{ color: accentOf(a) }}>{names.agent(a)}</b></button>))}</div>

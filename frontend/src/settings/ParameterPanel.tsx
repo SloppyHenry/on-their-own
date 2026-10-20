@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
+import { Darstellung } from "./Darstellung";
 import { useSimStore } from "../store/simStore";
 import { useUiStore } from "../store/uiStore";
-import { EBENE, useRueckweg } from "../ui/zurueck";
 import { ParamGroup } from "./ParamGroup";
 import { PresetManager } from "./PresetManager";
 import { ModelleSeite } from "../models/ModelleSeite";
@@ -19,23 +19,10 @@ const PAGES: { id: string; label: string; groups: string[] }[] = [
   { id: "sim", label: "Tempo", groups: ["sim"] },
   { id: "mode", label: "Modus", groups: ["mode"] },
 ];
-const EXTRA = [{ id: "models", label: "Modelle" }, { id: "ton", label: "Ton" }, { id: "presets", label: "Presets" }, { id: "status", label: "Status" }];
+const EXTRA = [{ id: "darstellung", label: "Darstellung" }, { id: "models", label: "Modelle" }, { id: "ton", label: "Ton" }, { id: "presets", label: "Presets" }, { id: "status", label: "Status" }];
 
-/** Schublade über der Welt: Regler nach dem Schema des Backends, Presets und Status. Die Welt bleibt sichtbar, damit man Wirkungen sieht. */
-export function ParameterPanel() {
-  const open = useUiStore((s) => s.settingsOpen);
-  const close = useUiStore((s) => s.closeSettings);
-  useRueckweg(open, EBENE.Schublade, close);
-  if (!open) return null;
-  return (
-    <aside className="absolute inset-y-0 right-0 z-40 flex w-[min(660px,100%)] flex-col border-l border-line bg-panel shadow-2xl" role="complementary" aria-label="Einstellungen" data-testid="settings">
-      <SettingsContent onClose={close} />
-    </aside>
-  );
-}
-
-/** Der Inhalt der Einstellungen (Suche, Bereiche, Regler); in der Schublade und im Menü (AP17a) gleich. */
-export function SettingsContent({ onClose, embedded = false }: { onClose?: () => void; embedded?: boolean }) {
+/** Der Inhalt der Einstellungen (Suche, Bereiche, Regler). Seit AP18b gibt es sie nur noch im Menü (keine Schublade mehr). */
+export function SettingsContent() {
   const tab = useUiStore((s) => s.settingsTab);
   const openSettings = useUiStore((s) => s.openSettings);
   const { specs, values, error, load, refresh, reset } = useParamStore();
@@ -53,9 +40,7 @@ export function SettingsContent({ onClose, embedded = false }: { onClose?: () =>
   return (
     <>
       <header className="flex items-center gap-3 border-b border-line px-4 py-2.5">
-        {!embedded && <h2 className="text-[15px] font-semibold">Einstellungen</h2>}
         <input type="search" className="flex-1 rounded-md border border-line bg-bg px-2 py-1 text-[13px]" placeholder="Einstellung suchen …" aria-label="Einstellungen durchsuchen" value={query} onChange={(e) => setQuery(e.target.value)} />
-        {onClose && <button className="btn" onClick={onClose} aria-label="Einstellungen schließen">✕</button>}
       </header>
       {!q && (
         <nav className="flex flex-wrap gap-1 border-b border-line px-3 py-2" role="tablist" aria-label="Bereiche">
@@ -66,7 +51,7 @@ export function SettingsContent({ onClose, embedded = false }: { onClose?: () =>
       )}
       <div className="min-h-0 flex-1 overflow-auto px-4 pb-6 pt-2">
         {error && <p role="alert" className="mb-2 text-[13px] text-warn">{error}</p>}
-        {tab === "ton" && !q ? <TonSettings /> : tab === "models" && !q ? <ModelleSeite /> : !values ? <p className="text-dim">Lade Einstellungen …</p> : q ? (
+        {tab === "darstellung" && !q ? <Darstellung /> : tab === "ton" && !q ? <TonSettings /> : tab === "models" && !q ? <ModelleSeite /> : !values ? <p className="text-dim">Lade Einstellungen …</p> : q ? (
           found.length ? <ParamGroup specs={found} compact /> : <p className="text-dim">Nichts gefunden für „{query}“.</p>
         ) : tab === "presets" ? <PresetManager /> : tab === "status" ? <StatusPanels /> : (
           <>

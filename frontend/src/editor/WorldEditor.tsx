@@ -1,6 +1,7 @@
 // Werkzeugleiste des Welteditors (AP12c): Dorf anfügen (Erweiterung der laufenden Welt) und neue Simulation mit einem erzeugten Dorf.
 // Ablauf immer gleich: Wunsch einstellen → Vorschau (Trockenlauf im Backend, die Welt wird unter einem Schleier angezeigt) → Prüfbericht ansehen → Übernehmen.
 import { useState } from "react";
+import { AnsichtWahl } from "../settings/Darstellung";
 import { useUiStore } from "../store/uiStore";
 import { EBENE, useRueckweg } from "../ui/zurueck";
 import { MAX_EACH, MAX_TOTAL, ROLES, enterEditor, leaveEditor, mixTotal, useEditorStore, wishKey, type Kind, type Lake } from "./editorStore";
@@ -20,6 +21,7 @@ export function WorldEditor() {
         <span className="flex-1" />
         <button type="button" className="btn" onClick={leaveEditor} data-testid="editor-close">{fromMenu ? "← Zurück zum Menü" : "Zurück ins Spiel"}</button>
       </header>
+      <div className="flex items-center gap-2 border-b border-line px-4 py-2 text-[13px]" data-testid="view-menu"><span className="text-dim">Ansicht</span><AnsichtWahl /></div>
       <div className="flex gap-1 border-b border-line px-3 py-2" role="tablist" aria-label="Werkzeug">
         {([["extend", "Dorf anfügen"], ["new", "Neue Simulation"]] as [Kind, string][]).map(([k, label]) => (
           <button key={k} type="button" role="tab" aria-selected={tab === k} className={`btn ${tab === k ? "on" : ""}`} onClick={() => enterEditor(k)} data-testid={`tab-${k}`}>{label}</button>

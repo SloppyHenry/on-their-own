@@ -1,6 +1,6 @@
 import { test, type Page } from "@playwright/test";
 import { writeFileSync } from "node:fs";
-import { freshWorld, openApp, settled, viewMenu } from "./helpers";
+import { freshWorld, openApp, setView, settled } from "./helpers";
 
 /** Leistungsmessung (nur mit SIM_MESSEN=1): Bildrate und Rechenzeit je Bild. Startwelt nach Mockup A (Dorfansicht, AP14) und große
  *  Testwelt ohne eigene Gestaltung (256 × 256, 20 Figuren, 500 Objekte, Ansicht aus AP13). */
@@ -86,9 +86,9 @@ test("Leistung: Startwelt und große Welt", async ({ page, request }) => {
   out.dorf_tiefe_2x_ohne_tiltshift = await measure(page, 4000, 6);
   await page.emulateMedia({ reducedMotion: "no-preference" });
   await page.keyboard.press("0");
-  await (await viewMenu(page)).getByRole("button", { name: "Flach", exact: true }).click();
+  await setView(page, "Flach");
   out.dorf_flach_1x = await measure(page, 4000, 0);
-  await (await viewMenu(page)).getByRole("button", { name: "Tiefe", exact: true }).click();
+  await setView(page, "Tiefe");
   await settled(page, '[data-house="0"]');
   await page.mouse.click((await settled(page, '[data-house="0"]')).x, (await settled(page, '[data-house="0"]')).y);
   out.dorf_haus_innen = await measure(page, 3000, 0);

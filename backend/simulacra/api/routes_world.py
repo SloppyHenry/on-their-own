@@ -5,6 +5,7 @@ from fastapi import APIRouter, HTTPException, Request
 from ..generator import service
 from ..generator.service import ServiceError, Wish
 from ..world.extend import WorldEditError
+from .spielart_schutz import nur_gott
 from .models_world import GenerateApplied, GenerateApplyRequest, GeneratePreview, GenerateRequest, PatchPreview, PatchPreviewRequest
 
 router = APIRouter(prefix="/api/world")
@@ -23,6 +24,7 @@ async def generate(request: Request, body: GenerateRequest):
     sim, w = request.app.state.sim, _wish(body)
     if w.kind == "new":
         return await service.preview_new(sim, w)
+    await nur_gott(sim, "Dorf anfügen")
     return await sim.engine.db.run(lambda: service.preview_extension(sim, w))
 
 
@@ -30,6 +32,7 @@ async def generate(request: Request, body: GenerateRequest):
 async def patch_preview(request: Request, body: PatchPreviewRequest):
     """Trockenlauf eines beliebigen Patches (Einzeländerungen des Editors): Fehler der Engine oder die Welt, wie sie danach aussähe. Ändert nichts."""
     sim = request.app.state.sim
+    await nur_gott(sim, "Welt verändern")
     return await sim.engine.db.run(lambda: service.preview_patch(sim, body.patch))
 
 
@@ -38,6 +41,8 @@ async def apply(request: Request, body: GenerateApplyRequest):
     if not body.confirm:
         raise HTTPException(400, "Das Übernehmen verändert die Welt. Bestätige mit {\"confirm\": true}; vorher wird der Stand gesichert.")
     w = _wish(body)
+    if w.kind == "extend":
+        await nur_gott(request.app.state.sim, "Dorf anfügen")
 
     async def action(sim):
         was_running = sim.runner.state.value == "running"

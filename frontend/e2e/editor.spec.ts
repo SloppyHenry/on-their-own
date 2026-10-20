@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { freshWorld, openApp, state, viewMenu } from "./helpers";
+import { freshWorld, openApp, setView, state } from "./helpers";
 
 /**
  * Welteditor (AP12c): „Welt gestalten“ öffnet die Werkzeugleiste (Infoleiste aus), die Vorschau zeigt das neue Dorf unter einem Schleier, ändert aber nichts;
@@ -106,7 +106,7 @@ test("Gebäudemix und Seeufer gehen in den Wunsch ein, Flach zeigt denselben Sch
   await page.getByTestId("lake").selectOption("south");
   await preview(page, 3);
   await expect(page.getByTestId("ghost")).toBeVisible();
-  await (await viewMenu(page)).getByRole("button", { name: "Flach", exact: true }).click();
+  await setView(page, "Flach");
   await expect(page.getByTestId("ghost")).toBeVisible();
   await expect(page.getByTestId("apply")).toBeEnabled();
 });

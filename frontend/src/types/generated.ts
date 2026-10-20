@@ -59,6 +59,7 @@ export interface SimulacraApi {
   LocationDiscovered?: LocationDiscovered;
   LocationEvent?: LocationEvent;
   LoginRequest?: LoginRequest;
+  LookAdded?: LookAdded;
   LookChanged?: LookChanged;
   MapExtended?: MapExtended;
   MemoriesPage?: MemoriesPage;
@@ -71,6 +72,7 @@ export interface SimulacraApi {
   ModeSet?: ModeSet;
   ModelRef?: ModelRef;
   Moved?: Moved;
+  NatureEvent?: NatureEvent;
   NewSimApplied?: NewSimApplied;
   NewSimApplyRequest?: NewSimApplyRequest;
   NewSimLimits?: NewSimLimits;
@@ -92,6 +94,7 @@ export interface SimulacraApi {
   PatchPreviewRequest?: PatchPreviewRequest;
   Petted?: Petted;
   PhaseChanged?: PhaseChanged;
+  PlayModeChanged?: PlayModeChanged;
   PresetBrief?: PresetBrief;
   PresetDuplicate?: PresetDuplicate;
   PresetLoadOut?: PresetLoadOut;
@@ -872,6 +875,7 @@ export interface StateSnapshot {
   } | null;
   map: MapData;
   objects: ObjectInfo[];
+  play_mode: "leben" | "gott";
   resources: ResourceInfo[];
   rules: {
     [k: string]: unknown;
@@ -1424,6 +1428,27 @@ export interface LoginRequest {
   token: string;
 }
 /**
+ * Ein Bewohner hat etwas gebaut, das die Darstellung braucht (Weg, Beet, Baum, Laterne, Brunnen): das Stück wird an das Gebiet gehängt.
+ *
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "LookAdded".
+ */
+export interface LookAdded {
+  decor?: unknown[][];
+  gardens?: {
+    [k: string]: unknown;
+  }[];
+  lights?: number[][];
+  paths?: number[][][];
+  place?: {
+    [k: string]: {
+      [k: string]: unknown;
+    };
+  };
+  region: string;
+  upgraded?: boolean;
+}
+/**
  * Gebiete und Landstraßen, die an die Gestaltung der Welt angehängt wurden (siehe docs/welt-erweitern.md).
  *
  * This interface was referenced by `SimulacraApi`'s JSON-Schema
@@ -1594,6 +1619,16 @@ export interface Moved {
 }
 /**
  * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "NatureEvent".
+ */
+export interface NatureEvent {
+  id: string;
+  name: string;
+  sign?: string;
+  text?: string;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
  * via the `definition` "NewSimApplied".
  */
 export interface NewSimApplied {
@@ -1624,6 +1659,7 @@ export interface NewSimApplyRequest {
   confirm?: boolean;
   digest: string;
   model?: string | null;
+  play_mode?: "leben" | "gott";
   relations?: RelationIn[];
   residents: ResidentIn[];
   rules?: RulesSpec;
@@ -1699,12 +1735,13 @@ export interface StoryIn {
   text: string;
 }
 /**
- * `start`: die handgemachte Startwelt (nur Alex und Mira), `generated`: ein Dorf für genau diese Bewohner.
+ * `start`: die handgemachte Startwelt (nur Alex und Mira), `generated`: ein Dorf für genau diese Bewohner, `library`: eine Welt aus der Weltenbibliothek.
  */
 export interface WorldSpec {
   houses?: number | null;
-  kind?: "start" | "generated";
+  kind?: "start" | "generated" | "library";
   lake?: "auto" | "east" | "south";
+  library_id?: string | null;
   mix?: {
     [k: string]: number;
   } | null;
@@ -1753,6 +1790,7 @@ export interface HouseOut {
  */
 export interface NewSimRequest {
   model?: string | null;
+  play_mode?: "leben" | "gott";
   relations?: RelationIn[];
   residents: ResidentIn[];
   rules?: RulesSpec1;
@@ -1772,12 +1810,13 @@ export interface RulesSpec1 {
   scarcity?: number | null;
 }
 /**
- * `start`: die handgemachte Startwelt (nur Alex und Mira), `generated`: ein Dorf für genau diese Bewohner.
+ * `start`: die handgemachte Startwelt (nur Alex und Mira), `generated`: ein Dorf für genau diese Bewohner, `library`: eine Welt aus der Weltenbibliothek.
  */
 export interface WorldSpec1 {
   houses?: number | null;
-  kind?: "start" | "generated";
+  kind?: "start" | "generated" | "library";
   lake?: "auto" | "east" | "south";
+  library_id?: string | null;
   mix?: {
     [k: string]: number;
   } | null;
@@ -2012,6 +2051,13 @@ export interface PhaseChanged {
 }
 /**
  * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "PlayModeChanged".
+ */
+export interface PlayModeChanged {
+  play_mode: string;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
  * via the `definition` "PresetBrief".
  */
 export interface PresetBrief {
@@ -2166,6 +2212,7 @@ export interface ResetRequest {
   confirm?: boolean;
   keep_profiles?: boolean;
   model?: string | null;
+  play_mode?: ("leben" | "gott") | null;
 }
 /**
  * This interface was referenced by `SimulacraApi`'s JSON-Schema
@@ -2800,15 +2847,16 @@ export interface RulesSpec2 {
   scarcity?: number | null;
 }
 /**
- * `start`: die handgemachte Startwelt (nur Alex und Mira), `generated`: ein Dorf für genau diese Bewohner.
+ * `start`: die handgemachte Startwelt (nur Alex und Mira), `generated`: ein Dorf für genau diese Bewohner, `library`: eine Welt aus der Weltenbibliothek.
  *
  * This interface was referenced by `SimulacraApi`'s JSON-Schema
  * via the `definition` "WorldSpec".
  */
 export interface WorldSpec2 {
   houses?: number | null;
-  kind?: "start" | "generated";
+  kind?: "start" | "generated" | "library";
   lake?: "auto" | "east" | "south";
+  library_id?: string | null;
   mix?: {
     [k: string]: number;
   } | null;
@@ -2875,6 +2923,7 @@ export interface EventDataMap {
   "world.agent_added": AgentAdded;
   "world.links_added": LinksAdded;
   "world.look_changed": LookChanged;
+  "world.look_added": LookAdded;
   "world.generated": Generated;
   "world.patch_applied": PatchApplied;
   "simulation.started": SimControl;
@@ -2890,6 +2939,8 @@ export interface EventDataMap {
   "simulation.event_fired": EventFired;
   "simulation.effect_ended": EffectEnded;
   "agent.informed": Informed;
+  "world.nature_event": NatureEvent;
+  "simulation.play_mode_changed": PlayModeChanged;
   "simulation.voice_changed": VoiceChanged;
   "simulation.saved": SimSaved;
   "simulation.loaded": SimLoaded;
@@ -2959,6 +3010,7 @@ export const EVENT_CATEGORY: Record<EventType, EventCategory> = {
   "world.agent_added": "world",
   "world.links_added": "world",
   "world.look_changed": "world",
+  "world.look_added": "system",
   "world.generated": "world",
   "world.patch_applied": "system",
   "simulation.started": "system",
@@ -2974,6 +3026,8 @@ export const EVENT_CATEGORY: Record<EventType, EventCategory> = {
   "simulation.event_fired": "system",
   "simulation.effect_ended": "system",
   "agent.informed": "dialogue",
+  "world.nature_event": "world",
+  "simulation.play_mode_changed": "system",
   "simulation.voice_changed": "system",
   "simulation.saved": "system",
   "simulation.loaded": "system",

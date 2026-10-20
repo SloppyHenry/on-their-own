@@ -190,6 +190,8 @@ class WorldState:
 
     def next_object_id(self, prefix: str) -> str:
         n = self.get_meta("obj_counter", 0) + 1
+        while self.conn.execute("SELECT 1 FROM objects WHERE id=?", (f"{prefix}_{n}",)).fetchone():       # die Weltdatei hat feste Kennungen wie seedbed_2: nie doppelt vergeben
+            n += 1
         self.set_meta("obj_counter", n)
         return f"{prefix}_{n}"
 

@@ -60,5 +60,85 @@
   "minutes": 30,
   "where": "indoor",
   "workbench": true
+ },
+ "path": {
+  "name": "Weg",
+  "kind": "path",
+  "object": false,
+  "cost": {
+   "stone": 1
+  },
+  "minutes": 20,
+  "where": "outdoor",
+  "workbench": false,
+  "tile_effect": "path",
+  "tile_from": [
+   "grass",
+   "sand"
+  ],
+  "look": "path"
+ },
+ "bed": {
+  "name": "Beet",
+  "kind": "seedbed",
+  "cost": {
+   "seeds": 2
+  },
+  "minutes": 40,
+  "where": "outdoor",
+  "workbench": false,
+  "tile_from": [
+   "grass"
+  ],
+  "look": "bed"
+ },
+ "tree": {
+  "name": "Baum",
+  "kind": "tree",
+  "object": false,
+  "cost": {
+   "seeds": 1
+  },
+  "minutes": 30,
+  "where": "outdoor",
+  "workbench": false,
+  "tile_effect": "tree",
+  "tile_from": [
+   "grass"
+  ],
+  "look": "tree"
+ },
+ "lantern": {
+  "name": "Laterne",
+  "kind": "lantern",
+  "cost": {
+   "wood": 2,
+   "stone": 1
+  },
+  "minutes": 45,
+  "where": "outdoor",
+  "workbench": false,
+  "tile_from": [
+   "grass",
+   "path",
+   "sand"
+  ],
+  "look": "lantern"
+ },
+ "well": {
+  "name": "Brunnen",
+  "kind": "well",
+  "cost": {
+   "stone": 8
+  },
+  "minutes": 120,
+  "where": "outdoor",
+  "workbench": false,
+  "tile_from": [
+   "grass",
+   "path",
+   "sand"
+  ],
+  "look": "well"
  }
 }

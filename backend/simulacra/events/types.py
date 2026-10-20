@@ -94,6 +94,7 @@ _ALL = [
     _t("world.agent_added", "world", m.AgentAdded, "Neue Figur in der Welt"),
     _t("world.links_added", "world", me.LinksAdded, "Neue Übergänge (Haustüren)"),
     _t("world.look_changed", "world", me.LookChanged, "Gebiete oder Landstraßen der Darstellung ergänzt"),
+    _t("world.look_added", "system", me.LookAdded, "Gebautes in die Darstellung eingetragen (Weg, Beet, Baum, Laterne, Brunnen)"),
     _t("world.generated", "world", me.Generated, "Dorf mit dem Weltgenerator erzeugt"),
     _t("world.patch_applied", "system", me.PatchApplied, "Welt-Patch angewendet"),
     # Simulation
@@ -110,6 +111,8 @@ _ALL = [
     _t("simulation.event_fired", "system", mu.EventFired, "Geplantes Ereignis ausgelöst oder befristete Wirkung zurückgenommen"),
     _t("simulation.effect_ended", "system", mu.EffectEnded, "Eine befristete Wirkung ist abgelaufen"),
     _t("agent.informed", "dialogue", mu.Informed, "Information, Nachricht, Einladung oder Situation erreicht bestimmte Agenten"),
+    _t("world.nature_event", "world", mu.NatureEvent, "Die Welt hat von sich aus ein Ereignis gebracht (Gewitter, Fuchs im Garten …); nur Protokoll, ohne Urheber"),
+    _t("simulation.play_mode_changed", "system", mu.PlayModeChanged, "Spielart gewechselt (Leben oder Gott; nur Leitstelle, nie in einem Prompt)"),
     _t("simulation.voice_changed", "system", mu.VoiceChanged, "Stimme einer Figur eingestellt (nur Darstellung, die Bewohner merken nichts)"),
     _t("simulation.saved", "system", mu.SimSaved, "Spielstand gespeichert (manuell, automatisch oder als Sicherung)"),
     _t("simulation.loaded", "system", mu.SimLoaded, "Ein Spielstand wurde geladen: alle Browser bekommen einen frischen Snapshot"),

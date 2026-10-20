@@ -33,7 +33,8 @@ def test_all_kinds_and_blueprints_known(eng):
     for o in load_world_file()["objects"]:
         object_kinds.normalize_state(o["kind"], o.get("state", {}))
     for name, bp in load_blueprints().items():
-        assert bp["kind"] in object_kinds.KINDS, name
+        assert bp["kind"] in object_kinds.KINDS or bp.get("object") is False, name                # Weg und Baum sind Boden und Deko ohne eigenes Objekt (AP18g)
+        assert bp.get("look") in (None, "path", "bed", "tree", "lantern", "well"), name
         assert set(bp["cost"]) <= {"wood", "food", "water", "seeds", "stone", "reed"}
 
 

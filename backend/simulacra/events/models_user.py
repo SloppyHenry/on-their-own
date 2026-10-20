@@ -50,6 +50,17 @@ class NpcAction(D):
     what: str
 
 
+class NatureEvent(D):
+    id: str
+    name: str
+    sign: str = ""
+    text: str = ""
+
+
+class PlayModeChanged(D):
+    play_mode: str
+
+
 class VoiceChanged(D):
     agent: str
     voice: dict[str, Any] | None = None   # None: zurück zum Vorschlag aus Geschlecht und Alter

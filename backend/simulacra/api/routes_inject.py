@@ -3,6 +3,7 @@
 from fastapi import APIRouter, HTTPException, Request
 
 from ..events_user.service import InjectError
+from .spielart_schutz import nur_gott
 from .models_inject import InjectConfirmRequest, InjectParseRequest, InjectProposal, ScheduledOut
 
 router = APIRouter(prefix="/api")
@@ -23,6 +24,7 @@ async def _command(request: Request, payload, action):
 async def parse(request: Request, body: InjectParseRequest):
     """Text → Vorschlag (Operationen, Rückfrage oder Vorschau). Ändert die Welt nicht."""
     async def action(sim):
+        await nur_gott(sim, "Ereignis auslösen")
         return await sim.inject.parse(body.text, body.agents, body.at, body.answer_to, body.answer)
     return await _command(request, body, action)
 
@@ -31,6 +33,7 @@ async def parse(request: Request, body: InjectParseRequest):
 async def confirm(request: Request, body: InjectConfirmRequest):
     """Bestätigten Vorschlag ausführen."""
     async def action(sim):
+        await nur_gott(sim, "Ereignis auslösen")
         return await sim.engine.db.run(lambda: sim.inject.confirm(body.proposal_id))
     return await _command(request, body, action)
 
@@ -50,6 +53,7 @@ async def scheduled(request: Request):
 @router.delete("/scheduled/{sid}", response_model=ScheduledOut)
 async def cancel(request: Request, sid: str):
     sim = request.app.state.sim
+    await nur_gott(sim, "Geplantes Ereignis zurücknehmen")
 
     def work():
         s = next((x for x in sim.inject.scheduled() if x["id"] == sid), None)

@@ -18,7 +18,7 @@ TEMPLATE_FORMAT, TEMPLATE_VERSION, TEMPLATE_MAX_BYTES = "simulacra-vorlage", 1, 
 
 # Begriffe, die auf eine höhere Instanz hindeuten: für Bewohner gibt es keine Spieler, Leitstelle oder Simulation. Treffer sind Warnungen, keine Sperre
 # (eine Figur darf „Programmierer“ sein), der Assistent zeigt sie mit Fundstelle.
-META_RE = re.compile(r"(?<![^\W\d_])(spieler\w*|nutzer\w*|benutzer\w*|leitstelle\w*|simulation\w*|editor\w*|schöpfer\w*|ki|sprachmodell\w*|prompt\w*)(?![^\W\d_])", re.I)
+META_RE = re.compile(r"(?<![^\W\d_])(spieler\w*|nutzer\w*|benutzer\w*|leitstelle\w*|simulation\w*|editor\w*|schöpfer\w*|ki|sprachmodell\w*|prompt\w*|spielart\w*|play_mode)(?![^\W\d_])", re.I)
 TEXT_FIELDS = (("description", "Beschreibung"), ("background", "Hintergrund"), ("communication_style", "Kommunikationsstil"))
 LIST_FIELDS = (("interests", "Interessen", LIM["items"], LIM["item"]), ("dislikes", "Abneigungen", LIM["items"], LIM["item"]), ("goals", "Ziele", LIM["goals"], LIM["goal"]))
 

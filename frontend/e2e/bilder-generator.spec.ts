@@ -9,7 +9,7 @@ import s58 from "./fixtures/generiert/seed-58.json" with { type: "json" };
 
 /** Bilder erzeugter Dörfer für docs/status/AP12b.md (nur mit SIM_BILDER=1): die Gestaltung kommt vom Generator, der Rest der Welt ist die Testwelt. */
 test.skip(!process.env.SIM_BILDER, "nur mit SIM_BILDER=1");
-test.use({ viewport: { width: 1660, height: 930 } });
+test.use({ viewport: { width: 1660, height: 800 } });
 test.setTimeout(120_000);
 const OUT = "../docs/status/img";
 

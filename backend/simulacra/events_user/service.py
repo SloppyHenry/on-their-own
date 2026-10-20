@@ -17,6 +17,7 @@ from .lexicon import Lexicon
 from .npc import Npcs
 from .rules import Clarify, Ctx, Parsed, parse as rule_parse
 from .scheduler import Scheduler
+from .welt import Weltereignisse
 from .schema import MAX_TEXT, parse_ops
 
 RATE_PER_MINUTE = 10                # Eingaben je Minute (Echtzeit)
@@ -32,6 +33,7 @@ class InjectService:
     def __init__(self, sim):
         self.sim = sim
         self.npcs = Npcs(sim)
+        self.welt = Weltereignisse(sim)
         sim.npcs = self.npcs
         self._recent: deque[float] = deque()
         self.rate = RATE_PER_MINUTE
@@ -219,6 +221,7 @@ class InjectService:
             except (WorldEditError, ValueError, KeyError) as e:
                 events.append(self.sim.engine.emit_event("simulation.event_fired", [], None, {"scheduled_id": s["id"], "kind": s["kind"], "text": f"{s['text'] or 'Geplantes Ereignis'}: nicht möglich ({getattr(e, 'text', None) or e})"}))
         events += self.npcs.tick(minute)
+        events += self.welt.tick(minute)
         return events
 
     def _fire(self, s: dict[str, Any]) -> list:

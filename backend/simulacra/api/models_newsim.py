@@ -12,8 +12,9 @@ KNOWN = Literal["square", "garden", "rooms", "lake", "forest"]             # Ort
 
 
 class WorldSpec(BaseModel):
-    """`start`: die handgemachte Startwelt (nur Alex und Mira), `generated`: ein Dorf für genau diese Bewohner."""
-    kind: Literal["start", "generated"] = "generated"
+    """`start`: die handgemachte Startwelt (nur Alex und Mira), `generated`: ein Dorf für genau diese Bewohner, `library`: eine Welt aus der Weltenbibliothek."""
+    kind: Literal["start", "generated", "library"] = "generated"
+    library_id: str | None = Field(None, max_length=60)                    # Welt aus der Bibliothek (kind „library“, AP18e): wird kopiert, die Bibliothek bleibt unverändert
     seed: int = Field(1, ge=0, le=2_000_000_000)
     lake: Literal["auto", "east", "south"] = "auto"
     houses: int | None = Field(None, ge=1, le=6)                           # Wohnhäuser; ohne Angabe aufgerundet halb so viele wie Bewohner
@@ -72,6 +73,7 @@ class NewSimRequest(BaseModel):
     rules: RulesSpec = RulesSpec()
     model: str | None = Field(None, max_length=200)                        # Modell der neuen Simulation (gilt fest, Frage 10); ohne Angabe das bisherige
     run: Literal["paused", "running"] = "paused"
+    play_mode: Literal["leben", "gott"] = "leben"                          # Spielart (AP18d): Leben ist der Standard für neue Simulationen
 
 
 class RulesPreviewRequest(BaseModel):

@@ -55,7 +55,7 @@ class Resolved:
     params: list[tuple[str, None, Any]] = field(default_factory=list)      # Parameter, die beim Anlegen gesetzt werden (Preset, Autonomie, Knappheit, Modus)
 
 
-def resolve(req: NewSimRequest, presets: Any = None) -> Resolved:
+def resolve(req: NewSimRequest, presets: Any = None, library: Any = None) -> Resolved:
     """Prüft den Entwurf und vergibt die Kennungen. Wirft `SpecError` mit allen Fehlern. `presets`: der `PresetManager` der laufenden Simulation (für die Preset-Wahl)."""
     errors: list[str] = []
     if not 1 <= len(req.residents) <= MAX_RESIDENTS:
@@ -65,6 +65,18 @@ def resolve(req: NewSimRequest, presets: Any = None) -> Resolved:
     warnings: list[str] = []
     residents: list[Resident] = []
     start = req.world.kind == "start"
+    lib = req.world.kind == "library"
+    if lib:
+        if not req.world.library_id:
+            raise SpecError(["Bitte eine Welt aus der Bibliothek wählen."])
+        try:
+            world, _ = library.get(req.world.library_id)
+        except Exception as e:                                                  # noqa: BLE001 - WorldError der Bibliothek
+            raise SpecError([getattr(e, "text", str(e))], getattr(e, "status", 422)) from None
+        if req.world.library_id == "dorf-am-see":
+            start = True                                                       # die Startwelt hat feste Zimmer nur für Alex und Mira
+        elif not world.get("startplatz") and not any(l["id"] == "square" for l in world["locations"]):
+            warnings.append("Diese Welt hat noch keinen Startplatz; die Bewohner beginnen in der Mitte der Karte.")
     taken: set[str] = set(RESERVED)
     for i, r in enumerate(req.residents, 1):
         errs = template_errors({"format": TEMPLATE_FORMAT, "version": TEMPLATE_VERSION, "profile": r.profile, "personality": r.personality})
@@ -88,9 +100,9 @@ def resolve(req: NewSimRequest, presets: Any = None) -> Resolved:
         else:
             rid = unique_id(profile.name, taken)
             taken.add(rid)
-        residents.append(Resident(rid, profile.model_copy(update={"name": profile.name.strip()}), personality, None if start else r.home, list(r.known), r.voice.model_dump() if r.voice else None))
+        residents.append(Resident(rid, profile.model_copy(update={"name": profile.name.strip()}), personality, None if start or lib else r.home, list(r.known), r.voice.model_dump() if r.voice else None))
     n = len(req.residents)
-    if not start:
+    if not start and not lib:
         per_house: dict[int, int] = {}
         for r in req.residents:
             if r.home:
@@ -132,8 +144,17 @@ def resolve(req: NewSimRequest, presets: Any = None) -> Resolved:
     return Resolved(req.world.kind, residents, rel, stories, warnings, params)
 
 
-def make_new_world(req: NewSimRequest, res: Resolved) -> tuple[dict, Any]:
-    """Die Weltdatei zum Entwurf: die Startwelt (nur mit den gewählten Bewohnern) oder ein erzeugtes Dorf nach Maß. Wirft `SpecError`."""
+def make_new_world(req: NewSimRequest, res: Resolved, library: Any = None) -> tuple[dict, Any]:
+    """Die Weltdatei zum Entwurf: die Startwelt (nur mit den gewählten Bewohnern), eine Welt aus der Bibliothek oder ein erzeugtes Dorf nach Maß. Wirft `SpecError`."""
+    if res.kind == "library":
+        world, _ = library.get(req.world.library_id)
+        if req.world.library_id == "dorf-am-see":
+            chosen = {r.id: r for r in res.residents}
+            world["agents"] = [{**a, "name": chosen[a["id"]].profile.name} for a in world["agents"] if a["id"] in chosen]
+            return world, Report()
+        rep = Report()
+        place_residents(world, res.residents)
+        return world, rep
     if res.kind == "start":
         world = loader.load_world_file(loader.DEFAULT_WORLD)
         chosen = {r.id: r for r in res.residents}
@@ -219,3 +240,30 @@ def check_start_events(tmp: Any, events: list[dict]) -> None:
             errors += e.errors
     if errors:
         raise SpecError(errors)
+
+
+def place_residents(world: dict, residents: list[Resident]) -> None:
+    """Stellt die Bewohner einer Bibliothekswelt um den Startplatz (sonst um die Mitte der Karte): die nächsten freien, begehbaren Kacheln im Freien."""
+    from collections import deque
+    tpl = loader.load_world_file(loader.DATA_DIR / "world_default.json")["agents"][0]
+    by = {t["char"]: t for t in world["tile_types"].values()}
+    rows, (W, H) = world["tiles"], world["size"]
+    taken = {tuple(o["tile"]) for o in world["objects"]} | {tuple(n["tile"]) for n in world["resource_nodes"]}
+    inside = [l["rect"] for l in world["locations"] if l["id"].startswith("house")]
+
+    def ok(x: int, y: int) -> bool:
+        return 0 <= x < W and 0 <= y < H and by[rows[y][x]]["walkable"] and (x, y) not in taken and not any(r[0] <= x < r[0] + r[2] and r[1] <= y < r[1] + r[3] for r in inside)
+
+    sx, sy = world.get("startplatz") or world.get("home") or [W // 2, H // 2]
+    seen, q, found = {(sx, sy)}, deque([(sx, sy)]), []
+    while q and len(found) < len(residents):
+        x, y = q.popleft()
+        if ok(x, y):
+            found.append((x, y))
+        for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+            n = (x + dx, y + dy)
+            if n not in seen and 0 <= n[0] < W and 0 <= n[1] < H:
+                seen.add(n); q.append(n)
+    if len(found) < len(residents):
+        raise SpecError(["In dieser Welt ist am Startplatz kein Platz für alle Bewohner."])
+    world["agents"] = [{"id": r.id, "name": r.profile.name, "tile": list(found[i]), "capacity": tpl["capacity"], "needs": tpl["needs"]} for i, r in enumerate(residents)]

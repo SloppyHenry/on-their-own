@@ -3837,6 +3837,71 @@
    "title": "LoginRequest",
    "type": "object"
   },
+  "LookAdded": {
+   "additionalProperties": false,
+   "description": "Ein Bewohner hat etwas gebaut, das die Darstellung braucht (Weg, Beet, Baum, Laterne, Brunnen): das Stück wird an das Gebiet gehängt.",
+   "properties": {
+    "decor": {
+     "default": [],
+     "items": {
+      "items": {},
+      "type": "array"
+     },
+     "type": "array"
+    },
+    "gardens": {
+     "default": [],
+     "items": {
+      "additionalProperties": true,
+      "type": "object"
+     },
+     "type": "array"
+    },
+    "lights": {
+     "default": [],
+     "items": {
+      "items": {
+       "type": "number"
+      },
+      "type": "array"
+     },
+     "type": "array"
+    },
+    "paths": {
+     "default": [],
+     "items": {
+      "items": {
+       "items": {
+        "type": "number"
+       },
+       "type": "array"
+      },
+      "type": "array"
+     },
+     "type": "array"
+    },
+    "place": {
+     "additionalProperties": {
+      "additionalProperties": true,
+      "type": "object"
+     },
+     "default": {},
+     "type": "object"
+    },
+    "region": {
+     "type": "string"
+    },
+    "upgraded": {
+     "default": false,
+     "type": "boolean"
+    }
+   },
+   "required": [
+    "region"
+   ],
+   "title": "LookAdded",
+   "type": "object"
+  },
   "LookChanged": {
    "additionalProperties": false,
    "description": "Gebiete und Landstraßen, die an die Gestaltung der Welt angehängt wurden (siehe docs/welt-erweitern.md).",
@@ -4507,6 +4572,31 @@
    "title": "Moved",
    "type": "object"
   },
+  "NatureEvent": {
+   "additionalProperties": false,
+   "properties": {
+    "id": {
+     "type": "string"
+    },
+    "name": {
+     "type": "string"
+    },
+    "sign": {
+     "default": "",
+     "type": "string"
+    },
+    "text": {
+     "default": "",
+     "type": "string"
+    }
+   },
+   "required": [
+    "id",
+    "name"
+   ],
+   "title": "NatureEvent",
+   "type": "object"
+  },
   "NeedOut": {
    "additionalProperties": false,
    "properties": {
@@ -4622,6 +4712,14 @@
      ],
      "default": null
     },
+    "play_mode": {
+     "default": "leben",
+     "enum": [
+      "leben",
+      "gott"
+     ],
+     "type": "string"
+    },
     "relations": {
      "default": [],
      "items": {
@@ -4667,6 +4765,7 @@
       "houses": null,
       "kind": "generated",
       "lake": "auto",
+      "library_id": null,
       "mix": null,
       "seed": 1
      }
@@ -4829,6 +4928,14 @@
      ],
      "default": null
     },
+    "play_mode": {
+     "default": "leben",
+     "enum": [
+      "leben",
+      "gott"
+     ],
+     "type": "string"
+    },
     "relations": {
      "default": [],
      "items": {
@@ -4874,6 +4981,7 @@
       "houses": null,
       "kind": "generated",
       "lake": "auto",
+      "library_id": null,
       "mix": null,
       "seed": 1
      }
@@ -5888,6 +5996,19 @@
    "title": "PlacesOut",
    "type": "object"
   },
+  "PlayModeChanged": {
+   "additionalProperties": false,
+   "properties": {
+    "play_mode": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "play_mode"
+   ],
+   "title": "PlayModeChanged",
+   "type": "object"
+  },
   "PresetBrief": {
    "additionalProperties": false,
    "properties": {
@@ -6563,6 +6684,21 @@
     "model": {
      "anyOf": [
       {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "play_mode": {
+     "anyOf": [
+      {
+       "enum": [
+        "leben",
+        "gott"
+       ],
        "type": "string"
       },
       {
@@ -7804,6 +7940,14 @@
      },
      "type": "array"
     },
+    "play_mode": {
+     "default": "gott",
+     "enum": [
+      "leben",
+      "gott"
+     ],
+     "type": "string"
+    },
     "resources": {
      "items": {
       "$ref": "#/$defs/ResourceInfo"
@@ -7856,6 +8000,7 @@
     "rules",
     "links",
     "look",
+    "play_mode",
     "voices"
    ],
    "title": "StateSnapshot",
@@ -8701,7 +8846,7 @@
   },
   "WorldSpec": {
    "additionalProperties": false,
-   "description": "`start`: die handgemachte Startwelt (nur Alex und Mira), `generated`: ein Dorf für genau diese Bewohner.",
+   "description": "`start`: die handgemachte Startwelt (nur Alex und Mira), `generated`: ein Dorf für genau diese Bewohner, `library`: eine Welt aus der Weltenbibliothek.",
    "properties": {
     "houses": {
      "anyOf": [
@@ -8720,7 +8865,8 @@
      "default": "generated",
      "enum": [
       "start",
-      "generated"
+      "generated",
+      "library"
      ],
      "type": "string"
     },
@@ -8732,6 +8878,18 @@
       "south"
      ],
      "type": "string"
+    },
+    "library_id": {
+     "anyOf": [
+      {
+       "maxLength": 60,
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
     },
     "mix": {
      "anyOf": [
@@ -9161,6 +9319,9 @@
   "LoginRequest": {
    "$ref": "#/$defs/LoginRequest"
   },
+  "LookAdded": {
+   "$ref": "#/$defs/LookAdded"
+  },
   "LookChanged": {
    "$ref": "#/$defs/LookChanged"
   },
@@ -9196,6 +9357,9 @@
   },
   "Moved": {
    "$ref": "#/$defs/Moved"
+  },
+  "NatureEvent": {
+   "$ref": "#/$defs/NatureEvent"
   },
   "NewSimApplied": {
    "$ref": "#/$defs/NewSimApplied"
@@ -9259,6 +9423,9 @@
   },
   "PhaseChanged": {
    "$ref": "#/$defs/PhaseChanged"
+  },
+  "PlayModeChanged": {
+   "$ref": "#/$defs/PlayModeChanged"
   },
   "PresetBrief": {
    "$ref": "#/$defs/PresetBrief"

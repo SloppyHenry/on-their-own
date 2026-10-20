@@ -7,7 +7,7 @@ import { freshWorld } from "./helpers";
  * durch eine Landstraße verbunden. Prüft Gebiete, Boden in Blöcken, neue Bausteine, Kamerafahrt und Herauszoomen und hält sie als Goldbilder fest.
  * Neu erzeugen: `npx playwright test zwei-doerfer --update-snapshots`.
  */
-test.use({ viewport: { width: 1660, height: 930 } });
+test.use({ viewport: { width: 1280, height: 800 } });
 
 type Sim = { getState(): { world: { weather: object; clock: object; look: unknown } }; setState(x: object): void };
 type Welt = { kam: { x: number; y: number; zo: number; zoom: number; focusAt(x: number, y: number): void; level: number }; interior: number };

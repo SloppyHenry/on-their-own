@@ -28,6 +28,15 @@ def _templates(request: Request) -> TemplateStore:
     return app.state.templates
 
 
+def _library(request: Request):
+    from ..welten.store import WorldLibrary
+    app = request.app
+    if getattr(app.state, "library", None) is None:
+        db_path = app.state.sim.db_path
+        app.state.library = WorldLibrary(None if db_path == ":memory:" else Path(db_path).parent / "welten")
+    return app.state.library
+
+
 def _fail(e: TemplateError) -> HTTPException:
     lines = [e.text] + [x for x in e.errors if x != e.text]
     return HTTPException(e.status, "\n".join(lines))
@@ -127,8 +136,8 @@ async def preview(request: Request, body: NewSimRequest):
     """Prüft den Entwurf und zeigt die Welt unter dem Schleier. Ändert nichts; Fehler stehen in `errors`, Hinweise der Wortprüfung in `warnings`."""
     sim = request.app.state.sim
     try:
-        res = await sim.engine.db.run(lambda: newsim.resolve(body, sim.presets))
-        world, rep = newsim.make_new_world(body, res)
+        res = await sim.engine.db.run(lambda: newsim.resolve(body, sim.presets, _library(request)))
+        world, rep = newsim.make_new_world(body, res, _library(request))
     except SpecError as e:
         return NewSimPreview(ok=False, errors=e.errors)
     pv = await service.preview_world(sim, world, rep)
@@ -143,8 +152,8 @@ async def rules_preview(request: Request, body: RulesPreviewRequest):
     Rückfrage (`answer_to`) gilt nur, solange die Vorschau-Welt dieselbe ist; sonst „Vorschau neu erstellen“."""
     sim = request.app.state.sim
     try:
-        res = await sim.engine.db.run(lambda: newsim.resolve(body.draft, sim.presets))
-        world, rep = newsim.make_new_world(body.draft, res)
+        res = await sim.engine.db.run(lambda: newsim.resolve(body.draft, sim.presets, _library(request)))
+        world, rep = newsim.make_new_world(body.draft, res, _library(request))
     except SpecError as e:
         raise HTTPException(e.status, "\n".join(e.errors)) from None
     key = service.digest(world) + str(body.draft.rules.mode)
@@ -166,8 +175,8 @@ async def apply(request: Request, body: NewSimApplyRequest):
         raise HTTPException(400, "Eine neue Simulation ersetzt die laufende. Bestätige mit {\"confirm\": true}; die bisherige Welt wird vorher als Spielstand gesichert.")
     sim0 = request.app.state.sim
     try:
-        res = await sim0.engine.db.run(lambda: newsim.resolve(body, sim0.presets))
-        world, rep = newsim.make_new_world(body, res)
+        res = await sim0.engine.db.run(lambda: newsim.resolve(body, sim0.presets, _library(request)))
+        world, rep = newsim.make_new_world(body, res, _library(request))
     except SpecError as e:
         raise HTTPException(e.status, "\n".join(e.errors)) from None
     if not rep.ok:
@@ -189,7 +198,7 @@ async def apply(request: Request, body: NewSimApplyRequest):
         if sim.runner.state.value == "running":
             await sim.runner.pause()
         await prepare(request, body.model, strict=True)
-        saved = await sim.reset(model=body.model, world=world, backup_label="Vor der neuen Simulation", setup=lambda fresh: newsim.setup(fresh, res, world))
+        saved = await sim.reset(model=body.model, world=world, backup_label="Vor der neuen Simulation", setup=lambda fresh: newsim.setup(fresh, res, world), play_mode=body.play_mode)
         gen = world.get("generator")
         if gen:
             meta = {"kind": "new", "seed": gen["seed"], "requested_seed": gen["requested_seed"], "village": gen["village"]}

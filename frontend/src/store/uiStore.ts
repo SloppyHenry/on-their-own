@@ -29,8 +29,7 @@ export const DEFAULT_FILTERS: Filters = {
 };
 
 export type View = "world" | "memory" | "history" | "stats";
-/** Anwendungsmodus: das Spiel selbst, der Welteditor (AP12c) und das Menü zum Spielbeginn. Nur im Spiel gibt es die Infoleiste rechts (Bewohner, Protokoll, Details). */
-export type SideTab = "bewohner" | "protokoll" | "ansicht";
+/** Anwendungsmodus: das Spiel selbst, der Welteditor (AP12c) und das Menü zum Spielbeginn. Nur im Spiel gibt es die HUD-Teile in den Ecken (AP18b). */
 export type AppMode = "game" | "editor" | "menu";
 /** Menü (AP17a): Titelbild beim Öffnen, Pausenmenü mit Esc. Die Simulation läuft in beiden weiter; das Menü betrifft nur diesen Browser. */
 export type MenuMode = "title" | "pause" | null;
@@ -49,12 +48,24 @@ interface UiStore {
   /** Wunsch an die Weltansicht, eine Kachel zu zeigen (z. B. nach einem neuen Objekt aus der Ereigniseingabe). */
   focusRequest: { x: number; y: number; n: number } | null;
   focusOn: (x: number, y: number) => void;
-  /** Einstellungen (Parameter, Presets, Status) als Schublade über der Welt. */
-  settingsOpen: boolean;
+  /** Bereich in den Einstellungen (Menü › Einstellungen). `openSettings` öffnet das Menü dort (es gibt keine Schublade mehr). */
   settingsTab: string;
   openSettings: (tab?: string) => void;
-  closeSettings: () => void;
-  openMemory: (agent: string | null) => void;
+  /** Gedächtnis-Seite (Einblick): Agent und Reiter („memories“, „knowledge“, „retrievals“). */
+  memoryTab: string;
+  openMemory: (agent: string | null, tab?: string) => void;
+  /** Tagebuch (Protokoll und Verlauf in einem) als Schublade rechts. */
+  drawer: "tagebuch" | null;
+  setDrawer: (d: "tagebuch" | null) => void;
+  /** „Wenig Text in der Welt“ (Variante B der Blasen, AP18c): nur Zeichen über den Köpfen, der Gedanke erscheint beim Zeigen. Je Gerät gemerkt. */
+  wenigText: boolean;
+  setWenigText: (on: boolean) => void;
+  /** Offenes Popover über den Werkzeugen unten in der Mitte (Ereignis). */
+  pop: "ereignis" | null;
+  setPop: (p: "ereignis" | null) => void;
+  /** Hilfe auf „?“ (blendet sich beim ersten Start einmal ein). */
+  help: boolean;
+  setHelp: (on: boolean) => void;
   selection: Selection;
   /** Zuletzt gewählter Agent: Taste F folgt ihm auch nach dem Schließen des Details. */
   lastAgent: string | null;
@@ -84,12 +95,6 @@ interface UiStore {
   /** Titelbild beim Öffnen (je Gerät gemerkt, Standard an). */
   titleOnStart: boolean;
   setTitleOnStart: (on: boolean) => void;
-  /** Infoleiste rechts eingeklappt (je Gerät gemerkt). Im Editor und im Startmenü ist sie ohnehin aus. */
-  sidebarCollapsed: boolean;
-  toggleSidebar: () => void;
-  /** Reiter der Infoleiste: Bewohner, Protokoll, Ansicht (je Gerät gemerkt). */
-  sideTab: SideTab;
-  setSideTab: (t: SideTab) => void;
   /** Mitspieler-Steuerung als Vorschau (AP13): Klick geht/handelt, schickt aber nichts an die Simulation. */
   playerPreview: boolean;
   setPlayerPreview: (on: boolean) => void;
@@ -103,16 +108,23 @@ export const useUiStore = create<UiStore>((set) => ({
   setSavesOpen: (savesOpen) => set({ savesOpen }),
   focusRequest: null,
   focusOn: (x, y) => set((s) => ({ focusRequest: { x, y, n: (s.focusRequest?.n ?? 0) + 1 } })),
-  settingsOpen: false,
   settingsTab: "autonomy",
-  openSettings: (tab) => set((s) => ({ settingsOpen: true, settingsTab: tab ?? s.settingsTab })),
-  closeSettings: () => set({ settingsOpen: false }),
-  openMemory: (memoryAgent) => set({ view: "memory", memoryAgent, selection: null }),
+  openSettings: (tab) => set((s) => ({ menu: s.menu ?? "pause", menuSel: "settings", menuSub: null, settingsTab: tab ?? s.settingsTab })),
+  memoryTab: "memories",
+  openMemory: (memoryAgent, tab) => set((s) => ({ view: "memory", memoryAgent, memoryTab: tab ?? s.memoryTab, selection: null, drawer: null })),
+  drawer: null,
+  setDrawer: (drawer) => set((s) => ({ drawer, selection: drawer ? null : s.selection })),
+  wenigText: load<boolean>("simulacra.wenig-text", false) === true,
+  setWenigText: (wenigText) => { keep("simulacra.wenig-text", wenigText); set({ wenigText }); },
+  pop: null,
+  setPop: (pop) => set({ pop }),
+  help: !load<boolean>("simulacra.hilfe-gesehen", false),
+  setHelp: (help) => { if (!help) keep("simulacra.hilfe-gesehen", true); set({ help }); },
   selection: null,
   lastAgent: null,
   follow: null,
   filters: DEFAULT_FILTERS,
-  select: (selection) => set((s) => ({ selection, lastAgent: selection?.kind === "agent" ? selection.id : s.lastAgent })),
+  select: (selection) => set((s) => ({ selection, lastAgent: selection?.kind === "agent" ? selection.id : s.lastAgent, drawer: selection?.kind === "agent" ? null : s.drawer })),
   setFollow: (follow) => set({ follow }),
   setFilters: (patch) => set((s) => ({ filters: { ...s.filters, ...patch } })),
   worldMode: load<ViewMode>("simulacra.ansicht", "tiefe") === "flach" ? "flach" : "tiefe",
@@ -130,10 +142,6 @@ export const useUiStore = create<UiStore>((set) => ({
   openMenuAt: (s) => set({ menu: s.menu, menuSel: s.sel, menuSub: s.sub, returnTo: null }),
   titleOnStart: load<boolean>("simulacra.titelbild", true) !== false,
   setTitleOnStart: (titleOnStart) => { keep("simulacra.titelbild", titleOnStart); set({ titleOnStart }); },
-  sidebarCollapsed: load<boolean>("simulacra.infoleiste-zu", false) === true,
-  toggleSidebar: () => set((s) => { keep("simulacra.infoleiste-zu", !s.sidebarCollapsed); return { sidebarCollapsed: !s.sidebarCollapsed }; }),
-  sideTab: ((t) => (t === "protokoll" || t === "ansicht" ? t : "bewohner"))(load<string>("simulacra.reiter", "bewohner")),
-  setSideTab: (sideTab) => { keep("simulacra.reiter", sideTab); set({ sideTab }); },
   playerPreview: load<boolean>("simulacra.mitspieler", false) === true,
   setPlayerPreview: (playerPreview) => { keep("simulacra.mitspieler", playerPreview); set({ playerPreview }); },
 }));

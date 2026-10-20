@@ -7,6 +7,7 @@ from ..agents.perception import needs_words
 from ..events.schema import to_out
 from ..events.store import EventStore
 from ..simulation.builder import Simulation
+from ..world import spielart
 from ..world import clock
 from ..world.voices import voices
 from .models import (ActionInfo, AgentDetail, AgentInfo, ClockInfo, DecisionBrief, LocationDetail, LocationInfo, MapData, ObjectInfo,
@@ -63,7 +64,7 @@ def snapshot(sim: Simulation) -> StateSnapshot:
         resources=[ResourceInfo(**n.model_dump(include={"id", "location_id", "x", "y", "resource", "amount", "cap", "requires_tool", "label"})) for n in st.all_nodes()],
         agents=[agent_info(sim, a) for a in st.agents()], clock=ClockInfo(**clock.snapshot(st.minute)),
         weather=WeatherInfo(**w), simulation=sim_status(sim), rules=st.rules.model_dump(),
-        links=st.get_meta("links") or [], look=st.get_meta("look"), voices=voices(st))
+        links=st.get_meta("links") or [], look=st.get_meta("look"), voices=voices(st), play_mode=spielart.get(st))
 
 
 def agent_detail(sim: Simulation, agent_id: str) -> AgentDetail | None:

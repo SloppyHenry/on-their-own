@@ -1,13 +1,13 @@
 import { expect, test, type Page } from "@playwright/test";
 import fixture from "./fixtures/look-zwei-doerfer.json" with { type: "json" };
-import { freshWorld, viewMenu } from "./helpers";
+import { expectView, freshWorld, setView } from "./helpers";
 
 /**
  * Beide Ansichten bleiben immer wählbar: dieselbe Welt mit zwei Dörfern in der Ansicht „Flach“ (Draufsicht, Mockup B). Welt mit zwei Dörfern (AP12a): die Startwelt und ein aus einem Seed erzeugtes zweites Dorf (Fixture aus dem Mockup-Generator, Look Version 2),
  * durch eine Landstraße verbunden. Prüft Gebiete, Boden in Blöcken, neue Bausteine, Kamerafahrt und Herauszoomen und hält sie als Goldbilder fest.
  * Neu erzeugen: `npx playwright test flach --update-snapshots`.
  */
-test.use({ viewport: { width: 1660, height: 930 } });
+test.use({ viewport: { width: 1280, height: 800 } });
 
 type Sim = { getState(): { world: { weather: object; clock: object; look: unknown } }; setState(x: object): void };
 type Welt = { kam: { x: number; y: number; zo: number; zoom: number; focusAt(x: number, y: number): void; level: number }; interior: number };
@@ -50,7 +50,7 @@ test.beforeEach(async ({ request }) => { await freshWorld(request); });
 
 test("Flach: Startdorf, zweites Dorf, Landstraße, ½× und ¼×; der Umschalter wechselt zwischen Tiefe und Flach", async ({ page }) => {
   await prepare(page, 12 * 60);
-  await expect((await viewMenu(page)).getByRole("button", { name: "Flach", exact: true })).toHaveAttribute("aria-pressed", "true");
+  await expectView(page, "Flach");
   expect(await welt(page)).toMatchObject({ x: 192, y: 288, zo: 1, zoom: 1 });
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(String(e)));
@@ -64,7 +64,7 @@ test("Flach: Startdorf, zweites Dorf, Landstraße, ½× und ¼×; der Umschalter
   await lookAt(page, 400, 200, 0.25);
   expect(await grab(page)).toMatchSnapshot("flach-viertel.png", OPT);
   await page.keyboard.press("0");
-  await (await viewMenu(page)).getByRole("button", { name: "Tiefe", exact: true }).click();     // jederzeit zurück auf 3D, die Kamera bleibt
+  await setView(page, "Tiefe");     // jederzeit zurück auf 3D, die Kamera bleibt
   expect(await welt(page)).toMatchObject({ x: 192, y: 288 });
   expect(await grab(page)).toMatchSnapshot("tiefe-start.png", OPT);
   expect(errors).toEqual([]);

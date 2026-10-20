@@ -12,7 +12,6 @@ import { DorfView } from "./dorf/DorfView";
 import { lookOf } from "./dorf/look";
 import { WorldView, type ViewLike } from "./view/WorldView";
 import { createBridge } from "./worldBridge";
-import { ViewControls } from "../layout/ViewSettings";
 import { verbindeBuehne } from "../klang/buehne";
 import { EBENE, anmelden } from "../ui/zurueck";
 
@@ -33,7 +32,6 @@ export function WorldCanvas() {
   const fly = useEditorStore((s) => s.fly);
   const dorf = !!lookJson;
   const player = useUiStore((s) => s.playerPreview);
-  const sideOpen = useUiStore((s) => s.appMode === "game" && !s.sidebarCollapsed);                   // Ansicht steht dann im Reiter der Infoleiste
   const focus = useUiStore((s) => s.focusRequest);
   useEffect(() => { if (focus) bridge.commands.focusTile?.(focus.x, focus.y); }, [focus, bridge]);
   useEffect(() => verbindeBuehne(bridge, () => ({ w: host.current?.clientWidth ?? 1, h: host.current?.clientHeight ?? 1 })), [bridge]);   // Klang: nur Sichtbares, am Ort im Bild
@@ -97,7 +95,6 @@ export function WorldCanvas() {
       </div>
       <Overlays bridge={bridge} />
       {player && <PlayerLayer bridge={bridge} view={view} pc={pc} />}
-      {!sideOpen && <div className="absolute right-3 top-3 z-[4]"><ViewControls dorf={dorf} compact /></div>}
     </div>
   );
 }

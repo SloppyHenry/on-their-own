@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { freshWorld, openApp, settled, settledTag, viewMenu } from "./helpers";
+import { freshWorld, openApp, setPlayer, settled, settledTag } from "./helpers";
 
 /** Mitspieler-Vorschau (AP13): Klick geht/handelt, Enter spricht – alles nur Vorschau, nichts geht an die Simulation. */
 
@@ -13,7 +13,7 @@ function watchWrites(page: Page) {
 }
 
 async function enable(page: Page) {
-  await (await viewMenu(page)).getByTestId("player-toggle").check();
+  await setPlayer(page, true);
   await expect(page.getByTestId("player-layer")).toContainText("nichts wird an die Simulation geschickt");
 }
 
@@ -74,7 +74,7 @@ test("Mit Schalter: Rechtsklick wählt aus; ohne Schalter verhält sich alles wi
   await page.mouse.click(tag.x + tag.width / 2, tag.y - 22);
   await page.keyboard.up("Shift");
   await expect(page.getByTestId("drawer")).toContainText("Bedürfnisse");
-  await (await viewMenu(page)).getByTestId("player-toggle").uncheck();
+  await setPlayer(page, false);
   await expect(page.getByTestId("player-layer")).toHaveCount(0);
   await page.keyboard.press("Enter");
   await expect(page.getByTestId("say-box")).toHaveCount(0);

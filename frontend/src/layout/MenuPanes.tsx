@@ -97,12 +97,10 @@ export function DefinePane() {
 }
 
 export function SettingsPane() {
-  const on = useUiStore((s) => s.titleOnStart), set = useUiStore((s) => s.setTitleOnStart);
   return (
     <>
       <Brotkrumen pfad={[{ label: "Einstellungen" }]} escZu={useEscZuSpiel()} />
-      <label className="flex items-center gap-2 px-5 pb-2 pt-1 text-[13px] text-dim"><input type="checkbox" checked={on} onChange={(e) => set(e.target.checked)} data-testid="title-on-start" />Titelbild beim Öffnen zeigen (dieses Gerät)</label>
-      <SettingsContent embedded />
+      <SettingsContent />
     </>
   );
 }

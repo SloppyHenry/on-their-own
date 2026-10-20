@@ -23,6 +23,7 @@ from ..params.apply import ParamService
 from ..params.presets import PresetManager
 from ..saves.service import AutoSavePolicy, SaveService
 from ..saves import snapshot as snap
+from ..world import spielart
 from ..world.engine import WorldEngine
 from .limits import DecisionLimiter
 from .runner import SimulationRunner
@@ -80,7 +81,7 @@ class Simulation:
         return sim
 
     async def reset(self, backup_dir: Path | None = None, model: str | None = None, keep_profiles: bool = False, world: dict | None = None,
-                    backup_label: str = "Vor dem Zurücksetzen", setup: Callable[["Simulation"], None] | None = None) -> Path | None:
+                    backup_label: str = "Vor dem Zurücksetzen", setup: Callable[["Simulation"], None] | None = None, play_mode: str | None = None) -> Path | None:
         """Hält an, sichert den bisherigen Stand (nie löschen: als Spielstand „Vor dem Zurücksetzen“) und legt eine frische Welt an. Gibt den Sicherungspfad zurück.
 
         Parameter und eigene Presets bleiben erhalten; `keep_profiles` behält auch die Profile und Persönlichkeitswerte. `model` wählt das Modell der neuen Simulation.
@@ -91,6 +92,7 @@ class Simulation:
         kept = [k for k in await self.db.run(self.params.export) if keep_profiles or k[1] is None]      # „komplett Standard“: auch Werte je Agent fallen weg
         presets = await self.db.run(lambda: [tuple(r) for r in self.db.conn.execute("SELECT id, name, description, data, created, updated FROM presets")])
         profiles = await self.db.run(lambda: [tuple(r) for r in self.db.conn.execute("SELECT agent_id, profile, personality FROM agent_profiles")]) if keep_profiles else []
+        old_mode = await self.db.run(lambda: self.engine.state.get_meta("play_mode"))                  # die Spielart bleibt, wenn keine neue verlangt wird
         kept_voices = await self.db.run(lambda: self.engine.state.get_meta("voices")) if keep_profiles else None   # die Stimme gehört zur Figur
         saved: Path | None = None
         if self.saves is not None:
@@ -112,6 +114,9 @@ class Simulation:
         self._restore_kept(fresh, kept, presets, profiles)
         if setup is not None:
             setup(fresh)
+        if play_mode or old_mode:
+            with fresh.db.transaction():
+                spielart.set_mode(fresh.engine.state, play_mode or old_mode)
         if kept_voices:
             with fresh.db.transaction():
                 fresh.engine.state.set_meta("voices", {a: v for a, v in kept_voices.items() if fresh.engine.state.agent(a) is not None})

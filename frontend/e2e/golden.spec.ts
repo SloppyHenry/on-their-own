@@ -6,7 +6,7 @@ import { freshWorld, openHouse } from "./helpers";
  * Renderer umgebaut wird. Zeit eingefroren (`__freezeT`), Figuren wie in der Testwelt (im Haus), klares Wetter, feste Uhrzeit.
  * Bilder neu erzeugen (nur mit Absicht, z. B. bei neuem Look): `npx playwright test golden --update-snapshots`.
  */
-test.use({ viewport: { width: 1660, height: 930 } });
+test.use({ viewport: { width: 1280, height: 800 } });
 
 type Sim = { getState(): { world: { weather: object; clock: object; agents: object } }; setState(x: object): void };
 async function prepare(page: Page, minute: number) {

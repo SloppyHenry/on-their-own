@@ -69,23 +69,46 @@ export async function openHouse(page: Page) {
   await expect(page.getByTestId("overlays")).toHaveAttribute("data-interior", "0");
 }
 
-/** Reiter der Infoleiste öffnen (Bewohner, Protokoll, Ansicht). */
+/** Das Tagebuch (Protokoll) öffnen, falls es nicht schon offen ist. „bewohner“ und „ansicht“ gibt es seit AP18b nicht mehr als Reiter: die Bewohner stehen immer im HUD. */
 export async function showTab(page: Page, tab: "bewohner" | "protokoll" | "ansicht") {
-  await page.getByTestId(`side-tab-${tab}`).click();
+  if (tab !== "protokoll") return;
+  if (!(await page.getByTestId("tagebuch").isVisible())) await page.getByTestId("einblick-tagebuch").click();
+  await expect(page.getByTestId("tagebuch")).toBeVisible();
 }
 
-/** Ansichtsmenü: im Spiel der Reiter „Ansicht“, sonst (Editor, Startmenü, Infoleiste zu) der Schalter an der Welt. */
+/** Einstellungen › Darstellung öffnen (Menü); wer fertig ist, schließt das Menü mit Esc. */
 export async function viewMenu(page: Page) {
-  const tab = page.getByTestId("side-tab-ansicht");
-  if (await tab.isVisible()) await tab.click();
+  if (await page.getByTestId("editor-panel").isVisible()) return page.getByTestId("view-menu");          // im Welteditor gibt es den Schalter in der Werkzeugleiste
+  if (!(await page.getByTestId("start-menu").isVisible())) await page.keyboard.press("Escape");
+  await page.getByTestId("menu-settings").click();
+  await page.getByRole("tab", { name: "Darstellung" }).click();
   return page.getByTestId("view-menu");
 }
 
-/** Ansicht „Tiefe“ oder „Flach“. */
+/** Ansicht „Tiefe“ oder „Flach“ (Einstellungen › Darstellung), danach zurück ins Spiel. */
 export async function setView(page: Page, name: "Tiefe" | "Flach") {
   const b = (await viewMenu(page)).getByRole("button", { name, exact: true });
   await b.click();
   await expect(b).toHaveAttribute("aria-pressed", "true");
+  await closeMenu(page);
+}
+
+/** Welche Ansicht gerade gilt (öffnet und schließt das Menü). */
+export async function expectView(page: Page, name: "Tiefe" | "Flach") {
+  await expect((await viewMenu(page)).getByRole("button", { name, exact: true })).toHaveAttribute("aria-pressed", "true");
+  await closeMenu(page);
+}
+
+export async function closeMenu(page: Page) {
+  if (!(await page.getByTestId("start-menu").isVisible())) return;
+  await page.keyboard.press("Escape");
+  await expect(page.getByTestId("start-menu")).toHaveCount(0);
+}
+
+/** Ereigniseingabe (Gott-Werkzeug) öffnen. */
+export async function openComposer(page: Page) {
+  if (!(await page.getByTestId("composer").isVisible())) await page.getByTestId("werkzeug-ereignis").click();
+  await expect(page.getByTestId("composer-input")).toBeVisible();
 }
 
 /** Klick auf die Figur selbst: das Schild steht unter den Füßen, die Figur darüber. */
@@ -102,4 +125,11 @@ export async function moveAgent(req: APIRequestContext, sentence: string) {
   expect(["ready", "needs_confirmation"], JSON.stringify(p)).toContain(p.status);
   expect((await post(req, "/api/inject/confirm", { proposal_id: p.id })).status).toBe("executed");
   expect((await patch("observer")).ok()).toBeTruthy();
+}
+
+/** Mitspieler-Vorschau ein- oder ausschalten (Einstellungen › Darstellung), danach zurück ins Spiel. */
+export async function setPlayer(page: Page, on: boolean) {
+  const box = (await viewMenu(page)).getByTestId("player-toggle");
+  await (on ? box.check() : box.uncheck());
+  await closeMenu(page);
 }

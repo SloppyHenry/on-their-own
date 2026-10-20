@@ -32,6 +32,10 @@ USE_THIRD = {"sleep": "legt sich schlafen", "sit": "setzt sich hin", "cook": "ko
              "store": "legt etwas ab", "retrieve": "nimmt etwas heraus"}
 
 
+BP_DE = {"bench": "eine Bank", "birdhouse": "ein Vogelhaus", "firepit": "eine Feuerstelle", "fence": "einen Gartenzaun", "pier_extension": "den Steg", "basket": "einen Korb",
+         "path": "einen Weg", "bed": "ein Beet", "tree": "einen Baum", "lantern": "eine Laterne", "well": "einen Brunnen"}
+
+
 def loc_to(state: WorldState, loc_id: str) -> str:
     loc = state.locations.get(loc_id)
     return loc.props.get("to", f"zu {loc.name}") if loc else "irgendwohin"
@@ -76,7 +80,7 @@ def third_person(state: WorldState, name: str, action: str, params: dict[str, An
         return f"{name} sammelt {RES_DE.get(p.get('resource'), 'etwas')}"
     if action == "build":
         bp = p.get("blueprint")
-        return f"{name} baut etwas" if not bp else f"{name} baut: {bp}"
+        return f"{name} baut etwas" if not bp else f"{name} baut: {BP_DE.get(bp, bp)}"
     if action == "take":
         return f"{name} nimmt {target_label(state, p.get('object_id', ''))}"
     if action == "inspect":

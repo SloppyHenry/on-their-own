@@ -24,6 +24,17 @@ class LookChanged(D):
     upgraded: bool
 
 
+class LookAdded(D):
+    """Ein Bewohner hat etwas gebaut, das die Darstellung braucht (Weg, Beet, Baum, Laterne, Brunnen): das Stück wird an das Gebiet gehängt."""
+    region: str
+    upgraded: bool = False
+    paths: list[list[list[float]]] = []
+    gardens: list[dict[str, Any]] = []
+    decor: list[list[Any]] = []
+    lights: list[list[float]] = []
+    place: dict[str, dict[str, Any]] = {}
+
+
 class Generated(D):
     """Ein Dorf wurde mit dem Weltgenerator erzeugt (Erweiterung oder neue Simulation); `seed` ist der Seed, der die Prüfung bestanden hat."""
     kind: str

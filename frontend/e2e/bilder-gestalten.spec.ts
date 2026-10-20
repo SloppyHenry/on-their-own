@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url";
 
 /** Bilder des Mockups „Welt gestalten“ (docs/mockups/welt-optik/gestalten.html) für docs/status/AP16-schritt0.md; nur mit SIM_BILDER=1. Das Mockup braucht kein Backend. */
 test.skip(!process.env.SIM_BILDER, "nur mit SIM_BILDER=1");
-test.use({ viewport: { width: 1660, height: 930 } });
+test.use({ viewport: { width: 1660, height: 800 } });
 test.setTimeout(120_000);
 const DIR = resolve(fileURLToPath(new URL(".", import.meta.url)), "../../docs/mockups/welt-optik");
 const PAGE = `file://${DIR}/gestalten.html`;
