@@ -7,6 +7,7 @@ import { ApiError, api } from "../net/api";
 import { Assistent } from "../assistent/Assistent";
 import { Charaktereditor } from "../assistent/Charaktereditor";
 import { SaveLoadDialog } from "../saves/SaveLoadDialog";
+import { WeltenPane } from "../welten/WeltenPane";
 import { SettingsContent } from "../settings/ParameterPanel";
 import { useUiStore, type MenuStelle } from "../store/uiStore";
 import { Brotkrumen, type Krume } from "../ui/Brotkrumen";
@@ -49,41 +50,43 @@ export function LoadPane() {
   return <Pane trail={[{ label: "Simulation laden" }]} lead="Die Simulation läuft an der gespeicherten Stelle weiter. Der laufende Stand wird vorher gesichert."><SaveLoadDialog embedded /></Pane>;
 }
 
-export function NewSimPane({ stelle, onLoad }: { stelle: MenuStelle; onLoad: () => void }) {
+export function NewSimPane({ onLoad }: { onLoad: () => void }) {
   const setMenu = useUiStore((s) => s.setMenu), setSub = useUiStore((s) => s.setMenuSub);
   const [resetting, setResetting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const confirm = async (model?: string, keep?: boolean) => {
     setResetting(false); setError(null);
-    try { await api.reset(model, keep); setMenu(null); } catch (e) { setError(e instanceof ApiError ? e.detail : "Backend nicht erreichbar"); }
+    try { await api.reset(model, keep, "leben"); setMenu(null); } catch (e) { setError(e instanceof ApiError ? e.detail : "Backend nicht erreichbar"); }
   };
   return (
     <Pane trail={[{ label: "Neue Simulation" }]} lead="Der bisherige Stand wird vorher als Spielstand gesichert, nicht gelöscht.">
       <div className="grid grid-cols-2 gap-3">
-        <Tile img="start" title="Startwelt neu beginnen" text="Das bekannte Dorf, Alex und Mira von vorn." onClick={() => setResetting(true)} testid="newsim-start" />
-        <Tile img="dorf" title="Neues Dorf erzeugen (Schnellstart)" text="Seed, Seeufer, Gebäudemix, mit Vorschau." onClick={() => toEditor("new", stelle)} testid="newsim-generate" />
-        <Tile img="figuren" title="Selbst definieren" text="Bewohner, Beziehungen, Regeln und Modell: Schritt für Schritt." onClick={() => setSub("define")} testid="newsim-define" />
-        <Tile img="welt" title="Selbst gestalten" text="Eigenes Dorf bauen (mit dem Gestalten-Paket)." later="später" />
-        <Tile img="haus" title="Aus Spielstand" text="Einen gespeicherten Stand laden." onClick={onLoad} testid="newsim-load" />
+        <Tile img="start" title="Schnellstart" text="Das Dorf am See mit Alex und Mira, Spielart Leben: ein Klick." onClick={() => setResetting(true)} testid="newsim-start" />
+        <Tile img="figuren" title="Selbst definieren" text="Spielart, Welt, Bewohner, Beziehungen, Regeln und Modell: Schritt für Schritt." onClick={() => setSub("define")} testid="newsim-define" />
       </div>
+      <p className="mt-3 text-[13px] text-dim">Einen gespeicherten Stand fortsetzen? <button type="button" className="underline hover:text-text" onClick={onLoad} data-testid="newsim-load">Einen Spielstand laden →</button></p>
       {error && <p role="alert" className="mt-3 text-[13px] text-warn">{error}</p>}
       {resetting && <ResetDialog onCancel={() => setResetting(false)} onConfirm={(m, k) => void confirm(m, k)} />}
     </Pane>
   );
 }
 
-export function EditorsPane({ stelle }: { stelle: MenuStelle }) {
+export function EditorsPane() {
   const setSub = useUiStore((s) => s.setMenuSub);
   return (
     <Pane trail={[{ label: "Editoren" }]} lead="Alles zum Gestalten an einem Ort. Im Editor-Modus steht die Zeit still.">
       <div className="grid grid-cols-2 gap-3">
-        <Tile img="welt" title="▦ Welt" text="Weitere Dörfer anfügen; Wege, Seen und Häuser folgen mit dem Gestalten-Paket." onClick={() => toEditor("extend", stelle)} testid="editor-world" />
+        <Tile img="welt" title="▦ Welten" text="Die Weltenbibliothek: leere Welt anlegen, Welt erzeugen, in der Werkstatt gestalten, kopieren, exportieren." onClick={() => setSub("welten")} testid="editor-welten" />
         <Tile img="figuren" title="☺ Figuren" text="Vorlagen für Bewohner anlegen, bearbeiten, exportieren und importieren." onClick={() => setSub("figuren")} testid="editor-figuren" />
         <Tile img="haus" title="⌂ Häuser und Gebäude" text="Eigene Häuser entwerfen: Form, Räume, Aussehen." later="später" />
         <Tile img="ding" title="◆ Dinge und Assets" text="Eigene Objekte zeichnen, mit Wirkungen für die Bewohner." later="später" />
       </div>
     </Pane>
   );
+}
+
+export function WeltenSeite() {
+  return <WeltenPane />;
 }
 
 export function FigurenPane() {
@@ -98,9 +101,9 @@ export function DefinePane() {
 
 export function SettingsPane() {
   return (
-    <>
+    <div data-testid="settings">
       <Brotkrumen pfad={[{ label: "Einstellungen" }]} escZu={useEscZuSpiel()} />
       <SettingsContent />
-    </>
+    </div>
   );
 }

@@ -3,6 +3,7 @@
 // Darüber die DOM-Schilder. Daten kommen über die Brücke.
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useEditorStore } from "../editor/editorStore";
+import { useWerkstatt } from "../welten/werkstattStore";
 import { useSimStore } from "../store/simStore";
 import { useUiStore } from "../store/uiStore";
 import { Overlays } from "./Overlays";
@@ -23,8 +24,10 @@ export function WorldCanvas() {
   const [bridge] = useState(createBridge);
   const [pc] = useState(() => new PlayerController(() => bridge.world()));
   const [view, setView] = useState<ViewLike | null>(null);
-  const previewWorld = useEditorStore((s) => s.preview?.world);                                        // im Welteditor zeigt die Ansicht die Vorschau statt der laufenden Welt
-  const previewKind = useEditorStore((s) => s.preview?.kind ?? "");
+  const editorWorld = useEditorStore((s) => s.preview?.world), werkWorld = useWerkstatt((s) => s.vorschau);
+  const previewWorld = werkWorld ?? editorWorld;                                                       // im Welteditor und in der Werkstatt zeigt die Ansicht die Vorschau statt der laufenden Welt
+  const editorKind = useEditorStore((s) => s.preview?.kind ?? "");
+  const previewKind = werkWorld ? "new" : editorKind;
   const liveLook = useSimStore((s) => { const l = lookOf(s.world); return l ? JSON.stringify(l) : ""; });   // stabil über neue Schnappschüsse
   const lookJson = useMemo(() => { if (!previewWorld) return liveLook; const l = lookOf(previewWorld); return l ? JSON.stringify(l) : ""; }, [previewWorld, liveLook]);
   const cam = useRef<{ key: string; x: number; y: number; level: number } | null>(null);               // Kamera über den Austausch der Ansicht hinweg (neues Gebiet in der Vorschau)

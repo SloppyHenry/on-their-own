@@ -1,13 +1,12 @@
 import { expect, test } from "@playwright/test";
-import { freshWorld, openApp, post } from "./helpers";
+import { freshWorld, openApp, post, openSettingsMenu } from "./helpers";
 
 test.beforeEach(async ({ request }) => { await freshWorld(request); });
 
 const values = async (request: import("@playwright/test").APIRequestContext) => (await (await request.get("/api/params")).json()).values;
 
 async function openTab(page: import("@playwright/test").Page, name: string) {
-  if (!(await page.getByTestId("settings").isVisible())) await page.getByTestId("open-settings").click();
-  await expect(page.getByTestId("settings")).toBeVisible();
+  if (!(await page.getByTestId("settings").isVisible())) await openSettingsMenu(page);
   await page.getByRole("tab", { name, exact: true }).click();
 }
 
@@ -24,7 +23,6 @@ test("Regler Knappheit: Status „übernommen“ und die Welt schrumpft wirklich
   expect((await values(request))["world.scarcity"]).toBe(60);                       // die API bestätigt den Wert beim Verbraucher
   const after = (await (await request.get("/api/state")).json()).resources.find((r: { id: string }) => r.id === "forest_wood").amount;
   expect(after).toBeLessThan(before * 0.6);
-  await expect(page.getByTestId("sidebar")).toBeVisible();
   await row.getByRole("button", { name: /auf Standard/ }).click();
   await expect.poll(async () => (await values(request))["world.scarcity"]).toBe(0);
 });
@@ -84,7 +82,7 @@ test("Tempo, Modus und Status sind erreichbar; das Modell lässt sich im Lauf ni
   await openApp(page);
   await page.getByRole("button", { name: "2×" }).click();
   await expect.poll(async () => (await values(request))["sim.speed"]).toBe("2x");
-  await openTab(page, "Modus");
+  await openTab(page, "Wissen der Bewohner");
   await page.getByTestId("param-mode").getByRole("combobox").selectOption("creator");
   await expect.poll(async () => (await values(request))["mode"]).toBe("creator");
   await openTab(page, "Modell");
@@ -97,7 +95,7 @@ test("Tempo, Modus und Status sind erreichbar; das Modell lässt sich im Lauf ni
 
 test("Suche findet Einstellungen über alle Bereiche", async ({ page }) => {
   await openApp(page);
-  await page.getByTestId("open-settings").click();
+  await openSettingsMenu(page);
   await page.getByLabel("Einstellungen durchsuchen").fill("Temperatur");
   await expect(page.getByTestId("param-llm.temperature")).toBeVisible();
   await page.getByLabel("Einstellungen durchsuchen").fill("gibtesnicht");

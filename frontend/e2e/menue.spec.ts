@@ -23,6 +23,7 @@ test.describe("Titelbild", () => {
   test("Abschalten gilt je Gerät: beim nächsten Öffnen kein Titelbild", async ({ page }) => {
     await page.goto("/");
     await page.getByTestId("menu-settings").click();
+    await page.getByRole("tab", { name: "Darstellung", exact: true }).click();
     await page.getByTestId("title-on-start").uncheck();
     await page.reload();
     await expect(page.getByTestId("conn")).toContainText("Verbunden");
@@ -54,26 +55,16 @@ test("Pfeiltasten wählen, der Inhalt rechts folgt; Hauptmenü führt zum Titelb
   await expect(page.getByTestId("start-menu")).toHaveAttribute("data-mode", "title");
 });
 
-test("Esc öffnet das Menü nicht, solange die Einstellungen offen sind: erst schließt Esc diese", async ({ page }) => {
-  await openApp(page);
-  await page.getByTestId("open-settings").click();
-  await expect(page.getByTestId("settings")).toBeVisible();
-  await page.keyboard.press("Escape");
-  await expect(page.getByTestId("settings")).toHaveCount(0);
-  await expect(page.getByTestId("start-menu")).toHaveCount(0);
-});
-
-test("Editoren → Welt öffnet den Welteditor, Neue Simulation → Startwelt fragt nach Bestätigung", async ({ page }) => {
+test("Editoren → Welten öffnet die Bibliothek, Neue Simulation → Schnellstart fragt nach Bestätigung", async ({ page }) => {
   await openApp(page);
   await page.getByTestId("open-menu").click();
   await page.getByTestId("menu-editors").click();
   await expect(page.getByText("später")).toHaveCount(2);                                 // Häuser und Dinge: nur gezeigt, nicht benutzbar (Figuren: Charaktereditor, AP17b)
   await expect(page.getByTestId("editor-figuren")).toBeVisible();
-  await page.getByTestId("editor-world").click();
-  await expect(page.getByTestId("editor-panel")).toBeVisible();
-  await expect(page.getByTestId("start-menu")).toHaveCount(0);
-  await page.getByTestId("editor-close").click();
-  await expect(page.getByTestId("menu-pane-editors")).toBeVisible();                     // zurück an dieselbe Stelle im Menü (AP18a), nicht ins Spiel
+  await page.getByTestId("editor-welten").click();                                        // die Weltenbibliothek (AP18e), keine Seed-Maske mehr
+  await expect(page.getByTestId("welten-pane")).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(page.getByTestId("menu-pane-editors")).toBeVisible();                     // eine Ebene zurück (AP18a), nicht ins Spiel
   await page.getByTestId("menu-title").click();
   await page.getByTestId("menu-newsim").click();
   await page.getByTestId("newsim-start").click();

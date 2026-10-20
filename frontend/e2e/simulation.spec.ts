@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { freshWorld, openApp, openHouse, post, state, tagBox, showTab } from "./helpers";
+import { freshWorld, openApp, openHouse, openMenu, post, state, tagBox, showTab } from "./helpers";
 
 test.beforeEach(async ({ request }) => { await freshWorld(request); });
 
@@ -15,6 +15,7 @@ test("Start: eine Figur bewegt sich sichtbar im Canvas (§17 Nr. 6)", async ({ p
 
 test("Dialog erscheint als Sprechblase und als Protokolleintrag (§17 Nr. 5)", async ({ page, request }) => {
   await openApp(page);
+  await openHouse(page);                                              // von außen zeigt das Dach nur die Bildnisse; die Sprechblasen stehen in der Innenansicht
   await page.getByRole("button", { name: "Start" }).click();
   const bubble = page.locator("[data-testid^=bubble-]:visible").first();
   await expect(bubble).toBeVisible({ timeout: 30_000 });
@@ -56,6 +57,7 @@ test("Neu laden stellt Uhrzeit, Positionen und Protokoll wieder her (§17 Nr. 13
   await page.reload();
   await expect(page.getByTestId("conn")).toContainText("Verbunden");
   await expect(page.getByTestId("clock")).toHaveText(before.clock!);
+  await showTab(page, "protokoll");                                   // das Tagebuch ist nach dem Neuladen wieder zu
   await expect.poll(async () => JSON.stringify(await rows())).toBe(JSON.stringify(before.rows));
   await expect.poll(() => tagBox(page, "alex")).toEqual(before.alex);
   expect(await tagBox(page, "mira")).toEqual(before.mira);
@@ -84,12 +86,14 @@ test("Zurücksetzen verlangt die Bestätigung durch Eingabe", async ({ page, req
   await post(request, "/api/sim/step", { n: 15 });
   await openApp(page);
   await expect(page.getByTestId("clock")).toContainText("07:15");
-  await page.getByRole("button", { name: /Zurücksetzen/ }).click();
+  const zuruecksetzen = async () => { await openMenu(page); await page.getByTestId("menu-title").click(); await page.getByTestId("menu-newsim").click(); await page.getByTestId("newsim-start").click(); };
+  await zuruecksetzen();                                              // Zurücksetzen gibt es nur noch über Neue Simulation › Schnellstart
   const dialog = page.getByRole("dialog");
   await expect(dialog.getByRole("button", { name: "Zurücksetzen" })).toBeDisabled();
   await dialog.getByRole("button", { name: "Abbrechen" }).click();
+  await page.getByTestId("menu-resume").click();                      // nach Abbrechen steht das Titelbild: Fortsetzen geht zurück ins Spiel
   await expect(page.getByTestId("clock")).toContainText("07:15");
-  await page.getByRole("button", { name: /Zurücksetzen/ }).click();
+  await zuruecksetzen();
   await dialog.getByRole("textbox").fill("zurücksetzen");
   await dialog.getByRole("button", { name: "Zurücksetzen" }).click();
   await expect(page.getByTestId("clock")).toContainText("07:00");
@@ -102,6 +106,7 @@ test("Klick auf Agent und Ereignis öffnet Details mit echten Daten", async ({ p
   const drawer = page.getByTestId("drawer");
   await expect(drawer).toContainText("Alex");
   await expect(drawer).toContainText("Bedürfnisse");
+  await drawer.getByTestId("karte-entscheidungen").click();
   await expect(drawer).toContainText("Letzte Entscheidungen");
   await drawer.getByRole("button", { name: "Schließen" }).first().click();
   await expect(drawer).toHaveCount(0);

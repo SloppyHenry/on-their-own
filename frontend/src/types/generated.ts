@@ -5,6 +5,8 @@ export interface SimulacraApi {
   ActionInterrupted?: ActionInterrupted;
   ActionProblem?: ActionProblem;
   ActionStarted?: ActionStarted;
+  AddAreaOut?: AddAreaOut;
+  AddAreaRequest?: AddAreaRequest;
   AgentAdded?: AgentAdded;
   AgentDetail?: AgentDetail;
   AgentNeeds?: AgentNeeds;
@@ -12,9 +14,11 @@ export interface SimulacraApi {
   Arrived?: Arrived;
   Ate?: Ate;
   AuthStatus?: AuthStatus;
+  BlankRequest?: BlankRequest;
   CatalogOut?: CatalogOut;
   ConversationEnded?: ConversationEnded;
   ConversationStarted?: ConversationStarted;
+  CreateWorldRequest?: CreateWorldRequest;
   DayStarted?: DayStarted;
   Decision?: Decision;
   DecisionFailed?: DecisionFailed;
@@ -34,10 +38,12 @@ export interface SimulacraApi {
   FactorRegistry?: FactorRegistry;
   FailureOut?: FailureOut;
   Fished?: Fished;
+  FromSimRequest?: FromSimRequest;
   GenerateApplied?: GenerateApplied;
   GenerateApplyRequest?: GenerateApplyRequest;
   GeneratePreview?: GeneratePreview;
   GenerateRequest?: GenerateRequest;
+  GenerateWorldRequest?: GenerateWorldRequest;
   Generated?: Generated;
   GoalChanged?: GoalChanged;
   GoalOut?: GoalOut;
@@ -95,6 +101,7 @@ export interface SimulacraApi {
   Petted?: Petted;
   PhaseChanged?: PhaseChanged;
   PlayModeChanged?: PlayModeChanged;
+  PlayModeRequest?: PlayModeRequest;
   PresetBrief?: PresetBrief;
   PresetDuplicate?: PresetDuplicate;
   PresetLoadOut?: PresetLoadOut;
@@ -103,10 +110,12 @@ export interface SimulacraApi {
   PresetPreview?: PresetPreview;
   PresetRename?: PresetRename;
   PresetSave?: PresetSave;
+  PreviewWorldRequest?: PreviewWorldRequest;
   ProposalAnswered?: ProposalAnswered;
   Read?: Read;
   RelationChanged?: RelationChanged;
   RelationOut?: RelationOut;
+  RenameRequest?: RenameRequest;
   ResetRequest?: ResetRequest;
   ResourceAdded?: ResourceAdded;
   ResourceChanged?: ResourceChanged;
@@ -118,6 +127,7 @@ export interface SimulacraApi {
   SaveCreate?: SaveCreate;
   SaveLoadRequest?: SaveLoadRequest;
   SaveOut?: SaveOut;
+  SaveWorldRequest?: SaveWorldRequest;
   ScheduledOut?: ScheduledOut;
   SimCommandResult?: SimCommandResult;
   SimControl?: SimControl;
@@ -135,6 +145,7 @@ export interface SimulacraApi {
   StatsOut?: StatsOut;
   StatusChanged?: StatusChanged;
   StatusOut?: StatusOut;
+  Stellgroessen?: Stellgroessen;
   StepRequest?: StepRequest;
   Stored?: Stored;
   TemplateImported?: TemplateImported;
@@ -149,6 +160,8 @@ export interface SimulacraApi {
   VoiceSet?: VoiceSet;
   Walking?: Walking;
   WeatherChanged?: WeatherChanged;
+  WorldDoc?: WorldDoc;
+  WorldInfoOut?: WorldInfoOut;
   WorldTime?: WorldTime;
   WsClock?: WsClock;
   WsEvent?: WsEvent;
@@ -203,6 +216,38 @@ export interface ActionStarted {
   action: string;
   ends_at?: number | null;
   params?: {
+    [k: string]: unknown;
+  };
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "AddAreaOut".
+ */
+export interface AddAreaOut {
+  error: string | null;
+  ok: boolean;
+  report: {
+    [k: string]: unknown;
+  };
+  village: string | null;
+  world: {
+    [k: string]: unknown;
+  } | null;
+}
+/**
+ * Gebiet erzeugen in der Werkstatt: ein weiteres Dorf an die Welt anfügen (der Generator als Werkzeug).
+ *
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "AddAreaRequest".
+ */
+export interface AddAreaRequest {
+  at?: [number, number] | null;
+  lake?: "auto" | "east" | "south";
+  mix?: {
+    [k: string]: number;
+  } | null;
+  seed?: number;
+  world: {
     [k: string]: unknown;
   };
 }
@@ -407,6 +452,15 @@ export interface AuthStatus {
 }
 /**
  * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "BlankRequest".
+ */
+export interface BlankRequest {
+  edge?: "wald" | "offen";
+  name?: string;
+  size?: "klein" | "mittel" | "gross";
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
  * via the `definition` "CatalogOut".
  */
 export interface CatalogOut {
@@ -516,6 +570,18 @@ export interface ConversationEnded {
 export interface ConversationStarted {
   by: string;
   conversation: number;
+}
+/**
+ * Speichern als: eine Weltdatei unter neuem Namen als eigene Welt ablegen (Herkunft Kopie).
+ *
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "CreateWorldRequest".
+ */
+export interface CreateWorldRequest {
+  name: string;
+  world: {
+    [k: string]: unknown;
+  };
 }
 /**
  * This interface was referenced by `SimulacraApi`'s JSON-Schema
@@ -796,6 +862,13 @@ export interface Fished {
 }
 /**
  * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "FromSimRequest".
+ */
+export interface FromSimRequest {
+  name: string;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
  * via the `definition` "GenerateApplied".
  */
 export interface GenerateApplied {
@@ -823,6 +896,24 @@ export interface GenerateApplyRequest {
     [k: string]: number;
   } | null;
   seed?: number;
+  style?: Stellgroessen | null;
+}
+/**
+ * Stellgrößen des Generators (AP18f); jede ist optional, ohne Angabe gilt die Vorgabe (das Dorf wie bisher).
+ *
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "Stellgroessen".
+ */
+export interface Stellgroessen {
+  baeume?: number;
+  felder?: number;
+  form?: "strasse" | "beidseitig" | "haufen" | "zufall";
+  gaerten?: number;
+  groesse?: "klein" | "mittel" | "gross";
+  seen?: number;
+  wald?: "licht" | "mittel" | "dicht";
+  wasser?: "keiner" | "bach" | "fluss";
+  wege?: "gerade" | "geschwungen";
 }
 /**
  * This interface was referenced by `SimulacraApi`'s JSON-Schema
@@ -1056,6 +1147,22 @@ export interface GenerateRequest {
     [k: string]: number;
   } | null;
   seed?: number;
+  style?: Stellgroessen | null;
+}
+/**
+ * Welt erzeugen (der Generator, nur beim Erschaffen): Seed, Seeufer, Gebäudemix.
+ *
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "GenerateWorldRequest".
+ */
+export interface GenerateWorldRequest {
+  lake?: "auto" | "east" | "south";
+  mix?: {
+    [k: string]: number;
+  } | null;
+  name?: string | null;
+  seed?: number;
+  style?: Stellgroessen | null;
 }
 /**
  * Ein Dorf wurde mit dem Weltgenerator erzeugt (Erweiterung oder neue Simulation); `seed` ist der Seed, der die Prüfung bestanden hat.
@@ -1709,6 +1816,7 @@ export interface RulesSpec {
   mode?: "observer" | "creator" | "intervention";
   preset?: string | null;
   scarcity?: number | null;
+  world_events?: ("aus" | "selten" | "manchmal" | "oft") | null;
 }
 /**
  * Ein Weltereignis zum Start (aus dem Textfeld „Weltregeln“): der geprüfte Vorschlag der Ereigniseingabe (AP08), nach der Vorschau bestätigt. Für die Bewohner ein natürlicher Vorgang.
@@ -1746,6 +1854,7 @@ export interface WorldSpec {
     [k: string]: number;
   } | null;
   seed?: number;
+  style?: Stellgroessen | null;
 }
 /**
  * This interface was referenced by `SimulacraApi`'s JSON-Schema
@@ -1808,6 +1917,7 @@ export interface RulesSpec1 {
   mode?: "observer" | "creator" | "intervention";
   preset?: string | null;
   scarcity?: number | null;
+  world_events?: ("aus" | "selten" | "manchmal" | "oft") | null;
 }
 /**
  * `start`: die handgemachte Startwelt (nur Alex und Mira), `generated`: ein Dorf für genau diese Bewohner, `library`: eine Welt aus der Weltenbibliothek.
@@ -1821,6 +1931,7 @@ export interface WorldSpec1 {
     [k: string]: number;
   } | null;
   seed?: number;
+  style?: Stellgroessen | null;
 }
 /**
  * This interface was referenced by `SimulacraApi`'s JSON-Schema
@@ -2058,6 +2169,14 @@ export interface PlayModeChanged {
 }
 /**
  * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "PlayModeRequest".
+ */
+export interface PlayModeRequest {
+  confirm?: boolean;
+  play_mode: "leben" | "gott";
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
  * via the `definition` "PresetBrief".
  */
 export interface PresetBrief {
@@ -2145,6 +2264,15 @@ export interface PresetSave {
 }
 /**
  * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "PreviewWorldRequest".
+ */
+export interface PreviewWorldRequest {
+  world: {
+    [k: string]: unknown;
+  };
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
  * via the `definition` "ProposalAnswered".
  */
 export interface ProposalAnswered {
@@ -2203,6 +2331,13 @@ export interface RelationLogItem {
   reason: string;
   sim_minute: number;
   source: string;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "RenameRequest".
+ */
+export interface RenameRequest {
+  name: string;
 }
 /**
  * This interface was referenced by `SimulacraApi`'s JSON-Schema
@@ -2330,6 +2465,15 @@ export interface SaveOut {
   sim_label: string;
   sim_minute: number;
   size: number;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "SaveWorldRequest".
+ */
+export interface SaveWorldRequest {
+  world: {
+    [k: string]: unknown;
+  };
 }
 /**
  * This interface was referenced by `SimulacraApi`'s JSON-Schema
@@ -2743,6 +2887,38 @@ export interface WeatherChanged {
 }
 /**
  * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "WorldDoc".
+ */
+export interface WorldDoc {
+  info: WorldInfoOut;
+  world: {
+    [k: string]: unknown;
+  };
+}
+/**
+ * Karteikarte einer Welt (`info.json`).
+ *
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "WorldInfoOut".
+ */
+export interface WorldInfoOut {
+  changed: string;
+  created: string;
+  houses: number;
+  id: string;
+  lakes: number;
+  locations: number;
+  name: string;
+  note: string;
+  objects: number;
+  origin: string;
+  readonly: boolean;
+  seed: number | null;
+  size: number[];
+  startplatz: boolean;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
  * via the `definition` "WorldTime".
  */
 export interface WorldTime {
@@ -2845,6 +3021,7 @@ export interface RulesSpec2 {
   mode?: "observer" | "creator" | "intervention";
   preset?: string | null;
   scarcity?: number | null;
+  world_events?: ("aus" | "selten" | "manchmal" | "oft") | null;
 }
 /**
  * `start`: die handgemachte Startwelt (nur Alex und Mira), `generated`: ein Dorf für genau diese Bewohner, `library`: eine Welt aus der Weltenbibliothek.
@@ -2861,6 +3038,7 @@ export interface WorldSpec2 {
     [k: string]: number;
   } | null;
   seed?: number;
+  style?: Stellgroessen | null;
 }
 
 /** Ereignistyp -> Typ der Daten (`data`). */

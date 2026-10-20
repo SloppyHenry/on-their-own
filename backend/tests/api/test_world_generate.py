@@ -40,7 +40,8 @@ def test_vorschau_aendert_nichts_und_ist_gleich_bei_gleichem_wunsch(start):
 def test_wunsch_wird_geprueft(start):
     assert post(start, "/api/world/generate", {"mix": {"house": 0}}, key=None).status_code == 422
     assert post(start, "/api/world/generate", {"mix": {"turm": 2}}, key=None).status_code == 422
-    assert post(start, "/api/world/generate", {"mix": {"house": 6, "shop": 6}}, key=None).status_code == 422
+    assert post(start, "/api/world/generate", {"mix": {"house": 13}}, key=None).status_code == 422                                  # mehr als 12 je Art
+    assert post(start, "/api/world/generate", {"mix": {"house": 12, "shop": 12, "barn": 1}}, key=None).status_code == 422             # mehr als 24 insgesamt
     assert post(start, "/api/world/generate", {"lake": "mitte"}, key=None).status_code == 422
     assert post(start, "/api/world/generate", {"seed": -3}, key=None).status_code == 422
     ok = post(start, "/api/world/generate", {"seed": 2, "lake": "south", "mix": {"house": 2, "shop": 1}}, key=None).json()

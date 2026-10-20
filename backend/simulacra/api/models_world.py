@@ -7,12 +7,26 @@ from pydantic import BaseModel, Field
 from .models import Out, StateSnapshot
 
 
+class Stellgroessen(BaseModel):
+    """Stellgrößen des Generators (AP18f); jede ist optional, ohne Angabe gilt die Vorgabe (das Dorf wie bisher)."""
+    form: Literal["strasse", "beidseitig", "haufen", "zufall"] = "strasse"
+    groesse: Literal["klein", "mittel", "gross"] = "klein"
+    seen: int = Field(1, ge=0, le=4)
+    wasser: Literal["keiner", "bach", "fluss"] = "bach"
+    wald: Literal["licht", "mittel", "dicht"] = "mittel"
+    baeume: int = Field(10, ge=0, le=40)
+    gaerten: int = Field(1, ge=0, le=5)
+    felder: int = Field(0, ge=0, le=4)
+    wege: Literal["gerade", "geschwungen"] = "geschwungen"
+
+
 class GenerateRequest(BaseModel):
     """Was erzeugt werden soll. `extend`: ein weiteres Dorf an die laufende Welt, `new`: eine neue Simulation mit einem Dorf."""
     kind: Literal["extend", "new"] = "extend"
     seed: int = Field(1, ge=0, le=2_000_000_000)
     lake: Literal["auto", "east", "south"] = "auto"
     mix: dict[str, int] | None = None                 # Gebäude je Art (house, shop, workshop, barn, stable); ohne Angabe 3 Häuser und 2 Sondergebäude
+    style: Stellgroessen | None = None                # Dorfform, Seen, Wasserlauf, Wald …; ohne Angabe die Vorgaben
 
 
 class GenerateApplyRequest(GenerateRequest):

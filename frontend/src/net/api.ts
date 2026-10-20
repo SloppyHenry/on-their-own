@@ -1,5 +1,5 @@
 // REST-Zugriff. Verändernde Aufrufe tragen einen Idempotency-Key, damit Wiederholungen nichts doppelt tun.
-import type { AgentDetail, AgentNeeds, AgentOverview, DecisionOut, FactorRegistry, FailureOut, GoalOut, RelationOut, EventDetail, EventsPage, Knowledge, LocationDetail, MemoriesPage, MemoryDetail, MemoryStats, RetrievalOut, SimCommandResult, StateSnapshot, ParamPatchOut, ParamSchema, ParamValues, PresetBrief, PresetLoadOut, PresetOut, PresetPreview, StatusOut, InjectProposal, ScheduledOut, SaveOut, StatsOut, AuthStatus, GenerateRequest, GeneratePreview, GenerateApplyRequest, GenerateApplied, PatchPreview, Voice, VoiceOut, NewSimApplied, NewSimLimits, NewSimPreview, NewSimRequest, RulesPreviewRequest, TemplateImported, TemplateOut, CatalogOut, HardwareOut, ExternalTestOut, LlmStatusOut, ModeSet } from "../types/generated";
+import type { AgentDetail, AgentNeeds, AgentOverview, DecisionOut, FactorRegistry, FailureOut, GoalOut, RelationOut, EventDetail, EventsPage, Knowledge, LocationDetail, MemoriesPage, MemoryDetail, MemoryStats, RetrievalOut, SimCommandResult, StateSnapshot, ParamPatchOut, ParamSchema, ParamValues, PresetBrief, PresetLoadOut, PresetOut, PresetPreview, StatusOut, InjectProposal, ScheduledOut, SaveOut, StatsOut, AuthStatus, GenerateRequest, GeneratePreview, GenerateApplyRequest, GenerateApplied, PatchPreview, Voice, VoiceOut, NewSimApplied, NewSimLimits, NewSimPreview, NewSimRequest, RulesPreviewRequest, TemplateImported, TemplateOut, CatalogOut, HardwareOut, ExternalTestOut, LlmStatusOut, ModeSet, WorldInfoOut, WorldDoc, AddAreaOut } from "../types/generated";
 
 export class ApiError extends Error {
   constructor(readonly status: number, readonly detail: string) {
@@ -29,6 +29,7 @@ async function request<T>(method: "GET" | "POST" | "PATCH" | "PUT" | "DELETE", p
     if (res.status === 401 && !path.startsWith("/api/auth/")) window.dispatchEvent(new Event(AUTH_REQUIRED));   // Anmeldung abgelaufen
     throw new ApiError(res.status, detail);
   }
+  if (res.status === 204) return undefined as T;
   return (await res.json()) as T;
 }
 
@@ -100,7 +101,9 @@ export const api = {
   resume: () => request<SimCommandResult>("POST", "/api/sim/resume"),
   step: (n = 1) => request<SimCommandResult>("POST", "/api/sim/step", { n }),
   setVoice: (agent: string, voice: Voice | null) => request<VoiceOut>("PUT", `/api/agents/${encodeURIComponent(agent)}/voice`, { voice }),
-  reset: (model?: string, keepProfiles = false) => request<SimCommandResult>("POST", "/api/sim/reset", { confirm: true, keep_profiles: keepProfiles, ...(model ? { model } : {}) }),
+  reset: (model?: string, keepProfiles = false, playMode?: "leben" | "gott") => request<SimCommandResult>("POST", "/api/sim/reset", { confirm: true, keep_profiles: keepProfiles, ...(model ? { model } : {}), ...(playMode ? { play_mode: playMode } : {}) }),
+  /** Spielart wechseln (Menü › Einstellungen › Spielart, mit Bestätigung). */
+  setPlayMode: (playMode: "leben" | "gott") => request<SimCommandResult>("PUT", "/api/sim/play-mode", { play_mode: playMode, confirm: true }),
   speed: (level: string) => request<SimCommandResult>("POST", "/api/sim/speed", { level }),
   paramSchema: () => request<ParamSchema>("GET", "/api/params/schema"),
   params: () => request<ParamValues>("GET", "/api/params"),
@@ -127,6 +130,26 @@ export const api = {
   },
   generate: (body: GenerateRequest) => request<GeneratePreview>("POST", "/api/world/generate", body),
   applyGenerated: (body: GenerateApplyRequest) => request<GenerateApplied>("POST", "/api/world/generate/apply", { ...body, confirm: true }),
+  // Weltenbibliothek und Werkstatt (AP18e)
+  worlds: () => request<WorldInfoOut[]>("GET", "/api/worlds"),
+  world: (id: string) => request<WorldDoc>("GET", `/api/worlds/${encodeURIComponent(id)}`),
+  blankWorld: (name: string, size: "klein" | "mittel" | "gross", edge: "wald" | "offen") => request<WorldInfoOut>("POST", "/api/worlds/blank", { name, size, edge }),
+  generateWorld: (body: { name?: string; seed: number; lake: "auto" | "east" | "south"; mix?: Record<string, number> | null }) => request<WorldInfoOut>("POST", "/api/worlds/generate", body),
+  saveWorld: (id: string, world: object) => request<WorldInfoOut>("PUT", `/api/worlds/${encodeURIComponent(id)}`, { world }),
+  renameWorld: (id: string, name: string) => request<WorldInfoOut>("PATCH", `/api/worlds/${encodeURIComponent(id)}`, { name }),
+  deleteWorld: (id: string) => request<void>("DELETE", `/api/worlds/${encodeURIComponent(id)}`),
+  duplicateWorld: (id: string) => request<WorldInfoOut>("POST", `/api/worlds/${encodeURIComponent(id)}/duplicate`, {}),
+  createWorld: (world: object, name: string) => request<WorldInfoOut>("POST", "/api/worlds", { world, name }),
+  worldFromSim: (name: string) => request<WorldInfoOut>("POST", "/api/worlds/from-sim", { name }),
+  previewWorld: (world: object) => request<NewSimPreview>("POST", "/api/worlds/preview", { world }),
+  addArea: (world: object, at: [number, number], seed: number, lake: "auto" | "east" | "south") => request<AddAreaOut>("POST", "/api/worlds/add-area", { world, at, seed, lake }),
+  worldExportUrl: (id: string) => `/api/worlds/${encodeURIComponent(id)}/export`,
+  /** Eine Weltdatei (Text) als neue Welt importieren; Fehler stehen in ApiError.detail. */
+  importWorld: async (text: string): Promise<WorldInfoOut> => {
+    const res = await fetch("/api/worlds/import", { method: "POST", headers: { "Idempotency-Key": key(), "Content-Type": "application/json" }, body: text });
+    if (!res.ok) { let d = res.statusText; try { const j = await res.json(); d = typeof j.detail === "string" ? j.detail : JSON.stringify(j.detail ?? j); } catch { /* keine JSON-Antwort */ } throw new ApiError(res.status, d); }
+    return (await res.json()) as WorldInfoOut;
+  },
   newSimLimits: () => request<NewSimLimits>("GET", "/api/sim/new/limits"),
   newSimPreview: (body: NewSimRequest) => request<NewSimPreview>("POST", "/api/sim/new/preview", body),
   newSimApply: (body: NewSimRequest, digest: string) => request<NewSimApplied>("POST", "/api/sim/new", { ...body, digest, confirm: true }),

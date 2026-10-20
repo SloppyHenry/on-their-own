@@ -13,7 +13,7 @@ router = APIRouter(prefix="/api/world")
 
 def _wish(body: GenerateRequest) -> Wish:
     try:
-        return Wish.of(body.kind, body.seed, body.lake, body.mix)
+        return Wish.of(body.kind, body.seed, body.lake, body.mix, body.style.model_dump() if body.style else None)
     except ServiceError as e:
         raise HTTPException(e.status, e.text) from None
 

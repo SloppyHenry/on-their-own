@@ -234,6 +234,122 @@
    "title": "ActionsOut",
    "type": "object"
   },
+  "AddAreaOut": {
+   "additionalProperties": false,
+   "properties": {
+    "error": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "ok": {
+     "type": "boolean"
+    },
+    "report": {
+     "additionalProperties": true,
+     "default": {},
+     "type": "object"
+    },
+    "village": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "world": {
+     "anyOf": [
+      {
+       "additionalProperties": true,
+       "type": "object"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    }
+   },
+   "required": [
+    "ok",
+    "error",
+    "village",
+    "world",
+    "report"
+   ],
+   "title": "AddAreaOut",
+   "type": "object"
+  },
+  "AddAreaRequest": {
+   "additionalProperties": false,
+   "description": "Gebiet erzeugen in der Werkstatt: ein weiteres Dorf an die Welt anfügen (der Generator als Werkzeug).",
+   "properties": {
+    "at": {
+     "anyOf": [
+      {
+       "items": {
+        "type": "integer"
+       },
+       "maxItems": 2,
+       "minItems": 2,
+       "type": "array"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "lake": {
+     "default": "auto",
+     "enum": [
+      "auto",
+      "east",
+      "south"
+     ],
+     "type": "string"
+    },
+    "mix": {
+     "anyOf": [
+      {
+       "additionalProperties": {
+        "type": "integer"
+       },
+       "type": "object"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "seed": {
+     "default": 1,
+     "maximum": 2000000000,
+     "minimum": 0,
+     "type": "integer"
+    },
+    "world": {
+     "additionalProperties": true,
+     "type": "object"
+    }
+   },
+   "required": [
+    "world"
+   ],
+   "title": "AddAreaRequest",
+   "type": "object"
+  },
   "AgentAdded": {
    "additionalProperties": false,
    "properties": {
@@ -745,6 +861,36 @@
    "title": "AuthStatus",
    "type": "object"
   },
+  "BlankRequest": {
+   "additionalProperties": false,
+   "properties": {
+    "edge": {
+     "default": "wald",
+     "enum": [
+      "wald",
+      "offen"
+     ],
+     "type": "string"
+    },
+    "name": {
+     "default": "Neue Welt",
+     "maxLength": 60,
+     "minLength": 1,
+     "type": "string"
+    },
+    "size": {
+     "default": "mittel",
+     "enum": [
+      "klein",
+      "mittel",
+      "gross"
+     ],
+     "type": "string"
+    }
+   },
+   "title": "BlankRequest",
+   "type": "object"
+  },
   "CatalogItemOut": {
    "additionalProperties": false,
    "properties": {
@@ -1158,6 +1304,27 @@
     "keywords"
    ],
    "title": "ConversationsOut",
+   "type": "object"
+  },
+  "CreateWorldRequest": {
+   "additionalProperties": false,
+   "description": "Speichern als: eine Weltdatei unter neuem Namen als eigene Welt ablegen (Herkunft Kopie).",
+   "properties": {
+    "name": {
+     "maxLength": 60,
+     "minLength": 1,
+     "type": "string"
+    },
+    "world": {
+     "additionalProperties": true,
+     "type": "object"
+    }
+   },
+   "required": [
+    "world",
+    "name"
+   ],
+   "title": "CreateWorldRequest",
    "type": "object"
   },
   "DayCount": {
@@ -2200,6 +2367,21 @@
    "title": "FitOut",
    "type": "object"
   },
+  "FromSimRequest": {
+   "additionalProperties": false,
+   "properties": {
+    "name": {
+     "maxLength": 60,
+     "minLength": 1,
+     "type": "string"
+    }
+   },
+   "required": [
+    "name"
+   ],
+   "title": "FromSimRequest",
+   "type": "object"
+  },
   "GenerateApplied": {
    "additionalProperties": false,
    "properties": {
@@ -2319,6 +2501,17 @@
      "maximum": 2000000000,
      "minimum": 0,
      "type": "integer"
+    },
+    "style": {
+     "anyOf": [
+      {
+       "$ref": "#/$defs/Stellgroessen"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
     }
    },
    "required": [
@@ -2483,9 +2676,80 @@
      "maximum": 2000000000,
      "minimum": 0,
      "type": "integer"
+    },
+    "style": {
+     "anyOf": [
+      {
+       "$ref": "#/$defs/Stellgroessen"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
     }
    },
    "title": "GenerateRequest",
+   "type": "object"
+  },
+  "GenerateWorldRequest": {
+   "additionalProperties": false,
+   "description": "Welt erzeugen (der Generator, nur beim Erschaffen): Seed, Seeufer, Gebäudemix.",
+   "properties": {
+    "lake": {
+     "default": "auto",
+     "enum": [
+      "auto",
+      "east",
+      "south"
+     ],
+     "type": "string"
+    },
+    "mix": {
+     "anyOf": [
+      {
+       "additionalProperties": {
+        "type": "integer"
+       },
+       "type": "object"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "name": {
+     "anyOf": [
+      {
+       "maxLength": 60,
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "seed": {
+     "default": 1,
+     "maximum": 2000000000,
+     "minimum": 0,
+     "type": "integer"
+    },
+    "style": {
+     "anyOf": [
+      {
+       "$ref": "#/$defs/Stellgroessen"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    }
+   },
+   "title": "GenerateWorldRequest",
    "type": "object"
   },
   "Generated": {
@@ -4741,7 +5005,8 @@
       "events": [],
       "mode": "observer",
       "preset": null,
-      "scarcity": null
+      "scarcity": null,
+      "world_events": null
      }
     },
     "run": {
@@ -4767,7 +5032,8 @@
       "lake": "auto",
       "library_id": null,
       "mix": null,
-      "seed": 1
+      "seed": 1,
+      "style": null
      }
     }
    },
@@ -4957,7 +5223,8 @@
       "events": [],
       "mode": "observer",
       "preset": null,
-      "scarcity": null
+      "scarcity": null,
+      "world_events": null
      }
     },
     "run": {
@@ -4983,7 +5250,8 @@
       "lake": "auto",
       "library_id": null,
       "mix": null,
-      "seed": 1
+      "seed": 1,
+      "style": null
      }
     }
    },
@@ -6009,6 +6277,27 @@
    "title": "PlayModeChanged",
    "type": "object"
   },
+  "PlayModeRequest": {
+   "additionalProperties": false,
+   "properties": {
+    "confirm": {
+     "default": false,
+     "type": "boolean"
+    },
+    "play_mode": {
+     "enum": [
+      "leben",
+      "gott"
+     ],
+     "type": "string"
+    }
+   },
+   "required": [
+    "play_mode"
+   ],
+   "title": "PlayModeRequest",
+   "type": "object"
+  },
   "PresetBrief": {
    "additionalProperties": false,
    "properties": {
@@ -6233,6 +6522,20 @@
     "name"
    ],
    "title": "PresetSave",
+   "type": "object"
+  },
+  "PreviewWorldRequest": {
+   "additionalProperties": false,
+   "properties": {
+    "world": {
+     "additionalProperties": true,
+     "type": "object"
+    }
+   },
+   "required": [
+    "world"
+   ],
+   "title": "PreviewWorldRequest",
    "type": "object"
   },
   "ProbeJobOut": {
@@ -6639,6 +6942,21 @@
     "log"
    ],
    "title": "RelationOut",
+   "type": "object"
+  },
+  "RenameRequest": {
+   "additionalProperties": false,
+   "properties": {
+    "name": {
+     "maxLength": 60,
+     "minLength": 1,
+     "type": "string"
+    }
+   },
+   "required": [
+    "name"
+   ],
+   "title": "RenameRequest",
    "type": "object"
   },
   "ReportOut": {
@@ -7251,6 +7569,23 @@
       }
      ],
      "default": null
+    },
+    "world_events": {
+     "anyOf": [
+      {
+       "enum": [
+        "aus",
+        "selten",
+        "manchmal",
+        "oft"
+       ],
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
     }
    },
    "title": "RulesSpec",
@@ -7444,6 +7779,20 @@
     "available"
    ],
    "title": "SaveOut",
+   "type": "object"
+  },
+  "SaveWorldRequest": {
+   "additionalProperties": false,
+   "properties": {
+    "world": {
+     "additionalProperties": true,
+     "type": "object"
+    }
+   },
+   "required": [
+    "world"
+   ],
+   "title": "SaveWorldRequest",
    "type": "object"
   },
   "ScheduledOut": {
@@ -8094,6 +8443,83 @@
     "load"
    ],
    "title": "StatusOut",
+   "type": "object"
+  },
+  "Stellgroessen": {
+   "additionalProperties": false,
+   "description": "Stellgrößen des Generators (AP18f); jede ist optional, ohne Angabe gilt die Vorgabe (das Dorf wie bisher).",
+   "properties": {
+    "baeume": {
+     "default": 10,
+     "maximum": 40,
+     "minimum": 0,
+     "type": "integer"
+    },
+    "felder": {
+     "default": 0,
+     "maximum": 4,
+     "minimum": 0,
+     "type": "integer"
+    },
+    "form": {
+     "default": "strasse",
+     "enum": [
+      "strasse",
+      "beidseitig",
+      "haufen",
+      "zufall"
+     ],
+     "type": "string"
+    },
+    "gaerten": {
+     "default": 1,
+     "maximum": 5,
+     "minimum": 0,
+     "type": "integer"
+    },
+    "groesse": {
+     "default": "klein",
+     "enum": [
+      "klein",
+      "mittel",
+      "gross"
+     ],
+     "type": "string"
+    },
+    "seen": {
+     "default": 1,
+     "maximum": 4,
+     "minimum": 0,
+     "type": "integer"
+    },
+    "wald": {
+     "default": "mittel",
+     "enum": [
+      "licht",
+      "mittel",
+      "dicht"
+     ],
+     "type": "string"
+    },
+    "wasser": {
+     "default": "bach",
+     "enum": [
+      "keiner",
+      "bach",
+      "fluss"
+     ],
+     "type": "string"
+    },
+    "wege": {
+     "default": "geschwungen",
+     "enum": [
+      "gerade",
+      "geschwungen"
+     ],
+     "type": "string"
+    }
+   },
+   "title": "Stellgroessen",
    "type": "object"
   },
   "StepRequest": {
@@ -8844,6 +9270,108 @@
    "title": "WeatherInfo",
    "type": "object"
   },
+  "WorldDoc": {
+   "additionalProperties": false,
+   "properties": {
+    "info": {
+     "$ref": "#/$defs/WorldInfoOut"
+    },
+    "world": {
+     "additionalProperties": true,
+     "type": "object"
+    }
+   },
+   "required": [
+    "info",
+    "world"
+   ],
+   "title": "WorldDoc",
+   "type": "object"
+  },
+  "WorldInfoOut": {
+   "additionalProperties": false,
+   "description": "Karteikarte einer Welt (`info.json`).",
+   "properties": {
+    "changed": {
+     "type": "string"
+    },
+    "created": {
+     "type": "string"
+    },
+    "houses": {
+     "default": 0,
+     "type": "integer"
+    },
+    "id": {
+     "type": "string"
+    },
+    "lakes": {
+     "default": 0,
+     "type": "integer"
+    },
+    "locations": {
+     "default": 0,
+     "type": "integer"
+    },
+    "name": {
+     "type": "string"
+    },
+    "note": {
+     "default": "",
+     "type": "string"
+    },
+    "objects": {
+     "default": 0,
+     "type": "integer"
+    },
+    "origin": {
+     "type": "string"
+    },
+    "readonly": {
+     "default": false,
+     "type": "boolean"
+    },
+    "seed": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "size": {
+     "items": {
+      "type": "integer"
+     },
+     "type": "array"
+    },
+    "startplatz": {
+     "default": false,
+     "type": "boolean"
+    }
+   },
+   "required": [
+    "id",
+    "name",
+    "origin",
+    "readonly",
+    "size",
+    "seed",
+    "note",
+    "created",
+    "changed",
+    "startplatz",
+    "houses",
+    "locations",
+    "objects",
+    "lakes"
+   ],
+   "title": "WorldInfoOut",
+   "type": "object"
+  },
   "WorldSpec": {
    "additionalProperties": false,
    "description": "`start`: die handgemachte Startwelt (nur Alex und Mira), `generated`: ein Dorf für genau diese Bewohner, `library`: eine Welt aus der Weltenbibliothek.",
@@ -8910,6 +9438,17 @@
      "maximum": 2000000000,
      "minimum": 0,
      "type": "integer"
+    },
+    "style": {
+     "anyOf": [
+      {
+       "$ref": "#/$defs/Stellgroessen"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
     }
    },
    "title": "WorldSpec",
@@ -9157,6 +9696,12 @@
   "ActionStarted": {
    "$ref": "#/$defs/ActionStarted"
   },
+  "AddAreaOut": {
+   "$ref": "#/$defs/AddAreaOut"
+  },
+  "AddAreaRequest": {
+   "$ref": "#/$defs/AddAreaRequest"
+  },
   "AgentAdded": {
    "$ref": "#/$defs/AgentAdded"
   },
@@ -9178,6 +9723,9 @@
   "AuthStatus": {
    "$ref": "#/$defs/AuthStatus"
   },
+  "BlankRequest": {
+   "$ref": "#/$defs/BlankRequest"
+  },
   "CatalogOut": {
    "$ref": "#/$defs/CatalogOut"
   },
@@ -9186,6 +9734,9 @@
   },
   "ConversationStarted": {
    "$ref": "#/$defs/ConversationStarted"
+  },
+  "CreateWorldRequest": {
+   "$ref": "#/$defs/CreateWorldRequest"
   },
   "DayStarted": {
    "$ref": "#/$defs/DayStarted"
@@ -9244,6 +9795,9 @@
   "Fished": {
    "$ref": "#/$defs/Fished"
   },
+  "FromSimRequest": {
+   "$ref": "#/$defs/FromSimRequest"
+  },
   "GenerateApplied": {
    "$ref": "#/$defs/GenerateApplied"
   },
@@ -9255,6 +9809,9 @@
   },
   "GenerateRequest": {
    "$ref": "#/$defs/GenerateRequest"
+  },
+  "GenerateWorldRequest": {
+   "$ref": "#/$defs/GenerateWorldRequest"
   },
   "Generated": {
    "$ref": "#/$defs/Generated"
@@ -9427,6 +9984,9 @@
   "PlayModeChanged": {
    "$ref": "#/$defs/PlayModeChanged"
   },
+  "PlayModeRequest": {
+   "$ref": "#/$defs/PlayModeRequest"
+  },
   "PresetBrief": {
    "$ref": "#/$defs/PresetBrief"
   },
@@ -9451,6 +10011,9 @@
   "PresetSave": {
    "$ref": "#/$defs/PresetSave"
   },
+  "PreviewWorldRequest": {
+   "$ref": "#/$defs/PreviewWorldRequest"
+  },
   "ProposalAnswered": {
    "$ref": "#/$defs/ProposalAnswered"
   },
@@ -9462,6 +10025,9 @@
   },
   "RelationOut": {
    "$ref": "#/$defs/RelationOut"
+  },
+  "RenameRequest": {
+   "$ref": "#/$defs/RenameRequest"
   },
   "ResetRequest": {
    "$ref": "#/$defs/ResetRequest"
@@ -9495,6 +10061,9 @@
   },
   "SaveOut": {
    "$ref": "#/$defs/SaveOut"
+  },
+  "SaveWorldRequest": {
+   "$ref": "#/$defs/SaveWorldRequest"
   },
   "ScheduledOut": {
    "$ref": "#/$defs/ScheduledOut"
@@ -9547,6 +10116,9 @@
   "StatusOut": {
    "$ref": "#/$defs/StatusOut"
   },
+  "Stellgroessen": {
+   "$ref": "#/$defs/Stellgroessen"
+  },
   "StepRequest": {
    "$ref": "#/$defs/StepRequest"
   },
@@ -9588,6 +10160,12 @@
   },
   "WeatherChanged": {
    "$ref": "#/$defs/WeatherChanged"
+  },
+  "WorldDoc": {
+   "$ref": "#/$defs/WorldDoc"
+  },
+  "WorldInfoOut": {
+   "$ref": "#/$defs/WorldInfoOut"
   },
   "WorldTime": {
    "$ref": "#/$defs/WorldTime"

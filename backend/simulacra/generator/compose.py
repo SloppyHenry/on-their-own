@@ -109,9 +109,10 @@ def place(v: Village, tx0: int, ty0: int) -> dict:
     frame = [tx0 * T - out.x0, ty0 * T - out.y0]
     S = lay
     region = {
-        "id": nm.region(), "frame": frame, "bounds": {"left": -lay.ext_l, "right": 256, "top": 0, "bottom": 232},
-        "shapes": {"paths": [[list(p) for p in pl] for pl in S.paths], "squares": [S.sq], "lakes": [S.lake], "gardens": [{**S.garden, "beds": S.beds}], "docks": [S.dock],
-                   "streams": [[list(p) for p in S.stream]], "bridges": [S.bridge] if S.bridge else [], "pads": S.pads},
+        "id": nm.region(), "frame": frame, "bounds": {"left": -lay.ext_l, "right": 256, "top": 0, "bottom": 232 + lay.extra_h},
+        "shapes": {"paths": [[list(p) for p in pl] for pl in S.paths], "squares": [S.sq], "lakes": ([S.lake] if S.lake else []) + S.ponds,
+                   "gardens": ([{**S.garden, "beds": S.beds}] if S.garden else []) + [{k: v for k, v in g.items() if k != "fenced"} for g in S.gardens2], "docks": [S.dock] if S.dock else [],
+                   "streams": [[list(p) for p in pl] for pl in [S.stream, *S.strands] if len(pl) > 1], "bridges": ([S.bridge] if S.bridge else []) + S.bridges2, "pads": S.pads},
         "decor": [d for d in v.kit.decor if not _is_building(d[0])], "lights": v.kit.lights, "place": v.kit.place, "houses": houses_look,
     }
     return {"rows": v.rows, "size": [v.w, v.h], "locations": locations, "objects": objects, "resource_nodes": nodes, "links": links, "region": region,

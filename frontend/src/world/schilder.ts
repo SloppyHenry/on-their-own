@@ -43,6 +43,7 @@ export function setzeSchilder(el: HTMLElement, f: Frame, w: World, bubbles: Reco
     if (tag) {
       tag.dataset.pulse = active;
       tag.dataset.inside = inside ? "1" : "";
+      tag.dataset.foot = a.visible ? `${foot.x.toFixed(1)},${foot.y.toFixed(1)}` : "";                  // Fußpunkt vor dem Ausweichen (Prüfzugang)
       tag.style.display = on ? "" : "none";
       if (on) { const s = size(tag, tag.textContent ?? ""); teile.push({ id: `tag:${a.id}`, x: foot.x, y: foot.y, w: s.w, h: s.h, rang: idx * 0.001, runter: true }); an.push({ id: `tag:${a.id}`, node: tag }); }
     }

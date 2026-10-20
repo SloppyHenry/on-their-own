@@ -58,12 +58,3 @@ test("Andere Seeds, Übersicht und flache Ansicht", async ({ page }) => {
   await page.waitForTimeout(1500);
   await shot(page, "vorschau-12-uebersicht");
 });
-
-test("Neue Simulation", async ({ page }) => {
-  await openEditor(page);
-  await page.getByTestId("tab-new").click();
-  await preview(page, 31);
-  await shot(page, "neue-simulation-31");
-  await page.getByTestId("apply").click();
-  await shot(page, "neue-simulation-bestaetigung");
-});

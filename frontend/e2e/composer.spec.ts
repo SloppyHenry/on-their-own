@@ -1,9 +1,10 @@
 import { expect, test, type APIRequestContext, type Page } from "@playwright/test";
-import { freshWorld, openApp, showTab } from "./helpers";
+import { freshWorld, openApp, openComposer, showTab } from "./helpers";
 
 test.beforeEach(async ({ request }) => { await freshWorld(request); });
 
 const send = async (page: Page, text: string) => {
+  await openComposer(page);                                                    // die Eingabe ist das Gott-Werkzeug „Ereignis“ (Popover unten in der Mitte)
   const input = page.getByTestId("composer-input");
   await input.fill(text);
   await input.press("Enter");
@@ -75,6 +76,7 @@ test("Unklare Eingabe: das Modell fragt nach, nichts ändert sich; Antwort führ
 
 test("Zeitpunkt und Verlauf: geplantes Ereignis steht im Verlauf, Eingabe zu lang oder ungültig wird abgelehnt", async ({ page, request }) => {
   await openApp(page);
+  await openComposer(page);
   await page.getByRole("button", { name: "In 30 Min." }).click();
   await expect(page.getByTestId("when-label")).toBeVisible();
   await send(page, "Heute beginnt es zu regnen.");
@@ -94,6 +96,7 @@ test("Zeitpunkt und Verlauf: geplantes Ereignis steht im Verlauf, Eingabe zu lan
 
 test("Vorschläge erscheinen beim Fokussieren und lassen sich übernehmen", async ({ page }) => {
   await openApp(page);
+  await openComposer(page);
   await page.getByTestId("composer-input").focus();
   await expect(page.getByTestId("suggestions")).toBeVisible();
   await page.getByRole("option", { name: /Markt statt/ }).click();

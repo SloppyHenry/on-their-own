@@ -1,5 +1,6 @@
 // Schmale Brücke zwischen React/Zustand und Phaser: Die Szene liest nur hierüber, React sieht nur Bildschirmpositionen. So rendern sich beide nie gegenseitig neu.
 import { useEditorStore } from "../editor/editorStore";
+import { useWerkstatt } from "../welten/werkstattStore";
 import { useSimStore } from "../store/simStore";
 import type { Bubble, World } from "../store/types";
 import { useUiStore, type Selection } from "../store/uiStore";
@@ -57,6 +58,10 @@ export interface WorldBridge {
   select(s: Selection): void;
   mode(): ViewMode;
   playerPreview(): boolean;
+  /** Klick auf eine Kachel für ein Werkzeug der Welt-Werkstatt (AP18e); liefert, ob der Klick verbraucht wurde. */
+  /** Markierte Kachel der Werkstatt (Startplatz oder gewählte Ecke) für das Zeichen über der Welt; sonst null. */
+  markierung?(): [number, number] | null;
+  tileClick?(t: { x: number; y: number } | null): boolean;
   /** Gebiet (`look.regions[].id`), das als Vorschau unter einem Schleier gezeigt wird (Welteditor), sonst null. */
   ghostRegion(): string | null;
   setFollow(id: string | null): void;
@@ -69,13 +74,13 @@ export interface WorldBridge {
 
 export function createBridge(): WorldBridge {
   const listeners = new Set<(f: Frame) => void>();
-  const sim = useSimStore, ui = useUiStore, ed = useEditorStore;
+  const sim = useSimStore, ui = useUiStore, ed = useEditorStore, wk = useWerkstatt;
   return {
-    world: () => ed.getState().preview?.world ?? sim.getState().world,         // im Welteditor zeigt die Ansicht die Vorschau statt der laufenden Welt
+    world: () => wk.getState().vorschau ?? ed.getState().preview?.world ?? sim.getState().world,         // im Welteditor und in der Werkstatt zeigt die Ansicht die Vorschau statt der laufenden Welt
     bubbles: () => sim.getState().bubbles,
     subscribe: (fn) => {
-      const a = sim.subscribe(fn), b = ui.subscribe(fn), c = ed.subscribe(fn);
-      return () => { a(); b(); c(); };
+      const a = sim.subscribe(fn), b = ui.subscribe(fn), c = ed.subscribe(fn), d = wk.subscribe(fn);
+      return () => { a(); b(); c(); d(); };
     },
     selection: () => ui.getState().selection,
     lastAgent: () => ui.getState().lastAgent,
@@ -83,6 +88,8 @@ export function createBridge(): WorldBridge {
     select: (s) => ui.getState().select(s),
     mode: () => ui.getState().worldMode,
     playerPreview: () => ui.getState().playerPreview,
+    markierung: () => { const s = wk.getState(); return s.offen ? (s.werkzeug === "startplatz" ? s.welt?.startplatz ?? null : s.gewaehlt) : null; },
+    tileClick: (t) => !!t && wk.getState().klick(t),
     ghostRegion: () => { const p = ed.getState().preview; return p && !p.applied ? p.region : null; },
     setFollow: (id) => ui.getState().setFollow(id),
     emitFrame: (f) => listeners.forEach((fn) => fn(f)),

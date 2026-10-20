@@ -10,6 +10,8 @@ import { SaveLoadDialog } from "../saves/SaveLoadDialog";
 import { WorldCanvas } from "../world/WorldCanvas";
 import { WorldEditor } from "../editor/WorldEditor";
 import { Hud } from "../hud/Hud";
+import { Werkstatt } from "../welten/Werkstatt";
+import { useWerkstatt } from "../welten/werkstattStore";
 import { StartMenu } from "./StartMenu";
 
 export function AppShell() {
@@ -17,6 +19,7 @@ export function AppShell() {
   const savesOpen = useUiStore((s) => s.savesOpen);
   const appMode = useUiStore((s) => s.appMode);
   const menu = useUiStore((s) => s.menu);
+  const werk = useWerkstatt((s) => s.offen);
   const title = menu === "title";                                                          // Titelbild: nur die Welt (langsam wandernd) und das Menü
   const tools = appMode !== "game" && ready;                                               // Welteditor: Werkzeugleiste neben der Welt
   useEffect(() => startLive(), []);
@@ -33,7 +36,7 @@ export function AppShell() {
           <Hud />
           <StartMenu />
         </div>
-        {tools && <WorldEditor />}
+        {tools && (werk ? <Werkstatt /> : <WorldEditor />)}
       </main>
       {savesOpen && <SaveLoadDialog />}
     </div>

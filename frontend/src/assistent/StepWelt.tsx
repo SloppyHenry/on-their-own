@@ -1,12 +1,15 @@
 // Schritt 1 des Assistenten: die Welt (AP17b). Startwelt (nur Alex und Mira), ein erzeugtes Dorf nach Maß (Seed, Seeufer, Gebäude) oder später selbst gestaltet.
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { api } from "../net/api";
+import type { WorldInfoOut } from "../types/generated";
 import { houseCount, otherBuildings } from "./entwurf";
 import { requestKey, useAssistent } from "./assistentStore";
+import { StellgroessenFeld } from "../welten/StellgroessenFeld";
 import { Vorschaufenster } from "./Vorschaufenster";
 
 const MIX: [string, string][] = [["shop", "Läden"], ["workshop", "Werkstätten"], ["barn", "Scheunen"], ["stable", "Ställe"]];
 
-function Stepper({ label, value, onChange, min = 0, max = 6, testid, extra }: { label: string; value: number; onChange: (n: number) => void; min?: number; max?: number; testid: string; extra?: React.ReactNode }) {
+function Stepper({ label, value, onChange, min = 0, max = 12, testid, extra }: { label: string; value: number; onChange: (n: number) => void; min?: number; max?: number; testid: string; extra?: React.ReactNode }) {
   return (
     <div className="mb-1.5 flex items-center gap-2.5 text-[13px]" data-testid={testid}>
       <span className="w-24 text-dim">{label}</span>
@@ -21,7 +24,10 @@ function Stepper({ label, value, onChange, min = 0, max = 6, testid, extra }: { 
 export function StepWelt() {
   const { draft, preview, busy, error, templates } = useAssistent();
   const set = useAssistent((s) => s.setWorld), run = useAssistent((s) => s.runPreview);
-  const w = draft.world, n = draft.residents.length, h = houseCount(draft), beds = h * 2, gen = w.kind === "generated";
+  const w = draft.world, n = draft.residents.length, h = houseCount(draft), beds = h * 2, gen = w.kind === "generated", lib = w.kind === "library";
+  const [welten, setWelten] = useState<WorldInfoOut[]>([]);
+  useEffect(() => { api.worlds().then((l) => setWelten(l.filter((x) => x.id !== "dorf-am-see"))).catch(() => undefined); }, []);
+  const gewaehlt = welten.find((x) => x.id === w.libraryId);
   const key = requestKey(draft), fresh = preview?.key === key;
   // Die Vorschau folgt dem Entwurf (kurz verzögert), damit das Bild immer zum Wunsch passt.
   useEffect(() => {
@@ -36,15 +42,27 @@ export function StepWelt() {
     <div data-testid="step-welt">
       <h2 className="mb-1 text-[19px] font-bold">Welt</h2>
       <p className="mb-3 text-[13px] text-dim">Wo die Simulation spielt. Für die Bewohner ist das Dorf „schon immer da“.</p>
-      <div className="mb-3 grid grid-cols-3 gap-3 max-[860px]:grid-cols-1">
+      <div className="mb-3 grid grid-cols-2 gap-3 max-[860px]:grid-cols-1">
         <button type="button" aria-pressed={!gen} data-testid="welt-start" onClick={() => set({ kind: "start" })} className={`cursor-pointer rounded-xl border p-3 text-left ${!gen ? "border-alex bg-alex/10" : "border-line bg-black/15"}`}>
           <b>Startwelt</b><small className="mt-0.5 block text-xs text-dim">Das bekannte Dorf am See mit Heimhaus: Zimmer Alex, Zimmer Mira, Werkstatt, Küche, Wohnzimmer. Nur mit Alex und Mira (1–2 Bewohner).</small>
         </button>
         <button type="button" aria-pressed={gen} data-testid="welt-erzeugt" onClick={() => set({ kind: "generated" })} className={`cursor-pointer rounded-xl border p-3 text-left ${gen ? "border-alex bg-alex/10" : "border-line bg-black/15"}`}>
           <b>Neues Dorf erzeugen</b><small className="mt-0.5 block text-xs text-dim">Seed, Seeufer, Gebäudemix; Häuser wachsen mit den Bewohnern. Für 1 bis 8 Bewohner und alle Vorlagen.</small>
         </button>
-        <div className="rounded-xl border border-dashed border-line bg-black/10 p-3 opacity-60" data-testid="welt-gestalten"><b>Selbst gestalten</b><span className="ml-2 rounded-full border border-plan px-2 text-[11px] text-plan">später</span><small className="mt-0.5 block text-xs text-dim">Eigenes Dorf bauen (Paket Gestalten, AP16).</small></div>
       </div>
+      <section className="mb-3 rounded-xl border border-line bg-black/15 p-3" data-testid="welt-bibliothek">
+        <h3 className="sub mt-0">Aus der Bibliothek</h3>
+        <p className="mb-2 text-xs text-dim">Mitgelieferte und eigene Welten. Die Welt wird kopiert, die Bibliothek bleibt unverändert. Eigene Welten legst du unter Editoren › Welten an.</p>
+        <div className="flex flex-wrap gap-2">
+          {welten.map((x) => (
+            <button key={x.id} type="button" aria-pressed={w.libraryId === x.id && lib} data-testid={`welt-lib-${x.id}`} onClick={() => set({ kind: "library", libraryId: x.id })}
+              className={`cursor-pointer rounded-xl border px-3 py-2 text-left text-[13px] ${w.libraryId === x.id && lib ? "border-alex bg-alex/10" : "border-line bg-black/15"}`}>
+              <b>{x.name}</b><small className="block text-xs text-dim">{x.size[0]}×{x.size[1]} · {x.houses} Häuser{x.startplatz ? "" : " · ohne Startplatz"}{x.origin === "mitgeliefert" ? " · mitgeliefert" : ""}</small>
+            </button>
+          ))}
+          {welten.length === 0 && <span className="text-xs text-dim">Keine weiteren Welten.</span>}
+        </div>
+      </section>
       <div className="grid grid-cols-2 gap-4 max-[860px]:grid-cols-1">
         <div>
           {gen ? (
@@ -62,19 +80,23 @@ export function StepWelt() {
                 {MIX.map(([k, l]) => <Stepper key={k} label={l} value={mix[k as keyof typeof mix] ?? 0} testid={`welt-${k}`} onChange={(v) => setMix(k, v)} />)}
                 <small className="text-xs text-dim">Höchstens 2 Personen je Haus, jedes Haus mit 2 Betten ohne Besitzer. Das größere Haus mit mehr Zimmern kommt als eigener Baustein später.</small>
               </section>
+              <div className="mb-3"><StellgroessenFeld stil={w.stil} onChange={(stil) => set({ stil })} /></div>
               <section className="rounded-xl border border-line bg-black/15 p-3" data-testid="welt-haeuser-liste">
                 <h3 className="sub mt-0">Häuser und Betten</h3>
                 <div className="flex flex-wrap gap-1.5">{(preview?.houses.length && fresh ? preview.houses : Array.from({ length: h }, (_, i) => ({ n: i + 1, name: "", beds: 2 }))).map((x) => <span key={x.n} className="rounded-full border border-line bg-black/15 px-2.5 py-0.5 text-xs">⌂ Haus {x.n}{x.name ? ` (${x.name})` : ""} · {x.beds} Betten</span>)}</div>
                 <p className={`mt-2 text-[13px] ${beds < n ? "text-warn" : "text-dim"}`}>{beds} Betten für {n} Bewohner{beds < n ? ": zu wenig, bitte ein Haus mehr." : ". Wer wo wohnt, entscheiden die Bewohner selbst."}</p>
               </section>
             </>
+          ) : lib ? (
+            <section className="rounded-xl border border-line bg-black/15 p-3" data-testid="welt-lib-info"><h3 className="sub mt-0">{gewaehlt?.name ?? "Welt aus der Bibliothek"}</h3>
+              <p className="text-[13px] text-dim">{gewaehlt ? `${gewaehlt.size[0]}×${gewaehlt.size[1]} Kacheln, ${gewaehlt.houses} Häuser. ` : ""}Die Bewohner beginnen am Startplatz{gewaehlt && !gewaehlt.startplatz ? " (diese Welt hat noch keinen: dann in der Mitte der Karte)" : ""} und suchen sich selbst eine Bleibe.</p></section>
           ) : (
             <section className="rounded-xl border border-line bg-black/15 p-3"><h3 className="sub mt-0">Startwelt</h3><p className="text-[13px] text-dim">Die Startwelt bleibt, wie sie ist (Heimhaus, feste Zimmer). Mit mehr als zwei Bewohnern oder anderen Vorlagen als Alex und Mira bitte „Neues Dorf erzeugen“ wählen.</p></section>
           )}
         </div>
         <div>
           {preview?.world && fresh && preview.ok ? (
-            <Vorschaufenster world={preview.world} level={!gen || special + h <= 3 ? 1 : special + h <= 6 ? 0.5 : 0.25} caption={<>{gen ? `${preview.village}: ${h} ${h === 1 ? "Wohnhaus" : "Wohnhäuser"}, ${special} Sondergebäude. ` : "Startwelt: Dorf am See. "}Vorschau unter dem Schleier wie in AP12c, zoomen und ziehen geht.<br /><small className="text-dim" data-testid="vorschau-bericht">{preview.checks.length ? `Prüfbericht: ${preview.checks.filter((c) => c.ok).length} von ${preview.checks.length} bestanden` : "Die Welt wird erst beim Start angelegt."}</small></>} />
+            <Vorschaufenster world={preview.world} level={lib ? 0.5 : !gen || special + h <= 3 ? 1 : special + h <= 6 ? 0.5 : 0.25} caption={<>{gen ? `${preview.village}: ${h} ${h === 1 ? "Wohnhaus" : "Wohnhäuser"}, ${special} Sondergebäude. ` : lib ? `${gewaehlt?.name ?? preview.village}. ` : "Startwelt: Dorf am See. "}Vorschau unter dem Schleier wie in AP12c, zoomen und ziehen geht.<br /><small className="text-dim" data-testid="vorschau-bericht">{preview.checks.length ? `Prüfbericht: ${preview.checks.filter((c) => c.ok).length} von ${preview.checks.length} bestanden` : "Die Welt wird erst beim Start angelegt."}</small></>} />
           ) : (
             <div className="grid h-[300px] place-items-center rounded-xl border-2 border-dashed border-plan/60 p-4 text-center text-[13px] text-dim" data-testid="vorschau-leer">
               {busy === "preview" ? "Vorschau wird erstellt …" : preview && !preview.ok && preview.key === key ? <div role="alert" className="text-warn">{preview.errors.map((e) => <div key={e}>{e}</div>)}</div> : error ? <span role="alert" className="text-warn">{error}</span> : "Die Vorschau erscheint hier."}

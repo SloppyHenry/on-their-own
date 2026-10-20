@@ -14,6 +14,7 @@ from ..agents.schema import (MAX_RESIDENTS, TEMPLATE_FORMAT, TEMPLATE_VERSION, c
 from ..api.models_newsim import NewSimRequest
 from ..generator.generate import default_mix
 from ..generator.service import ServiceError, Wish, make_world
+from ..generator.stil import Stil
 from ..generator.validate import Report
 from ..params.presets import PresetError
 from ..params.registry import REGISTRY
@@ -136,6 +137,8 @@ def resolve(req: NewSimRequest, presets: Any = None, library: Any = None) -> Res
     for key, value in (("autonomy", rules.autonomy), ("world.scarcity", rules.scarcity)):
         if value is not None:
             params.append((key, None, value))
+    if rules.world_events is not None:
+        params.append(("world.events", None, rules.world_events))
     params.append(("mode", None, rules.mode))
     if rules.creator_text is not None and rules.creator_text.strip():
         params.append(("mode.creator_text", None, rules.creator_text.strip()))
@@ -164,7 +167,7 @@ def make_new_world(req: NewSimRequest, res: Resolved, library: Any = None) -> tu
     mix = dict(w.mix) if w.mix is not None else {k: v for k, v in default_mix(n).items() if k != "house"}
     mix["house"] = w.houses or default_mix(n)["house"]
     try:
-        wish = Wish("new", w.seed, w.lake, tuple(sorted(mix.items())), tuple((r.id, r.profile.name, r.home) for r in res.residents))
+        wish = Wish("new", w.seed, w.lake, tuple(sorted(mix.items())), tuple((r.id, r.profile.name, r.home) for r in res.residents), stil=Stil.of(w.style.model_dump() if w.style else None).key())
         return make_world(wish)
     except ServiceError as e:
         raise SpecError([e.text], e.status) from e

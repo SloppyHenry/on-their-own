@@ -6,7 +6,7 @@ from pydantic import BaseModel, Field
 
 from ..agents.schema import MAX_RESIDENTS
 from .models import Out, StateSnapshot, Voice
-from .models_world import ReportOut
+from .models_world import ReportOut, Stellgroessen
 
 KNOWN = Literal["square", "garden", "rooms", "lake", "forest"]             # Orte, die ein Bewohner zu Beginn kennt (Platz, Garten, Gemeinschaftsräume, See, Wald)
 
@@ -17,6 +17,7 @@ class WorldSpec(BaseModel):
     library_id: str | None = Field(None, max_length=60)                    # Welt aus der Bibliothek (kind „library“, AP18e): wird kopiert, die Bibliothek bleibt unverändert
     seed: int = Field(1, ge=0, le=2_000_000_000)
     lake: Literal["auto", "east", "south"] = "auto"
+    style: Stellgroessen | None = None                                     # Stellgrößen des Generators (AP18f)
     houses: int | None = Field(None, ge=1, le=6)                           # Wohnhäuser; ohne Angabe aufgerundet halb so viele wie Bewohner
     mix: dict[str, int] | None = None                                      # übrige Gebäude je Art (shop, workshop, barn, stable); ohne Angabe nach Bewohnerzahl
 
@@ -60,9 +61,10 @@ class RulesSpec(BaseModel):
     preset: str | None = None                                              # Preset (nur seine allgemeinen Werte; Werte je Bewohner stehen im Profil)
     autonomy: int | None = Field(None, ge=0, le=100)
     scarcity: int | None = Field(None, ge=0, le=100)
-    mode: Literal["observer", "creator", "intervention"] = "observer"      # Beobachtungsmodus (Frage 36): Standard Beobachter
-    creator_text: str | None = Field(None, max_length=600)
     events: list[StartEvent] = []                     # Startereignisse (Weltregeln als Text), werden gleich nach dem Anlegen ausgeführt
+    world_events: Literal["aus", "selten", "manchmal", "oft"] | None = None   # Ereignisse von allein (AP18i); ohne Angabe gilt die Einstellung, wie sie ist
+    mode: Literal["observer", "creator", "intervention"] = "observer"      # Wissen der Bewohner (Beobachtungsmodus, Frage 36/57): Standard Beobachter
+    creator_text: str | None = Field(None, max_length=600)
 
 
 class NewSimRequest(BaseModel):

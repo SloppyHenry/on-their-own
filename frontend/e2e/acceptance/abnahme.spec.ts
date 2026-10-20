@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { freshWorld, openApp, openHouse, post, settledTag, state, steps, tagBox, showTab } from "../helpers";
+import { figure, whereIs, setView, freshWorld, openApp, openHouse, post, settledFoot, settledTag, state, steps, tagBox, showTab } from "../helpers";
 
 /** Abnahme (§17, AP11): je Kriterium mit Browseranteil ein benannter Test. Die Backend-Seite steht in backend/tests/acceptance/. */
 
@@ -24,7 +24,7 @@ test("K01 zwei Agenten in einer Welt: beide mit Position im Zustand und als Figu
   for (const a of s.agents) expect(Number.isInteger(a.x) && Number.isInteger(a.y) && typeof a.location_id === "string").toBeTruthy();
   await openApp(page);
   for (const id of ["alex", "mira"]) {
-    await expect(page.locator(`[data-tag="${id}"]`)).toBeVisible();
+    await expect(figure(page, id)).toBeVisible();                                      // draußen das Schild, im Haus das Bildnis auf dem Dach
     await expect(page.getByTestId(`agent-card-${id}`)).toBeVisible();
   }
 });
@@ -32,6 +32,7 @@ test("K01 zwei Agenten in einer Welt: beide mit Position im Zustand und als Figu
 test("K05 Dialoge live: Sprechblase und Protokollzeile binnen 2 s nach dem Ereignis", async ({ page, request }) => {
   const seen = watchEvents(page);
   await openApp(page);
+  await openHouse(page);                                              // beide beginnen im Haus; ihre Blasen stehen in der Innenansicht (draußen nur das Bildnis auf dem Dach)
   await page.getByRole("button", { name: "Start" }).click();
   await expect.poll(() => seen.some((e) => e.type === "agent.dialogue"), { timeout: 45_000 }).toBe(true);
   const ev = seen.find((e) => e.type === "agent.dialogue")!;
@@ -47,6 +48,7 @@ test("K06 Ortswechsel sichtbar: die Figur folgt dem Fahrplan aus agent.walking",
   test.setTimeout(120_000);
   const seen = watchEvents(page);
   await openApp(page);
+  await setView(page, "Flach");                                         // gleicher Maßstab in beiden Achsen (die Tiefe verkürzt die Höhe)
   const st = await state(request), locs = Array.isArray(st.locations) ? st.locations : Object.values(st.locations);
   const rooms = (locs as { rect: number[]; props: { style?: { floor?: string } } }[]).filter((l) => l.props?.style?.floor);
   const inRoom = ([x, y]: number[]) => rooms.some((l) => x >= l.rect[0] && y >= l.rect[1] && x < l.rect[0] + l.rect[2] && y < l.rect[1] + l.rect[3]);
@@ -63,7 +65,7 @@ test("K06 Ortswechsel sichtbar: die Figur folgt dem Fahrplan aus agent.walking",
   if (inRoom(w.data.from as number[])) await openHouse(page);          // Innenansicht, die Kamera bleibt stehen
   else await page.keyboard.press("0");                                  // ganze Welt
   const from = w.data.from as number[], path = w.data.path as number[][], arrive = w.data.arrive as number[];
-  const start = await settledTag(page, id);
+  const start = await settledFoot(page, id);
   // bis zur Ankunft weiterlaufen, dann anhalten: Figur und Engine stehen auf der letzten Kachel
   const s0 = await state(request);
   const left = arrive[arrive.length - 1] - s0.clock.minute;
@@ -74,9 +76,9 @@ test("K06 Ortswechsel sichtbar: die Figur folgt dem Fahrplan aus agent.walking",
   if (!seen.some((e) => e.type === "agent.walking" && e.agents[0] === id && e.seq > w.seq)) {   // kein neuer Fahrplan dazwischen
     expect([body.x, body.y]).toEqual(end);
   }
-  const target = [body.x, body.y], stop = await settledTag(page, id);
+  const target = [body.x, body.y], stop = await settledFoot(page, id);
   const dx = target[0] - from[0], dy = target[1] - from[1];
-  const sx = stop.x + stop.width / 2 - (start.x + start.width / 2), sy = stop.y - start.y;   // Mitte des Schildes: die Breite ändert sich mit dem Text
+  const sx = stop[0] - start[0], sy = stop[1] - start[1];                                      // Fußpunkt: unabhängig vom Text und vom Ausweichen der Schilder
   expect(Math.abs(dx) + Math.abs(dy)).toBeGreaterThan(0);
   if (dx !== 0) expect(Math.sign(sx)).toBe(Math.sign(dx));             // Bildschirmrichtung = Kachelrichtung
   if (dy !== 0) expect(Math.sign(sy)).toBe(Math.sign(dy));
@@ -109,15 +111,17 @@ test("K13 Neu laden stellt den Zustand her, auch mitten auf einem Weg", async ({
   await post(request, "/api/sim/pause");
   const s = await state(request);
   const rows = () => page.locator("[data-testid=timeline] button[data-type]").evaluateAll((els) => els.slice(-8).map((e) => e.textContent));
-  const before = { clock: await page.getByTestId("clock").textContent(), alex: await settledTag(page, "alex"), mira: await settledTag(page, "mira"), rows: await rows() };
+  const spot = async (id: string) => { await settledTag(page, id); return whereIs(page, id); };
+  const before = { clock: await page.getByTestId("clock").textContent(), alex: await spot("alex"), mira: await spot("mira"), rows: await rows() };
   await page.reload();
   await expect(page.getByTestId("conn")).toContainText("Verbunden");
   await page.keyboard.press("0");
   await expect(page.getByTestId("clock")).toHaveText(before.clock!);
   await expect.poll(async () => JSON.stringify(await rows())).toBe(JSON.stringify(before.rows));
   for (const id of ["alex", "mira"] as const) {
-    const b = before[id], a = await settledTag(page, id);
-    expect(Math.abs(a.x + a.width / 2 - (b.x + b.width / 2)) + Math.abs(a.y - b.y)).toBeLessThan(3);   // Mitte: das Abzeichen „gemerkt“ verbreitert das Schild nur kurz
+    const b = before[id], a = (await settledTag(page, id), await spot(id));
+    expect(Math.abs(a[1] - b[1])).toBeLessThan(3);                                  // Fußpunkt beziehungsweise Dachmarke des Hauses
+    expect(Math.abs(a[0] - b[0])).toBeLessThan(30);                                 // die Dachmarke ändert ihre Breite mit dem Text der Bildnisse
   }
   expect((await state(request)).agents).toEqual(s.agents);
   expect(await tagBox(page, "alex")).not.toBeNull();

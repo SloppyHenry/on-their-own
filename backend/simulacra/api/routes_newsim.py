@@ -14,6 +14,7 @@ from ..simulation.newsim import SpecError
 from ..events_user.service import InjectError
 from .models_inject import InjectProposal
 from .routes_llm import prepare
+from .routes_welten import library_of
 from .models_newsim import (HouseOut, NewSimApplied, NewSimApplyRequest, NewSimLimits, NewSimPreview, NewSimRequest, ResidentOut, RulesPreviewRequest, TemplateImported, TemplateIn,
                             TemplateOut)
 
@@ -28,13 +29,7 @@ def _templates(request: Request) -> TemplateStore:
     return app.state.templates
 
 
-def _library(request: Request):
-    from ..welten.store import WorldLibrary
-    app = request.app
-    if getattr(app.state, "library", None) is None:
-        db_path = app.state.sim.db_path
-        app.state.library = WorldLibrary(None if db_path == ":memory:" else Path(db_path).parent / "welten")
-    return app.state.library
+_library = library_of
 
 
 def _fail(e: TemplateError) -> HTTPException:

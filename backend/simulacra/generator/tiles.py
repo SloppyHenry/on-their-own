@@ -47,7 +47,7 @@ def footprint(b) -> tuple[float, float, float, float]:
 
 def bounds(L: Layout) -> tuple[int, int, int, int]:
     """Das Rechteck, das Wiese und Waldrand des Dorfs deckt (Dorfkoordinaten, auf ganze Kacheln ausgerichtet)."""
-    return -L.ext_l - 64, -96, 320, 240
+    return -L.ext_l - 64, -96, 320, 240 + L.extra_h
 
 
 def rasterize(L: Layout) -> Outdoor:
@@ -94,24 +94,29 @@ def rasterize(L: Layout) -> Outdoor:
         if out.rows[dj + 1][di] not in (GRASS, PATH, SAND, FLOOR):      # vor der Tür muss man stehen können
             out.rows[dj + 1][di] = PATH
     g = L.garden                                                         # Gartentor: die Lücke im Zaun an der Ostseite (im Bild 16 Pixel hoch) bleibt offen
-    gy = 146 + (g["y0"] - 120)
-    out.gate = out.tile_of(g["x1"], gy)
-    for yy in (gy - 5, gy, gy + 5):
-        i, j = out.tile_of(g["x1"], yy)
-        if out.rows[j][i] in (FENCE, TREE):
-            out.rows[j][i] = GRASS
+    if g:
+        gy = 146 + (g["y0"] - 120)
+        out.gate = out.tile_of(g["x1"], gy)
+        for yy in (gy - 5, gy, gy + 5):
+            i, j = out.tile_of(g["x1"], yy)
+            if out.rows[j][i] in (FENCE, TREE):
+                out.rows[j][i] = GRASS
     return out
 
 
-def _sample(L: Layout, px: float, py: float, lake: dict, sq: dict) -> str:
-    for r in (L.dock, *([L.bridge] if L.bridge else [])):
+def _sample(L: Layout, px: float, py: float, lake: dict | None, sq: dict) -> str:
+    for r in (*([L.dock] if L.dock else []), *([L.bridge] if L.bridge else []), *L.bridges2):
         if r["x0"] <= px < r["x1"] and r["y0"] <= py < r["y1"]:
             return FLOOR
-    a, b = (px - lake["x"]) / lake["rx"], (py - lake["y"]) / lake["ry"]
-    q = a * a + b * b
-    if q < 1 or line_dist([L.stream], px, py) < 3.6:
+    q = 9.0
+    for k in ([lake] if lake else []) + L.ponds:
+        a, b = (px - k["x"]) / k["rx"], (py - k["y"]) / k["ry"]
+        q = min(q, a * a + b * b)
+    water = [pl for pl in [L.stream, *L.strands] if len(pl) > 1]
+    dw = line_dist(water, px, py) if water else 1e9
+    if q < 1 or dw < 3.6:
         return WATER
-    if q < 1.13 or line_dist([L.stream], px, py) < 5.4:
+    if q < 1.13 or dw < 5.4:
         return SAND
     if math.hypot(px - sq["x"], (py - sq["y"]) * 1.08) < sq["r"] or line_dist(L.paths, px, py) < 5.2:
         return PATH

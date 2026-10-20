@@ -60,7 +60,7 @@ test("Taste F folgt dem gewählten Agenten (auch ins Haus und im Dorf), Taste 0 
   await page.getByTestId("agent-card-alex").click();
   await page.getByRole("button", { name: "Schließen" }).first().click();
   const v = (await page.getByTestId("world-canvas").boundingBox())!;
-  await page.mouse.move(v.x + 40, v.y + v.height - 40);
+  await page.mouse.move(v.x + 40, v.y + v.height - 160);                                       // links unten, über der Bewohnerleiste (die Welt füllt das Fenster, das HUD schwebt darüber)
   await page.mouse.wheel(0, -100);
   const a = page.locator('[data-tag="alex"]');
   await expect(a).toBeHidden();                                                               // gezoomt in die linke untere Ecke: Alex am See ist nicht im Bild
@@ -126,7 +126,7 @@ test("Dinge im Dorf: wer rudert, sitzt im Boot und das Schild sagt es", async ({
     return (await post(request, "/api/e2e/propose", { agent: "alex", action: "use", params: { object_id: "boat", mode: "row", minutes: 90 } })).ok;
   }, { timeout: 30_000 }).toBe(true);
   await openApp(page);
-  await expect(page.locator('[data-tag="alex"]')).toContainText("rudert · Boot");
+  await expect(page.getByTestId("think-alex")).toContainText("rudert · Boot");                // die Tätigkeit steht in der Wolke über der Figur, das Schild trägt nur den Namen
 });
 
 test("Ansicht umschalten: Tiefe und Flach, die Wahl bleibt nach dem Neuladen", async ({ page }) => {

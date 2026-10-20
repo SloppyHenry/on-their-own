@@ -1,5 +1,6 @@
 // Entwurf der neuen Simulation (AP17b): alles, was der Assistent erfasst, und der Anfragekörper daraus. Reine Funktionen ohne Zustand.
 import type { NewSimRequest, TemplateOut, Voice } from "../types/generated";
+import { VORGABE, anfrage, type Stil } from "../welten/stellgroessen";
 import { PKEYS, type Personality, type Profile } from "./begrenzung";
 import { REL_DEFAULT, type Rel } from "./wuerfeln";
 
@@ -19,11 +20,15 @@ export interface ResidentDraft {
   known: Known[];
   voice: Voice | null;
 }
-export interface WorldDraft { kind: "start" | "generated"; seed: number; lake: Lake; houses: number | null; mix: Record<string, number> | null }
+export interface WorldDraft { kind: "start" | "generated" | "library"; /** Welt aus der Bibliothek (Art „library“, AP18e). */ libraryId: string | null; /** Stellgrößen des Generators (AP18f). */ stil: Stil; seed: number; lake: Lake; houses: number | null; mix: Record<string, number> | null }
 /** Ein bestätigtes Startereignis (Weltregeln als Text): der geprüfte Vorschlag der Ereigniseingabe. */
 export interface StartEvt { text: string; source: "rule" | "llm"; ops: Record<string, unknown>[]; preview: string[] }
-export interface RulesDraft { preset: string; autonomy: number | null; scarcity: number | null; mode: Mode; creatorText: string; events: StartEvt[] }
+export type WeltEreignisse = "aus" | "selten" | "manchmal" | "oft";
+export interface RulesDraft { /** Ereignisse von allein (AP18i); null = die Einstellung, wie sie ist. */ worldEvents: WeltEreignisse | null; preset: string; autonomy: number | null; scarcity: number | null; mode: Mode; creatorText: string; events: StartEvt[] }
+export type PlayMode = "leben" | "gott";
 export interface Draft {
+  /** Spielart (AP18d): wer die Welt verändern darf. */
+  playMode: PlayMode;
   world: WorldDraft;
   residents: ResidentDraft[];
   rel: Record<string, Rel>;
@@ -44,11 +49,12 @@ export const blankResident = (name = ""): ResidentDraft => ({ tpl: "", profile: 
 export const fromTemplate = (t: TemplateOut): ResidentDraft => ({ ...blankResident(), tpl: t.id, profile: structuredClone(t.profile) as unknown as Profile, personality: structuredClone(t.personality) as unknown as Personality });
 
 export const newDraft = (seed = 1 + Math.floor(Math.random() * 99999)): Draft => ({
-  world: { kind: "generated", seed, lake: "auto", houses: null, mix: null },
+  playMode: "leben",
+  world: { kind: "generated", libraryId: null, stil: { ...VORGABE }, seed, lake: "auto", houses: null, mix: null },
   residents: [],
   rel: {},
   stories: {},
-  rules: { preset: "", autonomy: null, scarcity: null, mode: "observer", creatorText: CREATOR_TEXT, events: [] },
+  rules: { worldEvents: null, preset: "", autonomy: null, scarcity: null, mode: "observer", creatorText: CREATOR_TEXT, events: [] },
   model: "",
   run: "paused",
   dice: { seed: 7, n: 0 },
@@ -70,7 +76,7 @@ export const relChanged = (r: Rel) => (Object.keys(REL_DEFAULT) as (keyof Rel)[]
 
 /** Der Anfragekörper für Vorschau und Anlegen. Nur Geändertes geht mit: Beziehungen auf Standard, leere Vorgeschichten, unberührte Regler bleiben weg. */
 export function toRequest(d: Draft): NewSimRequest {
-  const n = d.residents.length, start = d.world.kind === "start";
+  const n = d.residents.length, start = d.world.kind === "start", lib = d.world.kind === "library";
   const w = d.world;
   const mixKeys = d.world.mix ? Object.fromEntries(Object.entries(d.world.mix).filter(([, v]) => v > 0)) : undefined;
   const relations = Object.entries(d.rel).flatMap(([k, r]) => {
@@ -82,19 +88,21 @@ export function toRequest(d: Draft): NewSimRequest {
     return a < n && b < n && text.trim() ? [{ a, b, text: text.trim() }] : [];
   });
   return {
-    world: start ? { kind: "start" } : { kind: "generated", seed: w.seed, lake: w.lake, ...(w.houses ? { houses: w.houses } : {}), ...(mixKeys ? { mix: mixKeys } : {}) },
-    residents: d.residents.map((r) => ({ template: r.tpl || null, profile: r.profile, personality: r.personality, home: start ? null : r.home, known: r.known, voice: r.voice })) as unknown as NewSimRequest["residents"],
+    world: start ? { kind: "start" } : lib ? { kind: "library", library_id: d.world.libraryId } : { kind: "generated", seed: w.seed, lake: w.lake, ...(anfrage(w.stil) ? { style: anfrage(w.stil)! } : {}), ...(w.houses ? { houses: w.houses } : {}), ...(mixKeys ? { mix: mixKeys } : {}) },
+    residents: d.residents.map((r) => ({ template: r.tpl || null, profile: r.profile, personality: r.personality, home: start || lib ? null : r.home, known: r.known, voice: r.voice })) as unknown as NewSimRequest["residents"],
     relations,
     stories,
     rules: {
       ...(d.rules.preset ? { preset: d.rules.preset } : {}),
       ...(d.rules.autonomy !== null ? { autonomy: d.rules.autonomy } : {}),
       ...(d.rules.scarcity !== null ? { scarcity: d.rules.scarcity } : {}),
+      ...(d.rules.worldEvents ? { world_events: d.rules.worldEvents } : {}),
       mode: d.rules.mode,
       ...(d.rules.mode === "creator" && d.rules.creatorText.trim() ? { creator_text: d.rules.creatorText } : {}),
       ...(d.rules.events.length ? { events: d.rules.events.map((e) => ({ text: e.text, source: e.source, ops: e.ops })) } : {}),
     },
     ...(d.model ? { model: d.model } : {}),
     run: d.run,
+    play_mode: d.playMode,
   };
 }

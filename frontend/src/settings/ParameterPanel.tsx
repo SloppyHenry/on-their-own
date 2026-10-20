@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Darstellung } from "./Darstellung";
+import { SpielartSeite } from "./SpielartSeite";
 import { useSimStore } from "../store/simStore";
 import { useUiStore } from "../store/uiStore";
 import { ParamGroup } from "./ParamGroup";
@@ -17,9 +18,9 @@ const PAGES: { id: string; label: string; groups: string[] }[] = [
   { id: "world", label: "Welt", groups: ["world"] },
   { id: "llm", label: "Modell", groups: ["llm"] },
   { id: "sim", label: "Tempo", groups: ["sim"] },
-  { id: "mode", label: "Modus", groups: ["mode"] },
+  { id: "mode", label: "Wissen der Bewohner", groups: ["mode"] },
 ];
-const EXTRA = [{ id: "darstellung", label: "Darstellung" }, { id: "models", label: "Modelle" }, { id: "ton", label: "Ton" }, { id: "presets", label: "Presets" }, { id: "status", label: "Status" }];
+const EXTRA = [{ id: "spielart", label: "Spielart" }, { id: "darstellung", label: "Darstellung" }, { id: "models", label: "Modelle" }, { id: "ton", label: "Ton" }, { id: "presets", label: "Presets" }, { id: "status", label: "Status" }];
 
 /** Der Inhalt der Einstellungen (Suche, Bereiche, Regler). Seit AP18b gibt es sie nur noch im Menü (keine Schublade mehr). */
 export function SettingsContent() {
@@ -51,14 +52,14 @@ export function SettingsContent() {
       )}
       <div className="min-h-0 flex-1 overflow-auto px-4 pb-6 pt-2">
         {error && <p role="alert" className="mb-2 text-[13px] text-warn">{error}</p>}
-        {tab === "darstellung" && !q ? <Darstellung /> : tab === "ton" && !q ? <TonSettings /> : tab === "models" && !q ? <ModelleSeite /> : !values ? <p className="text-dim">Lade Einstellungen …</p> : q ? (
+        {tab === "spielart" && !q ? <SpielartSeite /> : tab === "darstellung" && !q ? <Darstellung /> : tab === "ton" && !q ? <TonSettings /> : tab === "models" && !q ? <ModelleSeite /> : !values ? <p className="text-dim">Lade Einstellungen …</p> : q ? (
           found.length ? <ParamGroup specs={found} compact /> : <p className="text-dim">Nichts gefunden für „{query}“.</p>
         ) : tab === "presets" ? <PresetManager /> : tab === "status" ? <StatusPanels /> : (
           <>
             {pageSpecs.some((s) => s.scope === "global") && (
               <div className="flex justify-end"><button className="btn" onClick={() => void reset({ group: page!.groups[0] })}>Gruppe auf Standard</button></div>
             )}
-            {tab === "mode" && <p className="my-2 text-[13px] text-dim">Der Modus bestimmt, was die Agenten über dich erfahren. Er gilt ab der nächsten Entscheidung und ändert keine Erinnerungen.</p>}
+            {tab === "mode" && <p className="my-2 text-[13px] text-dim">Das „Wissen der Bewohner“ bestimmt, was die Agenten über eine äußere Instanz erfahren (erweitert; mit der Spielart hat es nichts zu tun). Er gilt ab der nächsten Entscheidung und ändert keine Erinnerungen.</p>}
             <ParamGroup specs={pageSpecs} />
           </>
         )}

@@ -1,4 +1,4 @@
-// Assistent „Neue Simulation“ (AP17b, Mockup docs/mockups/assistent.html): fünf Schritte (Welt · Bewohner · Regeln · Modell · Start). Der Entwurf bleibt im Browser,
+// Assistent „Neue Simulation“ (AP17b, Mockup docs/mockups/assistent.html): sechs Schritte (Spielart · Welt · Bewohner · Regeln · Modell · Start). Der Entwurf bleibt im Browser,
 // bis er angelegt oder verworfen wird; angelegt wird erst im letzten Schritt nach ausdrücklicher Bestätigung.
 import { useEffect } from "react";
 import { Brotkrumen } from "../ui/Brotkrumen";
@@ -7,17 +7,18 @@ import { useAssistent } from "./assistentStore";
 import { StepBewohner } from "./StepBewohner";
 import { StepModell } from "./StepModell";
 import { StepRegeln } from "./StepRegeln";
+import { StepSpielart } from "./StepSpielart";
 import { StepStart } from "./StepStart";
 import { StepWelt } from "./StepWelt";
 
-export const STEPS = ["Welt", "Bewohner", "Regeln", "Modell", "Start"];
-const VIEWS = [StepWelt, StepBewohner, StepRegeln, StepModell, StepStart];
+export const STEPS = ["Spielart", "Welt", "Bewohner", "Regeln", "Modell", "Start"];
+const VIEWS = [StepSpielart, StepWelt, StepBewohner, StepRegeln, StepModell, StepStart];
 
 /** `onExit`: zurück zu „Neue Simulation“. Der Entwurf bleibt dabei im Browser erhalten, es geht also nichts verloren und es braucht keine Rückfrage. */
 export function Assistent({ onExit }: { onExit: () => void }) {
   const step = useAssistent((s) => s.step), setStep = useAssistent((s) => s.setStep), load = useAssistent((s) => s.load), discard = useAssistent((s) => s.discard);
   useEffect(() => { void load(); }, [load]);
-  const View = VIEWS[step] ?? StepWelt, last = step === STEPS.length - 1;
+  const View = VIEWS[step] ?? StepSpielart, last = step === STEPS.length - 1;
   useRueckweg(true, EBENE.MenueUnter, () => { if (step > 0) setStep(step - 1); else onExit(); });                        // Esc: ein Schritt zurück, vom ersten zu „Neue Simulation“
   const trail = [{ label: "Neue Simulation", onClick: onExit }, ...STEPS.slice(0, step + 1).map((label, i) => ({ label, onClick: () => setStep(i) }))];
   return (

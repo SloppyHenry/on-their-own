@@ -15,11 +15,12 @@ from ..api import state as api_state
 from ..simulation.builder import Simulation
 from ..world.extend import WorldEditError
 from .generate import GenerationError, WorldInfo, dumps, extension_patch, new_world
+from .stil import Stil, StilError
 
 KINDS = ("extend", "new")
 LAKES = ("auto", "east", "south")
 ROLES = ("house", "shop", "workshop", "barn", "stable")
-MAX_EACH, MAX_TOTAL = 6, 10
+MAX_EACH, MAX_TOTAL = 12, 24
 
 
 class ServiceError(Exception):
@@ -37,6 +38,7 @@ class Wish:
     lake: str = "auto"
     mix: tuple[tuple[str, int], ...] | None = None             # Gebäude je Rolle; None = Standard (3 Häuser, 2 Sondergebäude)
     residents: tuple[tuple[str, str, int | None], ...] | None = None   # Bewohner (Kennung, Name, Haus) für ein Dorf nach Maß (AP17b); None = Heimhaus für Alex und Mira
+    stil: tuple[tuple[str, object], ...] = ()                        # Stellgrößen (AP18f) als sortierte Paare; leer = die Vorgaben
 
     def __post_init__(self):
         if self.kind not in KINDS or self.lake not in LAKES or not 0 <= self.seed <= 2_000_000_000:
@@ -47,8 +49,15 @@ class Wish:
                 raise ServiceError(422, f"Der Gebäudemix braucht 1 bis {MAX_TOTAL} Gebäude (höchstens {MAX_EACH} je Art aus {', '.join(ROLES)}).")
 
     @classmethod
-    def of(cls, kind: str, seed: int, lake: str, mix: dict[str, int] | None) -> "Wish":
-        return cls(kind, seed, lake, None if mix is None else tuple(sorted(mix.items())))
+    def of(cls, kind: str, seed: int, lake: str, mix: dict[str, int] | None, stil: dict | None = None) -> "Wish":
+        try:
+            st = Stil.of(stil).key()
+        except StilError as e:
+            raise ServiceError(422, str(e)) from None
+        return cls(kind, seed, lake, None if mix is None else tuple(sorted(mix.items())), stil=st)
+
+    def stil_obj(self) -> Stil:
+        return Stil.of(dict(self.stil))
 
     def mix_dict(self) -> dict[str, int] | None:
         return None if self.mix is None else dict(self.mix)
@@ -125,7 +134,7 @@ def apply_extension(sim: Simulation, w: Wish, expect: str) -> dict:
 def make_world(w: Wish) -> tuple[dict, object]:
     try:
         residents = None if w.residents is None else [{"id": i, "name": n, "home": h} for i, n, h in w.residents]
-        return new_world(w.seed, lake=w.lake, mix=w.mix_dict(), residents=residents)
+        return new_world(w.seed, lake=w.lake, mix=w.mix_dict(), residents=residents, stil=w.stil_obj())
     except GenerationError as e:
         raise ServiceError(422, str(e)) from e
 

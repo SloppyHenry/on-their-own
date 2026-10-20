@@ -27,14 +27,15 @@ test.describe("Titelbild", () => {
     await expect(page.getByTestId("esc-hinweis")).toHaveCount(0);                         // im Titelbild gibt es von der Liste aus kein Zurück
     await page.getByTestId("newsim-define").click();
     await expect(page.getByTestId("assistent")).toBeVisible();
-    await page.getByTestId("schritt-2").click();                                          // Regeln
+    await page.getByTestId("schritt-3").click();                                          // Regeln
     await expect(page.getByTestId("krume-aktuell")).toHaveText("Regeln");
-    await expect(page.getByTestId("brotkrumen")).toContainText(/Neue Simulation\s*›\s*Welt\s*›\s*Bewohner/);
+    await expect(page.getByTestId("brotkrumen")).toContainText(/Neue Simulation\s*›\s*Spielart\s*›\s*Welt\s*›\s*Bewohner/);
     await expect(page.getByTestId("esc-hinweis")).toContainText("zurück zu Bewohner");
 
     await esc(page);
-    await expect(page.getByTestId("schritt-1")).toHaveAttribute("aria-current", "step");
+    await expect(page.getByTestId("schritt-2")).toHaveAttribute("aria-current", "step");
     await expect(page.getByTestId("esc-hinweis")).toContainText("zurück zu Welt");
+    await esc(page);
     await esc(page);
     await expect(page.getByTestId("schritt-0")).toHaveAttribute("aria-current", "step");
     await expect(page.getByTestId("esc-hinweis")).toContainText("zurück zu Neue Simulation");
@@ -50,31 +51,29 @@ test.describe("Titelbild", () => {
     await page.goto("/");
     await page.getByTestId("menu-newsim").click();
     await page.getByTestId("newsim-define").click();
-    await page.getByTestId("schritt-3").click();
-    await page.getByTestId("krume-2").click();                                            // „Bewohner“
-    await expect(page.getByTestId("schritt-1")).toHaveAttribute("aria-current", "step");
+    await page.getByTestId("schritt-4").click();
+    await page.getByTestId("krume-3").click();                                            // „Bewohner“ (Neue Simulation, Spielart, Welt, Bewohner)
+    await expect(page.getByTestId("schritt-2")).toHaveAttribute("aria-current", "step");
+    await page.getByTestId("zurueck").click();
     await page.getByTestId("zurueck").click();
     await expect(page.getByTestId("schritt-0")).toHaveAttribute("aria-current", "step");
     await page.getByTestId("zurueck").click();                                            // am ersten Schritt: zu Neue Simulation
     await expect(page.getByTestId("newsim-define")).toBeVisible();
   });
 
-  test("Neues Dorf erzeugen: Esc führt aus dem Editor in dasselbe Menü (Neue Simulation) zurück, nicht ins Spiel", async ({ page }) => {
+  test("Welt erzeugen: Esc geht von der Maske zur Bibliothek, dann zu Editoren, im Titelbild nie ins Spiel", async ({ page }) => {
     await page.goto("/");
-    await page.getByTestId("menu-newsim").click();
-    await page.getByTestId("newsim-generate").click();
-    await expect(page.getByTestId("editor-panel")).toBeVisible();
-    await expect(menu(page)).toHaveCount(0);
-    await expect(page.getByTestId("editor-close")).toContainText("Zurück zum Menü");
+    await page.getByTestId("menu-editors").click();
+    await page.getByTestId("editor-welten").click();
+    await page.getByTestId("welt-erzeugen").click();
+    await expect(page.getByTestId("welt-erzeugen-form")).toBeVisible();
+    await expect(page.getByTestId("esc-hinweis")).toContainText("zurück zu Welten");
     await esc(page);
-    await expect(page.getByTestId("editor-panel")).toHaveCount(0);
+    await expect(page.getByTestId("welten-liste")).toBeVisible();
+    await esc(page);
+    await expect(page.getByTestId("editor-welten")).toBeVisible();
+    await esc(page);
     await title(page);
-    await expect(page.getByTestId("menu-pane-newsim")).toBeVisible();
-    await expect(page.getByTestId("newsim-generate")).toBeVisible();
-    await page.getByTestId("newsim-generate").click();                                    // und der Knopf im Editor führt an dieselbe Stelle
-    await page.getByTestId("editor-close").click();
-    await title(page);
-    await expect(page.getByTestId("menu-pane-newsim")).toBeVisible();
   });
 
   test("Zurücksetzen-Dialog: Esc bricht ab, das nächste Esc bleibt im Titelbild", async ({ page }) => {
@@ -104,17 +103,17 @@ test("Pausenmenü: Esc öffnet, auf der Liste schließt Esc und setzt das Spiel 
   await expect(menu(page)).toHaveCount(0);
 });
 
-test("Editoren › Welt: Esc führt aus dem Editor zu Editoren zurück, dann ins Spiel", async ({ page }) => {
+test("Editoren › Welten: Esc führt zu Editoren zurück, dann ins Spiel", async ({ page }) => {
   await openApp(page);
   await esc(page);
   await page.getByTestId("menu-editors").click();
-  await page.getByTestId("editor-world").click();
-  await expect(page.getByTestId("editor-panel")).toBeVisible();
+  await page.getByTestId("editor-welten").click();
+  await expect(page.getByTestId("welten-pane")).toBeVisible();
   await esc(page);
-  await expect(page.getByTestId("editor-panel")).toHaveCount(0);
+  await expect(page.getByTestId("welten-pane")).toHaveCount(0);
   await pause(page);
   await expect(page.getByTestId("menu-pane-editors")).toBeVisible();
-  await expect(page.getByTestId("editor-world")).toBeVisible();
+  await expect(page.getByTestId("editor-welten")).toBeVisible();
   await esc(page);
   await expect(menu(page)).toHaveCount(0);
 });
@@ -171,13 +170,7 @@ test("Spiel: Esc schließt erst das Detail, dann den Einblick, dann öffnet es d
   await expect(page.getByTestId("drawer")).toHaveCount(0);
   await expect(menu(page)).toHaveCount(0);
 
-  await page.getByTestId("open-insights").click();
-  await page.getByTestId("open-stats").click();
-  await expect(page.getByTestId("back-to-world")).toBeVisible();
-  await page.getByTestId("open-insights").click();                                         // Untermenü offen: Esc schließt zuerst das
-  await expect(page.getByRole("menu")).toBeVisible();
-  await esc(page);
-  await expect(page.getByRole("menu")).toHaveCount(0);
+  await page.getByTestId("einblick-stats").click();
   await expect(page.getByTestId("back-to-world")).toBeVisible();
   await esc(page);
   await expect(page.getByTestId("back-to-world")).toHaveCount(0);
@@ -196,16 +189,12 @@ test("Innenansicht: Esc geht erst aus dem Haus, das nächste Esc öffnet das Men
   await pause(page);
 });
 
-test("Einstellungen im Menü: Esc geht zum Spiel; die Schublade schließt Esc zuerst", async ({ page }) => {
+test("Einstellungen im Menü: Esc geht zum Spiel", async ({ page }) => {
   await openApp(page);
-  await page.getByTestId("open-settings").click();
-  await expect(page.getByTestId("settings")).toBeVisible();
-  await esc(page);
-  await expect(page.getByTestId("settings")).toHaveCount(0);
-  await expect(menu(page)).toHaveCount(0);
   await esc(page);
   await pause(page);
   await page.getByTestId("menu-settings").click();
+  await expect(page.getByTestId("settings")).toBeVisible();
   await expect(page.getByTestId("krume-aktuell")).toHaveText("Einstellungen");
   await esc(page);
   await expect(menu(page)).toHaveCount(0);

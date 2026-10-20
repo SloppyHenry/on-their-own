@@ -208,6 +208,7 @@ export class DorfView {
     const w = this.world, L = this.look;
     if (!w) return;
     const p = this.point(e), hit = this.targetAt(p.x, p.y), tile = this.tileAt(p.x, p.y);
+    if (!selectOnly && tile && this.bridge.tileClick?.(tile)) return;
     if (!selectOnly && this.bridge.playerPreview() && this.player?.click(hit, tile, p.x / this.dpr, p.y / this.dpr)) return;
     if (hit?.kind === "agent") {
       const now = performance.now();
@@ -385,7 +386,7 @@ export class DorfView {
       return { id: a.id, x: c.x, y: c.y, scale: (p.sc * k) / d, visible: !inside && p.t <= 1 && c.x > -20 && c.x < this.W / d + 20 && c.y > 0 && c.y < this.H / d + 30, house: num, ...at };
     });
     const rooms = this.interior >= 0 && this.innen ? this.innen.labels.map((r) => ({ id: r.id, x: r.x / d, y: r.y / d - 6 })) : [];
-    const goal = this.player && this.bridge.playerPreview() ? this.player.preview().goal : null, gp = goal && !houseAt(L, goal[0], goal[1]) ? toCss(this.bild.p(goal[0] * T + 8, goal[1] * T + 8)) : null;
+    const goal = this.player && this.bridge.playerPreview() ? this.player.preview().goal : this.bridge.markierung?.() ?? null, gp = goal && !houseAt(L, goal[0], goal[1]) ? toCss(this.bild.p(goal[0] * T + 8, goal[1] * T + 8)) : null;
     const h = this.hover, tip = h && h.kind !== "agent" && !this.drag && performance.now() - this.hoverSince >= TIP_MS ? { text: nameOf(h, w), x: this.mouse.x, y: this.mouse.y } : null;
     const hf = houses.map(({ n, region, house }) => {
       const roof = this.bild.p(region.frame[0] + house.at[0], region.frame[1] + house.at[1]);

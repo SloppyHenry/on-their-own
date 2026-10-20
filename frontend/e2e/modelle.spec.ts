@@ -1,7 +1,7 @@
 // Modellverwaltung (AP17c-4): echtes Backend mit kleinen Dateien statt Hugging Face, einem falschen llama-server und fester Hardware (scripts/e2e_models.py).
 import { randomUUID } from "node:crypto";
 import { expect, test, type APIRequestContext, type Page } from "@playwright/test";
-import { freshWorld, openApp, post } from "./helpers";
+import { freshWorld, openApp, post, openSettingsMenu } from "./helpers";
 
 test.describe.configure({ mode: "serial" });                       // die Tests bauen aufeinander auf (zuerst ohne Laufzeit, dann mit)
 
@@ -18,7 +18,7 @@ async function install(req: APIRequestContext, repo: string, file: string) {
 
 async function openModelle(page: Page) {
   await openApp(page);
-  await page.getByTestId("open-settings").click();
+  await openSettingsMenu(page);
   await page.getByRole("tab", { name: "Modelle", exact: true }).click();
   await expect(page.getByTestId("modelle")).toBeVisible();
 }
@@ -142,14 +142,16 @@ test("Als Standard vorgewählt: das Zurücksetzen-Fenster bietet es an und start
   await small.getByTestId("als-standard").click();
   await expect(small.getByTestId("standard")).toBeVisible();
   expect((await llm(request)).default_model).toBe("Qwen3-4B-Q4_K_M");
-  await page.getByRole("button", { name: "Schließen" }).or(page.getByLabel("Einstellungen schließen")).first().click();
-
-  await page.getByRole("button", { name: /Zurücksetzen/ }).click();
+  await page.keyboard.press("Escape");                                              // zurück ins Spiel
+  await page.keyboard.press("Escape");
+  await page.getByTestId("menu-title").click();
+  await page.getByTestId("menu-newsim").click();
+  await page.getByTestId("newsim-start").click();                                   // Schnellstart: das Zurücksetzen-Fenster
   const dialog = page.getByRole("dialog", { name: "Zurücksetzen bestätigen" });
   await expect(dialog.getByLabel("Modell")).toHaveValue("Qwen3-4B-Q4_K_M");       // das Standardmodell ist vorgewählt
   await dialog.getByRole("button", { name: "Abbrechen" }).click();
 
-  await page.getByTestId("open-settings").click();
+  await openSettingsMenu(page);
   await page.getByRole("tab", { name: "Modelle", exact: true }).click();
   await page.getByTestId("installiert-Qwen3-4B-Q4_K_M").getByTestId("loeschen").click();
   await page.getByTestId("bestaetigung-nein").click();
@@ -169,7 +171,10 @@ test("Zwei Modelle: Neue Simulation mit dem gewählten Modell startet dieses im 
   await expect.poll(async () => (await llm(request)).runtime.state, { timeout: 30_000 }).toBe("running");
   await call(request, "put", "/api/llm/default", { model_id: "Qwen3-8B-Q4_K_M" });
   await openApp(page);
-  await page.getByRole("button", { name: /Zurücksetzen/ }).click();
+  await page.keyboard.press("Escape");
+  await page.getByTestId("menu-title").click();
+  await page.getByTestId("menu-newsim").click();
+  await page.getByTestId("newsim-start").click();                                   // Schnellstart: das Zurücksetzen-Fenster
   const dialog = page.getByRole("dialog", { name: "Zurücksetzen bestätigen" });
   await expect(dialog.getByLabel("Modell")).toHaveValue("Qwen3-8B-Q4_K_M");        // das Standardmodell ist vorgewählt
   await expect(dialog.getByLabel("Modell")).toContainText("noch nicht gemessen");
@@ -223,7 +228,7 @@ test("Der Schritt „Modell“ im Assistenten wählt unter den installierten Mod
   await page.getByTestId("menu-title").click();
   await page.getByTestId("menu-newsim").click();
   await page.getByTestId("newsim-define").click();
-  await page.getByTestId("schritt-3").click();
+  await page.getByTestId("schritt-4").click();
   await expect(page.getByTestId("step-modell")).toBeVisible();
   await expect(page.getByTestId("modell-wahl")).toHaveValue("Qwen3-8B-Q4_K_M");                                       // Standard für neue Simulationen vorgewählt
   await expect(page.getByTestId("modell-siegel")).toContainText("noch nicht gemessen");

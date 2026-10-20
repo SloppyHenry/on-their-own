@@ -35,6 +35,17 @@ export const worldHandlers: { [K in EventType]?: Handler<EventDataMap[K]> } = {
     resources: { ...w.resources, [d.node]: { id: d.node, location_id: d.location_id ?? "", x: d.tile[0], y: d.tile[1], resource: d.resource, amount: d.amount, cap: d.cap, requires_tool: d.requires_tool ?? null, label: d.label ?? null } },
   }),
   "world.links_added": (w, d) => ({ ...w, links: [...(w.links ?? []), ...d.links] }),
+  "world.look_added": (w, d) => {                                       // Ein Bewohner hat Weg, Beet, Baum, Laterne oder Brunnen gebaut: das Stück kommt an sein Gebiet (AP18g)
+    if (!w.look) return w;
+    const cur = normalizeLook(w.look as object);
+    const regions = cur.regions.map((r) => {
+      if (r.id !== d.region) return r;
+      const S = r.shapes;
+      return { ...r, shapes: { ...S, paths: [...S.paths, ...(d.paths as unknown as typeof S.paths)], gardens: [...S.gardens, ...(d.gardens as unknown as typeof S.gardens)] },
+        decor: [...r.decor, ...(d.decor as unknown as typeof r.decor)], lights: [...r.lights, ...(d.lights as unknown as typeof r.lights)], place: { ...r.place, ...(d.place as unknown as typeof r.place) } };
+    });
+    return { ...w, look: { ...cur, regions } as unknown as typeof w.look };
+  },
   "world.look_changed": (w, d) => {                                    // Gebiete und Landstraßen anhängen; alte Form vorher umwandeln (look.ts)
     if (!w.look) return w;
     const cur = normalizeLook(w.look as object);

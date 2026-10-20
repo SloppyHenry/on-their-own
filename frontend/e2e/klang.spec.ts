@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { freshWorld, openApp, openHouse, state } from "./helpers";
+import { freshWorld, openApp, openHouse, state, openSettingsMenu } from "./helpers";
 
 // Klang (AP17d): in Tests ist der Ton sonst aus (automatisierter Browser); hier ausdrücklich an, Abspielen ohne Geste erlaubt.
 test.use({ launchOptions: { args: ["--autoplay-policy=no-user-gesture-required"] } });
@@ -31,7 +31,7 @@ test("Ton läuft: Musik und Umgebung nach Tageszeit, drinnen das eigene Lied, Au
 test("Einstellungen Ton: Lautstärke je Gerät, keine Einzelklänge und keine Quellenwahl (CC0 aus), Stimme je Bewohner einstellen; die Stimme gehört zur Welt (Spielstand)", async ({ page, request }) => {
   const errs = errors(page);
   await openApp(page);
-  await page.getByTestId("open-settings").click();
+  await openSettingsMenu(page);
   await page.getByRole("tab", { name: "Ton", exact: true }).click();
   await expect(page.getByTestId("ton-settings")).toBeVisible();
   await expect(page.getByTestId("ton-klaenge")).toHaveCount(0);                                // einzelne Klänge gehören später in den Sound-Generator
@@ -47,13 +47,13 @@ test("Einstellungen Ton: Lautstärke je Gerät, keine Einzelklänge und keine Qu
   await alex.getByTestId("ton-sprich-alex").click();
   expect(await page.evaluate(() => (window as unknown as { __klang: Klang }).__klang.kanalPegel("voice", 1200))).toBeGreaterThan(-60);
   await page.reload();
-  await page.getByTestId("open-settings").click();
+  await openSettingsMenu(page);
   await page.getByRole("tab", { name: "Ton", exact: true }).click();
   await expect(page.getByTestId("ton-stimme-alex").getByText("250 Hz")).toBeVisible();       // aus der Welt
   await expect(page.getByTestId("ton-gesamt")).toHaveValue("50");                              // Mischpult: je Gerät
   await page.evaluate(() => localStorage.removeItem("simulacra.ton"));                        // auch ein anderer Browser hört dieselbe Stimme
   await page.reload();
-  await page.getByTestId("open-settings").click();
+  await openSettingsMenu(page);
   await page.getByRole("tab", { name: "Ton", exact: true }).click();
   await expect(page.getByTestId("ton-stimme-alex").getByText("250 Hz")).toBeVisible();
   await page.getByTestId("ton-standard-alex").click();

@@ -27,6 +27,16 @@ EXAMPLES = (("ahornthal", 58, "Ahornthal"), ("birkenau", 12, "Birkenau"), ("moor
 START_ID = "dorf-am-see"
 
 
+def platz_startplatz(w: dict) -> list[int] | None:
+    """Die Kachel am Dorfplatz (südlich der Mitte) als Startplatz einer erzeugten Welt; None ohne Platz."""
+    try:
+        r = w["look"]["regions"][0]
+        sq = r["shapes"]["squares"][0]
+        return [int((r["frame"][0] + sq["x"]) // 16), int((r["frame"][1] + sq["y"] + 10) // 16)]
+    except (KeyError, IndexError, TypeError):
+        return None
+
+
 class WorldError(Exception):
     def __init__(self, status: int, text: str, errors: list[str] | None = None):
         super().__init__(text)
@@ -89,6 +99,7 @@ class WorldLibrary:
                 except GenerationError:
                     continue
                 world = self._strip_agents(world)
+                world["startplatz"] = platz_startplatz(world)
                 self._builtin[wid] = (world, self._info(wid, world, "mitgeliefert", readonly=True, seed=seed))
         return self._builtin
 
@@ -103,7 +114,7 @@ class WorldLibrary:
     def _info(wid: str, w: dict, origin: str, readonly: bool = False, seed: int | None = None, note: str = "") -> dict[str, Any]:
         now = datetime.now().isoformat(timespec="seconds")
         return {"id": wid, "name": w["name"], "origin": origin, "readonly": readonly, "size": w["size"], "seed": seed, "note": note, "created": now, "changed": now,
-                "startplatz": bool(w.get("startplatz")), **_stats(w)}
+                "startplatz": bool(w.get("startplatz")) or readonly, **_stats(w)}
 
     # --- Platte ------------------------------------------------------------------------------------------------------
     def _dir(self, wid: str) -> Path:

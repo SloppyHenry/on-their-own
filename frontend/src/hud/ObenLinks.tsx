@@ -17,6 +17,8 @@ export function ObenLinks() {
           <small className="text-[11px] text-dim">{clock.weekday} · {weatherName(world.weather.kind)}{world.worldName ? ` · ${world.worldName}` : ""}</small></span>
       </div>
       <SimulationControls />
+      <span className="glas pille !px-3 !py-1.5 text-xs" data-testid="spielart-abzeichen" data-play-mode={world.playMode} title={world.playMode === "leben" ? "Spielart Leben: nur die Bewohner verändern die Welt (Menü › Einstellungen › Spielart)" : "Spielart Gott: du kannst von außen eingreifen (Menü › Einstellungen › Spielart)"}>
+        {world.playMode === "leben" ? "🌱 Leben" : "✦ Gott"}</span>
     </div>
   );
 }

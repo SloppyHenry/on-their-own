@@ -11,7 +11,7 @@ export const state = async (req: APIRequestContext) => (await req.get("/api/stat
 
 /** Jeder Test beginnt mit derselben frischen Welt (Mira und Alex im selben Zimmer), angehalten. */
 export async function freshWorld(req: APIRequestContext) {
-  await post(req, "/api/sim/reset", { confirm: true });
+  await post(req, "/api/sim/reset", { confirm: true, play_mode: "gott" });          // die Spielart Gott (AP18d): die Tests brauchen die Werkzeuge Ereignis und Gestalten
   await post(req, "/api/params/reset");                   // Einstellungen überleben das Zurücksetzen der Welt: Tests starten mit den Standardwerten
   await post(req, "/api/sim/speed", { level: "4x" });
 }
@@ -24,13 +24,35 @@ export async function openApp(page: Page) {
 }
 
 export const tagBox = async (page: Page, id: string) => {
-  const box = await page.locator(`[data-tag="${id}"]`).boundingBox();
+  const box = await figure(page, id).boundingBox();
   return box ? { x: Math.round(box.x), y: Math.round(box.y) } : null;
 };
 
-/** Wartet, bis die Kamera ruht (Schild zweimal an derselben Stelle), und liefert die Fläche des Schildes. */
+/** Die Figur auf dem Bild: ihr Schild draußen, drinnen (Haus von außen) ihr Bildnis auf dem Dach. */
+export const figure = (page: Page, id: string) => page.locator(`[data-tag="${id}"]:visible, [data-chip="${id}"]:visible`).first();
+
+/** Wo die Figur auf dem Bild steht, ohne Rücksicht auf die Breite ihres Schildes: das Schild selbst, im Haus die Dachmarke des Hauses (alle Bildnisse darauf zusammen). */
+export const placeOf = (page: Page, id: string) => page.locator(`[data-tag="${id}"]:visible, [data-roof]:has([data-chip="${id}"]):visible`).first();
+
+/** Ort der Figur als Punkt: draußen der Fußpunkt (unabhängig von der Breite des Schildes), im Haus die Mitte der Dachmarke. */
+export async function whereIs(page: Page, id: string): Promise<[number, number]> {
+  const tag = page.locator(`[data-tag="${id}"]:visible`);
+  if (await tag.count()) { const v = await tag.first().getAttribute("data-foot"); if (v) return v.split(",").map(Number) as [number, number]; }
+  const b = (await placeOf(page, id).boundingBox())!;
+  return [b.x + b.width / 2, b.y];
+}
+
+/** Fußpunkt der Figur in Bildschirmpixeln, wie die Weltansicht ihn setzt (vor dem Ausweichen der Schilder), sobald die Kamera ruht. */
+export async function settledFoot(page: Page, id: string) {
+  const read = async () => { const v = await page.locator(`[data-tag="${id}"]`).getAttribute("data-foot"); return v ? (v.split(",").map(Number) as [number, number]) : null; };
+  let last = "";
+  await expect.poll(async () => { const p = await read(), now = p ? p.map(Math.round).join(",") : ""; const same = now !== "" && now === last; last = now; return same; }, { intervals: [200] }).toBe(true);
+  return (await read())!;
+}
+
+/** Wartet, bis die Kamera ruht (Schild zweimal an derselben Stelle), und liefert die Fläche des Schildes (oder des Bildnisses auf dem Dach). */
 export async function settledTag(page: Page, id: string) {
-  const loc = page.locator(`[data-tag="${id}"]`);
+  const loc = figure(page, id);
   let last = "";
   await expect.poll(async () => {
     const b = await loc.boundingBox();
@@ -79,7 +101,7 @@ export async function showTab(page: Page, tab: "bewohner" | "protokoll" | "ansic
 /** Einstellungen › Darstellung öffnen (Menü); wer fertig ist, schließt das Menü mit Esc. */
 export async function viewMenu(page: Page) {
   if (await page.getByTestId("editor-panel").isVisible()) return page.getByTestId("view-menu");          // im Welteditor gibt es den Schalter in der Werkzeugleiste
-  if (!(await page.getByTestId("start-menu").isVisible())) await page.keyboard.press("Escape");
+  await openMenu(page);
   await page.getByTestId("menu-settings").click();
   await page.getByRole("tab", { name: "Darstellung" }).click();
   return page.getByTestId("view-menu");
@@ -103,6 +125,20 @@ export async function closeMenu(page: Page) {
   if (!(await page.getByTestId("start-menu").isVisible())) return;
   await page.keyboard.press("Escape");
   await expect(page.getByTestId("start-menu")).toHaveCount(0);
+}
+
+/** Öffnet das Menü mit Esc; offene Ebenen (Detail, Einblick, Haus) nehmen jeweils selbst ein Esc, deshalb so lange, bis das Menü da ist. */
+export async function openMenu(page: Page) {
+  for (let i = 0; i < 6 && !(await page.getByTestId("start-menu").isVisible()); i++) { await page.keyboard.press("Escape"); await page.waitForTimeout(150); }
+  await expect(page.getByTestId("start-menu")).toBeVisible();
+}
+
+/** Menü › Einstellungen öffnen (es gibt keine Schublade mehr), optional gleich einen Bereich. */
+export async function openSettingsMenu(page: Page, tab?: string) {
+  await openMenu(page);
+  await page.getByTestId("menu-settings").click();
+  await expect(page.getByTestId("settings")).toBeVisible();
+  if (tab) await page.getByRole("tab", { name: tab, exact: true }).click();
 }
 
 /** Ereigniseingabe (Gott-Werkzeug) öffnen. */

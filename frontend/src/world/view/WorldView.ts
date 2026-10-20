@@ -211,6 +211,7 @@ export class WorldView {
     const w = this.world, data = this.data;
     if (!w || !data) return;
     const hit = this.last ? hitTest(this.last.drawn, p.x, p.y) : null, tile = this.tileAt(p.x, p.y);
+    if (!selectOnly && tile && this.bridge.tileClick?.(tile)) return;
     if (!selectOnly && this.bridge.playerPreview() && this.player?.click(hit, tile, p.x * this.pf, p.y * this.pf)) return;
     if (hit?.kind === "agent") {
       const now = performance.now();

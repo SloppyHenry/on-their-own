@@ -36,6 +36,8 @@ export function Overlays({ bridge }: { bridge: WorldBridge }) {
         m.style.transform = `translate(${h.x}px, ${h.cy}px)`;
         m.style.display = f.interior < 0 ? "" : "none";
       }
+      const marke = el.querySelector<HTMLElement>("[data-marke]");                               // Werkstatt: Startplatz oder gewählte Ecke
+      if (marke) { marke.style.display = f.goal && !bridge.playerPreview() ? "" : "none"; if (f.goal) marke.style.transform = `translate(${f.goal.x}px, ${f.goal.y - 6}px) translate(-50%, -100%)`; }
       const veil = el.querySelector<SVGSVGElement>("[data-testid=ghost]");
       if (veil) {
         const poly = veil.querySelector("polygon"), label = veil.querySelector<SVGGElement>("[data-ghost-label]");
@@ -64,6 +66,7 @@ export function Overlays({ bridge }: { bridge: WorldBridge }) {
     <div ref={root} className={`pointer-events-none absolute inset-0 overflow-hidden ${wenig ? "w-vb" : ""}`} data-testid="overlays"
       onClick={(e) => { const b = (e.target as HTMLElement).closest<HTMLElement>("[data-bubble]"); if (b?.dataset.seq) select({ kind: "event", id: b.dataset.seq }); }}>
       <div data-markers="" />
+      <div data-testid="werkstatt-marke" data-marke="" className="absolute left-0 top-0 z-[3] text-xl [text-shadow:0_2px_4px_#000a]" style={{ display: "none" }}>📍</div>
       <svg data-testid="ghost" className="absolute inset-0 z-[1] size-full" style={{ display: "none" }} aria-hidden="true">
         <polygon fill="rgba(150,120,220,0.27)" stroke="#d9c8ff" strokeWidth="2" strokeDasharray="8 6" strokeLinejoin="round" />
         <g data-ghost-label=""><rect x="0" y="-14" width="212" height="20" rx="10" fill="#2b2233" fillOpacity="0.88" /><text x="106" y="0" textAnchor="middle" fontSize="11" fontWeight="600" fill="#fff8ec">Vorschau – noch nicht übernommen</text></g>
@@ -89,7 +92,7 @@ export function Overlays({ bridge }: { bridge: WorldBridge }) {
       ))}
       {roofs.map((r, i) => r.length > 0 && (
         <div key={i} data-roof={i} data-testid={`roof-${i}`} className="w-roof" style={{ display: "none" }}>
-          {r.map((id) => <span key={id} className="chipw" style={{ ["--c" as string]: accentOf(id) }}><Portrait id={id} size={20} />{world?.agents[id]?.name}{world ? ` · ${activityOf(world.agents[id], world).text.slice(0, 18)}` : ""}</span>)}
+          {r.map((id) => <span key={id} data-chip={id} className="chipw" style={{ ["--c" as string]: accentOf(id) }}><Portrait id={id} size={20} />{world?.agents[id]?.name}{world ? ` · ${activityOf(world.agents[id], world).text.slice(0, 18)}` : ""}</span>)}
         </div>
       ))}
     </div>

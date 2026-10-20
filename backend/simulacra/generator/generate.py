@@ -14,6 +14,7 @@ from ..world import look as lk
 from .compose import TEX_SHIFT, T, Village, build_village, place
 from .layout import Params, make_layout
 from .names import Naming, village_name
+from .stil import Stil
 from .rng import Rng
 from .validate import Report, check_world
 
@@ -71,7 +72,7 @@ def default_mix(n: int) -> dict[str, int]:
     return mix
 
 
-def new_world(seed: int, *, lake: str = "auto", mix: dict[str, int] | None = None, name: str | None = None, residents: list[dict] | None = None) -> tuple[dict, Report]:
+def new_world(seed: int, *, lake: str = "auto", mix: dict[str, int] | None = None, name: str | None = None, residents: list[dict] | None = None, stil: Stil | None = None) -> tuple[dict, Report]:
     """Eine komplette Weltdatei (wie `world_default.json`) mit einem Dorf: Heimhaus für Alex und Mira, Platz, Garten, See, Wald.
 
     Mit `residents` (Liste aus `{"id", "name", "home"}`, `home` = Nummer des Wohnhauses oder None) entsteht stattdessen ein Dorf für genau diese Bewohner (AP17b):
@@ -87,7 +88,7 @@ def new_world(seed: int, *, lake: str = "auto", mix: dict[str, int] | None = Non
     for attempt in range(TRIES):
         s = seed + attempt * 1000003
         vn = name or village_name(Rng(s), set())
-        v = build_village(Params(s, lake, mix, home=not residents, residents=n), Naming("", vn), vn)
+        v = build_village(Params(s, lake, mix, home=not residents, residents=n, stil=stil or Stil()), Naming("", vn), vn)
         d = place(v, 0, 0)
         sq = d["region"]["shapes"]["squares"][0]
         start = _tile(d, v, sq["x"], sq["y"] + 10)
@@ -95,6 +96,10 @@ def new_world(seed: int, *, lake: str = "auto", mix: dict[str, int] | None = Non
             last = Report(errors=["Der Dorfplatz hat zu wenig begehbare Kacheln für alle Bewohner."])
             continue
         rep = check_world(d, start)
+        if v.layout.skipped:
+            rep.check("Gebäude: nicht alle passten", True, f"{v.layout.skipped} passten nicht")                           # nur ein Hinweis, kein Fehler
+        if v.layout.notes:
+            rep.check("Auch nicht alles andere passte", True, ", ".join(v.layout.notes) + " passte nicht")
         if residents:
             beds = sum(o["kind"] == "bed" for o in d["objects"])
             rep.check("Betten für alle Bewohner (höchstens 2 je Haus)", beds >= n, f"{beds} Betten, {n} Bewohner")
@@ -106,7 +111,7 @@ def new_world(seed: int, *, lake: str = "auto", mix: dict[str, int] | None = Non
             raise GenerationError(f"Die Karte würde {W}×{H} Kacheln groß; erlaubt sind {MAX_MAP}×{MAX_MAP}.")
         locations = d["locations"] + [{"id": "paths", "name": "Wege und Wiesen", "rect": [0, 0, W, H], "entrances": [], "extra_tiles": [],
                                        "props": {"fallback": True, "to": "auf die Wege", "at": "auf den Wegen", "themes": []}}]
-        gen = {"seed": s, "requested_seed": seed, "village": vn}
+        gen = {"seed": s, "requested_seed": seed, "village": vn, **({"stil": stil.changed()} if stil and stil.changed() else {})}
         if residents:
             agents, gen = _residents(d, v, tpl, residents, gen)
         else:

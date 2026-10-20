@@ -1,12 +1,18 @@
-// Werkzeuge unten in der Mitte (AP18b, Mockup Bild 5): Ereignis (E) und Gestalten (B). Bis die Spielarten da sind (AP18d), gilt jede Simulation als „Gott“.
+// Werkzeuge unten in der Mitte (AP18b, Mockup Bild 5): Ereignis (E) und Gestalten (B). Nur in der Spielart Gott (AP18d); alte Spielstände gelten als Gott.
 import { useEffect } from "react";
 import { EventComposer } from "../composer/EventComposer";
 import { enterEditor } from "../editor/editorStore";
+import { useSimStore } from "../store/simStore";
 import { useUiStore } from "../store/uiStore";
 import { EBENE, useRueckweg } from "../ui/zurueck";
 import { isTyping } from "../world/player/PlayerController";
 
 export function Werkzeuge() {
+  const gott = useSimStore((s) => s.world?.playMode === "gott");
+  return gott ? <GottWerkzeuge /> : null;                                                       // in der Spielart Leben gibt es keine Leiste (nur die Bewohner verändern die Welt)
+}
+
+function GottWerkzeuge() {
   const pop = useUiStore((s) => s.pop), setPop = useUiStore((s) => s.setPop), menu = useUiStore((s) => s.menu);
   useRueckweg(pop !== null, EBENE.Popover, () => setPop(null));
   const gestalten = () => { const ui = useUiStore.getState(); ui.setPop(null); ui.setView("world"); enterEditor("extend", null); };

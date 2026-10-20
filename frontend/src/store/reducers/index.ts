@@ -33,6 +33,7 @@ export function applySnapshot(s: StateSnapshot): World {
     links: s.links ?? [],
     look: s.look ?? null,
     voices: s.voices ?? {},
+    playMode: s.play_mode ?? "gott",
     stale: false,
   };
 }

@@ -46,6 +46,8 @@ export interface World {
   look?: StateSnapshot["look"];
   /** Eigene Stimmen der Figuren (AP17d), gespeichert in der Welt und damit im Spielstand; fehlt eine, gilt der Vorschlag. */
   voices: StateSnapshot["voices"];
+  /** Spielart (AP18d): „leben“ = nur die Bewohner verändern die Welt, „gott“ = auch du von außen. Alte Spielstände gelten als „gott“. */
+  playMode: "leben" | "gott";
   /** Ein Ereignis war unvollständig (z. B. abgeschnittene Kachelliste): Zustand neu laden. */
   stale: boolean;
 }

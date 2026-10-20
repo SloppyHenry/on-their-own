@@ -6,22 +6,22 @@ import { activityOf } from "../panels/AgentPanel";
 import { useSimStore } from "../store/simStore";
 import { useUiStore, type MenuPane } from "../store/uiStore";
 import { EBENE, anmelden, useRueckweg } from "../ui/zurueck";
-import { DefinePane, EditorsPane, FigurenPane, LoadPane, NewSimPane, SettingsPane } from "./MenuPanes";
+import { DefinePane, EditorsPane, FigurenPane, LoadPane, NewSimPane, SettingsPane, WeltenSeite } from "./MenuPanes";
 
 interface Item { id: string; label: string; icon: string; pane?: MenuPane; hint?: string; resume?: boolean }
 
 const TITLE_ITEMS = (running: boolean): (Item | "sep")[] => [
   ...(running ? [{ id: "resume", label: "Fortsetzen", icon: "▶", resume: true } as Item] : []),
-  { id: "newsim", label: "Neue Simulation", icon: "✦", pane: "newsim", hint: "Startwelt oder neues Dorf" },
+  { id: "newsim", label: "Neue Simulation", icon: "✦", pane: "newsim", hint: "Schnellstart oder selbst definieren" },
   { id: "load", label: "Simulation laden", icon: "⤓", pane: "load", hint: "Spielstände" },
   "sep",
-  { id: "editors", label: "Editoren", icon: "✎", pane: "editors", hint: "Welt · Figuren · Bausteine" },
+  { id: "editors", label: "Editoren", icon: "✎", pane: "editors", hint: "Welten · Figuren · Bausteine" },
   { id: "settings", label: "Einstellungen", icon: "⚙", pane: "settings", hint: "Regler, Presets, Status" },
 ];
 const PAUSE_ITEMS: (Item | "sep")[] = [
   { id: "resume", label: "Zurück zum Spiel", icon: "▶", hint: "Esc" },
   { id: "load", label: "Speichern und laden", icon: "⤓", pane: "load" },
-  { id: "editors", label: "Editoren", icon: "✎", pane: "editors", hint: "Welt gestalten" },
+  { id: "editors", label: "Editoren", icon: "✎", pane: "editors", hint: "Welten · Figuren" },
   { id: "settings", label: "Einstellungen", icon: "⚙", pane: "settings" },
   { id: "title", label: "Hauptmenü", icon: "☰", hint: "Die Simulation läuft weiter" },
 ];
@@ -68,7 +68,6 @@ export function StartMenu() {
 
   if (menu === null) return null;
   const item = real.find((i) => i.id === sel);
-  const stelle = { menu, sel, sub };
   return (
     <div data-testid="start-menu" data-mode={menu} className={`absolute inset-0 z-30 grid items-center gap-7 px-[5vw] pl-[6vw] max-[900px]:grid-cols-1 min-[901px]:grid-cols-[minmax(300px,380px)_minmax(0,1fr)] ${menu === "title" ? "bg-[linear-gradient(90deg,rgba(20,12,28,.92),rgba(20,12,28,.72)_30%,rgba(20,12,28,.25)_58%,transparent)]" : "bg-black/50"}`}>
       <div>
@@ -93,9 +92,9 @@ export function StartMenu() {
       <div className="min-w-0">
         {item?.pane && (
           <section key={item.pane} data-testid={`menu-pane-${item.pane}`} className="max-h-[84vh] overflow-auto rounded-2xl border border-line bg-[rgba(30,22,38,.92)] shadow-[0_20px_60px_#0009] backdrop-blur-md [animation:menu-in_.22s_ease-out]">
-            {item.pane === "newsim" && (sub === "define" ? <DefinePane /> : <NewSimPane stelle={stelle} onLoad={() => setMenuSel("load")} />)}
+            {item.pane === "newsim" && (sub === "define" ? <DefinePane /> : <NewSimPane onLoad={() => setMenuSel("load")} />)}
             {item.pane === "load" && <LoadPane />}
-            {item.pane === "editors" && (sub === "figuren" ? <FigurenPane /> : <EditorsPane stelle={stelle} />)}
+            {item.pane === "editors" && (sub === "figuren" ? <FigurenPane /> : sub === "welten" ? <WeltenSeite /> : <EditorsPane />)}
             {item.pane === "settings" && <SettingsPane />}
           </section>
         )}

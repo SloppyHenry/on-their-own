@@ -12,8 +12,7 @@ test("Inspektor zeigt die Erinnerungen des gewählten Agenten und nur diese (§1
   await post(request, "/api/sim/step", { n: 40 });
   expect((await ids(request, "alex")).length).toBeGreaterThan(3);
   await openApp(page);
-  await page.getByTestId("open-insights").click();
-  await page.getByTestId("open-memory").click();
+  await page.getByTestId("einblick-memory").click();
   const inspector = page.getByTestId("memory-inspector");
   await expect(inspector).toBeVisible();
   const rows = page.getByTestId("memory-row");
@@ -30,8 +29,7 @@ test("Inspektor zeigt die Erinnerungen des gewählten Agenten und nur diese (§1
 test("Filter, Suche und Detail mit Herkunft", async ({ page, request }) => {
   await post(request, "/api/sim/step", { n: 50 });
   await openApp(page);
-  await page.getByTestId("open-insights").click();
-  await page.getByTestId("open-memory").click();
+  await page.getByTestId("einblick-memory").click();
   const rows = page.getByTestId("memory-row");
   await expect(rows.first()).toBeVisible();
   const all = await rows.count();
@@ -55,8 +53,7 @@ test("Wissen und Abrufe sind einsehbar", async ({ page, request }) => {
     if ((await (await request.get("/api/agents/alex/retrievals?limit=1")).json()).length) break;
   }
   await openApp(page);
-  await page.getByTestId("open-insights").click();
-  await page.getByTestId("open-memory").click();
+  await page.getByTestId("einblick-memory").click();
   await page.getByRole("button", { name: "Was ich weiß" }).click();
   await expect(page.getByTestId("knowledge")).toContainText("Personen");
   await expect(page.getByTestId("knowledge")).toContainText("Bett (Alex)");
@@ -79,7 +76,7 @@ test("Das Agentendetail zeigt die letzten Erinnerungen und öffnet den Inspektor
   await page.getByTestId("agent-card-mira").click();
   const drawer = page.getByTestId("drawer");
   await expect(drawer).toContainText("Erinnerungen");
-  await drawer.getByRole("button", { name: "Gedächtnis öffnen" }).click();
+  await drawer.getByTestId("karte-gedaechtnis").click();
   await expect(page.getByTestId("memory-inspector")).toBeVisible();
   expect((await state(request)).agents.length).toBe(2);
 });

@@ -9,6 +9,8 @@ from dataclasses import dataclass, field
 
 from .geometry import Pt, lerp_y, line_dist
 from .rng import Rng, jr
+from .layout_extra import apply_stil
+from .stil import Stil
 
 ROOFS = ["rot", "blau", "stroh", "moos", "schiefer", "holz"]
 WALLS = ["creme", "rosa", "gelb", "blau", "holz"]
@@ -25,6 +27,7 @@ class Params:
     mix: dict[str, int] | None = None               # Rollen → Anzahl (house, shop, workshop, barn, stable); sonst 3 Häuser + 2 Sondergebäude
     residents: int = 0                              # Zahl der Bewohner (AP17b): Startplätze auf dem Platz, zwei Betten je Wohnhaus; 0 = wie bisher
     home: bool = False                              # neue Startwelt: das erste Haus ist das Heimhaus (Haus aus Bild A mit fünf Räumen)
+    stil: Stil = Stil()                             # Stellgrößen (AP18f); die Vorgaben ergeben das Dorf wie bisher
 
 
 @dataclass
@@ -43,18 +46,28 @@ class Layout:
     east: bool
     ext_l: int
     sq: dict
-    lake: dict
-    dock: dict
+    lake: dict | None                               # None bei „Seen 0“
+    dock: dict | None
     paths: list[list[Pt]]
     stream: list[Pt]
     bridge: dict | None
-    garden: dict
+    garden: dict | None                             # None bei „Gärten 0“
     beds: list[list[int]]
     pads: list[list[float]]
     buildings: list[Building]
     decor: list[list]                               # [Art, x, y, Zusatz]
     exits: dict[str, Pt]
     lamps: list[int] = field(default_factory=list)
+    # Erweiterungen der Stellgrößen (AP18f), ohne sie leer
+    ponds: list[dict] = field(default_factory=list)                 # weitere Seen: {x, y, rx, ry}
+    strands: list[list[Pt]] = field(default_factory=list)           # weitere Wasserlinien (Fluss besteht aus drei Strängen)
+    bridges2: list[dict] = field(default_factory=list)
+    gardens2: list[dict] = field(default_factory=list)              # weitere Gärten und Felder: {x0, y0, x1, y1, beds, fenced}
+    extra_h: int = 0                                                # zusätzliche Höhe des Dorfs nach Süden (Pixel, Vielfaches von 16)
+    skipped: int = 0                                                # Gebäude, die nicht passten
+    notes: list[str] = field(default_factory=list)                   # was sonst nicht passte (Teich, Garten, Feld), für den Prüfbericht
+    form: str = "strasse"
+    spare: list["Building"] = field(default_factory=list)          # Gebäude für die zweite Zeile oder den Haufen, noch nicht gesetzt
 
 
 def make_layout(p: Params) -> Layout:
@@ -70,6 +83,8 @@ def make_layout(p: Params) -> Layout:
     sq = {"x": jr(rnd(110, 146)), "y": jr(rnd(104, 114)), "r": jr(rnd(22, 27))}
     y0 = sq["y"]
 
+    st = p.stil
+    form = st.form if st.form != "zufall" else Rng(seed * 3 + 5).pick(["strasse", "beidseitig", "haufen"])
     # Gebäude der Häuserzeile festlegen (Rollen, Breiten), daraus die Breite des Dorfs
     roles = _roles(p, R)
     items: list[Building] = []
@@ -81,6 +96,9 @@ def make_layout(p: Params) -> Layout:
             items.append(Building("house", f"bh:{ww}:{R.pick(ROOFS)}:{R.pick(WALLS)}", 0, 0, ww + 12, ww))
         else:
             items.append(Building(role, KIND[role], 0, 0, WIDTH[role]))
+    spare = items[1::2] if form == "beidseitig" else items if form == "haufen" else []          # Gebäude, die nicht in die erste Zeile kommen (AP18f: zweite Zeile, Haufen)
+    spare_ids = {id(b) for b in spare}
+    items = [b for b in items if id(b) not in spare_ids]
     total = sum(b.w for b in items) + 7 * len(items)
     # See: im Osten wie in A oder im Süden; bei See im Osten bleibt die Zeile vor dem See, sonst reicht sie bis zum Rand
     if east:
@@ -90,7 +108,12 @@ def make_layout(p: Params) -> Layout:
         lake = {"x": jr(rnd(184, 214)), "y": 164, "rx": 40, "ry": 24}
         xmax = 258
     need = total + 12 - xmax                                                      # so weit muss das Dorf nach Westen reichen
+    if form == "beidseitig" and spare:                                            # die zweite Zeile liegt westlich von Garten und Platz (dort ist unten Platz)
+        need = max(need, sum(b.w + 30 for b in spare) + 6)
+    elif form == "haufen":                                                        # der Haufen braucht um den Platz herum Fläche
+        need = max(need, 60 * len(spare) - 150)
     ext_l = 0 if need <= 0 else int(math.ceil(need / 16.0)) * 16
+    ext_l = max(ext_l, {"klein": 0, "mittel": 96, "gross": 192}[st.groesse])
 
     # Wege: Hauptstraße West–Ost (bei See im Osten nur bis zum See), Südstraße
     west = [(-ext_l - 60, y0 + rnd(-6, 6)), (20, y0 + rnd(-5, 5)), (sq["x"] - sq["r"] + 4, y0)]
@@ -139,6 +162,7 @@ def make_layout(p: Params) -> Layout:
     pads: list[list[float]] = []
     buildings: list[Building] = []
     xc = jr(-ext_l + rnd(4, 12))
+    dropped = 0
 
     def hit(x1: float, w1: float) -> bool:
         return (not east) and x1 < sx + 8 and x1 + w1 > sx - 8
@@ -158,6 +182,7 @@ def make_layout(p: Params) -> Layout:
             if role == "house" and w > 70 and x1 + 70 <= xmax:
                 ww, w, kind = 58, 70, f"bh:58:{R.pick(ROOFS)}:{R.pick(WALLS)}"
             else:
+                dropped += 1
                 continue
         xc = x1
         cx = xc + w / 2
@@ -254,8 +279,9 @@ def make_layout(p: Params) -> Layout:
     if not east:
         exits["east"] = (east_road[-1][0], east_road[-1][1])
     r1 = lambda pl: [(round(a, 1), round(b, 1)) for a, b in pl]
-    return Layout(seed, east, ext_l, sq, lake, dock, [r1(pl) for pl in paths], r1(stream), bridge, garden, beds, [[round(v, 1) for v in q] for q in pads],
-                  buildings, decor, {k: (round(v[0], 1), round(v[1], 1)) for k, v in exits.items()}, lamps)
+    lay = Layout(seed, east, ext_l, sq, lake, dock, [r1(pl) for pl in paths], r1(stream), bridge, garden, beds, [[round(v, 1) for v in q] for q in pads],
+                 buildings, decor, {k: (round(v[0], 1), round(v[1], 1)) for k, v in exits.items()}, lamps, form=form, spare=spare, skipped=dropped)
+    return apply_stil(lay, p)
 
 
 def _roles(p: Params, R: Rng) -> list[str]:

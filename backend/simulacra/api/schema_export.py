@@ -26,6 +26,7 @@ from . import models_params as mp
 from . import models_saves as ms
 from . import models_world as mw
 from . import models_newsim as mn
+from . import models_welten as mwl
 
 API_MODELS: list[type[BaseModel]] = [
     api.StateSnapshot, api.AgentDetail, api.LocationDetail, api.EventsPage, api.EventDetail, api.SimCommandResult,
@@ -39,8 +40,10 @@ API_MODELS: list[type[BaseModel]] = [
     ms.SaveOut, ms.SaveCreate, ms.SaveLoadRequest, ms.StatsOut, auth.AuthStatus, auth.LoginRequest,
     ml.HardwareOut, ml.CatalogOut,
     mr.LlmStatusOut, mr.WsModels, mr.ModeSet, mr.ExternalTest, mr.ExternalTestOut, mr.DownloadRequest, mr.RuntimeInstallRequest, mr.ModelRef,
-    mw.GenerateRequest, mw.GenerateApplyRequest, mw.GeneratePreview, mw.GenerateApplied, mw.PatchPreviewRequest, mw.PatchPreview,
+    mw.Stellgroessen, mw.GenerateRequest, mw.GenerateApplyRequest, mw.GeneratePreview, mw.GenerateApplied, mw.PatchPreviewRequest, mw.PatchPreview,
     mn.NewSimRequest, mn.NewSimApplyRequest, mn.NewSimPreview, mn.NewSimApplied, mn.NewSimLimits, mn.TemplateOut, mn.TemplateIn, mn.TemplateImported, mn.RulesPreviewRequest, mn.StartEvent,
+    api.PlayModeRequest, mwl.WorldInfoOut, mwl.WorldDoc, mwl.BlankRequest, mwl.GenerateWorldRequest, mwl.RenameRequest, mwl.FromSimRequest, mwl.SaveWorldRequest, mwl.CreateWorldRequest,
+    mwl.PreviewWorldRequest, mwl.AddAreaRequest, mwl.AddAreaOut,
     EventOut, SimTime,
 ]
 
@@ -69,7 +72,7 @@ def _clean(node, top: bool = False):
     return node
 
 
-REQUESTS = {mw.PatchPreviewRequest, mw.GenerateRequest, mw.GenerateApplyRequest, ms.SaveCreate, ms.SaveLoadRequest, mi.InjectParseRequest, mi.InjectConfirmRequest, api.StartRequest, api.StepRequest, api.ResetRequest, api.SpeedRequest, mp.ParamPatch, mp.ParamResetRequest, mp.PresetSave, mp.PresetRename,
+REQUESTS = {api.PlayModeRequest, mwl.BlankRequest, mwl.GenerateWorldRequest, mwl.RenameRequest, mwl.FromSimRequest, mwl.SaveWorldRequest, mwl.CreateWorldRequest, mwl.PreviewWorldRequest, mwl.AddAreaRequest, mw.PatchPreviewRequest, mw.GenerateRequest, mw.GenerateApplyRequest, ms.SaveCreate, ms.SaveLoadRequest, mi.InjectParseRequest, mi.InjectConfirmRequest, api.StartRequest, api.StepRequest, api.ResetRequest, api.SpeedRequest, mp.ParamPatch, mp.ParamResetRequest, mp.PresetSave, mp.PresetRename,
             mp.PresetDuplicate, mp.PresetLoadRequest, mr.ModeSet, mr.ExternalTest, mr.DownloadRequest, mr.RuntimeInstallRequest, mr.ModelRef, api.WsHello, api.WsResync, api.WsPong}
 
 

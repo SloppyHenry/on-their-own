@@ -107,3 +107,11 @@ def test_kein_prompt_und_keine_erinnerung_kennt_die_spielart(c):
         assert META_RE.findall(text) == [] and "play_mode" not in text.lower() and "gott" not in text.lower().split(), aid
     rows = sim.engine.state.conn.execute("SELECT agents FROM events WHERE type='simulation.play_mode_changed'").fetchall()
     assert rows and all(json.loads(x["agents"]) == [] for x in rows)
+
+
+def test_ereignisse_von_allein_lassen_sich_beim_anlegen_waehlen(c):
+    body = spec(2)
+    body["rules"] = {"world_events": "oft"}
+    r, _ = apply(c, body)
+    assert r.status_code == 200, r.text
+    assert c.app.state.sim.inject.welt.frequency == "oft"

@@ -21,9 +21,13 @@ async function openAssistant(page: Page) {
   await page.getByTestId("menu-newsim").click();
   await page.getByTestId("newsim-define").click();
   await expect(page.getByTestId("assistent")).toBeVisible();
+  await expect(page.getByTestId("step-spielart")).toBeVisible();
+  await toStep(page, 0);                                                                                              // die Tests beginnen beim Schritt „Welt“
+  await expect(page.getByTestId("step-welt")).toBeVisible();
 }
 
-async function toStep(page: Page, i: number) { await page.getByTestId(`schritt-${i}`).click(); }
+/** Schritt der alten Zählung (0 Welt … 4 Start): seit AP18d steht davor der Schritt „Spielart“. */
+async function toStep(page: Page, i: number) { await page.getByTestId(`schritt-${i + 1}`).click(); }
 const agentIds = async (req: APIRequestContext) => ((await state(req)).agents as { id: string }[]).map((a) => a.id).sort();
 
 test("Schritt Welt: das neue Dorf erscheint unter dem Schleier, die laufende Welt bleibt unverändert", async ({ page, request }) => {
@@ -176,7 +180,7 @@ test("Der Entwurf bleibt nach dem Neuladen und lässt sich verwerfen", async ({ 
   await expect(page.getByTestId("bew-anzahl")).toHaveText("3");
   await expect(page.getByTestId("maske-description")).toHaveValue("Mein eigener Text.");
   await page.getByTestId("verwerfen").click();
-  await expect(page.getByTestId("step-welt")).toBeVisible();
+  await expect(page.getByTestId("step-spielart")).toBeVisible();                                                    // der Entwurf beginnt wieder vorn
   await toStep(page, 1);
   await expect(page.getByTestId("bew-anzahl")).toHaveText("2");
 });

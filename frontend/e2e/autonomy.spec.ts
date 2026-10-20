@@ -6,11 +6,12 @@ test.beforeEach(async ({ request }) => { await freshWorld(request); });
 test("Agentenübersicht zeigt Ziel, Stimmung und Bedürfnisse aus den echten Daten", async ({ page, request }) => {
   await post(request, "/api/sim/step", { n: 30 });
   await openApp(page);
+  await page.getByTestId("agent-card-alex").click();                       // Bewohner-Karte (Überblick): Ziel, Stimmung und Bedürfnisse
   const goal = page.getByTestId("goal-line-alex");
   await expect(goal).toBeVisible();
   await expect(goal).toContainText("gehen und sich umsehen");
   await expect(page.getByTestId("mood-alex")).toHaveAttribute("title", "Stimmung");
-  const bars = page.getByTestId("agent-card-alex").getByTestId("needs");
+  const bars = page.getByTestId("drawer").getByTestId("needs");
   await expect(bars.locator("[data-need]")).toHaveCount(5);              // Energie, Sattheit, Wasser, Gesellschaft, Ruhe (Wärme ist aus)
   const api = await (await request.get("/api/overview")).json();
   expect(api[0].goal.text).toContain("gehen und sich umsehen");
@@ -21,12 +22,16 @@ test("Agenten-Detail: Ziele mit Plan, Beziehung, Fehlschläge und „Warum?“ a
   await openApp(page);
   await page.getByTestId("agent-card-alex").click();
   const drawer = page.getByTestId("drawer");
+  await expect(drawer.getByTestId("mood-detail")).toContainText("Stimmung:");
+  await drawer.getByTestId("karte-ziele").click();
   await expect(drawer.getByTestId("current-goal")).toContainText("Erfüllt, wenn:");
   await expect(drawer.getByTestId("goals")).toContainText("etwas Bleibendes bauen");
+  await drawer.getByTestId("karte-beziehungen").click();
   await expect(drawer.getByTestId("relations")).toContainText("Mira");
   await expect(drawer.getByTestId("relations").locator("[data-metric]")).toHaveCount(4);
+  await drawer.getByTestId("karte-fehlschlaege").click();
   await expect(drawer.getByTestId("failures")).toBeVisible();
-  await expect(drawer.getByTestId("mood-detail")).toContainText("Stimmung:");
+  await drawer.getByTestId("karte-entscheidungen").click();
   await drawer.getByRole("button", { name: /Warum\?/ }).first().click();
   const why = drawer.getByTestId("why");
   await expect(why).toContainText("entscheidet sich für");

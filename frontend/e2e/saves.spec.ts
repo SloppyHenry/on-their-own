@@ -5,7 +5,7 @@ test.beforeEach(async ({ request }) => { await freshWorld(request); });
 
 const minute = async (r: Parameters<typeof state>[0]) => (await state(r)).clock.minute as number;
 const openSaves = async (page: Page) => { await page.getByTestId("open-menu").click(); await page.getByTestId("menu-load").click(); await expect(page.getByTestId("saves-dialog")).toBeVisible(); };
-const closeSaves = async (page: Page) => { await page.getByTestId("open-menu").click(); await expect(page.getByTestId("start-menu")).toHaveCount(0); };
+const closeSaves = async (page: Page) => { await page.keyboard.press("Escape"); await expect(page.getByTestId("start-menu")).toHaveCount(0); };
 const saveAs = async (page: Page, name: string) => { await page.getByLabel("Name des Spielstands").fill(name); await page.getByTestId("save-now").click(); };
 
 test("Speichern, weiterlaufen, Laden: der Browser zeigt den gespeicherten Stand; vorher wird gesichert (§17 Nr. 7)", async ({ page, request }) => {
@@ -79,7 +79,10 @@ test("Löschen fragt nach; Export und Import als ZIP legen einen neuen Stand an"
 test("Zurücksetzen sichert vorher als Spielstand und lässt die Profile behalten", async ({ page, request }) => {
   await openApp(page);
   await post(request, "/api/sim/step", { n: 10 });
-  await page.getByRole("button", { name: /Zurücksetzen/ }).click();
+  await page.keyboard.press("Escape");
+  await page.getByTestId("menu-title").click();
+  await page.getByTestId("menu-newsim").click();
+  await page.getByTestId("newsim-start").click();                                                          // Schnellstart: dasselbe Zurücksetzen mit Rückfrage
   await expect(page.getByText("Vor dem Zurücksetzen")).toBeVisible();
   await page.getByTestId("keep-profiles").check();
   await page.getByLabel(/Zur Bestätigung/).fill("zurücksetzen");
@@ -92,8 +95,8 @@ test("Zurücksetzen sichert vorher als Spielstand und lässt die Profile behalte
 test("Verlauf: Filter nach Kategorie, Text und Zeitraum, Export als CSV und JSON", async ({ page, request }) => {
   await openApp(page);
   await steps(request, 60);
-  await page.getByTestId("open-insights").click();
-  await page.getByTestId("open-history-view").click();
+  await page.getByTestId("einblick-tagebuch").click();
+  await page.getByTestId("tagebuch-alles").click();
   const view = page.getByTestId("history-view");
   await expect(view).toBeVisible();
   const count = async () => Number(((await page.getByTestId("history-count").textContent()) ?? "").match(/^\d+/)![0]);
@@ -123,8 +126,7 @@ test("Verlauf: Filter nach Kategorie, Text und Zeitraum, Export als CSV und JSON
 test("Statistik zeigt echte Zahlen und Verläufe aus dem laufenden Tag (§14)", async ({ page, request }) => {
   await openApp(page);
   await steps(request, 180);
-  await page.getByTestId("open-insights").click();
-  await page.getByTestId("open-stats").click();
+  await page.getByTestId("einblick-stats").click();
   const kpis = page.getByTestId("kpis");
   await expect(kpis).toContainText("Aktionen gelungen");
   const api = await (await request.get("/api/stats")).json();

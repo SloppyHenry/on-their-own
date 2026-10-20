@@ -4,7 +4,7 @@ import { useState } from "react";
 import { AnsichtWahl } from "../settings/Darstellung";
 import { useUiStore } from "../store/uiStore";
 import { EBENE, useRueckweg } from "../ui/zurueck";
-import { MAX_EACH, MAX_TOTAL, ROLES, enterEditor, leaveEditor, mixTotal, useEditorStore, wishKey, type Kind, type Lake } from "./editorStore";
+import { MAX_EACH, MAX_TOTAL, ROLES, leaveEditor, mixTotal, useEditorStore, wishKey, type Lake } from "./editorStore";
 
 const LAKES: [Lake, string][] = [["auto", "Nach Zufall"], ["east", "Im Osten (wie im Startdorf)"], ["south", "Im Süden, mit Brücke"]];
 const COUNT_LABEL: Record<string, string> = { locations: "Orte", objects: "Objekte", resource_nodes: "Quellen", links: "Türen", agents: "Figuren" };
@@ -12,7 +12,7 @@ export const NEW_WORD = "neu starten";
 const field = "rounded-md border border-line bg-bg px-2 py-1";
 
 export function WorldEditor() {
-  const tab = useEditorStore((s) => s.tab), fromMenu = useUiStore((s) => s.returnTo !== null);
+  const fromMenu = useUiStore((s) => s.returnTo !== null);
   useRueckweg(true, EBENE.Werkstatt, leaveEditor);                                                  // Esc und „Zurück“ gehen an dieselbe Stelle: ins Menü, wenn man von dort kam
   return (
     <aside data-testid="editor-panel" className="relative flex min-h-0 flex-col overflow-y-auto border-l border-line bg-panel">
@@ -22,16 +22,9 @@ export function WorldEditor() {
         <button type="button" className="btn" onClick={leaveEditor} data-testid="editor-close">{fromMenu ? "← Zurück zum Menü" : "Zurück ins Spiel"}</button>
       </header>
       <div className="flex items-center gap-2 border-b border-line px-4 py-2 text-[13px]" data-testid="view-menu"><span className="text-dim">Ansicht</span><AnsichtWahl /></div>
-      <div className="flex gap-1 border-b border-line px-3 py-2" role="tablist" aria-label="Werkzeug">
-        {([["extend", "Dorf anfügen"], ["new", "Neue Simulation"]] as [Kind, string][]).map(([k, label]) => (
-          <button key={k} type="button" role="tab" aria-selected={tab === k} className={`btn ${tab === k ? "on" : ""}`} onClick={() => enterEditor(k)} data-testid={`tab-${k}`}>{label}</button>
-        ))}
-      </div>
       <div className="grid gap-4 p-4 text-[13px]">
         <p className="text-dim" data-testid="editor-intro">
-          {tab === "extend"
-            ? "Der Generator legt ein weiteres Dorf an die laufende Welt an, mit einer Landstraße zum letzten Dorf. Erst die Vorschau ansehen, dann übernehmen; vorher sichert die Leitstelle den Stand."
-            : "Beginnt eine neue Simulation mit einem frisch erzeugten Dorf. Der bisherige Stand wird als Spielstand gesichert, nicht gelöscht."}
+          Der Generator legt ein weiteres Dorf an die laufende Welt an, mit einer Landstraße zum letzten Dorf. Erst die Vorschau ansehen, dann übernehmen; vorher sichert die Leitstelle den Stand. Eine ganz neue Welt erzeugst du unter Menü › Editoren › Welten.
         </p>
         <WishForm />
         <PreviewBox />

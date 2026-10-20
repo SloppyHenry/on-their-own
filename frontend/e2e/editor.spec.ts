@@ -16,8 +16,7 @@ async function openEditor(page: Page) {
   await openApp(page);
   await page.getByTestId("open-editor").click();
   await expect(page.getByTestId("editor-panel")).toBeVisible();
-  await expect(page.getByTestId("sidebar")).toBeHidden();
-  await expect(page.getByTestId("toggle-sidebar")).toHaveCount(0);
+  await expect(page.getByTestId("hud")).toHaveCount(0);                                              // im Editor kein HUD
 }
 
 async function preview(page: Page, seed: number) {
@@ -71,29 +70,10 @@ test("Übernehmen: Bestätigung, Sicherung, das Dorf ist in der Welt, im Protoko
   const ev = await (await request.get("/api/events?type=world.generated")).json();
   expect(ev.items[0].data.village).toBe(village);
   await page.getByTestId("editor-close").click();
-  await expect(page.getByTestId("sidebar")).toBeVisible();
+  await expect(page.getByTestId("hud")).toBeVisible();
   await page.reload();
   await expect(page.getByTestId("world-pixels")).toBeVisible();
   await expect.poll(() => page.evaluate(() => (window as unknown as { __welt: Welt }).__welt.look.regions.length)).toBe(2);
-});
-
-test("Neue Simulation: Vorschau ersetzt nur die Ansicht, Anlegen verlangt das Bestätigungswort und sichert den alten Stand", async ({ page, request }) => {
-  await openEditor(page);
-  await page.getByTestId("tab-new").click();
-  await expect(page.getByTestId("sidebar")).toBeHidden();                                              // Startmenü: Infoleiste aus
-  await preview(page, 11);
-  const name = (await state(request)).world_name;
-  await page.getByTestId("apply").click();
-  await expect(page.getByTestId("apply-confirm")).toBeDisabled();
-  await page.getByTestId("confirm-word").fill("neu starten");
-  await page.getByTestId("apply-confirm").click();
-  await expect(page.getByTestId("editor-done")).toContainText("Neue Simulation");
-  const now = await state(request);
-  expect(now.world_name).not.toBe(name);
-  expect(now.world_name).toMatch(/^Dorf /);
-  const saves = await (await request.get("/api/saves")).json();
-  expect(saves.some((s: { name: string }) => s.name.startsWith("Vor der neuen Simulation"))).toBeTruthy();
-  await expect(page.getByTestId("world-pixels")).toBeVisible();
 });
 
 test("Gebäudemix und Seeufer gehen in den Wunsch ein, Flach zeigt denselben Schleier", async ({ page }) => {

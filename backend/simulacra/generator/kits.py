@@ -104,17 +104,23 @@ def make_kit(L: Layout, out: Outdoor, nm: Naming, loc_of, residents: int = 0) ->
         thing("scarecrow", "scarecrow", "Vogelscheuche", _sp(d[1], d[2]), d, state={"upright": True})
     for d in take("boat"):
         thing("boat", "boat", "Boot", out.tile_of(d[1], d[2]), d)
-    # See: Angelplatz am Steg, Wasser, Schilf
-    fish = _sp(dock["x1"] - 3, dock["y0"] + 4)
-    thing("fishing_spot", "fishing_spot", "Angelplatz", fish, [0, dock["x1"] - 3, dock["y0"] + 4, 0], sprite=PLACE_NONE)
-    source("lake_water", "water", None, _sp(dock["x0"] + 2, dock["y0"] + 4), [], 999, 999, 999, minutes=2)
-    k.place[nm.obj("lake_water")] = {"at": [lake["x"], lake["y"]], "sprite": PLACE_NONE}
+    # See: Angelplatz am Steg, Wasser, Schilf (ohne See, „Seen 0“, entfällt der Steg)
+    if dock and lake:
+        fish = _sp(dock["x1"] - 3, dock["y0"] + 4)
+        thing("fishing_spot", "fishing_spot", "Angelplatz", fish, [0, dock["x1"] - 3, dock["y0"] + 4, 0], sprite=PLACE_NONE)
+        source("lake_water", "water", None, _sp(dock["x0"] + 2, dock["y0"] + 4), [], 999, 999, 999, minutes=2)
+        k.place[nm.obj("lake_water")] = {"at": [lake["x"], lake["y"]], "sprite": PLACE_NONE}
     reeds = take("reed")
     if reeds:
         source("reeds", "reed", "Schilf", _sp(reeds[0][1], reeds[0][2]), reeds, 6, 8, 0.1, minutes=4)
     # Garten: Beete, Tomaten, Sonnenblumen, Regentonnen
-    for n, (bx, by) in enumerate([(b[0] + dx, b[1] + 4) for b in (g_beds(L)[0], g_beds(L)[2]) for dx in (20, 34, 48)], 1):
+    for n, (bx, by) in enumerate([(b[0] + dx, b[1] + 4) for b in (g_beds(L)[0], g_beds(L)[2]) for dx in (20, 34, 48)] if g else [], 1):
         thing(f"seedbed_{n}", "seedbed", "Beet", _sp(bx, by + 1), [None, bx, by, 0], sprite=PLACE_NONE)
+    for gn, g2 in enumerate(L.gardens2, 1):                                  # weitere Gärten und Felder (AP18f): je Beetreihe zwei bis drei Beete
+        for r, bed in enumerate(g2["beds"][:3]):
+            for c in range(max(1, min(3, bed[2] // 22))):
+                bx, by = bed[0] + 12 + 20 * c, bed[1] + 4
+                thing(f"seedbed_g{gn}_{r}_{c}", "seedbed", "Beet", _sp(bx, by + 1), [None, bx, by, 0], sprite=PLACE_NONE)
     tom, sun, bar = take("tomato"), take("sun"), take("barrel", lambda d: d[3] == 7)
     if tom:
         source("tomatoes", "food", "Tomaten", _sp(tom[0][1], tom[0][2]), tom, 4, 6, 0.1)
@@ -143,7 +149,7 @@ def make_kit(L: Layout, out: Outdoor, nm: Naming, loc_of, residents: int = 0) ->
     if residents:
         k.spots = resident_spots(residents, L, out, reach)
     else:
-        k.spots = {"alex": _sp(g["x0"] + 36, g["y0"] + 21), "mira": _sp(sq["x"] - 18, sq["y"] + 16)}
+        k.spots = {"alex": _sp(g["x0"] + 36, g["y0"] + 21) if g else _sp(sq["x"] + 18, sq["y"] + 16), "mira": _sp(sq["x"] - 18, sq["y"] + 16)}
     k.decor = [d for d in decor if d[0] not in ("bm:0", "bm:1", "bm:2") or True]
     return k
 
@@ -174,18 +180,19 @@ def outdoor_locations(L: Layout, out: Outdoor, nm: Naming, kit: Kit) -> list[dic
     sq, lake, g = L.sq, L.lake, L.garden
     v = nm.village
     sq_t = [(i, j) for j in range(out.h) for i in range(out.w) if math.hypot(out.center(i, j)[0] - sq["x"], out.center(i, j)[1] - sq["y"]) <= sq["r"] * 0.8 and out.rows[j][i] in WALKABLE]
-    ga_t = [(i, j) for j in range(out.h) for i in range(out.w) if g["x0"] <= out.center(i, j)[0] <= g["x1"] and g["y0"] <= out.center(i, j)[1] <= g["y1"] and out.rows[j][i] in WALKABLE]
+    ga_t = [(i, j) for j in range(out.h) for i in range(out.w) if g["x0"] <= out.center(i, j)[0] <= g["x1"] and g["y0"] <= out.center(i, j)[1] <= g["y1"] and out.rows[j][i] in WALKABLE] if g else []
     la_t = [(i, j) for j in range(out.h) for i in range(out.w) if ((out.center(i, j)[0] - lake["x"]) / (lake["rx"] * 1.3)) ** 2 + ((out.center(i, j)[1] - lake["y"]) / (lake["ry"] * 1.3)) ** 2 < 1
-            and out.rows[j][i] in WALKABLE | {WATER}]
+            and out.rows[j][i] in WALKABLE | {WATER}] if lake else []
     names = (("Zentraler Platz", "zum zentralen Platz", "auf dem zentralen Platz"), ("Garten", "in den Garten", "im Garten"), ("See", "zum See", "am See"), ("Wald", "in den Wald", "im Wald")) if nm.canonical \
         else ((f"Platz von {v}", f"zum Platz von {v}", f"auf dem Platz von {v}"), (f"Garten in {v}", f"in den Garten in {v}", f"im Garten in {v}"),
               (f"See bei {v}", f"zum See bei {v}", f"am See bei {v}"), (f"Wald bei {v}", f"in den Wald bei {v}", f"im Wald bei {v}"))
-    sq_r, ga_r, la_r = rect_of(sq_t), rect_of(ga_t), rect_of(la_t)
+    sq_r, ga_r, la_r = rect_of(sq_t), rect_of(ga_t) if ga_t else None, rect_of(la_t) if la_t else None
     forest = [0, 0, out.w, out.tile_of(0, 0)[1]]
     gate = list(out.gate) if out.gate else []
-    return [
-        {"id": nm.loc("square"), "name": names[0][0], "rect": sq_r, "entrances": [], "extra_tiles": [], "props": {"style": {"surface": "cobble"}, "market_area": sq_r, "to": names[0][1], "at": names[0][2], "themes": ["social"]}},
-        {"id": nm.loc("garden"), "name": names[1][0], "rect": ga_r, "entrances": [gate] if gate else [], "extra_tiles": [], "props": {"style": {"fence": True}, "beds": 6, "to": names[1][1], "at": names[1][2], "themes": ["garden", "plants"]}},
-        {"id": nm.loc("lake"), "name": names[2][0], "rect": la_r, "entrances": [], "extra_tiles": [], "props": {"fishing": True, "to": names[2][1], "at": names[2][2], "themes": ["water", "calm", "nature"]}},
-        {"id": nm.loc("forest"), "name": names[3][0], "rect": forest, "entrances": [], "extra_tiles": [], "props": {"clearing": kit.clearing, "unexplored": True, "to": names[3][1], "at": names[3][2], "themes": ["nature", "wood"]}},
-    ]
+    locs = [{"id": nm.loc("square"), "name": names[0][0], "rect": sq_r, "entrances": [], "extra_tiles": [], "props": {"style": {"surface": "cobble"}, "market_area": sq_r, "to": names[0][1], "at": names[0][2], "themes": ["social"]}}]
+    if ga_r:
+        locs.append({"id": nm.loc("garden"), "name": names[1][0], "rect": ga_r, "entrances": [gate] if gate else [], "extra_tiles": [], "props": {"style": {"fence": True}, "beds": 6, "to": names[1][1], "at": names[1][2], "themes": ["garden", "plants"]}})
+    if la_r:
+        locs.append({"id": nm.loc("lake"), "name": names[2][0], "rect": la_r, "entrances": [], "extra_tiles": [], "props": {"fishing": True, "to": names[2][1], "at": names[2][2], "themes": ["water", "calm", "nature"]}})
+    locs.append({"id": nm.loc("forest"), "name": names[3][0], "rect": forest, "entrances": [], "extra_tiles": [], "props": {"clearing": kit.clearing, "unexplored": True, "to": names[3][1], "at": names[3][2], "themes": ["nature", "wood"]}})
+    return locs

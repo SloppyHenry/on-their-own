@@ -14,6 +14,25 @@ Beides kommt aus `compose.build_village`; der Unterschied ist nur der Anschluss 
 
 Eingaben (`Params`): `seed`, `lake` (`east` wie in A, `south` mit Brücke über den Bach, oder nach Seed), `mix` (Gebäude je Rolle: `house`, `shop`, `workshop`, `barn`, `stable`; Standard 3 Häuser plus 2 Sondergebäude).
 
+**Stellgrößen (AP18f, `stil.py`):** Dazu kommt `Params.stil` mit der Dorfform und weiteren Größen. Die Vorgaben (`Stil()`) ergeben genau das Dorf von vorher; nur abweichende Werte ändern etwas, und gleicher Seed mit gleichen Stellgrößen ergibt dasselbe Dorf. Was nicht passt, lässt der Generator weg und nennt es im Prüfbericht („2 passten nicht“, „ein Feld passte nicht“); das ist ein Hinweis, kein Fehler.
+
+| Stellgröße | Werte | Wirkung |
+|---|---|---|
+| `form` | `strasse` (Vorgabe), `beidseitig`, `haufen`, `zufall` | Häuser nur nördlich der Straße (wie bisher), zusätzlich eine zweite Zeile südlich der Straße oder verstreut um den Platz; `zufall` wählt eine der drei nach Seed |
+| `groesse` | `klein` (Vorgabe), `mittel`, `gross` | Länge der Hauptstraße nach Westen (mehr Platz für Gebäude) |
+| `seen` | 0 bis 4 (Vorgabe 1) | der große See mit Steg und Boot, dazu Teiche; bei 0 entfallen See, Steg, Boot und Angelplatz (Wasser gibt es dann nur am Brunnen und am Wasserlauf) |
+| `wasser` | `keiner`, `bach` (Vorgabe), `fluss` | Wasserlauf aus dem Nordwald; ein Fluss ist drei Stränge breit, die Brücke wird breiter |
+| `wald` | `licht`, `mittel` (Vorgabe), `dicht` | Zahl der Waldbäume |
+| `baeume` | 0 bis 40 (Vorgabe 10) | einzelne Bäume im Dorf |
+| `gaerten` | 0 bis 5 (Vorgabe 1) | der Gemeinschaftsgarten (mit Tor, Ort „Garten“) und weitere Gärten mit Zaun an drei Seiten und Beeten (je Beet ein Ding „Beet“); bei 0 entfällt auch der Gemeinschaftsgarten |
+| `felder` | 0 bis 4 (Vorgabe 0) | größere Beetflächen ohne Zaun |
+| `wege` | `geschwungen` (Vorgabe), `gerade` | Hauptstraße, Südstraße und Türwege als Geraden |
+
+`layout.make_layout` baut zuerst das Grundlayout wie bisher; `layout_extra.apply_stil` setzt danach die Stellgrößen um (eigener Zufallsstrom aus dem Seed): `layout_haeuser.py` (zweite Zeile, Haufendorf, **Türwege um die Häuser herum**, weil die Tür immer nach Süden zeigt), `layout_gaerten.py` (Teiche, Gärten, Felder), `layout_welt.py` (gerade Wege, Wasserlauf, Bäume, Wald), `layout_geo.py` (Platzprüfung). Das Dorf darf dabei nach Süden wachsen (`Layout.extra_h`, Vielfaches von 16). Weitere Seen, Wasserstränge, Gärten und Brücken stehen als Listen in den Formen des Gebiets (`shapes.lakes`, `streams`, `gardens`, `bridges`), die die Weltansicht schon immer zeichnen konnte. Bei 0 Seen oder Gärten fehlen die Orte „See“ beziehungsweise „Garten“.
+
+**Nicht umgesetzt (offen):** Anger (Ringstraße um eine Wiese mit Teich), Fluss quer durch die ganze Karte mit Straße am Ufer und Streusiedlung mit eigenen Wegen je Hof; dazu Dörfer mit mehreren Plätzen. Die Dorfformen gelten für „Welt erzeugen“ und den Assistenten, nicht für „Dorf anfügen“ im Spiel.
+
+
 ## Aufbau
 1. **`layout.py`** – das Dorf in Dorfkoordinaten (Port des abgenommenen Mockup-Generators): Platz, Hauptstraße, Südstraße, See mit Steg und Boot, Bach (mündet im See, im Süden unter einer Brücke), Garten mit Beeten, Häuserzeile entlang der Straße, Deko, Wald. Die Breite des Dorfs richtet sich nach der Zahl der Gebäude.
 2. **`tiles.py`** – **Kacheln aus denselben Formen wie das Bild**: Jede Kachel (16 × 16 Weltpixel) wird an 16 Stellen abgetastet und bekommt die überwiegende Art (Wasser, Sand, Weg, Steg, Gras); Mauern der Gebäude, Zäune und Bäume kommen aus dem Fußpunkt der Deko, Wege bleiben begehbar, das Gartentor bleibt offen. Ein Test im Frontend (`erzeugt.test.ts`) vergleicht die Kacheln mit den echten Bodenregeln des Bildes.
@@ -39,5 +58,5 @@ Eingaben (`Params`): `seed`, `lake` (`east` wie in A, `south` mit Brücke über 
 ## Grenzen
 - Zurzeit nur nach Süden. „Nach Osten“ aus dem Plan ist offen (die Startwelt hat im Osten ihren Innenbereich und den See).
 - Neue Gebäudearten brauchen für das Bild einen Baustein (`frontend/src/world/art/bausteine.ts`, `dorf/sprites.ts`); ein Bauplan allein reicht nicht.
-- Ein Dorf hat einen See, einen Garten, einen Platz und einen Wald; Gebiete ohne See oder mit mehreren Plätzen kennt der Generator nicht.
+- Ein Dorf hat genau einen Platz und einen Wald; Seen und Gärten sind Stellgrößen (0 bis 4 und 0 bis 5), mehrere Plätze kennt der Generator nicht.
 - Die Namen kommen aus festen Listen (12 Dörfer, 12 Häuser, je einige Läden, Werkstätten, Scheunen, Ställe).
