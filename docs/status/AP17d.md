@@ -1,6 +1,6 @@
 # AP17d – Musik und Klänge im Spiel
 
-Plan: [AP17-plan.md](../arbeitspakete/AP17-plan.md) (AP17d), Mockup: [AP17d-schritt0.md](AP17d-schritt0.md). Henry am 18.10.2026: „So umsetzen, beides einbauen (Code und CC0), in den Einstellungen selbst entscheiden; Stimmen der Personen wie im Mockup einstellbar.“ Dazu Nachschärfen: Gras-Schritte (Code und CC0), Tür schließen (Code), Gießkanne, Bach (Code und CC0), Musik im Haus.
+Plan: AP17-plan.md (im Git-Verlauf) (AP17d), Mockup: [AP17d-schritt0.md](AP17d-schritt0.md). Henry am 18.10.2026: „So umsetzen, beides einbauen (Code und CC0), in den Einstellungen selbst entscheiden; Stimmen der Personen wie im Mockup einstellbar.“ Dazu Nachschärfen: Gras-Schritte (Code und CC0), Tür schließen (Code), Gießkanne, Bach (Code und CC0), Musik im Haus.
 
 ## Was gebaut ist
 **Klang-Modul `frontend/src/klang/`** (aus dem Mockup nach TypeScript übertragen, alle Dateien unter 400 Zeilen):

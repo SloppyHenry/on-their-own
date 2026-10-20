@@ -1,6 +1,6 @@
 # AP17a – Schritt 0: Mockup Startmenü
 
-Plan: [AP17-plan.md](../arbeitspakete/AP17-plan.md). Entscheidungen (17.10.2026, Henry): Frage 31 Empfehlung angenommen (Titelbild beim Öffnen, „Fortsetzen“ zuerst, Mockup vor dem Bau), Reihenfolge nach Frage 35 (17a, 17c, 17b, 17d, danach AP16). Leitgedanke: Im Mittelpunkt bleibt, Verhalten und Entwicklung der Agenten zu sehen.
+Plan: AP17-plan.md (im Git-Verlauf). Entscheidungen (17.10.2026, Henry): Frage 31 Empfehlung angenommen (Titelbild beim Öffnen, „Fortsetzen“ zuerst, Mockup vor dem Bau), Reihenfolge nach Frage 35 (17a, 17c, 17b, 17d, danach AP16). Leitgedanke: Im Mittelpunkt bleibt, Verhalten und Entwicklung der Agenten zu sehen.
 
 **Ansehen:** `docs/mockups/startmenue.html` im Browser öffnen (eine Datei, Bilder eingebettet). Tasten ↑ ↓ Enter Esc; unten links wechselt „Zustand“ zwischen Frisch gestartet, Simulation läuft und Im Spiel, Menü offen. Mit `?open=load|settings|editors|newsim` springt man zu einem Bereich.
 

@@ -1,6 +1,6 @@
 # AP12a – Darstellung: Kamera durch die Welt, `look` Version 2
 
-Plan: [AP12-plan.md](../arbeitspakete/AP12-plan.md) (Teilpaket a). Branch `ap/12-weltgenerator`, nicht ausgerollt. Entscheidungen aus Schritt 0: Bewegung **(d)**, 1× immer Standard und weiter herauszoomen, neue Bausteine freigegeben ([AP12-schritt0.md](AP12-schritt0.md)).
+Plan: AP12-plan.md (im Git-Verlauf) (Teilpaket a). Branch `ap/12-weltgenerator`, nicht ausgerollt. Entscheidungen aus Schritt 0: Bewegung **(d)**, 1× immer Standard und weiter herauszoomen, neue Bausteine freigegeben ([AP12-schritt0.md](AP12-schritt0.md)).
 
 ## Bilder
 Die Startwelt zeigt in der Startlage **Pixel für Pixel dasselbe Bild** wie das abgenommene Dorf (Goldbild-Test). Daneben ein zweites, aus einem Seed erzeugtes Dorf mit den neuen Bausteinen, durch eine Landstraße verbunden.

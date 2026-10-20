@@ -1,6 +1,6 @@
 # AP17a – Startmenü und Menüführung
 
-Mockup: [startmenue.html](../mockups/startmenue.html), abgenommen von Henry am 17.10.2026 („gefällt mir“). Schritt-0-Bericht: [AP17a-schritt0.md](AP17a-schritt0.md). Plan: [AP17-plan.md](../arbeitspakete/AP17-plan.md).
+Mockup: [startmenue.html](../mockups/startmenue.html), abgenommen von Henry am 17.10.2026 („gefällt mir“). Schritt-0-Bericht: [AP17a-schritt0.md](AP17a-schritt0.md). Plan: AP17-plan.md (im Git-Verlauf).
 
 ## Gebaut
 - `layout/StartMenu.tsx`: Titelbild beim Öffnen (echte Welt dahinter, langsame Kamerafahrt, Fortsetzen mit Live-Zeilen), Pausenmenü mit Esc und Knopf „☰ Menü“, Liste links, Inhalt rechts ohne Fenster.

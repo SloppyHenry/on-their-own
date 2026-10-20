@@ -1,6 +1,6 @@
 # AP16 – Schritt 0: Mockup „Welt gestalten“
 
-Plan: [AP16-plan.md](../arbeitspakete/AP16-plan.md). Entscheidungen zu Frage 27 bis 30: **Entwurf** statt Sofortbau, Umfang wie vorgeschlagen, **Mockup zuerst** (Empfehlungen angenommen); zu Frage 28 hat Henry am 15.10.2026 anders entschieden: **Gestalten nur vor Beginn einer Runde**, die Agenten dürfen nicht merken, dass es eine höhere Instanz gibt ([AP17-plan.md](../arbeitspakete/AP17-plan.md)). Das Mockup zeigt das Werkzeug deshalb als Schritt „Neue Simulation › Welt gestalten“. Dieses Dokument zeigt das Mockup; im Spiel ist noch nichts davon gebaut.
+Plan: [AP16-plan.md](../arbeitspakete/AP16-plan.md). Entscheidungen zu Frage 27 bis 30: **Entwurf** statt Sofortbau, Umfang wie vorgeschlagen, **Mockup zuerst** (Empfehlungen angenommen); zu Frage 28 hat Henry am 15.10.2026 anders entschieden: **Gestalten nur vor Beginn einer Runde**, die Agenten dürfen nicht merken, dass es eine höhere Instanz gibt (AP17-plan.md (im Git-Verlauf)). Das Mockup zeigt das Werkzeug deshalb als Schritt „Neue Simulation › Welt gestalten“. Dieses Dokument zeigt das Mockup; im Spiel ist noch nichts davon gebaut.
 
 **Ansehen:** `docs/mockups/welt-optik/gestalten.html` im Browser öffnen (Doppelklick genügt, kein Server nötig). Mit `?demo=1` ist ein Entwurf vorbefüllt, mit `?view=in&room=kueche` startet die Innenansicht.
 

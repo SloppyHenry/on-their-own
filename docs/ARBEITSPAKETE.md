@@ -1,28 +1,18 @@
 # SIMULACRA – Arbeitspakete (Übersicht)
 
 Quelle: [AUFTRAG.md](AUFTRAG.md). Verweise `§n` beziehen sich auf dessen Abschnitte.
-Jedes Paket hat eine eigene Datei unter [arbeitspakete/](arbeitspakete/) mit Ziel, Lieferumfang, Dateien, Schnittstellen, Arbeitsschritten, Tests, Abnahme und Risiken.
+Offene Pakete haben einen Plan unter [arbeitspakete/](arbeitspakete/).
 
-| Paket | Datei | Inhalt | Auftrag | Abhängig von | Umfang |
-|---|---|---|---|---|---|
-| AP00 | [AP00-umgebung.md](arbeitspakete/AP00-umgebung.md) | Umgebung, Gerüst, LLM-Sondierung | §2, §19 | – | S |
-| AP01 | [AP01-welt-engine.md](arbeitspakete/AP01-welt-engine.md) | Weltmodell, Welt-Engine, Datenbank | §3, §5, §16 | AP00 | L |
-| AP02 | [AP02-agentenzyklus.md](arbeitspakete/AP02-agentenzyklus.md) | LLM-Client, Agentenzyklus, Simulationsschleife | §4, §5 | AP01 | L |
-| AP03 | [AP03-api-websocket.md](arbeitspakete/AP03-api-websocket.md) | Event-Bus, REST, WebSocket | §12 | AP01 | M |
-| AP04 | [AP04-browserwelt.md](arbeitspakete/AP04-browserwelt.md) | Frontend-Grundlage, Weltansicht, Leitstelle | §3, §7 | AP03 | L |
-| AP05 | [AP05-gedaechtnis.md](arbeitspakete/AP05-gedaechtnis.md) | Gedächtnis, Abruf, Reflexion, Inspektor | §6, §8.3 | AP02 | L |
-| AP06 | [AP06-autonomie.md](arbeitspakete/AP06-autonomie.md) | Ziele, Bedürfnisse, Beziehungen, Schutz, Erklärbarkeit | §4, §5, §13, §15 | AP05 | L |
-| AP07 | [AP07-parameter.md](arbeitspakete/AP07-parameter.md) | Parameter-Registry, Slider, Presets, Modi | §8, §9, §11 | AP04, AP06 | L |
-| AP08 | [AP08-ereignisse.md](arbeitspakete/AP08-ereignisse.md) | Freie Ereigniseingabe, Wissensverteilung | §10 | AP07 | L |
-| AP09 | [AP09-spielstaende.md](arbeitspakete/AP09-spielstaende.md) | Speichern, Laden, Export, Statistik | §14 | AP07 | M |
-| AP10 | [AP10-container.md](arbeitspakete/AP10-container.md) | Docker-Container, Betrieb auf maintux | §2, §19 | AP04 (Probe), AP09 (final) | M |
-| AP11 | [AP11-abnahme.md](arbeitspakete/AP11-abnahme.md) | Stabilisierung, Abnahme, Dokumentation | §15, §17, §19 | alle | M |
-| AP12 | [AP12-weltgenerator.md](arbeitspakete/AP12-weltgenerator.md) | Weltgenerator: Straßen, Gebäude, Vegetation im Stil der Startwelt (Zusatz, nach AP11; neu geplant 14.10.2026 in [AP12-plan.md](arbeitspakete/AP12-plan.md), Teilpakete AP12a–c) | Zusatz Henry | AP04, AP08, AP09, AP13–AP15 | XL |
-| AP13 | [AP13-weltoptik.md](arbeitspakete/AP13-weltoptik.md) | Weltoptik „Mischung“ (Pixelwelt mit Tiefe) und Vorbereitung der Mitspieler-Steuerung (Point-and-Click, Spracheingabe) | Zusatz Henry | AP04, AP11 | L |
-| AP14 | [AP14-startwelt-innenbereiche.md](arbeitspakete/AP14-startwelt-innenbereiche.md) · [Plan](arbeitspakete/AP14-plan.md) | Welt genau wie Mockup A: Startwelt nach dem Bild, Haus innen hinter der Tür als Übergang, Dorfansicht mit Zoom in ganzen Stufen | Zusatz Henry | AP13 | L |
-| AP15 | [AP15-dinge.md](arbeitspakete/AP15-dinge.md) | Dinge im Dorf: Deko aus Mockup A und innen2 wird benutzbar (Boot, Laternen, Briefkasten, Ernte, Katze, Ablagen …) | Zusatz Henry | AP14 | L |
-| AP16 | [AP16-plan.md](arbeitspakete/AP16-plan.md) | Gestalten: Wege, Seen, Gärten, Häuser, Bäume und Deko selbst setzen, Häuser von innen einrichten (Entwurf, Vorschau, Übernehmen); Plan vom 14.10.2026, wartet auf Fragen 27–30 | Zusatz Henry (Ausblick) | AP12c | L |
-| AP18 | [AP18-plan.md](arbeitspakete/AP18-plan.md) · [Startprompts](arbeitspakete/AP18-start-prompts.md) | Rework „ein Spiel aus einem Guss“: Esc-Rückweg (a), HUD und Formensprache des Menüs (b), Sprech- und Denkblasen (c), Spielarten Leben/Gott (d), Weltenbibliothek und Welt-Werkstatt mit leerer Welt (e), Generator mit Dorfformen und Stellgrößen (f), mehr Bauvorlagen für Bewohner (g), Mitleben mit eigener Figur (h), Ereignisse von allein (i); Mockup `docs/mockups/rework.html`, Schritt 0 vom 19.10.2026 | Zusatz Henry | AP17, AP16 (Werkzeuge zwischen e und f) | XL |
+| Paket | Inhalt | Stand |
+|---|---|---|
+| AP00–AP11 | Grundsystem: Welt-Engine, Agentenzyklus, API/WebSocket, Browserwelt, Gedächtnis, Autonomie, Parameter, Ereignisse, Spielstände, Container, Abnahme | erledigt, Abnahme aller 16 Kriterien: [status/ABSCHLUSS.md](status/ABSCHLUSS.md) |
+| AP12 | Weltgenerator (a Darstellung, b Generator, c Leitstelle) | erledigt, [generator.md](generator.md) |
+| AP13–AP15 | Weltoptik „Mischung“, Startwelt nach Mockup A mit Innenräumen, Dinge im Dorf | erledigt |
+| AP17 | Startmenü (a), Simulation definieren (b), Modelle im Tool (c, Plan: [AP17c-plan.md](arbeitspakete/AP17c-plan.md)), Klang (d) | erledigt |
+| AP16 | [Gestalten](arbeitspakete/AP16-plan.md): Wege, Seen, Gärten, Häuser, Deko selbst setzen (Entwurf, Vorschau, Übernehmen) | Schritt 0 erledigt, a–d offen (kommen innerhalb AP18) |
+| AP18 | [Rework](arbeitspakete/AP18-plan.md) „ein Spiel aus einem Guss“, [Startprompts](arbeitspakete/AP18-start-prompts.md): a Esc, b HUD, c Blasen, d Spielarten, i Ereignisse von allein, e Weltenbibliothek, dann AP16a–d, f Generator, g Bauvorlagen, h Mitleben | Schritt 0 erledigt, a gebaut (Abnahme offen) |
+
+Ergebnisse je Paket: `docs/status/APxx.md`. Aufträge und Pläne erledigter Pakete stehen im Git-Verlauf (vor 20.10.2026).
 
 Umfang: S = etwa eine Sitzung, M = zwei bis drei, L = drei bis fünf.
 
@@ -61,9 +51,9 @@ Umfang: S = etwa eine Sitzung, M = zwei bis drei, L = drei bis fünf.
 ### Verzeichnisstruktur (Ziel)
 ```
 simulacra/
-  backend/simulacra/      Python-Paket (Module siehe AP01–AP09)
+  backend/simulacra/      Python-Paket
   backend/tests/          pytest
-  frontend/src/           React-App (Komponenten siehe AP04, AP07, AP08)
+  frontend/src/           React-App
   frontend/e2e/           Playwright
   scripts/                dev.sh, stop.sh, gen_types.sh, probe_llm.py, backup.sh
   docs/                   Auftrag, Pakete, Schnittstellen, Konfiguration, Statusberichte

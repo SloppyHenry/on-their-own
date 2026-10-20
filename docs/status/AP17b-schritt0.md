@@ -1,6 +1,6 @@
 # AP17b Schritt 0 – Plan, Entscheidungen, Mockup (19.10.2026)
 
-Plan: [AP17b-plan.md](../arbeitspakete/AP17b-plan.md). Mockup: [assistent.html](../mockups/assistent.html) (mit `assistent.js` und `assistent-daten.js` daneben, im Browser öffnen; Datei-Aufruf genügt, kein Server). **Es ist noch kein Code der Anwendung geändert.** Gebaut wird nach deiner Abnahme.
+Plan: AP17b-plan.md (im Git-Verlauf). Mockup: [assistent.html](../mockups/assistent.html) (mit `assistent.js` und `assistent-daten.js` daneben, im Browser öffnen; Datei-Aufruf genügt, kein Server). **Es ist noch kein Code der Anwendung geändert.** Gebaut wird nach deiner Abnahme.
 
 ## Was ich gefunden habe
 1. **Betten:** Jedes Schlafzimmer der Haustypen `haus`, `haus_klein`, `langhaus` hat genau **ein** Bett. „Zwei Betten je Haus“ gibt es noch nicht. Lösung: Der Generator bekommt die Bewohnerzahl als neue Eingabe; ohne sie bleibt jede Ausgabe wie bisher (alte Seeds, Fixtures und Goldbilder ändern sich nicht).

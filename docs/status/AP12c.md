@@ -1,6 +1,6 @@
 # AP12c – Bedienung in der Leitstelle
 
-Plan: [AP12-plan.md](../arbeitspakete/AP12-plan.md) (Teilpaket c), Beschreibung: [generator.md](../generator.md), [frontend.md](../frontend.md) (Welteditor), [schnittstellen.md](../schnittstellen.md). Branch `ap/12c-leitstelle` (von `main`, nicht ausgerollt).
+Plan: AP12-plan.md (im Git-Verlauf) (Teilpaket c), Beschreibung: [generator.md](../generator.md), [frontend.md](../frontend.md) (Welteditor), [schnittstellen.md](../schnittstellen.md). Branch `ap/12c-leitstelle` (von `main`, nicht ausgerollt).
 
 ## Bilder
 Alle Bilder sind echte Bildschirmfotos der Oberfläche gegen das Backend mit der Startwelt.

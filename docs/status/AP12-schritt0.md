@@ -1,6 +1,6 @@
 # AP12 Schritt 0 – Prototypen: Kamerafahrt und neue Bausteine
 
-Plan: [AP12-plan.md](../arbeitspakete/AP12-plan.md). Zwei Mockups, noch kein Code im Spiel. Öffnen mit dem Mockup-Server (`mockup-ruhig` in der Vorschau, Port 8766, oder `python3 -m http.server -d docs/mockups/welt-optik`): `scrollen.html` und `bausteine.html`.
+Plan: AP12-plan.md (im Git-Verlauf). Zwei Mockups, noch kein Code im Spiel. Öffnen mit dem Mockup-Server (`mockup-ruhig` in der Vorschau, Port 8766, oder `python3 -m http.server -d docs/mockups/welt-optik`): `scrollen.html` und `bausteine.html`.
 
 ## 1. Kamera fährt durch die Welt (`scrollen.html`)
 Neun Dörfer aus Bild A (3 × 3), durch Landstraßen verbunden. Die Startlage der Kamera ist Bild A: Das Dorf in der Mitte ist dort Pixel für Pixel A (gleiche Textur, gleiche Schatten, gleiche Effekte); Zufall im Boden (Gräser, Blumen) ist außerhalb von A je Block gewürfelt.

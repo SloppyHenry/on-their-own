@@ -1,6 +1,6 @@
 # AP17b – Simulation selbst definieren (Stand 19.10.2026)
 
-Plan: [AP17b-plan.md](../arbeitspakete/AP17b-plan.md), Mockup: [assistent.html](../mockups/assistent.html) (von Henry abgenommen, „ok leg los“), Schritt-0-Bericht: [AP17b-schritt0.md](AP17b-schritt0.md). Branch `ap/17b-simulation-definieren` (von `ap/12c-leitstelle`), nicht ausgerollt.
+Plan: AP17b-plan.md (im Git-Verlauf), Mockup: [assistent.html](../mockups/assistent.html) (von Henry abgenommen, „ok leg los“), Schritt-0-Bericht: [AP17b-schritt0.md](AP17b-schritt0.md). Branch `ap/17b-simulation-definieren` (von `ap/12c-leitstelle`), nicht ausgerollt.
 
 ## Bilder
 Alles sind Bildschirmfotos der echten Oberfläche gegen das Backend mit Fake-Modell (Playwright, `frontend/e2e/assistent.spec.ts`).

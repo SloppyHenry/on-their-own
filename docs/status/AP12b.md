@@ -1,6 +1,6 @@
 # AP12b – Generator im Backend
 
-Plan: [AP12-plan.md](../arbeitspakete/AP12-plan.md) (Teilpaket b), Beschreibung: [generator.md](../generator.md). Branch `ap/12-weltgenerator`, nicht ausgerollt.
+Plan: AP12-plan.md (im Git-Verlauf) (Teilpaket b), Beschreibung: [generator.md](../generator.md). Branch `ap/12-weltgenerator`, nicht ausgerollt.
 
 ## Bilder
 Vier neue Startwelten aus Seeds (ein Dorf mit Heimhaus, Garten, See, Platz, Wald) und eine erweiterte Welt: die Startwelt mit einem zweiten, erzeugten Dorf und Landstraße.

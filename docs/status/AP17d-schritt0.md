@@ -1,6 +1,6 @@
 # AP17d – Schritt 0: Mockup Musik und Klänge
 
-Plan: [AP17-plan.md](../arbeitspakete/AP17-plan.md) (AP17d), Frage 34: Henry wollte **beide Varianten vorher hören**, Klänge aus Code und CC0. Gebaut ist nur das Mockup, im Spiel ist nichts davon.
+Plan: AP17-plan.md (im Git-Verlauf) (AP17d), Frage 34: Henry wollte **beide Varianten vorher hören**, Klänge aus Code und CC0. Gebaut ist nur das Mockup, im Spiel ist nichts davon.
 
 **Ansehen:** `docs/mockups/klang.html` im Browser öffnen (per Doppelklick, braucht kein Netz; seit der zweiten Fassung liegen Skripte und eingebettete Aufnahmen in `docs/mockups/klang/`, damit keine Datei über 400 Zeilen hat). Erst „Ton einschalten“ klicken (Browser erlauben Ton nur nach einem Klick), Lautstärke am Rechner moderat.
 
