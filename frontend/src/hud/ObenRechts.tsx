@@ -24,7 +24,7 @@ export function ObenRechts() {
   const ok = conn === "open" && (health?.llm.reachable ?? true);
   return (
     <div className="pointer-events-auto absolute right-4 top-3.5 z-10 flex items-center gap-2" data-testid="hud-oben-rechts">
-      <button type="button" className="glas pille cursor-pointer !px-3 !py-1.5 text-xs text-dim hover:text-text" onClick={() => openSettings("status")} data-testid="status-chip"
+      <button type="button" className="glas pille cursor-pointer !px-3 !py-1.5 text-xs text-dim hover:text-text" onClick={() => openSettings("modell")} data-testid="status-chip"
         title={`${connText} · Modell: ${health ? health.llm.configured_model : "unbekannt"}${health?.llm.error ? ` · ${health.llm.error}` : ""} — Klick: Einstellungen › Status`}>
         <i className={`inline-block size-2 rounded-full ${ok ? "bg-ok" : conn === "open" ? "bg-warn" : dot}`} />
         <span data-testid="conn" className="sr-only">{connText}</span>

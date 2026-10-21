@@ -19,7 +19,8 @@ async function install(req: APIRequestContext, repo: string, file: string) {
 async function openModelle(page: Page) {
   await openApp(page);
   await openSettingsMenu(page);
-  await page.getByRole("tab", { name: "Modelle", exact: true }).click();
+  await page.getByRole("tab", { name: "Modell", exact: true }).click();
+  await page.getByTestId("modelle-verwalten").click();                              // Einstellungen › Modell › Modelle verwalten
   await expect(page.getByTestId("modelle")).toBeVisible();
 }
 
@@ -142,6 +143,7 @@ test("Als Standard vorgewählt: das Zurücksetzen-Fenster bietet es an und start
   await small.getByTestId("als-standard").click();
   await expect(small.getByTestId("standard")).toBeVisible();
   expect((await llm(request)).default_model).toBe("Qwen3-4B-Q4_K_M");
+  await page.keyboard.press("Escape");                                              // Modelle verwalten → Einstellungen › Modell
   await page.keyboard.press("Escape");                                              // zurück ins Spiel
   await page.keyboard.press("Escape");
   await page.getByTestId("menu-title").click();
@@ -151,8 +153,8 @@ test("Als Standard vorgewählt: das Zurücksetzen-Fenster bietet es an und start
   await expect(dialog.getByLabel("Modell")).toHaveValue("Qwen3-4B-Q4_K_M");       // das Standardmodell ist vorgewählt
   await dialog.getByRole("button", { name: "Abbrechen" }).click();
 
-  await openSettingsMenu(page);
-  await page.getByRole("tab", { name: "Modelle", exact: true }).click();
+  await openSettingsMenu(page, "Modell");
+  await page.getByTestId("modelle-verwalten").click();
   await page.getByTestId("installiert-Qwen3-4B-Q4_K_M").getByTestId("loeschen").click();
   await page.getByTestId("bestaetigung-nein").click();
   expect((await llm(request)).installed).toHaveLength(1);                          // Abbrechen löscht nichts

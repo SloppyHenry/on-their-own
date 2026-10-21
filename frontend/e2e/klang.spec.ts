@@ -39,23 +39,24 @@ test("Einstellungen Ton: Lautstärke je Gerät, keine Einzelklänge und keine Qu
   await expect.poll(() => page.evaluate(() => (window as unknown as { __klang: Klang }).__klang.laeuft.musik)).toContain("(Code)");
   await page.getByTestId("ton-gesamt").fill("50");
   const alex = page.getByTestId("ton-stimme-alex");
+  await alex.getByTestId("ton-anpassen-alex").click();                                        // Regler je Stimme sind eingeklappt, eigene Stimmen aufgeklappt
   const slider = alex.getByRole("slider", { name: "Tonhöhe" });
   await slider.fill("250");
   await slider.dispatchEvent("pointerup");                                                    // Loslassen: Stimme geht an die Welt
-  await expect(alex.getByText("250 Hz")).toBeVisible();
+  await expect(alex.getByText("250 Hz", { exact: true })).toBeVisible();
   await expect.poll(async () => (await state(request)).voices?.alex?.base).toBe(250);
   await alex.getByTestId("ton-sprich-alex").click();
   expect(await page.evaluate(() => (window as unknown as { __klang: Klang }).__klang.kanalPegel("voice", 1200))).toBeGreaterThan(-60);
   await page.reload();
   await openSettingsMenu(page);
   await page.getByRole("tab", { name: "Ton", exact: true }).click();
-  await expect(page.getByTestId("ton-stimme-alex").getByText("250 Hz")).toBeVisible();       // aus der Welt
+  await expect(page.getByTestId("ton-stimme-alex").getByText("250 Hz", { exact: true })).toBeVisible();       // aus der Welt
   await expect(page.getByTestId("ton-gesamt")).toHaveValue("50");                              // Mischpult: je Gerät
   await page.evaluate(() => localStorage.removeItem("simulacra.ton"));                        // auch ein anderer Browser hört dieselbe Stimme
   await page.reload();
   await openSettingsMenu(page);
   await page.getByRole("tab", { name: "Ton", exact: true }).click();
-  await expect(page.getByTestId("ton-stimme-alex").getByText("250 Hz")).toBeVisible();
+  await expect(page.getByTestId("ton-stimme-alex").getByText("250 Hz", { exact: true })).toBeVisible();
   await page.getByTestId("ton-standard-alex").click();
   await expect.poll(async () => (await state(request)).voices?.alex).toBeUndefined();
   expect(errs).toEqual([]);

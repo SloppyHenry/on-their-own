@@ -2,7 +2,15 @@
 import { create } from "zustand";
 import { ApiError, api } from "../net/api";
 import type { ParamResult, ParamValues } from "../types/generated";
+import { TEXTE } from "./aufbau";
 import { registerSpecs, type Spec } from "./labels";
+
+/** Name, Erklärung und Auswahl so, wie die Oberfläche sie zeigt (aufbau.ts); ohne Eintrag bleibt der Text des Backends. */
+const mitTexten = (s: Spec): Spec => {
+  const t = TEXTE[s.key];
+  if (!t) return s;
+  return { ...s, label: t.l ?? s.label, help: t.h ?? s.help, options: t.o ? s.options.map(([v, l]) => [v, t.o![v] ?? l]) : s.options };
+};
 
 export type Status = { status: string; reason: string | null };
 export const idOf = (key: string, agent?: string | null) => (agent ? `${key}|${agent}` : key);
@@ -49,8 +57,9 @@ export const useParamStore = create<ParamStore>((set, get) => {
       if (get().specs.length) return;
       try {
         const [schema, values] = await Promise.all([api.paramSchema(), api.params()]);
-        registerSpecs(schema.specs as Spec[]);
-        set({ specs: schema.specs as Spec[], groups: schema.groups, values, error: null });
+        const specs = (schema.specs as Spec[]).map(mitTexten);
+        registerSpecs(specs);
+        set({ specs, groups: schema.groups, values, error: null });
       } catch (e) {
         set({ error: e instanceof ApiError ? e.detail : "Backend nicht erreichbar" });
       }

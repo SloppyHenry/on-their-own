@@ -1,24 +1,24 @@
 import { useCallback, useEffect, useState } from "react";
 import { ApiError, api } from "../net/api";
+import { EBENE, useRueckweg } from "../ui/zurueck";
 import type { PresetBrief, PresetPreview } from "../types/generated";
-import { shown, specOf } from "./labels";
+import { labelOf, shown, specOf } from "./labels";
 import { useParamStore } from "./paramStore";
+import { Abschnitt, Zeile } from "./Zeile";
 
-/** Mitgelieferte und eigene Presets: ansehen (mit Vorschau der Änderungen), laden, speichern, duplizieren, umbenennen, löschen. */
+/** Einstellungen › Voreinstellungen: mitgelieferte und eigene Sätze laden (mit Vorschau der Änderungen), speichern, duplizieren, umbenennen, löschen. */
 export function PresetManager() {
-  const groups = useParamStore((s) => s.groups);
   const refresh = useParamStore((s) => s.refresh);
   const [list, setList] = useState<PresetBrief[]>([]);
   const [preview, setPreview] = useState<PresetPreview | null>(null);
   const [message, setMessage] = useState<{ text: string; bad: boolean } | null>(null);
   const [name, setName] = useState("");
-  const [desc, setDesc] = useState("");
-  const [picked, setPicked] = useState<string[]>([]);
   const [deleting, setDeleting] = useState<string | null>(null);
   const [renaming, setRenaming] = useState<{ id: string; name: string } | null>(null);
 
-  const load = useCallback(() => api.presets().then(setList).catch(() => setMessage({ text: "Presets nicht erreichbar", bad: true })), []);
+  const load = useCallback(() => api.presets().then(setList).catch(() => setMessage({ text: "Voreinstellungen nicht erreichbar", bad: true })), []);
   useEffect(() => { void load(); }, [load]);
+  useRueckweg(!!preview, EBENE.Dialog, () => setPreview(null));                  // Esc heißt Abbrechen
 
   const act = async (fn: () => Promise<unknown>, ok: string) => {
     try {
@@ -40,67 +40,56 @@ export function PresetManager() {
   }, `„${label}“ geladen.`);
 
   return (
-    <div className="grid gap-5" data-testid="presets">
-      {message && <p role="status" className={`text-[13px] ${message.bad ? "text-warn" : "text-ok"}`}>{message.text}</p>}
-      <ul className="grid gap-2">
+    <div data-testid="presets">
+      {message && <p role="status" className={`mt-3 text-[13px] ${message.bad ? "text-warn" : "text-ok"}`}>{message.text}</p>}
+      <Abschnitt titel="Gespeichert">
         {list.map((p) => (
-          <li key={p.id} className="rounded-md border border-line bg-panel2 p-3" data-testid={`preset-${p.id}`}>
-            <div className="flex items-baseline justify-between gap-2">
-              {renaming?.id === p.id ? (
-                <form className="flex flex-1 gap-1" onSubmit={(e) => { e.preventDefault(); void act(() => api.renamePreset(p.id, renaming.name), "Umbenannt."); setRenaming(null); }}>
-                  <input autoFocus aria-label="Neuer Name" className="flex-1 rounded-md border border-line bg-bg px-2 py-0.5 text-[13px]" value={renaming.name} onChange={(e) => setRenaming({ id: p.id, name: e.target.value })} />
-                  <button className="btn" type="submit">OK</button>
-                </form>
-              ) : <h4 className="text-[14px] font-semibold">{p.name} {p.builtin && <span className="ml-1 text-[11px] font-normal text-faint">mitgeliefert</span>}</h4>}
-              <span className="text-[11px] text-faint">{p.count} Werte</span>
-            </div>
-            {p.description && <p className="mt-0.5 text-[12px] text-dim">{p.description}</p>}
-            <div className="mt-2 flex flex-wrap gap-1.5">
-              <button className="btn" onClick={() => void show(p.id)}>Ansehen und laden …</button>
-              <button className="btn" onClick={() => void act(() => api.duplicatePreset(p.id), "Dupliziert.")}>Duplizieren</button>
-              {!p.builtin && <button className="btn" onClick={() => setRenaming({ id: p.id, name: p.name })}>Umbenennen</button>}
-              {!p.builtin && (deleting === p.id
-                ? <><button className="btn on" onClick={() => { setDeleting(null); void act(() => api.deletePreset(p.id), "Gelöscht."); }}>Wirklich löschen</button><button className="btn" onClick={() => setDeleting(null)}>Abbrechen</button></>
-                : <button className="btn" onClick={() => setDeleting(p.id)}>Löschen</button>)}
-            </div>
-          </li>
+          <Zeile key={p.id} testid={`preset-${p.id}`} hilfe={`${p.description ? `${p.description} · ` : ""}${p.count} Werte`}
+            name={renaming?.id === p.id ? (
+              <form className="flex gap-1" onSubmit={(e) => { e.preventDefault(); void act(() => api.renamePreset(p.id, renaming.name), "Umbenannt."); setRenaming(null); }}>
+                <input autoFocus aria-label="Neuer Name" className="einst-feld !py-0.5" value={renaming.name} onChange={(e) => setRenaming({ id: p.id, name: e.target.value })} />
+                <button className="btn" type="submit">OK</button>
+              </form>
+            ) : <><b>{p.name}</b><span className="text-[11px] text-dim">{p.builtin ? "mitgeliefert" : "eigen"}</span></>}>
+            {p.builtin
+              ? <button className="btn leise" onClick={() => void act(() => api.duplicatePreset(p.id), "Dupliziert.")}>Duplizieren</button>
+              : deleting === p.id
+                ? <><button className="btn on" onClick={() => { setDeleting(null); void act(() => api.deletePreset(p.id), "Gelöscht."); }}>Wirklich löschen</button><button className="btn leise" onClick={() => setDeleting(null)}>Abbrechen</button></>
+                : <><button className="btn leise" onClick={() => setRenaming({ id: p.id, name: p.name })}>Umbenennen</button><button className="btn leise" onClick={() => setDeleting(p.id)}>Löschen</button></>}
+            {deleting !== p.id && <button className="btn" onClick={() => void show(p.id)}>Laden…</button>}
+          </Zeile>
         ))}
-      </ul>
+      </Abschnitt>
+
+      <Abschnitt titel="Aktuellen Stand speichern">
+        <form className="einst-zeile" onSubmit={(e) => { e.preventDefault(); void act(async () => { await api.savePreset(name, "", null); setName(""); }, "Gespeichert."); }}>
+          <input className="einst-feld" placeholder="Name, z. B. „Winter im Dorf“" aria-label="Name des Presets" value={name} maxLength={60} onChange={(e) => setName(e.target.value)} />
+          <div className="einst-regler"><button className="btn gold" type="submit" disabled={!name.trim()}>Speichern</button><span className="einst-zurueck leer" aria-hidden="true">↺</span></div>
+        </form>
+      </Abschnitt>
 
       {preview && (
-        <div className="fixed inset-0 z-[60] grid place-items-center bg-black/60" role="dialog" aria-modal="true" aria-label="Preset laden">
-          <div className="max-h-[80vh] w-[34rem] max-w-[92vw] overflow-auto rounded-lg border border-line bg-panel p-5">
+        <div className="fixed inset-0 z-[60] grid place-items-center bg-black/60" role="dialog" aria-modal="true" aria-label="Voreinstellung laden">
+          <div className="glas max-h-[80vh] w-[34rem] max-w-[92vw] overflow-auto p-5">
             <h3 className="text-lg font-semibold">„{preview.preset.name}“ laden?</h3>
-            {preview.diff.length === 0 ? <p className="mt-2 text-sm text-dim">Alle Werte entsprechen schon dem Preset.</p> : (
+            {preview.diff.length === 0 ? <p className="mt-2 text-sm text-dim">Alle Werte entsprechen schon dieser Voreinstellung.</p> : (
               <>
                 <p className="mt-2 text-sm text-dim">{preview.diff.length} Werte ändern sich:</p>
                 <table className="mt-2 w-full text-[13px]" data-testid="preset-diff">
                   <thead><tr className="text-left text-[11px] text-faint"><th>Einstellung</th><th>jetzt</th><th>danach</th></tr></thead>
                   <tbody>{preview.diff.map((d, i) => (
-                    <tr key={i} className="border-t border-line/50"><td className="py-1">{d.label}{d.agent ? ` (${d.agent})` : ""}</td><td className="font-mono text-xs text-dim">{shown(d.old, specOf(d.key))}</td><td className="font-mono text-xs text-alex">{shown(d.new, specOf(d.key))}</td></tr>
+                    <tr key={i} className="border-t border-line/50"><td className="py-1">{labelOf(d.key) || d.label}{d.agent ? ` (${d.agent})` : ""}</td><td className="font-mono text-xs text-dim">{shown(d.old, specOf(d.key))}</td><td className="font-mono text-xs text-alex">{shown(d.new, specOf(d.key))}</td></tr>
                   ))}</tbody>
                 </table>
               </>
             )}
             <div className="mt-4 flex justify-end gap-2">
               <button className="btn" onClick={() => setPreview(null)}>Abbrechen</button>
-              <button className="btn on" onClick={() => void apply(preview.preset.id, preview.preset.name)}>Laden</button>
+              <button className="btn gold" onClick={() => void apply(preview.preset.id, preview.preset.name)}>Laden</button>
             </div>
           </div>
         </div>
       )}
-
-      <form className="rounded-md border border-line p-3" onSubmit={(e) => { e.preventDefault(); void act(async () => { await api.savePreset(name, desc, picked.length ? picked : null); setName(""); setDesc(""); }, "Gespeichert."); }}>
-        <h3 className="sub !mt-0">Aktuellen Stand speichern</h3>
-        <input className="w-full rounded-md border border-line bg-bg px-2 py-1 text-[13px]" placeholder="Name" aria-label="Name des Presets" value={name} maxLength={60} onChange={(e) => setName(e.target.value)} />
-        <input className="mt-1.5 w-full rounded-md border border-line bg-bg px-2 py-1 text-[13px]" placeholder="Beschreibung (optional)" aria-label="Beschreibung" value={desc} maxLength={300} onChange={(e) => setDesc(e.target.value)} />
-        <fieldset className="mt-2"><legend className="text-[11px] text-faint">Nur diese Gruppen speichern (keine Auswahl = alles)</legend>
-          <div className="flex flex-wrap gap-x-3 gap-y-1">{groups.map((g) => (
-            <label key={g.id} className="flex items-center gap-1 text-[12px]"><input type="checkbox" checked={picked.includes(g.id)} onChange={(e) => setPicked(e.target.checked ? [...picked, g.id] : picked.filter((x) => x !== g.id))} />{g.label}</label>
-          ))}</div>
-        </fieldset>
-        <button className="btn mt-2" type="submit" disabled={!name.trim()}>Speichern</button>
-      </form>
     </div>
   );
 }

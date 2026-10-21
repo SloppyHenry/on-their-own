@@ -18,6 +18,6 @@ export function useModelChoices() {
     : (health?.llm.models ?? []).filter((m) => m !== current).map((m) => ({ value: m, label: m, note: "" }));
   const currentInstalled = !builtin || !!status?.installed.some((m) => m.id === current);
   const initial = builtin && status.default_model && status.default_model !== current ? status.default_model : "";
-  const manage = () => useUiStore.getState().openSettings("models");
+  const manage = () => useUiStore.getState().openSettings("modell/verwalten");
   return { current, builtin, choices, currentInstalled, initial, manage, ready: builtin ? !!status : !!health };
 }

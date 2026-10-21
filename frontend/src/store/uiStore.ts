@@ -108,7 +108,7 @@ export const useUiStore = create<UiStore>((set) => ({
   setSavesOpen: (savesOpen) => set({ savesOpen }),
   focusRequest: null,
   focusOn: (x, y) => set((s) => ({ focusRequest: { x, y, n: (s.focusRequest?.n ?? 0) + 1 } })),
-  settingsTab: "autonomy",
+  settingsTab: "spielart",
   openSettings: (tab) => set((s) => ({ menu: s.menu ?? "pause", menuSel: "settings", menuSub: null, settingsTab: tab ?? s.settingsTab })),
   memoryTab: "memories",
   openMemory: (memoryAgent, tab) => set((s) => ({ view: "memory", memoryAgent, memoryTab: tab ?? s.memoryTab, selection: null, drawer: null })),

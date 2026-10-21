@@ -101,9 +101,6 @@ export function DefinePane() {
 
 export function SettingsPane() {
   return (
-    <div data-testid="settings">
-      <Brotkrumen pfad={[{ label: "Einstellungen" }]} escZu={useEscZuSpiel()} />
-      <SettingsContent />
-    </div>
+    <SettingsContent />
   );
 }

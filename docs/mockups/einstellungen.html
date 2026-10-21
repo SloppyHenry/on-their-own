@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SIMULACRA · Einstellungen neu geordnet (Mockup)</title>
+<link rel="stylesheet" href="rework/stil.css">
+<link rel="stylesheet" href="einstellungen/stil.css">
+</head>
+<body>
+<div class="bg"></div>
+<div class="wrap"><div class="set" id="set"></div></div>
+<div id="mocktab" title="Erläuterung zum Mockup (Taste N)">Was ist neu? ▾</div>
+<aside id="erl"></aside>
+<script>
+// Daten: Seiten in drei Gruppen. Jede Seite hat Abschnitte mit Zeilen; „fein“ sind die eingeklappten Feinheiten.
+// Zeilenarten: seg, slider, tilt (Mitte = unverändert), switch, select, text, area, need (Bedürfnis an/aus + Rate), info, lock.
+const RES = [{ id: "alex", name: "Alex", c: "var(--alex)", kurz: "neugierig · hilfsbereit · plant gern" }, { id: "mira", name: "Mira", c: "var(--mira)", kurz: "gesellig · gärtnert · redet viel" }, { id: "hanne", name: "Hanne", c: "var(--hanne)", kurz: "ruhig · beharrlich · backt" }];
+const PCT = (v) => `${v} %`;
+const GROUPS = [
+  { id: "spiel", label: "Dieses Spiel", hint: "Spielstand" },
+  { id: "geraet", label: "Dieses Gerät", hint: "Browser" },
+  { id: "ki", label: "KI", hint: "Modell" },
+];
+const PAGES = [
+  { id: "spielart", g: "spiel", icon: "✦", title: "Spielart", lead: "Wer die Welt verändern darf. Gehört zu diesem Spielstand; die Bewohner merken nie etwas davon.", custom: "spielart",
+    secs: [{ t: "Was die Bewohner wissen", only: "gott", rows: [
+      { k: "mode", l: "Wissen über dich", h: "Gilt nur in der Spielart Gott. Ändert keine Erinnerungen, nur künftige Entscheidungen.", t: "seg", o: ["Verborgen", "Schöpfer", "Eingriff"], d: "Verborgen" },
+      { k: "mode.creator_text", l: "Was sie über den Schöpfer wissen", h: "Steht so im Prompt der Bewohner.", t: "area", d: "Du weißt, dass diese Welt und ihre Bewohner von jemandem außerhalb geschaffen wurden …", when: () => V.mode === "Schöpfer" },
+    ] }] },
+  { id: "zeit", g: "spiel", icon: "◷", title: "Zeit", lead: "Wie schnell die Welt läuft und wie oft gesichert wird.",
+    secs: [
+      { t: "Ablauf", rows: [
+        { k: "sim.speed", l: "Tempo", h: "Auch mit den Tasten 1–5 im Spiel.", t: "seg", o: ["0,5×", "1×", "2×", "4×", "max."], d: "max." },
+        { k: "world.minutes_per_tick", l: "Minuten je Schritt", h: "Mehr Minuten: der Tag vergeht schneller, Entscheidungen fallen seltener.", t: "slider", min: 1, max: 15, d: 1, f: (v) => `${v} Min.` },
+        { k: "sim.time_waits_for_decisions", l: "Zeit wartet auf die Bewohner", h: "Die Uhr steht, bis alle freien Bewohner entschieden haben.", t: "switch", d: true },
+        { k: "sim.power_save", l: "Energiesparen", h: "Höchstens 4 Entscheidungen je Minute, tagsüber kein Nachdenken, Pause ohne Zuschauer.", t: "switch", d: false },
+      ] },
+      { t: "Automatisch sichern", rows: [
+        { k: "sim.autosave_sim_hours", l: "Alle … Spielstunden", h: "0 = aus. Überschreibt nie deine eigenen Stände.", t: "slider", min: 0, max: 48, d: 6, f: (v) => (v ? `${v} Std.` : "aus") },
+        { k: "sim.autosave_real_minutes", l: "Zusätzlich alle … Minuten Echtzeit", h: "0 = aus.", t: "slider", min: 0, max: 240, step: 5, d: 30, f: (v) => (v ? `${v} Min.` : "aus") },
+        { k: "sim.autosave_keep", l: "So viele Autosaves behalten", h: "Ältere werden gelöscht.", t: "slider", min: 1, max: 20, d: 5, f: (v) => `${v}` },
+      ] },
+      { t: "Feinheiten", fein: true, rows: [
+        { k: "sim.tick_pause_ms", l: "Pause je Schritt", h: "Überschreibt das Tempo.", t: "slider", min: 0, max: 5000, step: 50, d: 0, f: (v) => `${v} ms` },
+        { k: "sim.max_decisions_per_min", l: "Höchstens … Entscheidungen je Minute", h: "Begrenzt die Last auf das Modell. 0 = unbegrenzt.", t: "slider", min: 0, max: 60, d: 0, f: (v) => (v ? `${v}/min` : "frei") },
+        { k: "decision_interval", l: "Abstand zwischen zwei Entscheidungen", h: "Je Bewohner, in Spielminuten. 1 = sobald er frei ist.", t: "slider", min: 1, max: 120, d: 1, f: (v) => `${v} Min.` },
+      ] },
+    ] },
+  { id: "welt", g: "spiel", icon: "❀", title: "Welt & Regeln", lead: "Was die Welt hergibt und verlangt. Wirkt sofort.",
+    secs: [
+      { t: "Von selbst", rows: [
+        { k: "world.events", l: "Ereignisse der Welt", h: "Gewitter, ein umgestürzter Baum, ein Fuchs im Garten … ohne Urheber.", t: "seg", o: ["aus", "selten", "manchmal", "oft"], d: "manchmal" },
+        { k: "world.failure_consequence", l: "Was ein Fehlschlag kostet", h: "Wenn eine Handlung nicht gelingt.", t: "seg", o: ["nichts", "Zeit", "Zeit + Kraft"], d: "Zeit" },
+      ] },
+      { t: "Vorräte", rows: [
+        { k: "world.scarcity", l: "Knappheit", h: "100 % = nur noch ein Zehntel von allem.", t: "slider", min: 0, max: 100, d: 0, f: PCT },
+        { k: "world.resource_availability", l: "Höchstvorrat je Ort", h: "100 % = normal.", t: "slider", min: 0, max: 200, step: 5, d: 100, f: PCT },
+      ] },
+      { t: "Bedürfnisse", note: "Ausgeschaltet steigt ein Bedürfnis nicht mehr und kommt im Denken der Bewohner nicht vor.", rows: [
+        { k: "needs.energy", l: "Energie", t: "need", d: true, rate: 100 }, { k: "needs.hunger", l: "Hunger", t: "need", d: true, rate: 100 },
+        { k: "needs.thirst", l: "Durst", t: "need", d: true, rate: 100 }, { k: "needs.social", l: "Geselligkeit", t: "need", d: true },
+        { k: "needs.calm", l: "Ruhe", t: "need", d: true }, { k: "needs.warmth", l: "Wärme", t: "need", d: false },
+      ] },
+      { t: "Bauen", rows: [
+        { k: "world.build_cost", l: "Baukosten", t: "slider", min: 25, max: 300, step: 5, d: 100, f: PCT },
+        { k: "world.build_duration", l: "Bauzeit", t: "slider", min: 25, max: 300, step: 5, d: 100, f: PCT },
+        { k: "world.max_objects", l: "Höchstzahl Dinge", h: "Grenze für alles, was gebaut oder hergestellt wird.", t: "slider", min: 20, max: 500, step: 10, d: 150, f: (v) => `${v}` },
+      ] },
+      { t: "Wege", rows: [
+        { k: "world.movement", l: "Wohin die Bewohner dürfen", t: "select", o: ["überallhin", "nur Haus und Garten", "nicht in den Wald", "eigene Liste"], d: "überallhin" },
+        { k: "world.movement_custom", l: "Gesperrte Orte", h: "Durch Komma getrennt, z. B. lake, forest.", t: "text", d: "", when: () => V["world.movement"] === "eigene Liste" },
+      ] },
+    ] },
+  { id: "bewohner", g: "spiel", icon: "☺", title: "Bewohner", lead: "Wie die Bewohner ticken – für alle auf einmal oder jeden einzeln.", custom: "bewohner",
+    secs: [{ t: "Für alle", note: "Die Mitte lässt jeden, wie er ist. Nach rechts verstärkt, nach links dämpft es diesen Zug bei allen.", rows: [
+      { k: "autonomy", l: "Eigene Vorhaben", h: "Statt nur auf andere und Ereignisse zu reagieren.", t: "tilt", d: 50 },
+      { k: "initiative", l: "Initiative", h: "Von sich aus Gespräche und Unternehmungen beginnen.", t: "tilt", d: 50 },
+      { k: "spontaneity", l: "Spontaneität", h: "Vom Plan abweichen.", t: "tilt", d: 50 },
+      { k: "goal_persistence", l: "Beharrlichkeit", h: "Bei einem Ziel bleiben.", t: "tilt", d: 50 },
+      { k: "exploration", l: "Erkunden", h: "Neugier auf Unbekanntes.", t: "tilt", d: 50 },
+    ] }] },
+  { id: "darstellung", g: "geraet", icon: "▣", title: "Darstellung", lead: "Wie die Welt auf diesem Gerät aussieht. Ändert nichts an der Simulation.", custom: "darstellung",
+    secs: [
+      { t: "Beim Öffnen", rows: [
+        { k: "titelbild", l: "Titelbild zeigen", h: "Sonst geht es direkt ins Spiel.", t: "switch", d: true },
+        { k: "hilfe", l: "Hilfe mit allen Tasten", h: "Beim allerersten Start blendet sie sich einmal ein.", t: "info", v: "<kbd>?</kbd>" },
+      ] },
+      { t: "Vorschau", rows: [
+        { k: "mitspieler", l: "Mitspieler-Steuerung <span class='badge'>Vorschau</span>", h: "Klick geht und handelt, schickt aber nichts an die Simulation.", t: "switch", d: false },
+      ] },
+    ] },
+  { id: "ton", g: "geraet", icon: "♪", title: "Ton", lead: "Alle Klänge entstehen im Browser, nichts wird geladen.", custom: "ton",
+    secs: [
+      { t: "Allgemein", rows: [
+        { k: "ton.an", l: "Ton", h: "Auch über den Lautsprecher oben rechts.", t: "switch", d: true },
+        { k: "ton.gesamt", l: "Lautstärke", t: "slider", min: 0, max: 100, d: 70, f: PCT },
+      ] },
+      { t: "Mischpult", rows: [
+        { k: "ton.music", l: "Musik", h: "Nach Tageszeit, Wetter und Ort.", t: "slider", min: 0, max: 100, d: 60, f: PCT },
+        { k: "ton.amb", l: "Umgebung", h: "Vögel, Bach, Wind, Regen, Grillen, Feuer.", t: "slider", min: 0, max: 100, d: 80, f: PCT },
+        { k: "ton.fig", l: "Figuren", h: "Schritte, Türen, Kochen, Werkzeuge.", t: "slider", min: 0, max: 100, d: 80, f: PCT },
+        { k: "ton.voice", l: "Stimmen", h: "Plappern beim Sprechen.", t: "slider", min: 0, max: 100, d: 70, f: PCT },
+      ] },
+    ] },
+  { id: "modell", g: "ki", icon: "◉", title: "Modell", lead: "Das Sprachmodell, das für die Bewohner denkt.", custom: "modell",
+    secs: [
+      { t: "Diese Simulation", rows: [
+        { k: "llm.model", l: "Modell", h: "Gilt für die ganze Simulation. Ein anderes Modell braucht eine neue Simulation.", t: "lock", v: "qwen3.8-9b-uncensored" },
+        { k: "llm.thinking", l: "Nachdenken vor der Antwort", h: "Kostet deutlich Zeit.", t: "seg", o: ["aus", "kurz", "normal"], d: "aus" },
+      ] },
+      { t: "Feinheiten", fein: true, rows: [
+        { k: "llm.temperature", l: "Temperatur", h: "Höher = freier, zufälliger.", t: "slider", min: 0, max: 1.5, step: 0.05, d: 1, f: (v) => (+v).toFixed(2) },
+        { k: "llm.top_p", l: "Top-p", h: "Begrenzt die Wortauswahl.", t: "slider", min: 0.1, max: 1, step: 0.05, d: 0.95, f: (v) => (+v).toFixed(2) },
+        { k: "llm.max_tokens", l: "Längste Antwort", t: "slider", min: 64, max: 2048, step: 16, d: 400, f: (v) => `${v} Tok.` },
+        { k: "llm.context_budget", l: "Längster Prompt", h: "Darüber fallen erst alte Erinnerungen weg.", t: "slider", min: 1000, max: 16000, step: 250, d: 6000, f: (v) => `${v} Tok.` },
+        { k: "llm.max_concurrent", l: "Gleichzeitige Anfragen", h: "Über 1 nur, wenn der Router mehrere Plätze hat.", t: "slider", min: 1, max: 4, d: 1, f: (v) => `${v}` },
+        { k: "llm.timeout_s", l: "Zeitlimit", t: "slider", min: 5, max: 300, step: 5, d: 90, f: (v) => `${v} s` },
+        { k: "llm.retries", l: "Wiederholungen", h: "Bei einer fehlgeschlagenen Anfrage.", t: "slider", min: 0, max: 5, d: 2, f: (v) => `${v}` },
+        { k: "llm.base_url", l: "Adresse des Routers", h: "Wird erst nach einem erfolgreichen Verbindungstest übernommen.", t: "text", d: "http://maintux:8080/v1" },
+      ] },
+    ] },
+  { id: "denken", g: "ki", icon: "✧", title: "Denken & Gedächtnis", lead: "Für Fortgeschrittene: wie die Bewohner entscheiden und sich erinnern. Die Standards sind erprobt.",
+    secs: [
+      { t: "Entscheiden", rows: [
+        { k: "planning_horizon", l: "Schritte je Plan", t: "slider", min: 1, max: 8, d: 5, f: (v) => `${v}` },
+        { k: "top_k_options", l: "Möglichkeiten je Entscheidung", h: "So viele bewertete Möglichkeiten sieht das Modell.", t: "slider", min: 3, max: 10, d: 6, f: (v) => `${v}` },
+        { k: "rank_hint", l: "Reihenfolge verraten", h: "Das Modell erfährt, dass die Möglichkeiten nach Passung geordnet sind.", t: "switch", d: true },
+      ] },
+      { t: "Erinnern", rows: [
+        { k: "memory.max_in_context", l: "Erinnerungen je Entscheidung", t: "slider", min: 3, max: 40, d: 6, f: (v) => `${v}` },
+        { k: "memory.context_token_budget", l: "Platz für Erinnerungen", t: "slider", min: 300, max: 4000, step: 50, d: 400, f: (v) => `${v} Tok.` },
+        { k: "memory.retrieval_threshold", l: "Abrufschwelle", h: "Ab dieser Punktzahl wird eine Erinnerung abgerufen.", t: "slider", min: 0, max: 1, step: 0.01, d: 0.35, f: (v) => (+v).toFixed(2) },
+        { k: "memory.recency_half_life", l: "Halbwertszeit", h: "Danach zählt eine Erinnerung nur noch halb.", t: "slider", min: 1, max: 168, d: 36, f: (v) => `${v} Std.` },
+      ] },
+      { t: "Was beim Erinnern zählt", rows: [
+        { k: "memory.w_importance", l: "Wichtigkeit", t: "slider", min: 0, max: 1, step: 0.05, d: 0.6, f: (v) => (+v).toFixed(2) },
+        { k: "memory.w_recency", l: "Aktualität", t: "slider", min: 0, max: 1, step: 0.05, d: 0.6, f: (v) => (+v).toFixed(2) },
+        { k: "memory.w_relevance", l: "Passung zur Lage", t: "slider", min: 0, max: 1, step: 0.05, d: 1, f: (v) => (+v).toFixed(2) },
+        { k: "memory.w_shared", l: "Gemeinsam Erlebtes", t: "slider", min: 0, max: 1, step: 0.05, d: 0.2, f: (v) => (+v).toFixed(2) },
+      ] },
+      { t: "Nachdenken", rows: [
+        { k: "memory.reflection_threshold", l: "Schwelle zum Nachdenken", h: "Summe der Wichtigkeit neuer Erinnerungen.", t: "slider", min: 10, max: 300, step: 5, d: 80, f: (v) => `${v} P.` },
+        { k: "memory.summary_interval", l: "Zusammenfassung alle", t: "slider", min: 24, max: 168, step: 24, d: 24, f: (v) => `${v} Std.` },
+        { k: "memory.archive_after_days", l: "Archivieren nach", h: "0 = nie.", t: "slider", min: 0, max: 60, d: 2, f: (v) => (v ? `${v} Tage` : "nie") },
+      ] },
+    ] },
+  { id: "presets", g: "", icon: "☰", title: "Voreinstellungen", lead: "Alle Regler von „Dieses Spiel“ und „KI“ als Satz speichern und laden. Darstellung und Ton bleiben, wie sie sind.", custom: "presets", secs: [] },
+];
+// Persönlichkeit und Charakter je Bewohner (Unterseite Bewohner › Name)
+const PERS = [["sociability", "Geselligkeit"], ["curiosity", "Neugier"], ["helpfulness", "Hilfsbereitschaft"], ["risk_taking", "Risikobereitschaft"], ["conflict_readiness", "Widerspruch"], ["cooperation", "Zusammenarbeit"],
+  ["calm_need", "Bedürfnis nach Ruhe"], ["conversation_initiative", "Spricht andere an"], ["suggestion_acceptance", "Nimmt Vorschläge an"], ["persistence", "Beharrlichkeit"], ["spontaneity", "Spontaneität"], ["autonomy", "Eigene Vorhaben"]];
+const PROF = [["description", "Wie sie ist"], ["background", "Hintergrund"], ["interests", "Interessen"], ["dislikes", "Abneigungen"], ["goals", "Ziele"], ["communication_style", "Wie sie spricht"]];
+const PROF_D = { alex: ["Ruhig und aufmerksam, plant gern voraus.", "Kam vor zwei Jahren ins Dorf und repariert, was kaputt ist.", "Werkzeug, Vögel, Karten", "Lärm, Unordnung", "eine Bank am See bauen", "knapp, freundlich"],
+  mira: ["Herzlich und neugierig, immer im Gespräch.", "Im Dorf aufgewachsen, kennt jeden.", "Garten, Kochen, Geschichten", "Streit", "den Garten erweitern", "lebhaft, viele Fragen"],
+  hanne: ["Bedächtig, beharrlich, verlässlich.", "Bäckerin seit vielen Jahren.", "Backen, Ordnung, Wetter", "Hektik", "eine Feuerstelle für alle", "ruhig, trocken"] };
+
+// Zustand
+const V = {}, D = {};
+const S = { page: "darstellung", sub: null, q: "", play: "gott", view: "tiefe", blasen: "A", hit: null };
+const allRows = () => PAGES.flatMap((p) => p.secs.flatMap((s) => s.rows.map((r) => ({ r, p, s }))));
+allRows().forEach(({ r }) => { if (r.t === "need") { V[r.k] = D[r.k] = r.d; if (r.rate) V[r.k + ".rate"] = D[r.k + ".rate"] = r.rate; } else if ("d" in r) V[r.k] = D[r.k] = r.d; });
+RES.forEach((a, i) => { PERS.forEach(([k], j) => { const key = `p.${a.id}.${k}`; V[key] = D[key] = [62, 48, 70, 40, 35, 58, 55, 45, 60, 66, 42, 64][(j + i * 4) % 12]; }); PROF.forEach(([k], j) => { const key = `c.${a.id}.${k}`; V[key] = D[key] = PROF_D[a.id][j]; }); });
+V["world.scarcity"] = 30; V["sim.speed"] = "2×"; V["memory.max_in_context"] = 10;                         // ein paar Abweichungen, damit man die Markierung sieht
+V["p.mira.curiosity"] = 80;
+
+const $ = (q) => document.querySelector(q);
+const esc = (t) => String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/"/g, "&quot;");
+const changed = (k) => JSON.stringify(V[k]) !== JSON.stringify(D[k]);
+const rowKeys = (r) => (r.t === "need" ? [r.k, ...(r.rate ? [r.k + ".rate"] : [])] : "d" in r ? [r.k] : []);
+const pageChanged = (p) => p.secs.flatMap((s) => s.rows).flatMap(rowKeys).filter(changed).length + (p.id === "bewohner" ? Object.keys(V).filter((k) => /^[pc]\./.test(k) && changed(k)).length : 0);
+
+function control(r) {
+  const v = V[r.k], rs = (keys) => `<button class="rs ${keys.some(changed) ? "" : "x"}" data-reset="${keys.join(",")}" title="Auf Standard: ${esc(keys.map((k) => fmt(r, D[k], k)).join(" · "))}">↺</button>`;
+  switch (r.t) {
+    case "seg": return `<span class="seg">${r.o.map((o) => `<button class="${v === o ? "on" : ""}" data-set="${r.k}" data-val="${esc(o)}">${o}</button>`).join("")}</span>${rs([r.k])}`;
+    case "slider": return `<input type="range" min="${r.min}" max="${r.max}" step="${r.step ?? 1}" value="${v}" data-k="${r.k}"><span class="v" data-v="${r.k}">${fmt(r, v)}</span>${rs([r.k])}`;
+    case "tilt": return `<span class="tilt"><input type="range" min="0" max="100" value="${v}" data-k="${r.k}" style="width:100%"></span><span class="v" data-v="${r.k}">${fmt(r, v)}</span>${rs([r.k])}`;
+    case "switch": return `<button class="sw ${v ? "on" : ""}" data-toggle="${r.k}" aria-pressed="${!!v}"></button>${rs([r.k])}`;
+    case "select": return `<select data-k="${r.k}">${r.o.map((o) => `<option ${o === v ? "selected" : ""}>${o}</option>`).join("")}</select>${rs([r.k])}`;
+    case "text": return `<input type="text" value="${esc(v)}" data-k="${r.k}">${rs([r.k])}`;
+    case "need": { const rk = r.k + ".rate"; return `<button class="sw ${V[r.k] ? "on" : ""}" data-toggle="${r.k}"></button>${r.rate ? `<input type="range" min="0" max="300" step="5" value="${V[rk]}" data-k="${rk}" ${V[r.k] ? "" : "disabled"} title="Wie schnell es steigt"><span class="v" data-v="${rk}">${V[rk]} %</span>` : `<span style="flex:1"></span><span class="v" style="color:var(--faint);font-weight:500">fest</span>`}${rs([r.k, ...(r.rate ? [rk] : [])])}`; }
+    case "info": return `<span class="lock">${r.v}</span><button class="rs x">↺</button>`;
+    case "lock": return `<span class="lock"><b style="color:var(--txt);font-family:ui-monospace,Menlo,monospace;font-size:12px">${r.v}</b><br><a style="color:var(--acc2);cursor:pointer">Neue Simulation mit anderem Modell ›</a></span><button class="rs x">↺</button>`;
+  }
+  return "";
+}
+function fmt(r, v, k) {
+  if (k && k.endsWith(".rate")) return `${v} %`;
+  if (r.t === "switch" || (r.t === "need" && !k?.endsWith(".rate"))) return v ? "an" : "aus";
+  if (r.t === "tilt") { const d = v - 50; return d === 0 ? "Mitte" : d > 0 ? `+${d}` : `${d}`; }
+  return r.f ? r.f(v) : String(v);
+}
+function row(r, crumb) {
+  if (r.when && !r.when()) return "";
+  const dot = rowKeys(r).some(changed) ? `<span class="dot" title="geändert"></span>` : "";
+  if (r.t === "area") return `<div class="row wide" data-row="${r.k}"><div><div class="l">${dot}${r.l}</div><div class="h">${r.h ?? ""}</div></div><textarea data-k="${r.k}">${esc(V[r.k])}</textarea></div>`;
+  return `<div class="row" data-row="${r.k}"><div>${crumb ? `<div class="crumb">${crumb}</div>` : ""}<div class="l">${dot}${r.l}</div>${r.h ? `<div class="h">${r.h}</div>` : ""}${r.t === "tilt" ? `<div class="tiltlab"><span>weniger</span><span>mehr</span></div>` : ""}</div><div class="c">${control(r)}</div></div>`;
+}
+function section(s) {
+  if (s.only && s.only !== S.play) return `<div class="sec"><h3>${s.t}</h3><div class="card"><div class="row"><div class="h">Gibt es nur in der Spielart Gott – in der Spielart Leben greift niemand ein.</div></div></div></div>`;
+  const body = `<div class="card">${s.rows.map((r) => row(r)).join("")}</div>`;
+  if (s.fein) { const n = s.rows.flatMap(rowKeys).filter(changed).length; return `<details class="fein" ${n ? "open" : ""}><summary>Feinheiten · ${s.rows.length} Regler${n ? ` · ${n} geändert` : ""}</summary>${body}</details>`; }
+  return `<div class="sec"><h3>${s.t}</h3>${s.note ? `<div class="h" style="font-size:12px;color:var(--dim);margin:0 0 8px">${s.note}</div>` : ""}${body}</div>`;
+}
+
+const CUSTOM = {
+  spielart: () => `<div class="sec"><h3>Wer verändert die Welt</h3><div class="card"><div class="pics">${[
+    ["leben", "Leben", "rework/img/dorf-seed-58-mittag.jpg", ["zuschauen, Zeit steuern, Einblicke"], ["keine Ereignisse von dir", "kein Gestalten"]],
+    ["gott", "Gott", "rework/img/dorf-seed-31-nacht.jpg", ["Ereignisse eingeben", "die Welt gestalten (Zeit steht still)", "Bewohner und Regeln ändern"], []]]
+    .map(([id, t, img, yes, no]) => `<button class="pic big ${S.play === id ? "on" : ""}" data-play="${id}"><div class="img" style="background-image:url(${img})"></div><div class="tx"><b>${t}${S.play === id ? `<span class="badge" style="border-color:var(--acc);color:var(--acc2)">aktuell</span>` : ""}</b><ul>${yes.map((x) => `<li>${x}</li>`).join("")}${no.map((x) => `<li class="no">${x}</li>`).join("")}</ul></div></button>`).join("")}</div>
+    <div class="row"><div class="h">Wechseln geht in beide Richtungen, mit Rückfrage. Bereits Geschehenes bleibt.</div></div></div></div>`,
+  darstellung: () => `<div class="sec"><h3>Welt</h3><div class="card">
+    <div class="row wide"><div><div class="l">Ansicht <kbd>V</kbd></div><div class="h">Wechselt sofort, auch im Spiel mit der Taste V.</div></div></div>
+    <div class="pics" style="padding-top:0">${[["tiefe", "Tiefe", "rework/img/dorf-tiefe.jpg", "Gebogener Horizont, Licht und Schatten."], ["flach", "Flach", "rework/img/dorf-flach.jpg", "Von oben, klar und ruhig."]]
+      .map(([id, t, img, x]) => `<button class="pic ${S.view === id ? "on" : ""}" data-view="${id}"><div class="img" style="background-image:url(${img})"></div><div class="tx"><b>${t}</b>${x}</div></button>`).join("")}</div>
+    <div class="row wide" style="border-top:1px solid #ffffff0d"><div><div class="l">Gedanken und Rede über den Köpfen</div><div class="h">Ersetzt die Zeile „Wenig Text in der Welt“.</div></div></div>
+    <div class="pics" style="padding-top:0">${[["A", "Ausführlich", "rework/img/blasen-A.jpg", "Wolke mit dem Gedanken, Rede als Sprechblase."], ["B", "Wenig Text", "rework/img/blasen-B.jpg", "Nur ein Zeichen über dem Kopf; der Gedanke erscheint beim Daraufzeigen."]]
+      .map(([id, t, img, x]) => `<button class="pic ${S.blasen === id ? "on" : ""}" data-blasen="${id}"><div class="img" style="background-image:url(${img});background-position:center 35%"></div><div class="tx"><b>${t}</b>${x}</div></button>`).join("")}</div>
+    </div></div>`,
+  bewohner: () => `<div class="sec"><h3>Einzeln</h3><div class="h" style="font-size:12px;color:var(--dim);margin:0 0 8px">Persönlichkeit und Charakter je Bewohner. Öffnet denselben Charaktereditor wie bei „Neue Simulation“.</div>
+    <div class="card"><div class="folks">${RES.map((a) => { const n = Object.keys(V).filter((k) => (k.startsWith(`p.${a.id}.`) || k.startsWith(`c.${a.id}.`)) && changed(k)).length;
+      return `<button class="folk" data-sub="${a.id}"><span class="face" style="background:${a.c}">${a.name[0]}</span><span><b>${a.name}</b><small>${a.kurz}</small>${n ? `<small style="color:var(--acc2)">● ${n} geändert</small>` : ""}</span><span class="dim">›</span></button>`; }).join("")}</div></div></div>`,
+  ton: () => `<div class="sec"><h3>Stimmen der Bewohner</h3><div class="card">${RES.map((a) => `<div class="row"><div class="l"><span class="face" style="width:26px;height:26px;border-radius:8px;font-size:12px;background:${a.c}">${a.name[0]}</span>${a.name}</div><div class="c"><button class="b">▶ Probehören</button><button class="b">Anpassen ›</button><button class="rs x">↺</button></div></div>`).join("")}</div></div>`,
+  modell: () => `<div class="sec"><h3>Zustand</h3><div class="card"><div class="status"><span class="led"></span><div><b>Verbunden · qwen3.8-9b-uncensored</b><small>maintux:8080 · lokal über llama.cpp</small></div><button class="b">Modelle verwalten ›</button></div>
+    <div class="kv"><div>Ø Antwort<b>4,5 s</b></div><div>Token/s<b>38</b></div><div>Wartend<b>0</b></div><div>Fehler (15 Min.)<b>0</b></div><div>Entscheidungen/min<b>7</b></div><div>Spielmin./min<b>12</b></div><div>Gelungen / gescheitert<b>184 / 6</b></div><div>Anfragen gesamt<b>1 203</b></div></div></div>
+    <div class="h" style="font-size:12px;color:var(--dim);margin:8px 2px 0">„Modelle verwalten“ ist die bisherige Seite „Modelle“ (Betriebsart, dieser Rechner, Herunterladen) als Unterseite. Der Modellpunkt oben rechts im Spiel führt hierher.</div></div>`,
+  presets: () => `<div class="sec"><h3>Gespeichert</h3><div class="card">${[["Standard", "mitgeliefert", "Wie beim ersten Start."], ["Ruhiges Dorf", "mitgeliefert", "Langsam, wenig Ereignisse, viel Gespräch."], ["Knappe Zeiten", "mitgeliefert", "Knappheit 60 %, Ereignisse oft."], ["Mein Test", "eigen", "12 Abweichungen · 20.10.2026"]]
+    .map(([n, art, x]) => `<div class="row"><div><div class="l"><b>${n}</b><span class="dim" style="font-size:11px">${art}</span></div><div class="h">${x}</div></div><div class="c">${art === "eigen" ? `<button class="b ghost">Umbenennen</button><button class="b ghost">Löschen</button>` : `<button class="b ghost">Duplizieren</button>`}<button class="b">Laden…</button></div></div>`).join("")}</div></div>
+    <div class="sec"><h3>Aktuellen Stand speichern</h3><div class="card"><div class="row"><div><input type="text" placeholder="Name, z. B. „Winter im Dorf“" style="width:100%;border-radius:10px;border:1px solid var(--edge2);background:#0003;padding:7px 10px"></div><div class="c"><button class="b gold">Speichern</button></div></div></div></div>`,
+};
+
+function nav() {
+  const item = (p) => { const n = pageChanged(p); return `<button class="nav ${S.page === p.id && !S.q ? "on" : ""}" data-page="${p.id}"><i>${p.icon}</i>${p.title}${n ? `<em title="${n} geändert">${n}</em>` : "<span></span>"}</button>`; };
+  return `<input type="search" id="q" placeholder="Einstellung suchen …" value="${esc(S.q)}">
+    ${GROUPS.map((g) => `<div class="grp"><span>${g.label}</span></div>${PAGES.filter((p) => p.g === g.id).map(item).join("")}`).join("")}
+    <div class="gap"></div><div class="sep"></div>${PAGES.filter((p) => !p.g).map(item).join("")}`;
+}
+function content() {
+  if (S.q) {
+    const q = S.q.toLowerCase();
+    const hits = allRows().filter(({ r, s, p }) => `${r.l} ${r.h ?? ""} ${s.t} ${p.title}`.toLowerCase().includes(q));
+    return `<div class="head"><div><h2>Suche</h2><p>${hits.length} Treffer für „${esc(S.q)}“. Klick auf einen Namen springt an die Stelle.</p></div></div>
+      ${hits.length ? `<div class="sec hits"><div class="card">${hits.map(({ r, s, p }) => row(r, `<a data-jump="${p.id}|${r.k}" style="cursor:pointer">${p.title} › ${s.t}</a>`)).join("")}</div></div>` : `<p class="empty">Nichts gefunden.</p>`}`;
+  }
+  const p = PAGES.find((x) => x.id === S.page), grp = GROUPS.find((g) => g.id === p.g);
+  if (S.sub) return subpage();
+  const scope = p.g === "geraet" ? `<span class="scope geraet">▭ nur dieses Gerät</span>` : p.g ? `<span class="scope">◆ dieser Spielstand</span>` : "";
+  const n = pageChanged(p);
+  const custom = CUSTOM[p.custom]?.() ?? "";
+  const first = p.id === "bewohner" || p.id === "ton" ? p.secs.map(section).join("") + custom : custom + p.secs.map(section).join("");
+  return `<div class="head"><div><h2>${p.title}</h2><p>${p.lead}</p></div><div class="r">${scope}${n && p.secs.length ? `<button class="b" data-pagereset="${p.id}">Seite auf Standard</button>` : ""}</div></div>${first}`;
+}
+function subpage() {
+  const a = RES.find((x) => x.id === S.sub);
+  const prs = PERS.map(([k, l]) => ({ k: `p.${a.id}.${k}`, l, t: "slider", min: 0, max: 100, d: D[`p.${a.id}.${k}`], f: PCT }));
+  const prf = PROF.map(([k, l]) => ({ k: `c.${a.id}.${k}`, l, t: k === "description" || k === "background" ? "area" : "text", d: D[`c.${a.id}.${k}`] }));
+  return `<div class="head"><span class="face" style="background:${a.c};width:52px;height:52px">${a.name[0]}</span><div><h2>${a.name}</h2><p>${a.kurz}. Änderungen gelten ab der nächsten Entscheidung und ändern keine Erinnerungen.</p></div><div class="r"><span class="scope">◆ dieser Spielstand</span></div></div>
+    <div class="sec"><h3>Persönlichkeit</h3><div class="card twocol">${prs.map((r) => row(r)).join("")}</div></div>
+    <div class="sec"><h3>Charakter</h3><div class="card">${prf.map((r) => row(r)).join("")}</div></div>`;
+}
+function render() {
+  const p = PAGES.find((x) => x.id === S.page), a = S.sub && RES.find((x) => x.id === S.sub);
+  const crumbs = [`<a data-crumb="menu">Menü</a>`, S.q ? `<a data-crumb="set">Einstellungen</a>` : `<a data-crumb="set">Einstellungen</a>`];
+  const tail = S.q ? "Suche" : a ? `<a data-crumb="page">${p.title}</a> › <b>${a.name}</b>` : `<b>${p.title}</b>`;
+  $("#set").innerHTML = `<div class="crumbs">${crumbs.join(" › ")} › ${tail}<span class="esc"><kbd>Esc</kbd> ${S.q ? "Suche leeren" : a ? `zurück zu ${p.title}` : "zurück zum Spiel"}</span></div>
+    <div class="cols"><nav class="side">${nav()}</nav><main class="main" id="main">${content()}</main></div>`;
+  const q = $("#q"); q.oninput = () => { S.q = q.value; const pos = q.selectionStart; render(); const n = $("#q"); n.focus(); n.setSelectionRange(pos, pos); };
+  if (S.hit) { const el = document.querySelector(`[data-row="${S.hit}"]`); if (el) { el.scrollIntoView({ block: "center" }); el.classList.add("hit"); } S.hit = null; }
+}
+
+document.addEventListener("click", (e) => {
+  const t = e.target.closest("[data-page],[data-set],[data-toggle],[data-reset],[data-pagereset],[data-play],[data-view],[data-blasen],[data-sub],[data-crumb],[data-jump]");
+  if (!t) return;
+  const d = t.dataset;
+  if (d.page) { S.page = d.page; S.sub = null; S.q = ""; $("#main") && ($("#main").scrollTop = 0); }
+  else if (d.set) V[d.set] = d.val;
+  else if (d.toggle) V[d.toggle] = !V[d.toggle];
+  else if (d.reset) d.reset.split(",").forEach((k) => (V[k] = D[k]));
+  else if (d.pagereset) { const p = PAGES.find((x) => x.id === d.pagereset); p.secs.flatMap((s) => s.rows).flatMap(rowKeys).forEach((k) => (V[k] = D[k])); if (p.id === "bewohner") Object.keys(D).filter((k) => /^[pc]\./.test(k)).forEach((k) => (V[k] = D[k])); }
+  else if (d.play) S.play = d.play;
+  else if (d.view) S.view = d.view;
+  else if (d.blasen) S.blasen = d.blasen;
+  else if (d.sub) S.sub = d.sub;
+  else if (d.crumb === "page") S.sub = null;
+  else if (d.jump) { const [pg, k] = d.jump.split("|"); S.page = pg; S.sub = null; S.q = ""; S.hit = k; }
+  else return;
+  render();
+});
+document.addEventListener("input", (e) => {
+  const k = e.target.dataset?.k; if (!k) return;
+  V[k] = e.target.type === "range" ? +e.target.value : e.target.value;
+  const out = document.querySelector(`[data-v="${CSS.escape(k)}"]`);
+  if (out) { const r = allRows().find(({ r }) => r.k === k || r.k + ".rate" === k)?.r ?? { t: "slider", f: PCT }; out.textContent = fmt(r, V[k], k); }
+});
+document.addEventListener("change", (e) => { if (e.target.dataset?.k && e.target.id !== "q") render(); });
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") { if (S.q) S.q = ""; else if (S.sub) S.sub = null; render(); }
+  if ((e.key === "n" || e.key === "N") && !/INPUT|TEXTAREA/.test(document.activeElement?.tagName)) $("#erl").classList.toggle("open");
+});
+$("#mocktab").onclick = () => $("#erl").classList.toggle("open");
+
+$("#erl").innerHTML = `<h4>Was ist anders?</h4><ol>
+  <li><b>Liste links statt 15 Knöpfe in zwei Reihen.</b> Neun Seiten in drei Gruppen: <i>Dieses Spiel</i> (gilt für den Spielstand), <i>Dieses Gerät</i> (Browser), <i>KI</i>. Dazu Voreinstellungen ganz unten.</li>
+  <li><b>Jede Seite gleich gebaut:</b> Titel, ein Satz, wofür sie gilt; Abschnitte als Karten; jede Zeile links Name + ein Satz, rechts der Regler in fester Spalte. „(dieses Gerät)“ steht nicht mehr in jeder Zeile, sondern einmal als Plakette oben.</li>
+  <li><b>Geändert sieht man:</b> Punkt an der Zeile, Zahl an der Seite in der Liste, ↺ setzt eine Zeile zurück.</li>
+  <li><b>Feinheiten eingeklappt.</b> Technische Regler (Pause je Takt, Top-p, Zeitlimit …) stehen unter „Feinheiten“; Denken & Gedächtnis ist als Ganzes als „für Fortgeschrittene“ gekennzeichnet.</li>
+  <li><b>Bilder statt Wörter</b> bei Ansicht (Tiefe/Flach), Blasen (A/B) und Spielart.</li>
+  <li><b>Bewohner ohne Spalten nebeneinander.</b> Oben die Regler für alle (Mitte = unverändert), darunter je Bewohner eine Karte, die eine eigene Seite öffnet. Skaliert auf viele Bewohner.</li>
+  <li><b>Suche</b> zeigt Treffer mit Fundort (Seite › Abschnitt) und springt hin.</li></ol>
+  <h4>Was wohin wandert</h4><table>
+  <tr><td>Autonomie</td><td>„für alle“ → Bewohner; Planungshorizont, Optionen, Rangfolge → Denken & Gedächtnis; Entscheidungsabstand → Zeit › Feinheiten</td></tr>
+  <tr><td>Agenten</td><td>Bewohner › einzelne Karte (Persönlichkeit + Charakter)</td></tr>
+  <tr><td>Gedächtnis</td><td>Denken & Gedächtnis</td></tr>
+  <tr><td>Welt</td><td>Welt & Regeln; „Minuten je Takt“ → Zeit</td></tr>
+  <tr><td>Modell</td><td>Modell (Denken sichtbar, Rest unter Feinheiten)</td></tr>
+  <tr><td>Tempo</td><td>Zeit (mit Autosave als eigener Abschnitt)</td></tr>
+  <tr><td>Wissen über den Gott</td><td>Spielart › „Was die Bewohner wissen“ (nur bei Gott)</td></tr>
+  <tr><td>Spielart</td><td>Spielart</td></tr>
+  <tr><td>Darstellung</td><td>Darstellung (Blasen als Bildwahl)</td></tr>
+  <tr><td>Modelle</td><td>Modell › „Modelle verwalten“ (Unterseite)</td></tr>
+  <tr><td>Status</td><td>Modell › Zustand (oben auf der Seite)</td></tr>
+  <tr><td>Ton</td><td>Ton (Stimmen je Bewohner unten)</td></tr>
+  <tr><td>Presets</td><td>Voreinstellungen</td></tr></table>
+  <h4>Offen</h4><ul>
+  <li>Sollen <i>Welt & Regeln</i> und <i>Bewohner</i> in der Spielart Leben gesperrt sein? Ändern ist eigentlich ein Eingriff von außen. Dann wären es die Gott-Werkzeuge „Weltregeln“ und „Bewohner“ aus dem Rework-Plan, und hier stünde nur ein Verweis.</li>
+  <li>Name „Voreinstellungen“ statt „Presets“?</li></ul>
+  <p style="color:#999;margin-top:14px">Taste <kbd>N</kbd> blendet diese Erläuterung ein und aus. Werte im Mockup sind Beispiele; ein paar sind absichtlich verändert, damit man die Markierung sieht.</p>`;
+render();
+</script>
+</body>
+</html>

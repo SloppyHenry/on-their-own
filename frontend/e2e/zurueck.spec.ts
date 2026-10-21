@@ -195,7 +195,12 @@ test("Einstellungen im Menü: Esc geht zum Spiel", async ({ page }) => {
   await pause(page);
   await page.getByTestId("menu-settings").click();
   await expect(page.getByTestId("settings")).toBeVisible();
-  await expect(page.getByTestId("krume-aktuell")).toHaveText("Einstellungen");
+  await expect(page.getByTestId("krume-aktuell")).toHaveText("Spielart");               // Einstellungen › Spielart (die erste Seite)
+  await page.getByRole("tab", { name: "Bewohner", exact: true }).click();
+  await page.getByTestId("einst-bewohner-mira").click();
+  await expect(page.getByTestId("krume-aktuell")).toHaveText("Mira");
+  await esc(page);                                                                       // Unterseite zu, zurück zur Liste der Bewohner
+  await expect(page.getByTestId("krume-aktuell")).toHaveText("Bewohner");
   await esc(page);
   await expect(menu(page)).toHaveCount(0);
 });

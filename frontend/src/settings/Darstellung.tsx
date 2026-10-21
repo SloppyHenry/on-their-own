@@ -1,9 +1,9 @@
-// Einstellungen › Darstellung (AP18b): Tiefe oder Flach (auch Taste V), Titelbild beim Öffnen, Hilfe beim Start, Mitspieler-Vorschau. Alles gilt je Gerät.
+// Einstellungen › Darstellung (AP18b, neu geordnet nach docs/mockups/einstellungen.html): Ansicht Tiefe/Flach (auch Taste V) und Blasen als Bildwahl,
+// Titelbild beim Öffnen, Hilfe, Mitspieler-Vorschau. Alles gilt je Gerät.
 import { useUiStore } from "../store/uiStore";
+import { Abschnitt, Zeile } from "./Zeile";
 
-const row = "flex items-center gap-3 py-2 text-[13px]";
-
-/** Tiefe oder Flach als Schalter (Einstellungen › Darstellung und im Welteditor, wo es kein Menü gibt). */
+/** Tiefe oder Flach als Schalter (im Welteditor und in der Werkstatt, wo es kein Menü gibt). */
 export function AnsichtWahl() {
   const mode = useUiStore((s) => s.worldMode), setMode = useUiStore((s) => s.setWorldMode);
   return (
@@ -14,18 +14,45 @@ export function AnsichtWahl() {
   );
 }
 
+function Bild({ name, text, img, an, onClick, pos }: { name: string; text: string; img: string; an: boolean; onClick: () => void; pos?: string }) {
+  return (
+    <button type="button" className="einst-bild" aria-pressed={an} aria-label={name} onClick={onClick}>
+      <div className="img" style={{ backgroundImage: `url(/einstellungen/${img}.jpg)`, backgroundPosition: pos }} />
+      <div className="tx"><b>{name}</b>{text}</div>
+    </button>
+  );
+}
+
 export function Darstellung() {
+  const mode = useUiStore((s) => s.worldMode), setMode = useUiStore((s) => s.setWorldMode);
   const title = useUiStore((s) => s.titleOnStart), setTitle = useUiStore((s) => s.setTitleOnStart);
   const player = useUiStore((s) => s.playerPreview), setPlayer = useUiStore((s) => s.setPlayerPreview);
   const wenig = useUiStore((s) => s.wenigText), setWenig = useUiStore((s) => s.setWenigText);
   return (
-    <div data-testid="view-menu" className="max-w-xl">
-      <div className={row}><span className="w-44">Ansicht der Welt</span>
-        <AnsichtWahl /><kbd className="kbd">V</kbd></div>
-      <label className={`${row} cursor-pointer`}><input type="checkbox" checked={title} onChange={(e) => setTitle(e.target.checked)} data-testid="title-on-start" />Titelbild beim Öffnen zeigen (dieses Gerät)</label>
-      <label className={`${row} cursor-pointer`}><input type="checkbox" checked={wenig} onChange={(e) => setWenig(e.target.checked)} data-testid="wenig-text" />Wenig Text in der Welt: nur ein Zeichen über dem Kopf, der Gedanke erscheint beim Daraufzeigen (dieses Gerät)</label>
-      <label className={`${row} cursor-pointer`}><input type="checkbox" checked={player} onChange={(e) => setPlayer(e.target.checked)} data-testid="player-toggle" />Mitspieler-Steuerung (Vorschau): Klick geht und handelt, schickt aber nichts an die Simulation</label>
-      <p className="mt-2 text-xs text-dim">Die Hilfe mit allen Tasten öffnet sich mit <kbd className="kbd">?</kbd>; beim allerersten Start blendet sie sich einmal ein.</p>
+    <div data-testid="view-menu">
+      <Abschnitt titel="Welt">
+        <Zeile breit name={<>Ansicht <kbd className="kbd">V</kbd></>} hilfe="Wechselt sofort, auch im Spiel mit der Taste V." />
+        <div className="einst-bilder !pt-0" role="group" aria-label="Ansicht">
+          <Bild name="Tiefe" text="Gebogener Horizont, Licht und Schatten." img="tiefe" an={mode === "tiefe"} onClick={() => setMode("tiefe")} />
+          <Bild name="Flach" text="Von oben, klar und ruhig." img="flach" an={mode === "flach"} onClick={() => setMode("flach")} />
+        </div>
+        <Zeile breit name="Gedanken und Rede über den Köpfen" hilfe="Was über den Bewohnern steht, solange du nicht auf sie zeigst." />
+        <div className="einst-bilder !pt-0" role="group" aria-label="Blasen" data-testid="wenig-text-wahl">
+          <Bild name="Ausführlich" text="Wolke mit dem Gedanken, Rede als Sprechblase." img="blasen-a" pos="center 35%" an={!wenig} onClick={() => setWenig(false)} />
+          <Bild name="Wenig Text" text="Nur ein Zeichen über dem Kopf; der Gedanke erscheint beim Daraufzeigen." img="blasen-b" pos="center 35%" an={wenig} onClick={() => setWenig(true)} />
+        </div>
+      </Abschnitt>
+      <Abschnitt titel="Beim Öffnen">
+        <Zeile name="Titelbild zeigen" hilfe="Sonst geht es direkt ins Spiel." fuer="titelbild">
+          <input id="titelbild" type="checkbox" role="switch" className="schalter" checked={title} onChange={(e) => setTitle(e.target.checked)} data-testid="title-on-start" />
+        </Zeile>
+        <Zeile name="Hilfe mit allen Tasten" hilfe="Beim allerersten Start blendet sie sich einmal ein."><kbd className="kbd">?</kbd></Zeile>
+      </Abschnitt>
+      <Abschnitt titel="Vorschau">
+        <Zeile name={<>Mitspieler-Steuerung <span className="einst-marke">Vorschau</span></>} hilfe="Klick geht und handelt, schickt aber nichts an die Simulation." fuer="mitspieler">
+          <input id="mitspieler" type="checkbox" role="switch" className="schalter" checked={player} onChange={(e) => setPlayer(e.target.checked)} data-testid="player-toggle" />
+        </Zeile>
+      </Abschnitt>
     </div>
   );
 }

@@ -1,4 +1,4 @@
-// Einstellungen „Ton“ (AP17d, Mockup docs/mockups/klang.html): Mischpult, Musik anhören, Stimme je Bewohner. Einzelne Klänge anhören gehört später in den
+// Einstellungen „Ton“ (AP17d, Mockup docs/mockups/klang.html; Zeilen wie docs/mockups/einstellungen.html): Mischpult, Musik anhören, Stimme je Bewohner. Einzelne Klänge anhören gehört später in den
 // Sound-Generator, nicht hierher; die Quelle CC0 ist vorerst aus (`CC0_AKTIV` in klang/einstellungen.ts). Mischpult und Quellen gelten für dieses Gerät, die Stimmen gehören zur Welt (Spielstand).
 import { useEffect, useState } from "react";
 import { stimmeVon } from "../klang/buehne";
@@ -11,6 +11,8 @@ import { ApiError, api } from "../net/api";
 import { useSimStore } from "../store/simStore";
 import type { Voice } from "../types/generated";
 import { accentOf } from "../world/art/people";
+import { Portrait } from "../lib/Portrait";
+import { Abschnitt, Zeile } from "./Zeile";
 
 const seg = (on: boolean) => `cursor-pointer rounded px-2 py-0.5 text-xs ${on ? "bg-white/15 text-white" : "text-dim hover:text-white"}`;
 const KANAL: [Regler, string, string][] = [["music", "Musik", "Hintergrundmusik nach Tageszeit, Wetter und Ort"], ["amb", "Umgebung", "Vögel, Bach, Wind, Regen, Grillen, Feuer"], ["fig", "Figuren", "Schritte, Türen, Kochen, Werkzeuge, Schlafen"], ["voice", "Stimmen", "Plappern beim Sprechen (nur aus Code)"]];
@@ -25,27 +27,38 @@ export function TonSettings() {
   const t = useTon();
   const [now, setNow] = useState(laeuft.musik);
   useEffect(() => { const i = setInterval(() => setNow(laeuft.musik), 800); return () => clearInterval(i); }, []);
+  const prozent = (v: number) => `${v} %`;
   return (
-    <div className="grid gap-5 py-2 text-[13px]" data-testid="ton-settings">
-      <section className="grid gap-2">
-        <label className="flex cursor-pointer items-center gap-2"><input type="checkbox" className="size-4 accent-[#e8ac5c]" checked={t.an} onChange={(e) => t.set({ an: e.target.checked })} data-testid="ton-an" />Ton an (dieses Gerät)</label>
-        <Slider label="Gesamt" value={Math.round(t.gesamt * 100)} onChange={(v) => t.set({ gesamt: v / 100 })} fmt={(v) => `${v} %`} disabled={!t.an} testid="ton-gesamt" />
-        {t.an && now && <p className="text-[11px] text-dim" data-testid="ton-laeuft">Musik: {now}</p>}
-        {!t.an && <p className="text-[11px] text-dim">Der Browser spielt Ton erst nach einem Klick in die Seite.</p>}
-      </section>
-      <section className="grid gap-1">
-        <h3 className="font-semibold">Mischpult</h3>
+    <div data-testid="ton-settings">
+      <Abschnitt titel="Allgemein">
+        <Zeile name="Ton" hilfe="Auch über den Lautsprecher oben rechts." fuer="ton-an">
+          <input id="ton-an" type="checkbox" role="switch" className="schalter" checked={t.an} onChange={(e) => t.set({ an: e.target.checked })} data-testid="ton-an" />
+        </Zeile>
+        <Zeile name="Lautstärke" fuer="ton-gesamt" hilfe={t.an ? (now ? <span data-testid="ton-laeuft">Musik: {now}</span> : undefined) : "Der Browser spielt Ton erst nach einem Klick in die Seite."}>
+          <Regler id="ton-gesamt" value={Math.round(t.gesamt * 100)} onChange={(v) => t.set({ gesamt: v / 100 })} fmt={prozent} disabled={!t.an} testid="ton-gesamt" />
+        </Zeile>
+      </Abschnitt>
+      <Abschnitt titel="Mischpult">
         {KANAL.map(([k, label, help]) => (
-          <div key={k} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3" data-testid={`ton-kanal-${k}`}>
-            <Slider label={label} value={Math.round(t.vol[k] * 100)} onChange={(v) => t.setVol(k, v / 100)} fmt={(v) => `${v} %`} disabled={!t.an} help={help} />
-            {k === "voice" || !CC0_AKTIV ? <span className="text-[11px] text-faint">Code</span> : <Quellen value={t.quelle[k]} onChange={(q) => t.setQuelle(k, q)} name={label} />}
-          </div>
+          <Zeile key={k} name={label} hilfe={help} fuer={`ton-${k}`} testid={`ton-kanal-${k}`}>
+            <Regler id={`ton-${k}`} value={Math.round(t.vol[k] * 100)} onChange={(v) => t.setVol(k, v / 100)} fmt={prozent} disabled={!t.an} />
+            {k !== "voice" && CC0_AKTIV && <Quellen value={t.quelle[k]} onChange={(q) => t.setQuelle(k, q)} name={label} />}
+          </Zeile>
         ))}
-        <p className="text-[11px] leading-snug text-faint">Alle Klänge werden im Browser erzeugt, nichts wird geladen. Drinnen spielt ein eigenes Lied, die Umgebung von draußen klingt gedämpft.</p>
-      </section>
+      </Abschnitt>
       <MusikProbe />
       <Stimmen />
     </div>
+  );
+}
+
+/** Schieberegler mit Wert rechts, wie bei den übrigen Einstellungen. */
+function Regler({ id, value, onChange, fmt, disabled, testid }: { id: string; value: number; onChange: (v: number) => void; fmt: (v: number) => string; disabled?: boolean; testid?: string }) {
+  return (
+    <>
+      <input id={id} type="range" min={0} max={100} value={value} disabled={disabled} onChange={(e) => onChange(Number(e.target.value))} data-testid={testid} />
+      <span className="einst-wert">{fmt(value)}</span>
+    </>
   );
 }
 
@@ -73,13 +86,14 @@ function MusikProbe() {
   const play = (s: Stueck | null) => { freigeben(); setMusikProbe(s); setOn(s); };
   useEffect(() => () => setMusikProbe(null), []);                    // beim Verlassen der Einstellungen wieder die Musik zur Lage
   return (
-    <section className="grid gap-1.5">
-      <h3 className="font-semibold">Musik anhören</h3>
-      <div className="flex flex-wrap gap-1">
-        {STUECKE.map(([s, label]) => <button key={s} type="button" className={`btn ${on === s ? "on" : ""}`} onClick={() => play(on === s ? null : s)} data-testid={`ton-musik-${s}`}>▶ {label}</button>)}
-        {on && <button type="button" className="btn" onClick={() => play(null)}>■ zurück zur Musik im Spiel</button>}
-      </div>
-    </section>
+    <Abschnitt titel="Musik anhören">
+      <Zeile breit name="Stücke" hilfe="Drinnen spielt ein eigenes Lied, die Umgebung von draußen klingt gedämpft.">
+        <div className="flex flex-wrap gap-1">
+          {STUECKE.map(([s, label]) => <button key={s} type="button" className={`btn ${on === s ? "on" : ""}`} onClick={() => play(on === s ? null : s)} data-testid={`ton-musik-${s}`}>▶ {label}</button>)}
+          {on && <button type="button" className="btn" onClick={() => play(null)}>■ zurück zur Musik im Spiel</button>}
+        </div>
+      </Zeile>
+    </Abschnitt>
   );
 }
 
@@ -88,6 +102,7 @@ function Stimmen() {
   const [text, setText] = useState(SAETZE[0]);
   const [draft, setDraft] = useState<Record<string, Partial<Stimme>>>({});         // während des Ziehens, bis die Welt die Stimme bestätigt
   const [error, setError] = useState<string | null>(null);
+  const [offen, setOffen] = useState<Record<string, boolean>>({});                 // Regler je Stimme aufgeklappt (eigene Stimmen sind es von selbst)
   if (!world) return null;
   const stimme = (id: string): Stimme => ({ ...stimmeVon(world, id), ...draft[id] });
   /** Stimme in der Welt speichern (wandert mit dem Spielstand) und gleich anhören. */
@@ -99,43 +114,45 @@ function Stimmen() {
   };
   const zuruecksetzen = (id: string) => { setError(null); setDraft((d) => { const n = { ...d }; delete n[id]; return n; }); api.setVoice(id, null).catch((e) => setError(e instanceof ApiError ? e.detail : "Backend nicht erreichbar")); };
   return (
-    <section className="grid gap-2" data-testid="ton-stimmen">
-      <h3 className="font-semibold">Stimmen der Bewohner</h3>
-      <p className="text-[11px] leading-snug text-faint">Jede Figur hat eine eigene Stimme (Vorschlag nach Geschlecht und Alter). Sie gehört zur Welt: Sie wird mit dem Spielstand gespeichert und gilt in allen Browsern; die Bewohner merken davon nichts. Der Text bleibt in der Blase und läuft mit der Stimme mit; nach etwa acht Sekunden verklingt die Stimme.</p>
-      <div className="flex gap-1">
-        <input className="min-w-0 flex-1 rounded-md border border-line bg-bg px-2 py-1" value={text} onChange={(e) => setText(e.target.value)} aria-label="Probesatz" data-testid="ton-probesatz" />
-      </div>
-      <div className="flex flex-wrap gap-1">{SAETZE.map((s, i) => <button key={s} type="button" className="btn px-1.5 py-0 text-xs" onClick={() => setText(s)}>{["Aussage", "Ja/Nein-Frage", "W-Frage", "Ausruf", "Zögern"][i]}</button>)}</div>
-      {error && <p role="alert" className="text-[12px] text-warn">{error}</p>}
-      {world.agentOrder.map((id) => {
-        const a = world.agents[id], v = stimme(id), custom = !!world.voices?.[id] || !!draft[id];
-        return (
-          <div key={id} className="grid gap-1 rounded-lg border border-line/70 p-2" style={{ borderLeft: `3px solid ${accentOf(id)}` }} data-testid={`ton-stimme-${id}`}>
-            <div className="flex items-center gap-2">
-              <b style={{ color: accentOf(id) }}>{a.name}</b>
-              {a.profile && <span className="text-[11px] text-faint">{a.profile.age} J., {a.profile.gender}</span>}
-              <span className="flex-1" />
-              {custom && <button type="button" className="text-[11px] text-dim underline hover:text-text" onClick={() => zuruecksetzen(id)} data-testid={`ton-standard-${id}`}>Standard</button>}
-              <button type="button" className="btn px-2 py-0 text-xs" onClick={() => probeStimme(id, text, v)} data-testid={`ton-sprich-${id}`}>▶ anhören</button>
+    <div data-testid="ton-stimmen">
+      <Abschnitt titel="Stimmen der Bewohner" notiz="Jede Figur hat eine eigene Stimme (Vorschlag nach Geschlecht und Alter). Sie gehört zum Spielstand und gilt in allen Browsern; die Bewohner merken davon nichts.">
+        <Zeile breit name="Probesatz" fuer="ton-probesatz">
+          <input id="ton-probesatz" className="einst-feld" value={text} onChange={(e) => setText(e.target.value)} data-testid="ton-probesatz" />
+          <div className="flex flex-wrap gap-1">{SAETZE.map((s, i) => <button key={s} type="button" className="chip" onClick={() => setText(s)}>{["Aussage", "Ja/Nein-Frage", "W-Frage", "Ausruf", "Zögern"][i]}</button>)}</div>
+        </Zeile>
+        {error && <p role="alert" className="px-4 pb-2 text-[12px] text-warn">{error}</p>}
+        {world.agentOrder.map((id) => {
+          const a = world.agents[id], v = stimme(id), custom = !!world.voices?.[id] || !!draft[id], auf = offen[id] ?? custom;
+          return (
+            <div key={id} data-testid={`ton-stimme-${id}`}>
+              <Zeile name={<><span className="rounded-lg" style={{ boxShadow: `0 0 0 2px ${accentOf(id)}` }}><Portrait id={id} size={26} /></span>{a.name}</>} geaendert={custom}
+                hilfe={`${a.profile ? `${a.profile.age} J., ${a.profile.gender} · ` : ""}${v.base} Hz, ${KLANGFARBEN[v.timbre]}`}>
+                <button type="button" className="btn" onClick={() => probeStimme(id, text, v)} data-testid={`ton-sprich-${id}`}>▶ Probehören</button>
+                <button type="button" className={`btn ${auf ? "on" : ""}`} aria-expanded={auf} onClick={() => setOffen((o) => ({ ...o, [id]: !auf }))} data-testid={`ton-anpassen-${id}`}>Anpassen {auf ? "⌄" : "›"}</button>
+                {custom ? <button type="button" className="einst-zurueck" onClick={() => zuruecksetzen(id)} data-testid={`ton-standard-${id}`} title={`Vorschlag: ${standardStimme(id, a.profile).base} Hz, ${KLANGFARBEN[standardStimme(id, a.profile).timbre]}`} aria-label={`Stimme von ${a.name} auf Standard zurücksetzen`}>↺</button> : <span className="einst-zurueck leer" aria-hidden="true">↺</span>}
+              </Zeile>
+              {auf && (
+                <div className="grid gap-1 px-4 pb-3 text-[13px]">
+                  {SLIDERS.map(([p, label, min, max, f, fmt]) => (
+                    <Slider key={p} label={label} min={min} max={max} value={Math.round((v[p] as number) * f)} fmt={fmt}
+                      onChange={(n) => setDraft((d) => ({ ...d, [id]: { ...d[id], [p]: n / f } }))} onCommit={() => commit(id)} />
+                  ))}
+                  <div className="grid grid-cols-2 gap-2">
+                    <label className="grid gap-0.5"><span className="text-[11px] text-dim">Klang</span>
+                      <select className="einst-feld" value={v.timbre} onChange={(e) => commit(id, { timbre: e.target.value as Klangfarbe })}>
+                        {Object.entries(KLANGFARBEN).map(([k2, l]) => <option key={k2} value={k2}>{l}</option>)}
+                      </select></label>
+                    <label className="grid gap-0.5"><span className="text-[11px] text-dim">Art</span>
+                      <select className="einst-feld" value={v.style} onChange={(e) => commit(id, { style: e.target.value as Sprechart })}>
+                        {Object.entries(SPRECHARTEN).map(([k2, l]) => <option key={k2} value={k2}>{l}</option>)}
+                      </select></label>
+                  </div>
+                </div>
+              )}
             </div>
-            {SLIDERS.map(([p, label, min, max, f, fmt]) => (
-              <Slider key={p} label={label} min={min} max={max} value={Math.round((v[p] as number) * f)} fmt={fmt}
-                onChange={(n) => setDraft((d) => ({ ...d, [id]: { ...d[id], [p]: n / f } }))} onCommit={() => commit(id)} />
-            ))}
-            <div className="grid grid-cols-2 gap-2">
-              <label className="grid gap-0.5"><span className="text-[11px] text-dim">Klang</span>
-                <select className="rounded-md border border-line bg-bg px-2 py-1" value={v.timbre} onChange={(e) => commit(id, { timbre: e.target.value as Klangfarbe })}>
-                  {Object.entries(KLANGFARBEN).map(([k2, l]) => <option key={k2} value={k2}>{l}</option>)}
-                </select></label>
-              <label className="grid gap-0.5"><span className="text-[11px] text-dim">Art</span>
-                <select className="rounded-md border border-line bg-bg px-2 py-1" value={v.style} onChange={(e) => commit(id, { style: e.target.value as Sprechart })}>
-                  {Object.entries(SPRECHARTEN).map(([k2, l]) => <option key={k2} value={k2}>{l}</option>)}
-                </select></label>
-            </div>
-            {custom && <p className="text-[11px] text-faint">Vorschlag: {standardStimme(id, a.profile).base} Hz, {KLANGFARBEN[standardStimme(id, a.profile).timbre]}</p>}
-          </div>
-        );
-      })}
-    </section>
+          );
+        })}
+      </Abschnitt>
+    </div>
   );
 }
