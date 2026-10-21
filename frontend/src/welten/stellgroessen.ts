@@ -8,13 +8,13 @@ export const VORGABE: Stil = { form: "strasse", groesse: "klein", seen: 1, wasse
 export const START: Stil = { ...VORGABE, form: "zufall" };
 
 export const FORMEN: [Stil["form"], string, string][] = [
-  ["strasse", "Straßendorf", "Häuser an einer Seite der Straße (wie bisher)"],
-  ["beidseitig", "Beidseitig", "Häuser auf beiden Seiten der Straße, Türwege um die Häuser herum"],
-  ["haufen", "Haufendorf", "Häuser um den Platz verstreut, Türwege zum Platz"],
-  ["anger", "Anger", "Dorfwiese mit Platz in der Mitte, Ringstraßen darum, Häuser an den Ringen"],
-  ["fluss", "Fluss quer", "ein Fluss quer durch die Karte, die Straße am Ufer, eine Brücke nach Süden"],
-  ["streu", "Streusiedlung", "Einzelhöfe an eigenen Gassen, weit auseinander, ein kleiner Platz in der Mitte"],
-  ["zufall", "Nach Zufall", "eine der sechs Formen, passend zum Seed"],
+  ["strasse", "Entlang der Straße", "Die Häuser stehen an einer Seite der Straße (wie bisher)"],
+  ["beidseitig", "Zwei Häuserreihen", "Häuser auf beiden Seiten der Straße"],
+  ["haufen", "Dicht beieinander", "Die Häuser drängen sich um den Dorfplatz"],
+  ["anger", "Rund um die Wiese", "Eine Dorfwiese mit Platz in der Mitte, Ringstraßen darum, Häuser an den Ringen"],
+  ["fluss", "Am Fluss", "Ein Fluss quer durch die Karte, die Straße am Ufer, eine Brücke nach Süden"],
+  ["streu", "Verstreute Höfe", "Einzelne Höfe an eigenen Gassen, weit auseinander, in der Mitte ein kleiner Platz"],
+  ["zufall", "Überraschung", "Der Seed sucht eine der sechs Formen aus"],
 ];
 export const GROESSEN: [Stil["groesse"], string][] = [["klein", "Klein"], ["mittel", "Mittel"], ["gross", "Groß"]];
 export const WASSER: [Stil["wasser"], string][] = [["keiner", "Keiner"], ["bach", "Bach"], ["fluss", "Fluss"]];

@@ -14,7 +14,7 @@ from .layout_extra import apply_rest
 from .layout_geo import blocked_pt, box_blocked, needed_height
 from .layout_haeuser import _emit, _fits, _path_ok
 from .layout_trees import add_trees
-from .layout_wasser import add_lake, add_stream, lane_points, line_clear
+from .layout_wasser import add_lake, add_stream, connect_ponds, lane_points, line_clear
 from .rng import Rng, jr
 
 
@@ -82,6 +82,8 @@ def make_frei(p: Params, form: str) -> Layout:
         add_stream(lay, rng, st.wasser, n)
     _garden(lay, rng, n, st.gaerten)
     apply_rest(lay, rng, st)                                                             # Teiche, weitere Gärten, Felder; Höhe nach Süden
+    if st.wasser != "keiner":
+        connect_ponds(lay, rng, n)                                                       # manche Teiche hängen per Bach am großen See
     lay.extra_h = max(needed_height(lay), plan.get("min_h", 0))
     _finish(lay, rng, R2, st, plan)
     return lay

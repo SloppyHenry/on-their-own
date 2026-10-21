@@ -7,7 +7,7 @@ der Startwelt (`.` Gras, `,` Weg, `_` Boden/Steg, `#` Wand, `~` Wasser, `T` Baum
 import math
 from dataclasses import dataclass, field
 
-from .geometry import line_dist
+from .geometry import SegIndex
 from .layout import Layout
 
 T = 16
@@ -56,6 +56,8 @@ def rasterize(L: Layout) -> Outdoor:
     out = Outdoor(x0, y0, [[GRASS] * w for _ in range(h)])
     lake, sq = L.lake, L.sq
     decor_tiles: dict[tuple[int, int], str] = {}
+    idx_paths = SegIndex(L.paths)
+    idx_water = SegIndex([pl for pl in [L.stream, *L.strands] if len(pl) > 1])
     for kind, x, y, e in L.decor:
         i, j = out.tile_of(x, y - 2)
         if kind in TREES:
@@ -68,7 +70,7 @@ def rasterize(L: Layout) -> Outdoor:
             for a in range(4):
                 for b in range(4):
                     px, py = x0 + T * i + 2 + 4 * a, y0 + T * j + 2 + 4 * b
-                    k = _sample(L, px, py, lake, sq)
+                    k = _sample(L, px, py, lake, sq, idx_paths, idx_water)
                     cnt[k] = cnt.get(k, 0) + 1
             out.rows[j][i] = _decide(cnt)
     for (i, j), k in decor_tiles.items():
@@ -104,7 +106,7 @@ def rasterize(L: Layout) -> Outdoor:
     return out
 
 
-def _sample(L: Layout, px: float, py: float, lake: dict | None, sq: dict) -> str:
+def _sample(L: Layout, px: float, py: float, lake: dict | None, sq: dict, idx_paths: SegIndex, idx_water: SegIndex) -> str:
     for r in (*([L.dock] if L.dock else []), *([L.bridge] if L.bridge else []), *L.bridges2):
         if r["x0"] <= px < r["x1"] and r["y0"] <= py < r["y1"]:
             return FLOOR
@@ -112,13 +114,12 @@ def _sample(L: Layout, px: float, py: float, lake: dict | None, sq: dict) -> str
     for k in ([lake] if lake else []) + L.ponds:
         a, b = (px - k["x"]) / k["rx"], (py - k["y"]) / k["ry"]
         q = min(q, a * a + b * b)
-    water = [pl for pl in [L.stream, *L.strands] if len(pl) > 1]
-    dw = line_dist(water, px, py) if water else 1e9
+    dw = idx_water.dist(px, py, 5.4)
     if q < 1 or dw < 3.6:
         return WATER
     if q < 1.13 or dw < 5.4:
         return SAND
-    if math.hypot(px - sq["x"], (py - sq["y"]) * 1.08) < sq["r"] or line_dist(L.paths, px, py) < 5.2:
+    if math.hypot(px - sq["x"], (py - sq["y"]) * 1.08) < sq["r"] or idx_paths.dist(px, py, 5.2) < 5.2:
         return PATH
     return GRASS
 

@@ -105,7 +105,7 @@ test("Duplizieren, Umbenennen, Löschen mit Rückfrage und Welt aus der Simulati
   await expect(page.getByTestId("welt-gesicherte-welt")).toContainText("aus Simulation");
 });
 
-test("Welt erzeugen: Vorschau, Stellgrößen und vier Pläne; „In die Bibliothek legen“ ohne Bewohner", async ({ page, request }) => {
+test("Zufallswelt: Vorschau, Stellgrößen und vier Pläne; „In die Bibliothek legen“ ohne Bewohner", async ({ page, request }) => {
   await zuWelten(page);
   await page.getByTestId("welt-erzeugen").click();
   await expect(page.getByTestId("vorschau-pixels")).toBeVisible();
@@ -122,7 +122,7 @@ test("Welt erzeugen: Vorschau, Stellgrößen und vier Pläne; „In die Biblioth
   expect(doc.world.generator.stil.form).toBe("beidseitig");
 });
 
-test("Welt erzeugen: die Dorfform beginnt bei „Nach Zufall“, Anger, Fluss quer und Streusiedlung lassen sich wählen", async ({ page, request }) => {
+test("Zufallswelt: die Dorfform beginnt bei „Nach Zufall“, Anger, Fluss quer und Streusiedlung lassen sich wählen", async ({ page, request }) => {
   await zuWelten(page);
   await page.getByTestId("welt-erzeugen").click();
   await expect(page.getByTestId("stell-form-zufall")).toHaveAttribute("aria-pressed", "true");

@@ -9,12 +9,12 @@ import { START, anfrage, type Stil } from "./stellgroessen";
 import type { World } from "../store/types";
 
 type Lake = "auto" | "east" | "south";
-const LAKES: [Lake, string][] = [["auto", "Nach Zufall"], ["east", "Osten"], ["south", "Süden"]];
+const lake: Lake = "auto";                                                                           // das Seeufer entscheidet der Generator
 const field = "rounded-md border border-line bg-bg px-2 py-1";
 const detail = (e: unknown) => (e instanceof ApiError ? e.detail : "Backend nicht erreichbar");
 
 export function WeltErzeugen({ fertig }: { fertig: () => Promise<void> }) {
-  const [seed, setSeed] = useState(() => 1 + Math.floor(Math.random() * 99999)), [lake, setLake] = useState<Lake>("auto"), [name, setName] = useState(""), [stil, setStil] = useState<Stil>({ ...START });
+  const [seed, setSeed] = useState(() => 1 + Math.floor(Math.random() * 99999)), [name, setName] = useState(""), [stil, setStil] = useState<Stil>({ ...START });
   const [plaene, setPlaene] = useState<(World | null)[]>([null, null, null, null]);
   const style = anfrage(stil);
   const key = JSON.stringify([seed, lake, style]);
@@ -48,12 +48,10 @@ export function WeltErzeugen({ fertig }: { fertig: () => Promise<void> }) {
   return (
     <div className="grid grid-cols-2 gap-4 text-[13px] max-[900px]:grid-cols-1" data-testid="welt-erzeugen-form">
       <form className="grid content-start gap-3" onSubmit={(e) => { e.preventDefault(); void anlegen(); }}>
-        <p className="text-dim">Der Generator legt ein Dorf mit See, Garten und Wald an. Gleicher Seed, gleiche Welt. Mit den Stellgrößen bestimmst du Dorfform, Seen, Wasserlauf, Wald, Gärten und Felder.</p>
-        <label className="grid gap-1">Seed
-          <span className="flex gap-2"><input className={`${field} w-28 font-mono`} type="number" min={0} max={2000000000} value={seed} data-testid="erzeugen-seed" onChange={(e) => setSeed(Math.max(0, Math.min(2_000_000_000, Math.floor(Number(e.target.value) || 0))))} />
-            <button type="button" className="btn" onClick={() => setSeed(1 + Math.floor(Math.random() * 99999))} data-testid="erzeugen-wuerfeln">Würfeln</button></span></label>
-        <div className="flex items-center gap-3"><span className="text-dim">Ufer des Sees</span>
-          <span className="segment" role="group">{LAKES.map(([v, l]) => <button key={v} type="button" className={lake === v ? "on" : ""} aria-pressed={lake === v} onClick={() => setLake(v)} data-testid={`erzeugen-ufer-${v}`}>{l}</button>)}</span></div>
+        <p className="text-dim">Der Zufallsgenerator würfelt aus dem Seed ein fertiges Dorf: Form, Wasser, Wald, Gärten und Häuser. Gleicher Seed, gleiche Welt. Eine Welt ganz nach deinen Vorstellungen legst du dagegen als „Leere Welt“ an und gestaltest sie in der Werkstatt.</p>
+        <label className="grid gap-1">Seed: gleicher Seed, gleiche Welt
+          <span className="flex"><input className={`${field} w-28 rounded-r-none font-mono`} type="number" min={0} max={2000000000} value={seed} data-testid="erzeugen-seed" onChange={(e) => setSeed(Math.max(0, Math.min(2_000_000_000, Math.round(+e.target.value || 0))))} />
+            <button type="button" className="btn -ml-px rounded-l-none" title="Neuen Seed würfeln" onClick={() => setSeed(1 + Math.floor(Math.random() * 99999))} data-testid="erzeugen-wuerfeln">🎲 Würfeln</button></span></label>
         <StellgroessenFeld stil={stil} onChange={setStil} />
         <label className="grid gap-1">Name der Welt (leer: der Dorfname)<input className={field} value={name} maxLength={60} onChange={(e) => setName(e.target.value)} placeholder={vorschau?.village} data-testid="erzeugen-name" /></label>
         {fehler && <p role="alert" className="text-warn" data-testid="erzeugen-fehler">{fehler}</p>}

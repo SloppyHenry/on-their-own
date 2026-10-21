@@ -93,7 +93,7 @@ def add_stream(lay, rng: Rng, mode: str, n_lanes: int) -> bool:
 CELL = 12
 
 
-def _route(lay, rng: Rng, start: Pt, doors, bottom: float) -> list[Pt] | None:
+def _route(lay, rng: Rng, start: Pt, doors, bottom: float, goal_ellipse: dict | None = None, from_pond: dict | None = None) -> list[Pt] | None:
     """Kürzester Weg (A*, acht Nachbarn) für den Bach über ein Raster; Hindernisse sind Häuser, Gärten, Seen, Platz, Dorfwiese und Türwege. Ziel: der See, sonst der Südrand."""
     import heapq
     x0, x1 = -lay.ext_l - 20, 280
@@ -113,17 +113,19 @@ def _route(lay, rng: Rng, start: Pt, doors, bottom: float) -> list[Pt] | None:
         x, y = pos(c)
         if y < 4:
             return True
-        if lay.lake and ((x - lay.lake["x"]) / (lay.lake["rx"] + 2)) ** 2 + ((y - lay.lake["y"]) / (lay.lake["ry"] + 2)) ** 2 < 1:
-            return True
+        for k in (goal_ellipse or lay.lake, from_pond):
+            if k and ((x - k["x"]) / (k["rx"] + 2)) ** 2 + ((y - k["y"]) / (k["ry"] + 2)) ** 2 < 1:
+                return True
         return not blocked_pt(lay, x, y, 9, paths=False) and not (doors and line_dist(doors, x, y) < 10)
 
     def goal(c) -> bool:
         x, y = pos(c)
-        if lay.lake:
-            return ((x - lay.lake["x"]) / lay.lake["rx"]) ** 2 + ((y - lay.lake["y"]) / lay.lake["ry"]) ** 2 < 0.8
+        k = goal_ellipse or lay.lake
+        if k:
+            return ((x - k["x"]) / k["rx"]) ** 2 + ((y - k["y"]) / k["ry"]) ** 2 < 0.8
         return y >= bottom - 6
 
-    s = (int(round((start[0] - x0) / CELL)), 0)
+    s = (int(round((start[0] - x0) / CELL)), int(round(start[1] / CELL)))
     if not free(s):
         return None
     best, prev, heap = {s: 0.0}, {}, [(0.0, s)]
@@ -172,3 +174,18 @@ def add_bridges(lay, n_lanes: int, off: int, vertical: bool, water: list[list[Pt
             lay.bridges2.append(box)
         for px, py in ((box["x0"] + 1, box["y0"] + 2), (box["x1"] - 1, box["y0"] + 2), (box["x0"] + 1, box["y1"] + 3), (box["x1"] - 1, box["y1"] + 3)):
             lay.decor.append(["post", px, py, 9])                                   # Zusatz 9: Brückenpfosten sperren keine Kachel
+
+
+def connect_ponds(lay, rng: Rng, n_lanes: int) -> None:
+    """Manche Teiche hängen über einen Bach am großen See (der Bach kommt vom Teich und fließt in den See); Straßen kreuzt er unter einer Brücke."""
+    if not lay.lake:
+        return
+    doors = lay.paths[n_lanes:]
+    for pond in lay.ponds:
+        if rng.random() > 0.55:
+            continue
+        route = _route(lay, rng, (pond["x"], pond["y"]), doors, 232 + lay.extra_h, goal_ellipse=lay.lake, from_pond=pond)
+        if route and len(route) > 2:
+            line = [(round(a, 1), round(b, 1)) for a, b in route]
+            lay.strands.append(line)
+            add_bridges(lay, n_lanes, 0, vertical=True, water=[line])

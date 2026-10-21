@@ -18,7 +18,7 @@ const PAGES: { id: string; label: string; groups: string[] }[] = [
   { id: "world", label: "Welt", groups: ["world"] },
   { id: "llm", label: "Modell", groups: ["llm"] },
   { id: "sim", label: "Tempo", groups: ["sim"] },
-  { id: "mode", label: "Wissen der Bewohner", groups: ["mode"] },
+  { id: "mode", label: "Wissen über den Gott", groups: ["mode"] },
 ];
 const EXTRA = [{ id: "spielart", label: "Spielart" }, { id: "darstellung", label: "Darstellung" }, { id: "models", label: "Modelle" }, { id: "ton", label: "Ton" }, { id: "presets", label: "Presets" }, { id: "status", label: "Status" }];
 
@@ -59,7 +59,7 @@ export function SettingsContent() {
             {pageSpecs.some((s) => s.scope === "global") && (
               <div className="flex justify-end"><button className="btn" onClick={() => void reset({ group: page!.groups[0] })}>Gruppe auf Standard</button></div>
             )}
-            {tab === "mode" && <p className="my-2 text-[13px] text-dim">Das „Wissen der Bewohner“ bestimmt, was die Agenten über eine äußere Instanz erfahren (erweitert; mit der Spielart hat es nichts zu tun). Er gilt ab der nächsten Entscheidung und ändert keine Erinnerungen.</p>}
+            {tab === "mode" && <p className="my-2 text-[13px] text-dim">Das „Wissen über den Gott“ bestimmt, was die Bewohner davon erfahren, dass jemand von außen eingreift (erweitert). Es gilt nur in der Spielart Gott; in der Spielart Leben greift niemand ein, dort bleibt es beim Beobachter. Eine Änderung gilt ab der nächsten Entscheidung und ändert keine Erinnerungen.</p>}
             <ParamGroup specs={pageSpecs} />
           </>
         )}

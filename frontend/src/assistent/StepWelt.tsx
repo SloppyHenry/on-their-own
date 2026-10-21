@@ -47,10 +47,10 @@ export function StepWelt() {
           <b>Startwelt</b><small className="mt-0.5 block text-xs text-dim">Das bekannte Dorf am See mit Heimhaus: Zimmer Alex, Zimmer Mira, Werkstatt, Küche, Wohnzimmer. Nur mit Alex und Mira (1–2 Bewohner).</small>
         </button>
         <button type="button" aria-pressed={gen} data-testid="welt-erzeugt" onClick={() => set({ kind: "generated" })} className={`cursor-pointer rounded-xl border p-3 text-left ${gen ? "border-alex bg-alex/10" : "border-line bg-black/15"}`}>
-          <b>Neues Dorf erzeugen</b><small className="mt-0.5 block text-xs text-dim">Seed, Seeufer, Gebäudemix; Häuser wachsen mit den Bewohnern. Für 1 bis 8 Bewohner und alle Vorlagen.</small>
+          <b>Zufallsdorf</b><small className="mt-0.5 block text-xs text-dim">Ein Zufallsgenerator: aus dem Seed entsteht ein Dorf (Form, Wasser, Wald, Gärten, Häuser für 1 bis 8 Bewohner). Eigene Welten gestaltest du im Editor unter Menü › Editoren › Welten und wählst sie hier bei „Startwelt“.</small>
         </button>
       </div>
-      <section className="mb-3 rounded-xl border border-line bg-black/15 p-3" data-testid="welt-bibliothek">
+      {!gen && <section className="mb-3 rounded-xl border border-line bg-black/15 p-3" data-testid="welt-bibliothek">
         <h3 className="sub mt-0">Aus der Bibliothek</h3>
         <p className="mb-2 text-xs text-dim">Mitgelieferte und eigene Welten. Die Welt wird kopiert, die Bibliothek bleibt unverändert. Eigene Welten legst du unter Editoren › Welten an.</p>
         <div className="flex flex-wrap gap-2">
@@ -62,30 +62,23 @@ export function StepWelt() {
           ))}
           {welten.length === 0 && <span className="text-xs text-dim">Keine weiteren Welten.</span>}
         </div>
-      </section>
+      </section>}
       <div className="grid grid-cols-2 gap-4 max-[860px]:grid-cols-1">
         <div>
           {gen ? (
             <>
               <section className="mb-3 rounded-xl border border-line bg-black/15 p-3">
                 <h3 className="sub mt-0">Wunsch</h3>
-                <label className="mb-2 grid gap-1 text-xs text-dim">Seed (gleicher Seed, gleiches Dorf)
-                  <span className="flex gap-2"><input type="number" min={0} max={2000000000} className="w-full rounded-md border border-line bg-bg px-2 py-1.5 text-[13px] text-text" value={w.seed} data-testid="welt-seed" onChange={(e) => set({ seed: Math.max(0, Math.min(2_000_000_000, Math.round(+e.target.value || 0))) })} />
-                    <button type="button" className="btn" data-testid="welt-wuerfeln" onClick={() => set({ seed: 1 + Math.floor(Math.random() * 99999) })}>Würfeln</button></span>
+                <label className="mb-3 grid gap-1 text-xs text-dim">Seed: gleicher Seed, gleiches Dorf
+                  <span className="flex"><input type="number" min={0} max={2000000000} className="w-full rounded-l-md rounded-r-none border border-line bg-bg px-2 py-1.5 text-[13px] text-text" value={w.seed} data-testid="welt-seed" onChange={(e) => set({ seed: Math.max(0, Math.min(2_000_000_000, Math.round(+e.target.value || 0))) })} />
+                    <button type="button" className="btn -ml-px shrink-0 rounded-l-none rounded-r-md" data-testid="welt-wuerfeln" title="Neuen Seed würfeln" onClick={() => set({ seed: 1 + Math.floor(Math.random() * 99999) })}>🎲 Würfeln</button></span>
                 </label>
-                <div className="mb-3 flex items-center gap-2 text-[13px]"><span className="text-dim">Ufer des Sees</span>
-                  <span className="inline-flex" role="group" aria-label="Ufer des Sees">{([["auto", "Nach Zufall"], ["east", "Osten"], ["south", "Süden"]] as const).map(([k, l]) => <button key={k} type="button" aria-pressed={w.lake === k} data-testid={`welt-ufer-${k}`} className={`btn rounded-none first:rounded-l-md last:rounded-r-md ${w.lake === k ? "on" : ""}`} onClick={() => set({ lake: k })}>{l}</button>)}</span></div>
                 <h3 className="sub">Gebäude</h3>
                 <Stepper label="Wohnhäuser" value={h} min={1} testid="welt-haeuser" onChange={(v) => set({ houses: v })} extra={<span className="text-xs text-dim">{w.houses == null ? `automatisch: ${n} Bewohner ÷ 2, aufgerundet` : <>von Hand <button type="button" className="underline" onClick={() => set({ houses: null })} data-testid="welt-haeuser-auto">automatisch</button></>}</span>} />
                 {MIX.map(([k, l]) => <Stepper key={k} label={l} value={mix[k as keyof typeof mix] ?? 0} testid={`welt-${k}`} onChange={(v) => setMix(k, v)} />)}
                 <small className="text-xs text-dim">Höchstens 2 Personen je Haus, jedes Haus mit 2 Betten ohne Besitzer. Das größere Haus mit mehr Zimmern kommt als eigener Baustein später.</small>
               </section>
               <div className="mb-3"><StellgroessenFeld stil={w.stil} onChange={(stil) => set({ stil })} /></div>
-              <section className="rounded-xl border border-line bg-black/15 p-3" data-testid="welt-haeuser-liste">
-                <h3 className="sub mt-0">Häuser und Betten</h3>
-                <div className="flex flex-wrap gap-1.5">{(preview?.houses.length && fresh ? preview.houses : Array.from({ length: h }, (_, i) => ({ n: i + 1, name: "", beds: 2 }))).map((x) => <span key={x.n} className="rounded-full border border-line bg-black/15 px-2.5 py-0.5 text-xs">⌂ Haus {x.n}{x.name ? ` (${x.name})` : ""} · {x.beds} Betten</span>)}</div>
-                <p className={`mt-2 text-[13px] ${beds < n ? "text-warn" : "text-dim"}`}>{beds} Betten für {n} Bewohner{beds < n ? ": zu wenig, bitte ein Haus mehr." : ". Wer wo wohnt, entscheiden die Bewohner selbst."}</p>
-              </section>
             </>
           ) : lib ? (
             <section className="rounded-xl border border-line bg-black/15 p-3" data-testid="welt-lib-info"><h3 className="sub mt-0">{gewaehlt?.name ?? "Welt aus der Bibliothek"}</h3>
@@ -96,11 +89,18 @@ export function StepWelt() {
         </div>
         <div>
           {preview?.world && fresh && preview.ok ? (
-            <Vorschaufenster world={preview.world} level={lib ? 0.5 : !gen || special + h <= 3 ? 1 : special + h <= 6 ? 0.5 : 0.25} caption={<>{gen ? `${preview.village}: ${h} ${h === 1 ? "Wohnhaus" : "Wohnhäuser"}, ${special} Sondergebäude. ` : lib ? `${gewaehlt?.name ?? preview.village}. ` : "Startwelt: Dorf am See. "}Vorschau unter dem Schleier wie in AP12c, zoomen und ziehen geht.<br /><small className="text-dim" data-testid="vorschau-bericht">{preview.checks.length ? `Prüfbericht: ${preview.checks.filter((c) => c.ok).length} von ${preview.checks.length} bestanden` : "Die Welt wird erst beim Start angelegt."}</small></>} />
+            <Vorschaufenster world={preview.world} level={lib ? 0.5 : !gen || special + h <= 3 ? 1 : special + h <= 6 ? 0.5 : 0.25} caption={<>{gen ? `${preview.village}: ${h} ${h === 1 ? "Wohnhaus" : "Wohnhäuser"}, ${special} Sondergebäude. ` : lib ? `${gewaehlt?.name ?? preview.village}. ` : "Startwelt: Dorf am See. "}Vorschau unter dem Schleier wie in AP12c.<br /><small className="text-dim" data-testid="vorschau-bericht">{preview.checks.length ? `Prüfbericht: ${preview.checks.filter((c) => c.ok).length} von ${preview.checks.length} bestanden` : "Die Welt wird erst beim Start angelegt."}</small></>} />
           ) : (
             <div className="grid h-[300px] place-items-center rounded-xl border-2 border-dashed border-plan/60 p-4 text-center text-[13px] text-dim" data-testid="vorschau-leer">
               {busy === "preview" ? "Vorschau wird erstellt …" : preview && !preview.ok && preview.key === key ? <div role="alert" className="text-warn">{preview.errors.map((e) => <div key={e}>{e}</div>)}</div> : error ? <span role="alert" className="text-warn">{error}</span> : "Die Vorschau erscheint hier."}
             </div>
+          )}
+          {gen && (
+              <section className="mt-3 rounded-xl border border-line bg-black/15 p-3" data-testid="welt-haeuser-liste"><h3 className="sub mt-0">Hinweise</h3>
+                <h4 className="mb-1 text-[13px] font-bold">Häuser und Betten</h4>
+                <div className="flex flex-wrap gap-1.5">{(preview?.houses.length && fresh ? preview.houses : Array.from({ length: h }, (_, i) => ({ n: i + 1, name: "", beds: 2 }))).map((x) => <span key={x.n} className="rounded-full border border-line bg-black/15 px-2.5 py-0.5 text-xs">⌂ Haus {x.n}{x.name ? ` (${x.name})` : ""} · {x.beds} Betten</span>)}</div>
+                <p className={`mt-2 text-[13px] ${beds < n ? "text-warn" : "text-dim"}`}>{beds} Betten für {n} Bewohner{beds < n ? ": zu wenig, bitte ein Haus mehr." : ". Wer wo wohnt, entscheiden die Bewohner selbst."}</p>
+              </section>
           )}
         </div>
       </div>

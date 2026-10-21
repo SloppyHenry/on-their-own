@@ -65,14 +65,13 @@ export class DorfView {
 
   /** Zoomstufe setzen (¼, ½, 1, 2, 3), Bildmitte bleibt (Prüf- und Messzugang, siehe WorldCanvas). */
   zoomLevel(level: number) { this.zoomTo(level); }
-
   /** Die Mitte des ganzen Gebiets ins Bild (Vorschau): der Platz liegt bei großen oder schiefen Dörfern nicht in der Mitte. */
   centerWorld() { const [a, b, c, d] = this.kam.bounds; this.kam.focusAt((a + c) / 2, (b + d) / 2); }
 
   /** Hineinzoomen (1, 2, 3) für Tests und Hilfen. */
   get Z() { return this.kam.zoom; }
 
-  constructor(private canvas: HTMLCanvasElement, private host: HTMLElement, private bridge: WorldBridge, look: Look) {
+  constructor(private canvas: HTMLCanvasElement, private host: HTMLElement, private bridge: WorldBridge, look: Look, private opt: { zoom?: boolean; keys?: boolean } = {}) {
     this.bild = new Dorfbild(look);
     const [sx, sy] = look.texShift;
     this.kam = new Kamera([look.home[0] - sx, look.home[1] - sy]);
@@ -80,13 +79,14 @@ export class DorfView {
     for (const r of look.regions) { x0 = Math.min(x0, r.frame[0] + r.bounds.left); y0 = Math.min(y0, r.frame[1] + r.bounds.top); x1 = Math.max(x1, r.frame[0] + r.bounds.right); y1 = Math.max(y1, r.frame[1] + (r.bounds.bottom ?? r.bounds.top + 200)); }
     this.kam.bounds = [x0 - sx - 160, y0 - sy - 160, x1 - sx + 160, y1 - sy + 160];
     const on = <K extends keyof HTMLElementEventMap>(el: EventTarget, ev: K, fn: (e: HTMLElementEventMap[K]) => void, opt?: AddEventListenerOptions) => { el.addEventListener(ev, fn as EventListener, opt); this.off.push(() => el.removeEventListener(ev, fn as EventListener, opt)); };
-    on(host, "wheel", (e) => { e.preventDefault(); this.wheelBy(e.deltaY * (e.deltaMode === 1 ? 30 : 1), e); }, { passive: false });
+    on(host, "wheel", (e) => { e.preventDefault(); if (this.opt.zoom === false) return; this.wheelBy(e.deltaY * (e.deltaMode === 1 ? 30 : 1), e); }, { passive: false });
     on(host, "pointerdown", (e) => { this.hoverSince = Infinity; if (e.button === 0) this.drag = { x: e.clientX, y: e.clientY, moved: false, g: null }; });   // nach dem Klick keine Namensblase, bis der Zeiger weiterzieht
     on(host, "pointermove", (e) => this.move(e));
     on(host, "pointerup", (e) => this.up(e));
     on(host, "pointerleave", () => { this.drag = null; this.hover = null; this.hoverSince = 0; this.player?.hover(null); });
     on(host, "contextmenu", (e) => { e.preventDefault(); this.click(e, true); });
     on(window, "keydown", (e) => {
+      if (this.opt.keys === false || document.querySelector("[data-testid=start-menu]")) return;                     // die Vorschau und die Welt hinter dem Menü reagieren nicht auf Tasten
       if ((e.target as HTMLElement)?.closest?.("input, textarea, select, [contenteditable]")) return;
       this.keys.add(e.code);
       if (e.ctrlKey || e.metaKey || e.altKey || e.repeat) return;

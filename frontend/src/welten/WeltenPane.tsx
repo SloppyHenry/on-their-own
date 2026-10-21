@@ -32,7 +32,7 @@ export function WeltenPane() {
     if (!(await betreteWerkstatt(id, { menu, sel, sub: "welten" }))) { setFehler(useWerkstattFehler()); void lade(); }
   };
   const trail = [{ label: "Editoren", onClick: () => (ansicht === "liste" ? setSub(null) : (setAnsicht("liste"), setSub(null))) }, { label: "Welten", onClick: ansicht === "liste" ? undefined : () => setAnsicht("liste") },
-    ...(ansicht === "leer" ? [{ label: "Leere Welt" }] : ansicht === "erzeugen" ? [{ label: "Welt erzeugen" }] : [])];
+    ...(ansicht === "leer" ? [{ label: "Leere Welt" }] : ansicht === "erzeugen" ? [{ label: "Zufallswelt" }] : [])];
   return (
     <div data-testid="welten-pane">
       <Brotkrumen pfad={trail} escZu={ansicht === "liste" ? "zurück zu Editoren" : "zurück zu Welten"} />
@@ -42,7 +42,7 @@ export function WeltenPane() {
             <p className="mb-3 text-[13px] text-dim">Welten sind eigene Dateien, getrennt von Spielständen. Eine Welt hat keine Bewohner und kein Gedächtnis; wer darin lebt, bestimmst du beim Anlegen einer Simulation.</p>
             <div className="mb-3 flex flex-wrap gap-2">
               <button type="button" className="btn on" onClick={() => setAnsicht("leer")} data-testid="welt-leer">＋ Leere Welt</button>
-              <button type="button" className="btn" onClick={() => setAnsicht("erzeugen")} data-testid="welt-erzeugen">✦ Welt erzeugen</button>
+              <button type="button" className="btn" onClick={() => setAnsicht("erzeugen")} data-testid="welt-erzeugen">✦ Zufallswelt</button>
               <button type="button" className="btn" onClick={() => datei.current?.click()} data-testid="welt-import">⤒ Importieren</button>
               <button type="button" className="btn" onClick={() => setSichern(true)} data-testid="welt-sichern" title="Die laufende Welt ohne Bewohner und Gedächtnis als Welt sichern">Aus der Simulation sichern</button>
               <input ref={datei} type="file" accept=".json,application/json" className="hidden" data-testid="welt-import-datei"

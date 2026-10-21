@@ -97,7 +97,7 @@ export function toRequest(d: Draft): NewSimRequest {
       ...(d.rules.autonomy !== null ? { autonomy: d.rules.autonomy } : {}),
       ...(d.rules.scarcity !== null ? { scarcity: d.rules.scarcity } : {}),
       ...(d.rules.worldEvents ? { world_events: d.rules.worldEvents } : {}),
-      mode: d.rules.mode,
+      mode: d.playMode === "gott" ? d.rules.mode : "observer",
       ...(d.rules.mode === "creator" && d.rules.creatorText.trim() ? { creator_text: d.rules.creatorText } : {}),
       ...(d.rules.events.length ? { events: d.rules.events.map((e) => ({ text: e.text, source: e.source, ops: e.ops })) } : {}),
     },

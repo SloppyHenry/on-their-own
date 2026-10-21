@@ -1,5 +1,5 @@
 // Vorschau der neuen Welt im Assistenten (AP17b): dieselbe Weltansicht wie im Spiel (DorfView) in einem Fenster unter einem Schleier mit gestricheltem Rahmen.
-// Es ist nie die laufende Welt: eine eigene Brücke liefert die Vorschau-Welt, ohne Auswahl, ohne Klang, ohne Folgen. Zoomen und Ziehen gehen.
+// Es ist nie die laufende Welt: eine eigene Brücke liefert die Vorschau-Welt, ohne Auswahl, ohne Klang, ohne Folgen.
 import { useEffect, useMemo, useRef, type ReactNode } from "react";
 import type { World } from "../store/types";
 import { useUiStore } from "../store/uiStore";
@@ -22,7 +22,7 @@ export function Vorschaufenster({ world, caption, level = 0.5 }: { world: World;
   const mode = useUiStore((s) => s.worldMode);
   useEffect(() => {
     if (!look || !host.current || !canvas.current) return;
-    const bridge = vorschauBruecke(() => world), view = new DorfView(canvas.current, host.current, bridge, look);
+    const bridge = vorschauBruecke(() => world), view = new DorfView(canvas.current, host.current, bridge, look, { zoom: false, keys: false });
     const t = requestAnimationFrame(() => { view.zoomLevel(level); view.centerWorld(); });                  // erst nach der ersten Größenmessung
     return () => { cancelAnimationFrame(t); view.destroy(); };
   }, [look, world, level, mode]);

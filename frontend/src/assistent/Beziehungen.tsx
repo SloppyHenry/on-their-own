@@ -6,7 +6,27 @@ import { useAssistent } from "./assistentStore";
 import type { Rel } from "./wuerfeln";
 
 const LABEL: Record<keyof Rel, string> = { trust: "Vertrauen", sympathy: "Sympathie", tension: "Spannung", familiarity: "Vertrautheit" };
-const SHORT: Record<keyof Rel, string> = { trust: "V", sympathy: "S", tension: "Sp", familiarity: "Vt" };
+
+const WORT = (v: number) => (v < 15 ? "kaum" : v < 35 ? "wenig" : v < 55 ? "mittel" : v < 75 ? "ziemlich" : "sehr");
+function Satz({ von, zu, r, tid }: { von: string; zu: string; r: Rel; tid: string }) {
+  return (
+    <div className="text-xs" data-testid={tid}><b className="text-text">{von} sieht {zu}:</b>{" "}
+      <span className="text-dim">Sympathie <b className="text-text">{WORT(r.sympathy)}</b> · Vertrauen <b className="text-text">{WORT(r.trust)}</b> · Spannung <b className="text-text">{WORT(r.tension)}</b> · Vertrautheit <b className="text-text">{WORT(r.familiarity)}</b></span></div>
+  );
+}
+
+function PaarKarte({ i, j, an, bn, on, onOpen }: { i: number; j: number; an: string; bn: string; on: boolean; onOpen: () => void }) {
+  const { draft } = useAssistent();
+  const x = relOf(draft, i, j), y = relOf(draft, j, i), chg = relChanged(x) || relChanged(y) || !!draft.stories[pairKey(i, j)]?.trim();
+  return (
+    <button type="button" data-testid={`rel-paar-${i}-${j}`} onClick={onOpen} aria-pressed={on}
+      className={`grid cursor-pointer gap-1 rounded-xl border px-3 py-2 text-left ${on ? "border-alex bg-alex/10" : chg ? "border-warn/70 bg-black/15" : "border-line bg-black/15"}`}>
+      <span className="flex items-center justify-between"><b className="text-[13px]">{an} ↔ {bn}</b><small className="text-[11px] text-dim">{chg ? "angepasst" : "Standard"}</small></span>
+      <Satz von={an} zu={bn} r={x} tid={`rel-zelle-${i}-${j}`} />
+      <Satz von={bn} zu={an} r={y} tid={`rel-zelle-${j}-${i}`} />
+    </button>
+  );
+}
 
 function Richtung({ a, b }: { a: number; b: number }) {
   const { draft } = useAssistent(), setRel = useAssistent((s) => s.setRel);
@@ -30,29 +50,12 @@ export function Beziehungen() {
   const hits = metaHits(story);
   return (
     <div data-testid="beziehungen">
-      <p className="mb-2 text-[13px] text-dim">Startwerte je Richtung (Standard 50 · 50 · 10 · 30). Ein Klick öffnet das Paar. Die Vorgeschichte wird beim Start bei beiden zu einer gewöhnlichen Erinnerung.</p>
-      <div className="overflow-x-auto">
-        <table className="border-separate border-spacing-1">
-          <thead><tr><th />{rs.map((r, j) => <th key={j} className="px-1.5 text-left text-xs font-normal text-dim">{r.profile.name}</th>)}</tr></thead>
-          <tbody>
-            {rs.map((a, i) => (
-              <tr key={i}><th className="pr-2 text-left text-xs font-normal text-dim">{a.profile.name}</th>
-                {rs.map((_, j) => {
-                  if (i === j) return <td key={j} className="text-center text-line">·</td>;
-                  const x = relOf(draft, i, j), on = pair && pairKey(pair[0], pair[1]) === pairKey(i, j), chg = relChanged(x) || !!draft.stories[pairKey(i, j)]?.trim();
-                  return (
-                    <td key={j}><button type="button" data-testid={`rel-zelle-${i}-${j}`} onClick={() => setPair([i, j])} aria-pressed={!!on} style={{ background: `hsl(150 25% ${14 + x.sympathy * 0.12}%)` }}
-                      className={`grid min-w-[118px] cursor-pointer rounded-lg border px-2.5 py-1 text-left ${on ? "border-alex" : chg ? "border-warn" : "border-line"}`}>
-                      <span className="text-[13px] font-semibold">S {x.sympathy}</span>
-                      <small className="text-[10px] text-dim">{(["trust", "tension", "familiarity"] as const).map((m) => `${SHORT[m]} ${x[m]}`).join(" · ")}</small></button></td>
-                  );
-                })}
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <p className="mb-2 text-[13px] text-dim">Wie die Bewohner zueinander stehen, wenn die Simulation beginnt. Jeder sieht den anderen für sich: Sympathie (mögen), Vertrauen, Spannung (Reibung) und Vertrautheit (wie gut man sich kennt). Standard: Fremde, die sich ein wenig kennen. Ein Klick auf ein Paar öffnet es.</p>
+      <div className="grid grid-cols-2 gap-2 max-[860px]:grid-cols-1" data-testid="rel-paare">
+        {rs.flatMap((a, i) => rs.map((b, j) => (j <= i ? null : (
+          <PaarKarte key={`${i}-${j}`} i={i} j={j} an={a.profile.name} bn={b.profile.name} on={!!pair && pairKey(pair[0], pair[1]) === pairKey(i, j)} onOpen={() => setPair([i, j])} />
+        ))))}
       </div>
-      <small className="text-dim">S Sympathie · V Vertrauen · Sp Spannung · Vt Vertrautheit (Zeile → Spalte)</small>
       {pair && (
         <div className="mt-2 rounded-xl border border-alex px-3 pb-2 pt-1" data-testid="paar">
           <div className="grid grid-cols-2 gap-6 max-[860px]:grid-cols-1"><Richtung a={pair[0]} b={pair[1]} /><Richtung a={pair[1]} b={pair[0]} /></div>

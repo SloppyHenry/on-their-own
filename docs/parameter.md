@@ -86,7 +86,7 @@ Wirkung: *sofort* = gilt in der laufenden Welt; *ab der nächsten Entscheidung* 
 | `world.movement` | Bewegungsfreiheit | Welche Orte die Agenten nicht betreten dürfen (gesperrte Orte kommen in der Wegfindung nicht vor). | `free`, `house_garden`, `no_forest`, `custom` | free | sofort | `test_effects_world.py::test_movement_blocks_locations` |
 | `world.movement_custom` | Eigene Sperrliste | Kennungen gesperrter Orte, durch Komma getrennt (gilt bei „eigene Liste“), z. B. lake, forest. | Text, höchstens 300 Zeichen | – | sofort | `test_effects_world.py::test_movement_blocks_locations` |
 | `world.failure_consequence` | Folge einer Ablehnung | Was eine abgelehnte oder gescheiterte Handlung kostet. | `none`, `time`, `energy` | time | sofort | `test_effects_world.py::test_failure_consequence` |
-| `world.events` | Ereignisse von allein | Wie oft die Welt von sich aus Ereignisse bringt (Gewitter, ein umgestürzter Baum, ein Fuchs im Garten, Nachtfrost …). Niemand löst sie aus; für die Bewohner sind es natürliche Vorgänge. | `aus`, `selten`, `manchmal`, `oft` | manchmal | sofort | `test_welt.py::test_frequency_decides_whether_anything_happens` |
+| `world.events` | Automatische Ereignisse | Wie oft die Welt von sich aus Ereignisse bringt (Gewitter, ein umgestürzter Baum, ein Fuchs im Garten, Nachtfrost …). Niemand löst sie aus; für die Bewohner sind es natürliche Vorgänge. | `aus`, `selten`, `manchmal`, `oft` | manchmal | sofort | `test_welt.py::test_frequency_decides_whether_anything_happens` |
 
 ## Modell und Inferenz
 
@@ -120,7 +120,7 @@ Wirkung: *sofort* = gilt in der laufenden Welt; *ab der nächsten Entscheidung* 
 
 | Schlüssel | Name | Bedeutung | Bereich | Standard | Wirkung | Wirkungstest |
 |---|---|---|---|---|---|---|
-| `mode` | Wissen der Bewohner | Was die Bewohner über eine äußere Instanz wissen. Beobachter: die Agenten erfahren nichts. Schöpfer: sie wissen von einer äußeren Instanz. Eingriff: wie Beobachter, mit direkten Nachrichten (später). Änderbar nur, solange die Zeit steht. | `observer`, `creator`, `intervention` | observer | ab der nächsten Entscheidung | `test_effects_sim.py::test_modes_change_the_prompt_but_not_the_memories` |
+| `mode` | Wissen über den Gott | Was die Bewohner über eine äußere Instanz wissen. Beobachter: die Agenten erfahren nichts. Schöpfer: sie wissen von einer äußeren Instanz. Eingriff: wie Beobachter, mit direkten Nachrichten (später). Änderbar nur, solange die Zeit steht. | `observer`, `creator`, `intervention` | observer | ab der nächsten Entscheidung | `test_effects_sim.py::test_modes_change_the_prompt_but_not_the_memories` |
 | `mode.creator_text` | Text für den Schöpfer-Modus | Was die Agenten im Schöpfer-Modus über die äußere Instanz erfahren. | Text, höchstens 600 Zeichen | Du weißt, dass diese Welt und ihre Be … | ab der nächsten Entscheidung | `test_effects_sim.py::test_modes_change_the_prompt_but_not_the_memories` |
 
 ## Presets

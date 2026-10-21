@@ -70,16 +70,16 @@ test("Bewohner: Anzahl mit Tempohinweis, Vorlagen, Maske mit Zählern, Wortprüf
   await page.getByTestId("maske-interests").fill("Angeln, Kochen, ");                                               // Komma am Ende bleibt beim Tippen stehen
   await expect(page.getByTestId("maske-interests")).toHaveValue("Angeln, Kochen, ");
   await page.getByTestId("bew-tab-0").click();
-  await page.getByTestId("rel-zelle-0-1").click();
+  await page.getByTestId("rel-paar-0-1").click();
   await page.getByTestId("paar-vorschlag").click();
   await expect(page.getByTestId("paar-text")).toHaveValue("Alex und Mira kennen sich seit dem letzten Frühling.");
   await page.getByTestId("rel-0-1-trust").fill("80");
-  await expect(page.getByTestId("rel-zelle-0-1")).toContainText("V 80");
-  await expect(page.getByTestId("rel-zelle-1-0")).toContainText("V 50");                                             // die andere Richtung bleibt
+  await expect(page.getByTestId("rel-zelle-0-1")).toContainText("Vertrauen sehr");
+  await expect(page.getByTestId("rel-zelle-1-0")).toContainText("Vertrauen mittel");                                             // die andere Richtung bleibt
   await page.getByTestId("paar-text").fill("Sie kennen sich vom Leitstelle-Spiel.");
   await expect(page.getByTestId("paar-warn")).toContainText("Leitstelle");
   await page.getByTestId("paar-standard").click();
-  await expect(page.getByTestId("rel-zelle-0-1")).toContainText("V 50");
+  await expect(page.getByTestId("rel-zelle-0-1")).toContainText("Vertrauen mittel");
   await page.screenshot({ path: "test-results/assistent-bewohner.png", fullPage: true });
 });
 
@@ -120,7 +120,7 @@ test("Alles durchklicken: 3 Bewohner, Beziehung, Preset, Weltregel, Modus, Anleg
   await page.getByTestId("welt-seed").fill("5");
   await page.getByTestId("weiter").click();
   await page.getByTestId("bew-mehr").click();                                                                       // dritter Bewohner: Hanne
-  await page.getByTestId("rel-zelle-0-1").click();
+  await page.getByTestId("rel-paar-0-1").click();
   await page.getByTestId("rel-0-1-trust").fill("85");
   await page.getByTestId("paar-text").fill("Alex und Mira kennen sich vom Markt.");
   await expect(page.getByTestId("stimme-zeile")).toContainText("Vorschlag");                                         // Stimme: Vorschlag aus Geschlecht und Alter

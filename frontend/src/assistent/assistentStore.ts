@@ -130,7 +130,8 @@ export const useAssistent = create<Store>((set, get) => {
     },
     roll: (i) => edit((d) => {
       const dice = { ...d.dice, n: d.dice.n + 1 }, w = wuerfelFigur(dice.seed, dice.n, d.residents.filter((_, j) => j !== i).map((r) => r.profile.name));
-      return { ...d, dice, residents: d.residents.map((r, j) => (j === i ? { ...r, profile: { ...r.profile, name: w.name, age: w.age }, personality: w.personality } : r)) };
+      const { personality, ...profil } = w;
+      return { ...d, dice, residents: d.residents.map((r, j) => (j === i ? { ...r, tpl: "", profile: { ...r.profile, ...profil }, personality } : r)) };
     }),
     setRel: (a, b, patch) => edit((d) => ({ ...d, rel: { ...d.rel, [`${a}>${b}`]: { ...(d.rel[`${a}>${b}`] ?? { trust: 50, sympathy: 50, tension: 10, familiarity: 30 }), ...patch } } })),
     rollRel: (a, b) => edit((d) => {

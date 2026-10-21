@@ -16,6 +16,7 @@ from typing import Any
 
 from ..db.connection import Database
 from ..generator import blank
+from ..generator.stil import Stil
 from ..generator.generate import GenerationError, default_mix, new_world
 from ..world import loader
 
@@ -23,7 +24,7 @@ MAX_SIZE = 256
 MAX_BYTES = 8 * 1024 * 1024
 MAX_WORLDS = 100
 ORIGINS = ("mitgeliefert", "leer", "erzeugt", "kopie", "import", "spiel")
-EXAMPLES = (("ahornthal", 58, "Ahornthal"), ("birkenau", 12, "Birkenau"), ("moorhain", 31, "Moorhain"))
+EXAMPLES = (("ahornthal", 58, "Ahornthal", "anger", "Dorfwiese mit Ringstraßen"), ("birkenau", 12, "Birkenau", "fluss", "Straße am Fluss, Brücke nach Süden"), ("moorhain", 31, "Moorhain", "streu", "verstreute Höfe an Gassen"))
 START_ID = "dorf-am-see"
 
 
@@ -93,14 +94,14 @@ class WorldLibrary:
         if not self._builtin:
             start = loader.load_world_file(loader.DATA_DIR / "world_default.json")
             self._builtin[START_ID] = (self._strip_agents(start, keep=True), self._info(START_ID, start, "mitgeliefert", readonly=True, note="Alex und Mira, Heimhaus mit fünf Räumen"))
-            for wid, seed, name in EXAMPLES:
+            for wid, seed, name, form, note in EXAMPLES:
                 try:
-                    world, _ = new_world(seed, name=name, residents=[{"id": f"r{i}", "name": f"R{i}", "home": None} for i in range(1, 9)], mix=default_mix(8))
+                    world, _ = new_world(seed, name=name, residents=[{"id": f"r{i}", "name": f"R{i}", "home": None} for i in range(1, 9)], mix=default_mix(8), stil=Stil(form=form))
                 except GenerationError:
                     continue
                 world = self._strip_agents(world)
                 world["startplatz"] = platz_startplatz(world)
-                self._builtin[wid] = (world, self._info(wid, world, "mitgeliefert", readonly=True, seed=seed))
+                self._builtin[wid] = (world, self._info(wid, world, "mitgeliefert", readonly=True, seed=seed, note=note))
         return self._builtin
 
     @staticmethod

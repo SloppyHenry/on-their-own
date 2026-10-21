@@ -61,7 +61,7 @@ test.describe("Titelbild", () => {
     await expect(page.getByTestId("newsim-define")).toBeVisible();
   });
 
-  test("Welt erzeugen: Esc geht von der Maske zur Bibliothek, dann zu Editoren, im Titelbild nie ins Spiel", async ({ page }) => {
+  test("Zufallswelt: Esc geht von der Maske zur Bibliothek, dann zu Editoren, im Titelbild nie ins Spiel", async ({ page }) => {
     await page.goto("/");
     await page.getByTestId("menu-editors").click();
     await page.getByTestId("editor-welten").click();

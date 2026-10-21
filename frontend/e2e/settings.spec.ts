@@ -82,7 +82,7 @@ test("Tempo, Modus und Status sind erreichbar; das Modell lässt sich im Lauf ni
   await openApp(page);
   await page.getByRole("button", { name: "2×" }).click();
   await expect.poll(async () => (await values(request))["sim.speed"]).toBe("2x");
-  await openTab(page, "Wissen der Bewohner");
+  await openTab(page, "Wissen über den Gott");
   await page.getByTestId("param-mode").getByRole("combobox").selectOption("creator");
   await expect.poll(async () => (await values(request))["mode"]).toBe("creator");
   await openTab(page, "Modell");

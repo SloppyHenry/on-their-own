@@ -31,6 +31,7 @@ describe("Entwurf: Gebäude und Anfragekörper", () => {
     expect(base).not.toHaveProperty("model");
     const changed = toRequest({
       ...d,
+      playMode: "gott",                                                                                  // das Wissen über den Gott gilt nur in der Spielart Gott
       world: { ...d.world, houses: 3, mix: { shop: 0, workshop: 1 } },
       rel: { "0>1": { trust: 80, sympathy: 70, tension: 5, familiarity: 60 }, "1>0": { trust: 50, sympathy: 50, tension: 10, familiarity: 30 }, "0>7": { trust: 1, sympathy: 1, tension: 1, familiarity: 1 } },
       stories: { [pairKey(1, 0)]: "  Sie kennen sich vom Markt.  ", "1-2": "   " },

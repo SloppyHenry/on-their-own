@@ -42,9 +42,11 @@ export function StepBewohner() {
               <option value="">Leer (selbst schreiben)</option>
               {tpls.map((t) => <option key={t.id} value={t.id}>{(t.profile as { name: string }).name}{t.builtin ? "" : " (eigene)"}</option>)}
             </select></label>
-          <button type="button" className="btn" data-testid="bew-wuerfeln" onClick={() => roll(sel)}>🎲 Würfeln (Name, Alter, Werte)</button>
-          <label className="flex items-center gap-1.5 text-dim">Seed<input type="number" className="w-20 rounded-md border border-line bg-bg px-2 py-1 text-text" value={draft.dice.seed} data-testid="bew-wuerfel-seed" onChange={(e) => setDiceSeed(Math.round(+e.target.value || 0))} /></label>
-          <small className="text-dim">Wurf {draft.dice.n}: derselbe Seed und dieselbe Nummer ergeben dasselbe.</small>
+          <span className="inline-flex items-stretch overflow-hidden rounded-md border border-line bg-black/15" role="group" aria-label="Figur würfeln">
+            <label className="flex items-center gap-1.5 border-r border-line px-2 text-dim">Seed<input type="number" className="w-20 rounded-md border border-line bg-bg px-2 py-1 text-text" value={draft.dice.seed} data-testid="bew-wuerfel-seed" onChange={(e) => setDiceSeed(Math.round(+e.target.value || 0))} /></label>
+            <button type="button" className="btn rounded-none border-0" data-testid="bew-wuerfeln" title="Würfelt Name, Geschlecht, Alter, Beschreibung, Hintergrund, Interessen, Ziele, Stil und die Werte neu" onClick={() => roll(sel)}>🎲 Figur würfeln</button>
+          </span>
+          <small className="text-dim">Wurf {draft.dice.n}: derselbe Seed und dieselbe Nummer ergeben dieselbe Figur.</small>
         </div>
         <ProfilMaske value={{ profile: r.profile, personality: r.personality, known: r.known }} onChange={(v) => patchResident(sel, { profile: v.profile, personality: v.personality, known: v.known })} tid="maske" stimme={<StimmeFeld profile={r.profile} value={r.voice} onChange={(v) => patchResident(sel, { voice: v })} />}
           home={(

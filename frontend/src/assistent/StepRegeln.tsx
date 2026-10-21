@@ -46,15 +46,17 @@ export function StepRegeln() {
         <Slider label="Knappheit der Ressourcen" value={r.scarcity ?? 0} touched={r.scarcity !== null} onChange={(v) => setRules({ scarcity: v })} onReset={() => setRules({ scarcity: null })} unit=" %" testid="regel-knappheit" />
       </section>
       <section className="mb-3 rounded-xl border border-line bg-black/15 p-3" data-testid="regeln-ereignisse">
-        <h3 className="sub mt-0">Ereignisse von allein</h3>
+        <h3 className="sub mt-0">Automatische Ereignisse</h3>
         <p className="mb-2 text-xs text-dim">Die Welt bringt von sich aus Gewitter, einen umgestürzten Baum, einen Fuchs im Garten … Niemand löst sie aus; für die Bewohner sind es natürliche Vorgänge. Gilt in beiden Spielarten.</p>
-        <span className="segment" role="group" aria-label="Ereignisse von allein">{([["aus", "Aus"], ["selten", "Selten"], ["manchmal", "Manchmal"], ["oft", "Oft"]] as const).map(([v, l]) => (
+        <span className="segment" role="group" aria-label="Automatische Ereignisse">{([["aus", "Aus"], ["selten", "Selten"], ["manchmal", "Manchmal"], ["oft", "Oft"]] as const).map(([v, l]) => (
           <button key={v} type="button" className={(r.worldEvents ?? "manchmal") === v ? "on" : ""} aria-pressed={(r.worldEvents ?? "manchmal") === v} onClick={() => setRules({ worldEvents: v })} data-testid={`ereignisse-${v}`}>{l}</button>))}</span>
         <small className="ml-2 text-dim">Standard: manchmal</small>
       </section>
       <Weltregeln />
+      {draft.playMode === "gott" ? (
       <section className="rounded-xl border border-line bg-black/15 p-3">
-        <h3 className="sub mt-0">Wissen der Bewohner (erweitert)</h3>
+        <h3 className="sub mt-0">Wissen über den Gott (erweitert)</h3>
+        <p className="mb-2 text-xs text-dim">Nur in der Spielart Gott: Was die Bewohner davon erfahren, dass jemand von außen eingreift.</p>
         <div className="grid grid-cols-3 gap-2 max-[860px]:grid-cols-1">
           {MODES.map(([k, n, d]) => <button key={k} type="button" aria-pressed={r.mode === k} data-testid={`modus-${k}`} onClick={() => setRules({ mode: k })} className={card(r.mode === k)}><b className="text-[13px]">{n}</b><small className="mt-0.5 block text-xs text-dim">{d}</small></button>)}
         </div>
@@ -64,6 +66,9 @@ export function StepRegeln() {
         )}
         <small className="mt-1 block text-dim">Im Spiel nur im Editor-Modus änderbar (die Zeit steht still). Eine Änderung gilt ab der nächsten Entscheidung und hinterlässt keine Erinnerung.</small>
       </section>
+      ) : (
+        <section className="rounded-xl border border-line bg-black/15 p-3" data-testid="modus-leben"><h3 className="sub mt-0">Wissen über den Gott</h3><p className="text-[13px] text-dim">In der Spielart Leben greift niemand von außen ein, die Bewohner wissen nichts davon. Dafür gibt es hier nichts einzustellen.</p></section>
+      )}
     </div>
   );
 }

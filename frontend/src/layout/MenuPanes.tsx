@@ -76,7 +76,7 @@ export function EditorsPane() {
   return (
     <Pane trail={[{ label: "Editoren" }]} lead="Alles zum Gestalten an einem Ort. Im Editor-Modus steht die Zeit still.">
       <div className="grid grid-cols-2 gap-3">
-        <Tile img="welt" title="▦ Welten" text="Die Weltenbibliothek: leere Welt anlegen, Welt erzeugen, in der Werkstatt gestalten, kopieren, exportieren." onClick={() => setSub("welten")} testid="editor-welten" />
+        <Tile img="welt" title="▦ Welten" text="Die Weltenbibliothek: leere Welt anlegen, Zufallswelt würfeln, in der Werkstatt gestalten, kopieren, exportieren." onClick={() => setSub("welten")} testid="editor-welten" />
         <Tile img="figuren" title="☺ Figuren" text="Vorlagen für Bewohner anlegen, bearbeiten, exportieren und importieren." onClick={() => setSub("figuren")} testid="editor-figuren" />
         <Tile img="haus" title="⌂ Häuser und Gebäude" text="Eigene Häuser entwerfen: Form, Räume, Aussehen." later="später" />
         <Tile img="ding" title="◆ Dinge und Assets" text="Eigene Objekte zeichnen, mit Wirkungen für die Bewohner." later="später" />

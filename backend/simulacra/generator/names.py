@@ -4,7 +4,10 @@ from dataclasses import dataclass
 
 from .rng import Rng
 
-VILLAGES = ["Birkenau", "Eschenbach", "Lindental", "Weidenfeld", "Haselbach", "Erlenhof", "Tannenau", "Buchenried", "Ahornthal", "Kastanienhain", "Wiesenburg", "Eichenrode"]
+VILLAGES = ["Birkenau", "Eschenbach", "Lindental", "Weidenfeld", "Haselbach", "Erlenhof", "Tannenau", "Buchenried", "Ahornthal", "Kastanienhain", "Wiesenburg", "Eichenrode",
+            "Mühlbach", "Rosenfeld", "Silberbach", "Lerchenberg", "Fischerau", "Hirschfeld", "Nebelmoor", "Sonnenhang", "Kieselbrunn", "Immenhof", "Falkenried",
+            "Grünwinkel", "Hopfenau", "Quellenthal", "Schwanenteich", "Storchenwiese", "Heidehausen", "Brombeerhain", "Alte Furt", "Wacholderhöhe", "Krähenbusch", "Rehwiese",
+            "Bernsteinau", "Klosterbrunn", "Gänsebach", "Weißdorn", "Mondscheinau", "Lindenhagen", "Schilfrode", "Honigtal", "Wolkenstein am Bach"]
 HOUSES = ["Haus Birke", "Haus Eiche", "Haus Linde", "Haus Ahorn", "Haus Erle", "Haus Weide", "Haus Hasel", "Haus Esche", "Haus Buche", "Haus Tanne", "Haus Kastanie", "Haus Pappel"]
 SHOPS = ["Dorfladen", "Kramladen", "Krämerei", "Laden zur Linde"]
 WORKSHOPS = ["Schreinerei", "Werkstatt am Bach", "Töpferei", "Schmiede"]
