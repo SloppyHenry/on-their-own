@@ -66,7 +66,7 @@ export class DorfView {
   /** Zoomstufe setzen (¼, ½, 1, 2, 3), Bildmitte bleibt (Prüf- und Messzugang, siehe WorldCanvas). */
   zoomLevel(level: number) { this.zoomTo(level); }
   /** Die Mitte des ganzen Gebiets ins Bild (Vorschau): der Platz liegt bei großen oder schiefen Dörfern nicht in der Mitte. */
-  centerWorld() { const [a, b, c, d] = this.kam.bounds; this.kam.focusAt((a + c) / 2, (b + d) / 2); }
+  centerWorld() { const [a, b, c, d] = this.kam.bounds; this.kam.focusAt((a + c) / 2, (b + d) / 2 + 34); }               // etwas weiter südlich: die Schräge der Ansicht schiebt das Dorf sonst nach unten, oben bleibt zu viel Himmel
 
   /** Hineinzoomen (1, 2, 3) für Tests und Hilfen. */
   get Z() { return this.kam.zoom; }
