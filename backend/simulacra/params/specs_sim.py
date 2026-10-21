@@ -52,7 +52,7 @@ SPECS = [
               apply=lambda sim, v, a: setattr(sim.inject.welt, "frequency", v), read=lambda sim, a: sim.inject.welt.frequency, consumers=("simulacra.events_user.welt:FREQUENCIES",),
               effect_test="tests/events_user/test_welt.py::test_frequency_decides_whether_anything_happens"),
     ParamSpec(key="mode", group="mode", scope="global", type="enum", label="Wissen über den Gott", options=tuple(MODE_LABELS.items()), default="observer", effect="next_decision",
-              help="Was die Bewohner über eine äußere Instanz wissen. Beobachter: die Agenten erfahren nichts. Schöpfer: sie wissen von einer äußeren Instanz. Eingriff: wie Beobachter, mit direkten Nachrichten (später). Änderbar nur, solange die Zeit steht.",
+              help="Was die Bewohner über eine äußere Instanz wissen. Verborgen: die Agenten erfahren nichts. Schöpfer: sie wissen von einer äußeren Instanz. Eingriff: wie Verborgen, mit direkten Nachrichten (später). Änderbar nur, solange die Zeit steht.",
               apply=lambda sim, v, a: setattr(sim.planner.mode, "mode", v), read=lambda sim, a: sim.planner.mode.mode, check=_only_while_time_stands_still, consumers=("simulacra.agents.modes:prompt_extra",),
               effect_test=T + "test_modes_change_the_prompt_but_not_the_memories"),
     ParamSpec(key="mode.creator_text", group="mode", scope="global", type="text", label="Text für den Schöpfer-Modus", default=DEFAULT_CREATOR_TEXT, max_len=600, effect="next_decision",

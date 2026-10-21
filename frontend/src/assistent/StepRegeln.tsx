@@ -7,9 +7,9 @@ import type { Mode } from "./entwurf";
 import { Weltregeln } from "./Weltregeln";
 
 const MODES: [Mode, string, string][] = [
-  ["observer", "Beobachter", "Die Bewohner erfahren nichts von außen. Standard."],
+  ["observer", "Verborgen", "Die Bewohner ahnen nichts von einem Eingreifenden. Standard."],
   ["creator", "Schöpfer", "Die Bewohner wissen, dass jemand die Welt geschaffen hat und zusieht."],
-  ["intervention", "Eingriff", "Wie Beobachter; direkte Nachrichten an einzelne Bewohner sind möglich."],
+  ["intervention", "Eingriff", "Wie Verborgen; direkte Nachrichten an einzelne Bewohner sind möglich."],
 ];
 
 function Slider({ label, value, touched, onChange, onReset, unit = "", testid }: { label: string; value: number; touched: boolean; onChange: (n: number) => void; onReset: () => void; unit?: string; testid: string }) {

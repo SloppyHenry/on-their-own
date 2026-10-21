@@ -121,7 +121,7 @@ def new_world(seed: int, *, lake: str = "auto", mix: dict[str, int] | None = Non
                  "name": f"Dorf {vn}", "size": [W, H], "tiles": d["rows"], "locations": locations, "objects": d["objects"], "resource_nodes": d["resource_nodes"],
                  "agents": agents, "start": tpl["start"], "links": d["links"], "look": look, "generator": gen}
         return world, rep
-    raise GenerationError(f"Kein gültiges Dorf nach {TRIES} Versuchen (Seed {seed}).", last)
+    raise GenerationError(f"Kein gültiges Dorf nach {TRIES} Versuchen (Seed {seed})." + (f" Zuletzt: {last.errors[0]}" if last and last.errors else ""), last)
 
 
 def _residents(d: dict, v: Village, tpl: dict, residents: list[dict], gen: dict) -> tuple[list[dict], dict]:
@@ -223,7 +223,7 @@ def extension_patch(info: WorldInfo, seed: int, *, lake: str = "auto", mix: dict
             patch["extend_map"] = {"width": newW, "height": newH, "fill": "grass"}
         patch = {k: v_ for k, v_ in patch.items() if v_ not in ({}, [])}
         return patch, rep
-    raise GenerationError(f"Kein gültiges Dorf nach {TRIES} Versuchen (Seed {seed}).", last)
+    raise GenerationError(f"Kein gültiges Dorf nach {TRIES} Versuchen (Seed {seed})." + (f" Zuletzt: {last.errors[0]}" if last and last.errors else ""), last)
 
 
 def _obj(o: dict) -> dict:

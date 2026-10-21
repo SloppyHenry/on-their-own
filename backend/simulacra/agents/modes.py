@@ -10,7 +10,7 @@ Ein Moduswechsel gilt ab der nächsten Entscheidung und ändert keine bestehende
 from dataclasses import dataclass
 
 MODES = ("observer", "creator", "intervention")
-MODE_LABELS = {"observer": "Beobachter", "creator": "Schöpfer", "intervention": "Eingriff"}
+MODE_LABELS = {"observer": "Verborgen", "creator": "Schöpfer", "intervention": "Eingriff"}
 DEFAULT_CREATOR_TEXT = ("Du weißt, dass diese Welt und ihre Bewohner von jemandem außerhalb geschaffen wurden, der gelegentlich zusieht und die Welt verändern kann. "
                         "Du darfst darüber nachdenken oder davon erzählen, musst es aber nicht.")
 

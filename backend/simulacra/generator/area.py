@@ -57,4 +57,4 @@ def area_patch(info: WorldInfo, seed: int, at: tuple[int, int], *, lake: str = "
         if (newW, newH) != tuple(info.size):
             patch["extend_map"] = {"width": newW, "height": newH, "fill": "grass"}
         return {k: v_ for k, v_ in patch.items() if v_ not in ({}, [])}, rep
-    raise GenerationError(f"Kein gültiges Dorf nach {TRIES} Versuchen (Seed {seed}).", last)
+    raise GenerationError(f"Kein gültiges Dorf nach {TRIES} Versuchen (Seed {seed})." + (f" Zuletzt: {last.errors[0]}" if last and last.errors else ""), last)

@@ -5,7 +5,7 @@ import { houseCount, relChanged } from "./entwurf";
 import { useUiStore } from "../store/uiStore";
 
 export const START_WORD = "neu starten";
-const MODE = { observer: "Beobachter", creator: "Schöpfer", intervention: "Eingriff" };
+const MODE = { observer: "Verborgen", creator: "Schöpfer", intervention: "Eingriff" };
 
 export function StepStart() {
   const { draft, preview, busy, error, limits } = useAssistent();

@@ -140,7 +140,7 @@ def _finish(lay, rng: Rng, R2: Rng, st, plan: dict) -> None:
     add("well", sq["x"], sq["y"] + 3); add("bench", sq["x"] - sq["r"] - 10, sq["y"] + 6); add("board", sq["x"] + sq["r"] + 4, sq["y"] - 20)
     add(f"bm:{seed % 3}", sq["x"] - 13, sq["y"] - 10); add(f"bm:{(seed + 1) % 3}", sq["x"] + 14, sq["y"] - 10); add("bcr", sq["x"] - 4, sq["y"] - 8); add("barrel", sq["x"] + 24, sq["y"] - 6)
     for x, y in plan.get("lamps", []):
-        if not blocked_pt(lay, x, y, 3, paths=False, square=False):
+        if y < 228 + lay.extra_h and not blocked_pt(lay, x, y, 3, paths=False, square=False):
             add("lamp", x, y); lay.lamps.append(jr(x))
     lay.clearing_x = (sq["x"] - 110, sq["x"] + 110)
     south = lay.paths[plan["south"]]

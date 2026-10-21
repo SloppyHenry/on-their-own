@@ -97,3 +97,12 @@ def test_vorgaben_aendern_sich_nicht():
     a, _ = new_world(5, residents=people(3))
     b, _ = new_world(5, residents=people(3), stil=Stil(form="strasse"))
     assert dumps(a) == dumps(b)
+
+
+def test_anger_mit_wenigen_gebaeuden_liegt_im_kartenrand_und_zu_wenige_haeuser_werden_erklaert():
+    """Regression: Mit zwei Gebäuden rückte der Platz über den rechten Rand hinaus (IndexError); zu wenig Betten stehen in der Fehlermeldung."""
+    from simulacra.generator.generate import GenerationError
+    w, rep = new_world(53857 + 3 * 1000003, mix={"house": 1, "shop": 1}, residents=people(1), stil=Stil(form="anger"))
+    assert rep.ok
+    with pytest.raises(GenerationError, match="Betten"):
+        new_world(53857, mix={"house": 1, "shop": 1}, residents=people(6), stil=Stil(form="zufall"))

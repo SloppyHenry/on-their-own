@@ -122,7 +122,7 @@ def plan_anger(lay, rng: Rng, todo, st, wob: float) -> dict:
     left = [t for t in todo if not _fill(lay, rng, t, targets, lambda att, t=t: lane_spot(rng, [rings[min(rings_n - 1, att // 40)]], t, att, (cx, cy)), 40 * rings_n + 20, False)]        # erst der innere Ring, wenn er voll ist der nächste
     _rest(lay, rng, left, lanes, targets)
     if lay.buildings:                                                                  # Dorf rechtsbündig nach oben schieben und die Westseite kürzen: keine leere Wiese
-        right, left = max(b.cx + b.w / 2 for b in lay.buildings), min(b.cx - b.w / 2 for b in lay.buildings)
+        right, left = max(max(b.cx + b.w / 2 for b in lay.buildings), cx + rxr + 14), min(min(b.cx - b.w / 2 for b in lay.buildings), cx - rxr - 14)          # der innere Ring gehört dazu
         dx, dy = jr(226 - right), 10 - min(min(b.base - 62 for b in lay.buildings), cy - ryr - 20)
         _shift(lay, dx, dy)
         cx, cy, left = cx + dx, cy + dy, left + dx
@@ -290,7 +290,7 @@ def plan_streu(lay, rng: Rng, todo, st, wob: float) -> dict:
         left += [t for t in members if not _fill(lay, rng, t, targets, lambda att, ax=ax, ay=ay, lane=lane, t=t: spot(ax, ay, lane, t, att), 160, False)]
     _rest(lay, rng, left, lanes, targets)
     lamps = [(cx + 30, cy + 8), (cx - 30, cy + 8)] + [(ax + 10, ay + 4) for ax, ay in anchors]
-    return {"lanes": lanes, "west": 0, "south": 1, "east": 2, "lamps": lamps}
+    return {"lanes": lanes, "west": 0, "south": 1, "east": 2, "lamps": lamps, "min_h": max(0, 16 * math.ceil((max((ay for _, ay in anchors), default=0) + 30 - 232) / 16))}
 
 
 def _near_road(lay, x: float, y: float) -> bool:
