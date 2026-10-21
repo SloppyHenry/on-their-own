@@ -1,0 +1,52 @@
+/* AP16 Schritt 0 (neu, 21.10.2026): Gestalten-Werkzeuge im Stil des Reworks. Nutzt stil.css und editor.css aus ../rework/. */
+.edtools { width: 100px; gap: 2px; }
+.edtools .grp { font-size: 9.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--faint); margin: 7px 0 1px 6px; }
+.edtools .grp:first-child { margin-top: 2px; }
+.tool.wonly::after { content: "W"; position: absolute; left: 5px; top: 3px; font-size: 8.5px; color: var(--plan); font-weight: 800; }
+.edtop .stat { font-size: 12px; padding: 3px 10px; border-radius: 99px; border: 1px solid var(--edge); }
+.edtop .stat.still { color: var(--acc2); border-color: var(--acc); }
+.opt { display: grid; grid-template-columns: 1fr auto; gap: 6px 10px; align-items: center; font-size: 13px; margin: 6px 0; }
+.checks div.bad { color: var(--warn); } .checks div.warn { color: var(--acc2); }
+.draft div.bad { border-color: var(--warn); background: #e0806f1a; }
+.draft .n { color: var(--dim); font-size: 11px; margin-left: 6px; }
+.tip { position: absolute; transform: translate(14px, -50%); z-index: 6; padding: 4px 10px; font-size: 12px; border-radius: 9px; background: var(--glass2); border: 1px solid var(--edge2); white-space: nowrap; }
+.tip.bad { border-color: var(--warn); color: #ffd2c8; } .tip.ok { border-color: var(--ok); color: #d4f0da; }
+.ghostbox { position: absolute; border: 2px dashed var(--ok); background: #93c79f26; border-radius: 6px; pointer-events: none; }
+.ghostbox.bad { border-color: var(--warn); background: #e0806f30; }
+.ghostbox span { position: absolute; right: calc(100% + 8px); top: 50%; transform: translateY(-50%); font-size: 11px; padding: 0 8px; border-radius: 99px; background: var(--glass2); border: 1px solid var(--edge); white-space: nowrap; }
+.doormark { position: absolute; width: 22px; height: 12px; border-radius: 3px; background: var(--ok); box-shadow: 0 0 0 2px #0006; transform: translate(-50%, 0); }
+.doormark.bad { background: var(--warn); }
+.blocked { position: absolute; border: 2px solid var(--warn); border-radius: 12px; background: repeating-linear-gradient(45deg, #e0806f30 0 8px, transparent 8px 16px); pointer-events: none; }
+.pt { position: absolute; width: 12px; height: 12px; margin: -6px; border-radius: 50%; background: var(--acc2); box-shadow: 0 0 0 2px #0008; }
+.cursor { position: absolute; width: 48px; height: 48px; margin: -24px; border: 2px solid var(--acc2); box-shadow: 0 0 0 1px #0008; pointer-events: none; }
+.dlgback { position: fixed; inset: 0; z-index: 30; background: #0008; display: grid; place-items: center; }
+.dlg { width: 470px; padding: 22px 24px; } .dlg h3 { margin: 0 0 6px; font-size: 19px; } .dlg p { margin: 8px 0; font-size: 13.5px; color: var(--dim); } .dlg p b { color: var(--txt); }
+.dlg .row { display: flex; gap: 8px; margin-top: 16px; justify-content: flex-end; }
+.dlg ul { margin: 8px 0; padding-left: 18px; font-size: 13px; color: var(--dim); } .dlg li { margin: 3px 0; }
+.dlg li.bad { color: var(--warn); }
+/* Haus von innen (Puppenhaus, schematisch; im Spiel kommen Sprites und Optik aus innen2) */
+.innen { position: absolute; left: 130px; top: 96px; width: 930px; }
+.innen .dach { height: 26px; border-radius: 14px 14px 0 0; background: #8f4a3a; display: flex; align-items: center; padding: 0 14px; font-size: 12px; color: #ffe9d6; }
+.rooms { display: flex; background: #3a2a2a; padding: 6px; gap: 6px; border-radius: 0 0 10px 10px; box-shadow: var(--shadow); }
+.room { position: relative; flex: none; }
+.room .wand { position: relative; height: 62px; border-radius: 6px 6px 0 0; display: flex; align-items: flex-end; justify-content: space-around; padding: 0 8px 6px; font-size: 11px; color: #0008; }
+.room .boden { position: relative; background-image: linear-gradient(#0000001a 1px, transparent 1px), linear-gradient(90deg, #0000001a 1px, transparent 1px); background-size: 52px 52px; }
+.room .name { position: absolute; left: 8px; top: 5px; font-size: 10.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #0007; }
+.moebel { position: absolute; display: grid; place-items: center; font-size: 11px; font-weight: 700; color: #fff; border-radius: 6px; box-shadow: inset 0 -5px 0 #0003, 0 2px 0 #0004; text-align: center; line-height: 1.1; }
+.moebel.ghost { opacity: .75; outline: 2px dashed var(--ok); } .moebel.ghost.bad { outline-color: var(--warn); background: var(--warn) !important; }
+.moebel.neu { outline: 2px dashed #d9c8ff; }
+.freizone { position: absolute; border: 2px dashed #fff9; border-radius: 6px; background: #ffffff22; display: grid; place-items: center; font-size: 10px; color: #fff; }
+.tuer { position: absolute; bottom: -7px; height: 8px; width: 44px; background: #e9c46a; border-radius: 0 0 4px 4px; }
+.wandstueck { position: absolute; top: 8px; width: 34px; height: 30px; border-radius: 4px; background: #9fd0ee; border: 3px solid #fff8; }
+.rugs { position: absolute; border-radius: 8px; background: #b04a4a80; border: 2px dashed #ffffff80; }
+.swatch { width: 26px; height: 26px; border-radius: 8px; border: 2px solid transparent; box-shadow: 0 0 0 1px var(--edge2); } .swatch.on { border-color: var(--acc2); }
+.sw { display: flex; gap: 6px; flex-wrap: wrap; margin: 4px 0 8px; }
+.tabsi { display: flex; gap: 4px; margin: 10px 0 4px; }
+.compare { position: absolute; left: 50%; top: 56px; transform: translateX(-50%); width: min(1060px, 94vw); padding: 24px 28px; }
+.compare h2 { margin: 0 0 4px; font-size: 22px; } .compare table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
+.compare th, .compare td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--edge); vertical-align: top; } .compare th { color: var(--dim); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; }
+.compare td:first-child { color: var(--acc2); font-weight: 700; white-space: nowrap; }
+.arrow { position: absolute; width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; background: var(--acc); color: var(--ink); font-weight: 800; z-index: 5; }
+.maprim { position: absolute; background: repeating-linear-gradient(45deg, #d9c8ff44 0 8px, transparent 8px 16px); border: 2px dashed #d9c8ff; }
+.stamp.draftit { filter: drop-shadow(0 0 2px #d9c8ff) drop-shadow(0 0 1px #d9c8ff) drop-shadow(0 3px 0 #0003); }
+#note { left: 130px; top: auto; bottom: 16px; transform: none; width: min(440px, 38vw); max-height: 36vh; overflow: auto; }
