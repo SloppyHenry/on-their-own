@@ -28,13 +28,14 @@ export function StepWelt() {
   const [welten, setWelten] = useState<WorldInfoOut[]>([]);
   useEffect(() => { api.worlds().then((l) => setWelten(l.filter((x) => x.id !== "dorf-am-see"))).catch(() => undefined); }, []);
   const gewaehlt = welten.find((x) => x.id === w.libraryId);
+  const zuWenig = gen && beds < n;                                                   // zu wenig Betten: gar nicht erst würfeln
   const key = requestKey(draft), fresh = preview?.key === key;
   // Die Vorschau folgt dem Entwurf (kurz verzögert), damit das Bild immer zum Wunsch passt.
   useEffect(() => {
-    if (!n || templates.length === 0 || fresh) return;
+    if (!n || templates.length === 0 || fresh || zuWenig) return;
     const t = setTimeout(() => { void run(); }, 500);
     return () => clearTimeout(t);
-  }, [key, n, fresh, templates.length, run]);
+  }, [key, n, fresh, zuWenig, templates.length, run]);
   const mix = otherBuildings(draft);
   const setMix = (k: string, v: number) => set({ mix: { ...mix, [k]: v } });
   const special = MIX.reduce((a, [k]) => a + (mix[k as keyof typeof mix] ?? 0), 0);
@@ -88,18 +89,18 @@ export function StepWelt() {
           )}
         </div>
         <div>
-          {preview?.world && fresh && preview.ok ? (
+          {preview?.world && fresh && preview.ok && !zuWenig ? (
             <Vorschaufenster world={preview.world} level={lib ? 0.5 : !gen || special + h <= 3 ? 1 : special + h <= 6 ? 0.5 : 0.25} caption={<>{gen ? `${preview.village}: ${h} ${h === 1 ? "Wohnhaus" : "Wohnhäuser"}, ${special} Sondergebäude. ` : lib ? `${gewaehlt?.name ?? preview.village}. ` : "Startwelt: Dorf am See. "}Vorschau unter dem Schleier wie in AP12c.<br /><small className="text-dim" data-testid="vorschau-bericht">{preview.checks.length ? `Prüfbericht: ${preview.checks.filter((c) => c.ok).length} von ${preview.checks.length} bestanden` : "Die Welt wird erst beim Start angelegt."}</small></>} />
           ) : (
             <div className="grid h-[300px] place-items-center rounded-xl border-2 border-dashed border-plan/60 p-4 text-center text-[13px] text-dim" data-testid="vorschau-leer">
-              {busy === "preview" ? "Vorschau wird erstellt …" : preview && !preview.ok && preview.key === key ? <div role="alert" className="text-warn">{preview.errors.map((e) => <div key={e}>{e}</div>)}</div> : error ? <span role="alert" className="text-warn">{error}</span> : "Die Vorschau erscheint hier."}
+              {zuWenig ? <span role="alert" className="text-warn" data-testid="zu-wenig-haeuser">Zu wenig Häuser für die Bewohner.</span> : busy === "preview" ? "Vorschau wird erstellt …" : preview && !preview.ok && preview.key === key ? <div role="alert" className="text-warn">{preview.errors.map((e) => <div key={e}>{e}</div>)}</div> : error ? <span role="alert" className="text-warn">{error}</span> : "Die Vorschau erscheint hier."}
             </div>
           )}
           {gen && (
               <section className="mt-3 rounded-xl border border-line bg-black/15 p-3" data-testid="welt-haeuser-liste"><h3 className="sub mt-0">Hinweise</h3>
                 <h4 className="mb-1 text-[13px] font-bold">Häuser und Betten</h4>
                 <div className="flex flex-wrap gap-1.5">{(preview?.houses.length && fresh ? preview.houses : Array.from({ length: h }, (_, i) => ({ n: i + 1, name: "", beds: 2 }))).map((x) => <span key={x.n} className="rounded-full border border-line bg-black/15 px-2.5 py-0.5 text-xs">⌂ Haus {x.n}{x.name ? ` (${x.name})` : ""} · {x.beds} Betten</span>)}</div>
-                <p className={`mt-2 text-[13px] ${beds < n ? "text-warn" : "text-dim"}`}>{beds} Betten für {n} Bewohner{beds < n ? ": zu wenig, bitte ein Haus mehr." : ". Wer wo wohnt, entscheiden die Bewohner selbst."}</p>
+                <p className={`mt-2 text-[13px] ${beds < n ? "text-warn" : "text-dim"}`}>{beds < n ? "Zu wenig Häuser für die Bewohner." : `${beds} Betten für ${n} Bewohner. Wer wo wohnt, entscheiden die Bewohner selbst.`}</p>
               </section>
           )}
         </div>
