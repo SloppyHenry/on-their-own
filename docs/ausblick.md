@@ -1,6 +1,8 @@
 # Ausblick (Henry, 14.10.2026): selbst gestalten, Epochen, eigene Bausteine
 
-Nicht beauftragt, nur vorgemerkt. Reihenfolge nach Henry: erst Gestalten und Figuren, später Epochen, später der Baustein-Editor. Jeder Schritt wird, wie bisher, vor dem Bau geplant und mit Mockups abgenommen.
+**Seit 20.10.2026 beauftragt und geplant** (Henry: „baue direkt alle APs“): Figuren-Editor = [AP19](arbeitspakete/AP19-plan.md), Musik-Editor = [AP20](arbeitspakete/AP20-plan.md), Objektarten als Daten = [AP21](arbeitspakete/AP21-plan.md), Epochen = [AP22](arbeitspakete/AP22-plan.md), Baustein-Editor = [AP23](arbeitspakete/AP23-plan.md); dazu Szenen = [AP24](arbeitspakete/AP24-plan.md). Startprompts: [AP19-24-start-prompts.md](arbeitspakete/AP19-24-start-prompts.md). Der Text unten ist der ursprüngliche Ausblick.
+
+Ursprünglich nicht beauftragt, nur vorgemerkt. Reihenfolge nach Henry: erst Gestalten und Figuren, später Epochen, später der Baustein-Editor. Jeder Schritt wird, wie bisher, vor dem Bau geplant und mit Mockups abgenommen.
 
 ## 1. Dörfer selbst gestalten
 - **Werkzeuge:** Wege ziehen, Seen ausheben, Gärten setzen, Häuser setzen, Häuser **von innen ausschmücken und dekorieren** (Möbel, Wandschmuck, Teppiche, Farben), Bäume und Deko setzen, Gebiete verschieben oder löschen.
