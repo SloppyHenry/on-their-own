@@ -1,4 +1,4 @@
-# Simulacra: ein Container für API, WebSocket und das gebaute Frontend (kein Nginx, keine zweite Datenbank).
+# On Their Own: ein Container für API, WebSocket und das gebaute Frontend (kein Nginx, keine zweite Datenbank).
 # Bauen: docker compose -f deploy/compose.yaml build   (Kontext ist das Projektverzeichnis)
 
 # --- Stufe 1: Frontend bauen --------------------------------------------------------------------

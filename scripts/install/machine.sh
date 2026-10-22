@@ -96,7 +96,7 @@ install_node() {
 # ---------- 3: Projekt ----------
 setup_project() {
   step "3/7" "Projekt einrichten"
-  [ -f "$ROOT/backend/pyproject.toml" ] || die "Das ist kein Simulacra-Ordner ($ROOT)."
+  [ -f "$ROOT/backend/pyproject.toml" ] || die "Das ist kein Ordner von On Their Own ($ROOT)."
   if [ "$UPDATE" = 1 ] && [ -d "$ROOT/.git" ] && have git; then
     if [ "$DRY" = 1 ]; then plan "git pull --ff-only"; else git -C "$ROOT" pull --ff-only || warn "git pull nicht möglich (lokale Änderungen?), arbeite mit dem vorhandenen Stand weiter."; fi
   fi

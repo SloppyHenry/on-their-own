@@ -20,7 +20,7 @@ Das Skript prüft den Rechner (System, Arbeitsspeicher, Grafikkarte), holt fehle
 | `--update` | Projekt (`git pull`), Oberfläche und llama.cpp aktualisieren, Dienste neu starten |
 | `--uninstall` | Dienste entfernen; mit `--purge` auch die Daten (mit Rückfrage) |
 
-- Ohne Dienst: `scripts/start.sh` startet Modell und Simulacra im Vordergrund (Strg+C beendet beides).
+- Ohne Dienst: `scripts/start.sh` startet Modell und das Spiel im Vordergrund (Strg+C beendet beides).
 - Auf einem Server: `ssh server 'cd simulacra && ./install.sh --yes --headless'`; damit die Dienste ohne Anmeldung laufen, einmal `sudo loginctl enable-linger $USER`.
 - Ein vorhandener Eintrag in `backend/.env` (zum Beispiel `SIM_LLM_BASE_URL`) bleibt unberührt; das Skript schreibt nur seinen eigenen, markierten Block.
 - Die Auswahl der llama.cpp-Datei und des Modells ist mit nachgestellten Rechnern getestet (`backend/tests/test_install_script.py`); ein echter Lauf auf Apple M1 mit Qwen3-4B ist im Bericht [status/AP17c.md](status/AP17c.md) beschrieben.
@@ -88,7 +88,7 @@ cd backend && .venv/bin/python -c "from simulacra.config import get_settings; s=
 
 Nach dem Start zeigt `http://127.0.0.1:8090/api/health` unter `llm` an, ob der Router antwortet und das Modell kennt.
 
-**Oder im Tool (ab AP17c):** Menü → Einstellungen → **Modelle**. Dort wählt man die Betriebsart: **Eingebaut** (Simulacra startet `llama-server` selbst; die Laufzeit holt „Laufzeit installieren“ aus den offiziellen llama.cpp-Releases, Modelle lädt man von Hugging Face und misst sie mit dem Probelauf) oder **Externer Server** (Adresse und Schlüssel, mit Verbindungstest). Die Wahl steht in `data/llm.json`. Steht `SIM_LLM_BASE_URL` in der Umgebung oder in `backend/.env` (so schreibt es auch `install.sh`), gewinnt das: die Betriebsart ist dann fest „Externer Server“ und das Tool ändert die Adresse nicht; Modelle lassen sich trotzdem laden und messen.
+**Oder im Tool (ab AP17c):** Menü → Einstellungen → **Modelle**. Dort wählt man die Betriebsart: **Eingebaut** (On Their Own startet `llama-server` selbst; die Laufzeit holt „Laufzeit installieren“ aus den offiziellen llama.cpp-Releases, Modelle lädt man von Hugging Face und misst sie mit dem Probelauf) oder **Externer Server** (Adresse und Schlüssel, mit Verbindungstest). Die Wahl steht in `data/llm.json`. Steht `SIM_LLM_BASE_URL` in der Umgebung oder in `backend/.env` (so schreibt es auch `install.sh`), gewinnt das: die Betriebsart ist dann fest „Externer Server“ und das Tool ändert die Adresse nicht; Modelle lassen sich trotzdem laden und messen.
 
 ## 5. Starten und beenden
 

@@ -1,4 +1,6 @@
-# SIMULACRA
+# On Their Own
+
+*Früher SIMULACRA. Intern (Python-Paket `simulacra`, Dienste, Pfade) heißt es vorerst weiter so.*
 
 Zwei autonome KI-Agenten, Alex und Mira, leben in einer kleinen, begehbaren Pixelwelt: Haus mit Zimmern, Garten, Wald, See und Dorfplatz, mit Tag und Nacht, Wetter, Ressourcen und Gegenständen. Jeder hat eine eigene Persönlichkeit, ein eigenes Gedächtnis, Bedürfnisse und Ziele. Sie entscheiden selbst, was sie tun, reden miteinander, schließen Abmachungen und bauen Beziehungen auf. Gedacht wird mit einem lokalen Sprachmodell (Qwen 9B über einen llama.cpp-Router), ohne Cloud.
 
@@ -6,7 +8,7 @@ Im Browser siehst du live zu, verstehst jede Entscheidung („Warum?“), blätt
 
 Inspiriert von „Generative Agents: Interactive Simulacra of Human Behavior“ (Stanford).
 
-![SIMULACRA im Browser: Nacht an Tag 4, Alex geht zum See, Mira trinkt am Brunnen; rechts Bewohner und Protokoll, unten die freie Ereigniseingabe](docs/status/img/ap11-app.png)
+![On Their Own im Browser: Nacht an Tag 4, Alex geht zum See, Mira trinkt am Brunnen; rechts Bewohner und Protokoll, unten die freie Ereigniseingabe](docs/status/img/ap11-app.png)
 
 ## Schnellstart (Mac oder Linux)
 

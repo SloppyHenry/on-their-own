@@ -134,7 +134,7 @@ def test_restore_script_refuses_files_that_are_no_backup(env):
     with tarfile.open(junk, "w:gz") as t:
         t.add(__file__, "irgendwas.py")
     r = sh(e, ROOT / "scripts/restore.sh", junk, "--yes")
-    assert r.returncode != 0 and "kein Simulacra-Backup" in r.stderr and not any(" stop " in c for c in calls(tmp))
+    assert r.returncode != 0 and "kein Backup von On Their Own" in r.stderr and not any(" stop " in c for c in calls(tmp))
 
 
 def test_deploy_dry_run_touches_neither_tests_nor_ssh_nor_rsync(env):

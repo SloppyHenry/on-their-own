@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Simulacra: Installation in einem Aufruf (Linux und macOS). Plan: docs/arbeitspakete/AP17c-plan.md, Handbuch: docs/installation.md
+# On Their Own: Installation in einem Aufruf (Linux und macOS). Plan: docs/arbeitspakete/AP17c-plan.md, Handbuch: docs/installation.md
 #
 #   ./install.sh                 interaktiv, fragt vor jedem Schritt mit Wirkung nach
 #   ./install.sh --yes           ohne Rückfragen (Standardantworten)
@@ -104,7 +104,7 @@ done
 . "$LIB/services.sh"
 
 main() {
-  printf '%sSimulacra Installation%s\n' "$C_P" "$C_0"
+  printf '%sOn Their Own · Installation%s\n' "$C_P" "$C_0"
   detect_hw
   if [ "$UNINSTALL" = 1 ]; then uninstall; exit 0; fi
   LLAMA_BIN=""; LLAMA_LIB=""; MODEL_FILE=""; MODEL_ALIAS=""; SERVICE=0; NODE_OK=0
