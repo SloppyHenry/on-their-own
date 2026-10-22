@@ -286,6 +286,10 @@ class SimulationRunner:
         self._remember(res.events, dec, decision_id, decision_event.seq, res)
         return res
 
+    def note_events(self, events: list[Event]) -> None:
+        """Ereignisse einer Handlung außerhalb der Schleife (eigene Figur, AP18h) in die Beobachtungen aufnehmen. Gehört auf den DB-Thread."""
+        self._remember(events)
+
     def _remember(self, events: list[Event], dec: Decision | None = None, decision_id: int | None = None, decision_seq: int | None = None, res: ProposeResult | None = None) -> None:
         """Beobachtungen aufnehmen und daraus Erinnerungen schreiben (bei einer Entscheidung mit deren Wichtigkeit und Absicht)."""
         ai = self.store.profile_ids()

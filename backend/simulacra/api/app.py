@@ -10,7 +10,7 @@ from .. import __version__
 from ..config import Settings, get_settings
 from ..models.llmconf import env_locked
 from ..simulation.builder import Simulation
-from . import auth, routes_autonomy, routes_events, routes_inject, routes_llm, routes_memory, routes_models, routes_newsim, routes_params, routes_saves, routes_sim, routes_state, routes_stats, routes_voices, routes_welten, routes_world, ws
+from . import auth, routes_autonomy, routes_events, routes_inject, routes_llm, routes_memory, routes_models, routes_newsim, routes_params, routes_player, routes_saves, routes_sim, routes_state, routes_stats, routes_voices, routes_welten, routes_world, ws
 from .idempotency import Idempotency
 from .static import mount_frontend
 
@@ -87,6 +87,7 @@ def create_app(sim: Simulation | None = None, settings: Settings | None = None) 
     app.include_router(routes_events.router)
     app.include_router(routes_memory.router)
     app.include_router(routes_autonomy.router)
+    app.include_router(routes_player.router)
     app.include_router(routes_inject.router)
     app.include_router(routes_models.router)
     app.include_router(routes_llm.router)
