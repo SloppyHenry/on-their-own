@@ -70,7 +70,7 @@ async def get_overview(request: Request):
 
     def work():
         out = []
-        for aid in sim.store.ai_agent_ids():
+        for aid in sim.store.profile_ids():
             n = needs_of(sim, aid)
             g = sim.autonomy.goals.active_short(aid)
             out.append(AgentOverview(id=aid, goal=goal_out(g) if g else None, long_goals=[goal_out(x) for x in sim.autonomy.goals.long_goals(aid)], mood=n.mood, needs=n.needs,

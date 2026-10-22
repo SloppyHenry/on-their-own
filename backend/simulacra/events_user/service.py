@@ -52,7 +52,7 @@ class InjectService:
 
     # --- Kontext (DB-Thread) ---------------------------------------------------------------------------------------
     def _lex(self) -> Lexicon:
-        return Lexicon.build(self.sim.engine.state, self.sim.store.ai_agent_ids())
+        return Lexicon.build(self.sim.engine.state, self.sim.store.profile_ids())
 
     def _env(self, lex: Lexicon) -> validate.Env:
         st = self.sim.engine.state

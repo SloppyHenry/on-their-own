@@ -278,7 +278,7 @@ async def test_a_stranger_answers_when_spoken_to_and_leaves_after_his_stay(sim):
         sim.runner._after_tick(sim.engine.tick())
     lines = [e.data["text"] for e in sim.engine.events_since(0, 1000) if e.type == "agent.dialogue" and e.data["speaker"] == nid]
     assert lines == ["Ich bin nur auf der Durchreise."]
-    assert "npc_fremder" not in sim.store.ai_agent_ids() and sim.memory.store.count(nid) == 0                  # kein eigenes Gedächtnis
+    assert "npc_fremder" not in sim.store.profile_ids() and sim.memory.store.count(nid) == 0                  # kein eigenes Gedächtnis
     sim.engine.advance(3 * 1440 + 10)
     sim.inject.on_tick(sim.engine.minute)
     assert sim.engine.state.agent(nid) is None and sim.inject.npcs.active() == []

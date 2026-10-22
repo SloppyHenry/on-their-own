@@ -22,7 +22,7 @@ class ParamService:
         return self.store.get(key, agent, spec.default_value(self.sim, agent))
 
     def agents(self) -> list[str]:
-        return self.sim.store.ai_agent_ids()
+        return self.sim.store.profile_ids()
 
     def current(self, spec: ParamSpec, agent: str | None = None) -> Any:
         """Der Wert **beim Verbraucher**."""

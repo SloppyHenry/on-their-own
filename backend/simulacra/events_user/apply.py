@@ -104,7 +104,7 @@ def _op_change_object(ctx, op, run):
 
 
 def _tell_present(ctx, run: Run, locations: set, text: str, kind: str) -> None:
-    here = [a.id for a in ctx.state.agents() if a.location_id in locations and a.id in run.sim.store.ai_agent_ids()]
+    here = [a.id for a in ctx.state.agents() if a.location_id in locations and a.id in run.sim.store.profile_ids()]
     knowledge.deliver(ctx, here, kind, text, inject_id=run.inject_id)
 
 
@@ -239,7 +239,7 @@ def revert(sim, ctx, rv: dict[str, Any]) -> None:
                 ctx.emit("world.object_changed", [], o.location_id, {**ctx.object_data(o), "change": "expired"})
         informed = {st.obj(i["id"]).location_id for i in rv["items"] if st.obj(i["id"])}
         if any("powered" in i["state"] for i in rv["items"]):
-            here = [a.id for a in st.agents() if a.location_id in informed and a.id in sim.store.ai_agent_ids()]
+            here = [a.id for a in st.agents() if a.location_id in informed and a.id in sim.store.profile_ids()]
             knowledge.deliver(ctx, here, "situation", "Der Strom ist wieder da.")
     elif kind == "resources":
         for it in rv["items"]:

@@ -6,7 +6,7 @@ def sample_stats(sim, minute: int) -> None:
     if minute % 60 != 0:
         return
     st = sim.engine.state
-    for aid in sim.store.ai_agent_ids():
+    for aid in sim.store.profile_ids():
         body = st.agent(aid)
         if body is None:
             continue

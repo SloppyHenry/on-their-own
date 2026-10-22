@@ -47,7 +47,7 @@ class Weltereignisse:
 
     def _agents(self, which: str) -> list[str]:
         st = self.sim.engine.state
-        ids = list(self.sim.store.ai_agent_ids())
+        ids = list(self.sim.store.profile_ids())
         if which == "@draussen":
             return [a for a in ids if (ag := st.agent(a)) is not None and not ag.location_id.startswith("house")]
         return ids

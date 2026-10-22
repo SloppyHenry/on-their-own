@@ -10,7 +10,7 @@ from .conftest import memories, objects, say
 
 def parsed(sim, text):
     st = sim.engine.state
-    return parse(text, Ctx(Lexicon.build(st, sim.store.ai_agent_ids()), st.minute, {a.id: a.location_id for a in st.agents()}))
+    return parse(text, Ctx(Lexicon.build(st, sim.store.profile_ids()), st.minute, {a.id: a.location_id for a in st.agents()}))
 
 
 # --- Regelparser: alle elf Sätze erkannt, ohne das Sprachmodell zu fragen ----------------------------------------------
@@ -94,7 +94,7 @@ async def test_a_stranger_moves_in_as_a_simple_visible_figure_without_memory(sim
     done = await sim.engine.db.run(lambda: sim.inject.confirm(p["id"]))
     npc = sim.engine.state.agent("npc_fremder")
     assert npc is not None and npc.location_id == "square"
-    assert "npc_fremder" not in sim.store.ai_agent_ids()                                                  # kein Profil, kein Gedächtnis, keine Entscheidungen
+    assert "npc_fremder" not in sim.store.profile_ids()                                                  # kein Profil, kein Gedächtnis, keine Entscheidungen
 
 
 async def test_an_injured_animal_appears_in_the_garden(sim):

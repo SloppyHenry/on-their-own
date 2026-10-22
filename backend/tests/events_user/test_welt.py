@@ -78,7 +78,7 @@ def test_event_runs_through_the_injection_operations_and_agents_learn_of_it(sim)
     sim.planner.mode.mode = "creator"                                              # auch im Schöpfer-Modus nennt kein Wissen einen Urheber
     events = fire(sim, "gewitter")
     types = [e.type for e in events]
-    assert types[0] == "world.nature_event" and "world.weather_changed" in types and types.count("agent.informed") == len(sim.store.ai_agent_ids())
+    assert types[0] == "world.nature_event" and "world.weather_changed" in types and types.count("agent.informed") == len(sim.store.profile_ids())
     assert sim.engine.state.weather()["kind"] == "storm"
     for e in events:
         if e.type == "agent.informed":
@@ -92,7 +92,7 @@ def test_the_witnesses_remember_it_like_the_weather(sim):
     fire(sim, "fuchs", minute=5 * 60)
     # die Erinnerung entsteht im Lauf über die normale Beobachtungskette (agent.informed); hier genügt die Zustellung an genau die Zeugen
     informed = sim.engine.state.conn.execute("SELECT agents, data FROM events WHERE type='agent.informed'").fetchall()
-    assert len(informed) == len(sim.store.ai_agent_ids()) and all("Fuchs" in json.loads(r["data"])["content"] for r in informed)
+    assert len(informed) == len(sim.store.profile_ids()) and all("Fuchs" in json.loads(r["data"])["content"] for r in informed)
 
 
 def test_nobody_outside_means_nothing_happens(sim):

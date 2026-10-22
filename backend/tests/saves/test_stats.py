@@ -27,7 +27,7 @@ async def long_run():
 
 def stats(sim, **kw):
     st = sim.engine.state
-    return compute(st.conn, sim.store.ai_agent_ids(), {a.id: a.name for a in st.agents()}, {l.id: l.name for l in st.locations.values()}, **kw)
+    return compute(st.conn, sim.store.profile_ids(), {a.id: a.name for a in st.agents()}, {l.id: l.name for l in st.locations.values()}, **kw)
 
 
 async def test_numbers_come_from_a_whole_simulated_day():

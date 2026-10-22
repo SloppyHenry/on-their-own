@@ -18,7 +18,7 @@ def dialogue(sim, speaker, to, text):
         for e in evs:
             if e.type == "agent.dialogue":
                 extra += sim.convs.on_dialogue(e)
-        sim.collector.ingest(evs + extra, sim.store.ai_agent_ids())
+        sim.collector.ingest(evs + extra, sim.store.profile_ids())
         out += evs + extra
     return out
 

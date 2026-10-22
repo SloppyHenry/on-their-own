@@ -6,6 +6,7 @@ Alle Aufrufe gehören auf den Schreib-Thread der Datenbank (`db.run`), wie die E
 import json
 from typing import Any
 
+from ..simulation import mitleben
 from ..world.state import WorldState
 from .model import AgentModel, AgentProfile, Personality, load_default
 
@@ -53,8 +54,14 @@ class AgentStore:
                           status=r["status"] or "idle", plan_next=r["plan_next"] or "", plan_minute=r["plan_minute"],
                           last_decision_minute=r["last_decision_minute"])
 
-    def ai_agent_ids(self) -> list[str]:
+    def profile_ids(self) -> list[str]:
+        """Alle Bewohner mit Profil, auch die eigene Figur des Menschen: passive Pflege (Bedürfnisse, Beobachtungen, Statistik, Regler, „wer erfährt es“)."""
         return [r["agent_id"] for r in self.conn.execute("SELECT agent_id FROM agent_profiles ORDER BY agent_id")]
+
+    def thinking_ids(self) -> list[str]:
+        """Bewohner, für die das Modell denkt (Entscheidung, Reflexion, Zielplanung): ohne die eigene Figur, solange kein Autopilot läuft (AP18h)."""
+        human = mitleben.human_controlled(self.state)
+        return [a for a in self.profile_ids() if a != human]
 
     def save_profile(self, agent_id: str, profile: AgentProfile, personality: Personality) -> None:
         self.conn.execute("UPDATE agent_profiles SET profile=?, personality=?, updated_at=? WHERE agent_id=?",

@@ -106,7 +106,7 @@ class Autonomy:
 
     # --- Takt ---------------------------------------------------------------------------------------------------------
     def after_tick(self, events: list[Event], minute: int) -> None:
-        ai = self.agents.ai_agent_ids()
+        ai = self.agents.profile_ids()
         talking = {a.id for a in self.engine.state.agents() if a.action is not None and a.action.type == "speak"}
         self.needs.tick(ai, minute, talking)
         self.relations.on_events(events, ai)
@@ -132,7 +132,7 @@ class Autonomy:
     async def housekeeping(self, minute: int, waiting: bool) -> None:
         """Ziele setzen, festgefahrene Pläne auflösen (Neuplanung, Alternativziel, Ruhemodus); mit niedriger Priorität wie Reflexionen."""
         db, gp = self.engine.db, self.planner.params
-        for aid in await db.run(self.agents.ai_agent_ids):
+        for aid in await db.run(self.agents.thinking_ids):
             g = await db.run(lambda a=aid: self.goals.active_short(a))
             model = await db.run(lambda a=aid: self.agents.get(a))
             trigger = self.triggers.pop(aid, None)

@@ -189,11 +189,11 @@ class SimulationRunner:
         """Gedächtnispflege einmal je Tag; Reflexionen mit niedriger Priorität: nur wenn kein Agent auf eine Entscheidung wartet (oder lange aufgeschoben)."""
         db, mem = self.engine.db, self.memory
         if any(e.type == "world.day_started" for e in events):
-            await db.run(lambda: [mem.maintenance.run(a, self.engine.minute) for a in self.store.ai_agent_ids()])
+            await db.run(lambda: [mem.maintenance.run(a, self.engine.minute) for a in self.store.profile_ids()])
         if not force and not self._gate.is_set():
             return
         waiting = bool(await db.run(self._due_agents))
-        due = await db.run(lambda: [(a, r) for a in self.store.ai_agent_ids() if (r := mem.reflector.due(a, self.engine.minute))])
+        due = await db.run(lambda: [(a, r) for a in self.store.thinking_ids() if (r := mem.reflector.due(a, self.engine.minute))])
         for aid, reason in due:
             self._postponed[aid] = self._postponed.get(aid, 0) + 1
             if waiting and self._postponed[aid] < REFLECT_MAX_POSTPONE:
@@ -216,7 +216,7 @@ class SimulationRunner:
 
     def _due_agents(self) -> list[str]:
         out = []
-        for aid in self.store.ai_agent_ids():
+        for aid in self.store.thinking_ids():
             body = self.engine.state.agent(aid)
             if body is None or body.action is not None or self.autonomy.guards.resting(aid, self.engine.minute):
                 continue
@@ -288,8 +288,8 @@ class SimulationRunner:
 
     def _remember(self, events: list[Event], dec: Decision | None = None, decision_id: int | None = None, decision_seq: int | None = None, res: ProposeResult | None = None) -> None:
         """Beobachtungen aufnehmen und daraus Erinnerungen schreiben (bei einer Entscheidung mit deren Wichtigkeit und Absicht)."""
-        ai = self.store.ai_agent_ids()
-        mem, observed = self.memory, self.collector.ingest(events, self.store.ai_agent_ids())
+        ai = self.store.profile_ids()
+        mem, observed = self.memory, self.collector.ingest(events, self.store.profile_ids())
         valid = dec is not None and dec.status == "valid"
         if dec is not None and decision_id is not None and dec.extra.get("retrieval_id"):
             mem.know.link_decision(dec.agent_id, dec.extra["retrieval_id"], decision_id)
@@ -318,7 +318,7 @@ class SimulationRunner:
             sample_stats(self.owner, self.engine.minute)
             if self.owner.saves is not None:
                 self.owner.saves.maybe_autosave(self.engine.minute)
-        for aid in self.store.ai_agent_ids():
+        for aid in self.store.profile_ids():
             self._set_status(aid, self._status_of(aid))
         return extra
 
