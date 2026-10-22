@@ -1,0 +1,76 @@
+/* Mockup Mitleben (AP18h Schritt 0): baut auf stil.css und spiel.css des Rework-Mockups auf. Nur das, was die eigene Figur zusätzlich braucht. */
+:root { --me: var(--sky); }
+
+/* Deine Figur: Ring in deiner Akzentfarbe. Der Ring gibt es nur in deinem Browser; die anderen und die Welt kennen ihn nicht. */
+.me-fig { position: absolute; width: 0; height: 0; }
+.me-fig canvas { position: absolute; left: -24px; top: -72px; width: 48px; height: 72px; image-rendering: pixelated; }
+.me-fig .ring { position: absolute; left: -26px; top: -9px; width: 52px; height: 17px; border-radius: 50%; border: 2px solid var(--me); box-shadow: 0 0 10px var(--me), inset 0 0 8px #74aadc55; animation: ring 2.4s infinite; }
+@keyframes ring { 50% { opacity: .55; transform: scale(1.06); } }
+.me-fig.idle .ring { animation-duration: 3.6s; }
+
+/* Weg und Ziel (Klick in die Welt) */
+.pathsvg { position: absolute; inset: 0; width: 1440px; height: 910px; pointer-events: none; }
+.pathsvg path.o { stroke: #000a; stroke-width: 9; stroke-dasharray: 1 10; }
+.pathsvg path { fill: none; stroke: #cfe8ff; stroke-width: 5; stroke-dasharray: 2 9; stroke-linecap: round; filter: drop-shadow(0 1px 0 #0008); }
+.goal { position: absolute; transform: translate(-50%, -50%); width: 34px; height: 34px; border-radius: 50%; border: 2px solid var(--me); display: grid; place-items: center; color: var(--me); font-size: 16px; background: #74aadc22; }
+.goal-l { position: absolute; transform: translate(-50%, 0); white-space: nowrap; font-size: 11px; font-weight: 700; padding: 1px 9px; border-radius: 99px; background: var(--glass); border: 1px solid var(--me); color: var(--cream); }
+
+/* Rückmeldung: Ablehnung der Welt als kleine Blase über der Figur (3 Sekunden), derselbe Text wie bei den Bewohnern */
+.reject { position: absolute; transform: translate(-50%, -100%); width: max-content; max-width: 240px; padding: 6px 11px; font-size: 12px; line-height: 1.35; border-radius: 10px; background: #3a1d1ae8; color: #ffd9d2; border: 1px solid var(--warn); animation: pop .25s; }
+.reject b { display: block; font-size: 10.5px; color: var(--warn); letter-spacing: .06em; text-transform: uppercase; }
+.reject::after { content: ""; position: absolute; left: 50%; bottom: -6px; transform: translateX(-50%) rotate(45deg); width: 10px; height: 10px; background: #3a1d1a; border-right: 1px solid var(--warn); border-bottom: 1px solid var(--warn); }
+
+/* Handlungsleiste: dieselbe Leiste wie im Rework, dazu das Band „Was deine Figur gerade tut“ */
+.doing { position: absolute; left: 50%; bottom: 94px; transform: translateX(-50%); display: flex; gap: 12px; align-items: center; padding: 7px 8px 7px 14px; border-radius: 999px; font-size: 13px; animation: pop .2s; }
+.doing b { color: var(--me); } .doing .bar { width: 120px; } .doing .bar i { background: var(--me); }
+.person.me { --c: var(--me); } .person.me::after { content: "Du"; position: absolute; left: 4px; top: 0; font-size: 9px; font-weight: 800; letter-spacing: .06em; color: var(--ink); background: var(--me); border-radius: 99px; padding: 0 5px; }
+.follow { position: absolute; left: 16px; top: 62px; display: flex; gap: 8px; align-items: center; }
+.follow .pill { font-size: 12px; padding: 4px 11px; } .follow .pill b { color: var(--me); }
+.follow .pill.auto { border-color: var(--plan); color: #e6d9ff; } .follow .pill.auto b { color: var(--plan); }
+.banner { position: absolute; left: 50%; top: 14px; transform: translateX(-50%); padding: 9px 18px; border-radius: 999px; border-color: var(--acc); font-size: 13px; display: flex; gap: 10px; align-items: center; animation: pop .2s; }
+.banner b { color: var(--acc2); }
+
+/* Kontext- und Benutzen-Liste */
+.pop.narrow { width: 470px; } .pop.wide { width: 700px; }
+.grp { margin-top: 10px; font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--dim); display: flex; align-items: center; gap: 6px; }
+.opt { display: flex; align-items: center; gap: 10px; width: 100%; margin-top: 5px; padding: 8px 11px; border-radius: 11px; border: 1px solid var(--edge); background: #ffffff08; text-align: left; }
+.opt:hover, .opt.sel { border-color: var(--acc); background: linear-gradient(180deg, rgba(255,211,110,.14), rgba(255,211,110,.03)); }
+.opt .ic { font-size: 18px; width: 24px; text-align: center; } .opt b { font-weight: 600; } .opt small { margin-left: auto; text-align: right; }
+.opt.no { opacity: .5; cursor: not-allowed; } .opt.no small { color: var(--warn); }
+.foot { margin-top: 10px; font-size: 11.5px; color: var(--dim); display: flex; gap: 10px; align-items: center; } .foot kbd { margin: 0 2px; }
+
+/* Antwortzeile im Gespräch */
+.reply { position: absolute; left: 50%; bottom: 94px; transform: translateX(-50%); width: 640px; padding: 10px 12px; display: flex; gap: 10px; align-items: center; animation: pop .2s; }
+.reply canvas { width: 36px; height: 36px; flex: none; box-shadow: 0 0 0 2px var(--alex); }
+.reply .col { flex: 1; min-width: 0; } .reply .col small { display: block; margin-bottom: 3px; } .reply .col small b { color: var(--alex); }
+.reply input { width: 100%; border-radius: 10px; border: 1px solid var(--me); background: #0000002e; padding: 8px 11px; outline: 0; box-shadow: 0 0 0 3px #74aadc22; }
+.timer { display: grid; justify-items: center; font-size: 11px; color: var(--dim); } .timer b { font-size: 15px; color: var(--cream); } .timer .bar { width: 54px; margin-top: 2px; } .timer .bar i { background: var(--acc); }
+
+/* Schalter */
+.sw { display: flex; align-items: center; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--edge); } .sw:last-child { border-bottom: 0; }
+.sw .tx { flex: 1; } .sw .tx b { display: block; } .sw .tx small { display: block; line-height: 1.4; }
+.tog { width: 42px; height: 24px; border-radius: 99px; border: 1px solid var(--edge2); background: #ffffff10; position: relative; flex: none; padding: 0; }
+.tog::after { content: ""; position: absolute; left: 3px; top: 3px; width: 16px; height: 16px; border-radius: 50%; background: var(--dim); transition: all .15s; }
+.tog.on { background: var(--acc); border-color: var(--acc); } .tog.on::after { left: 21px; background: var(--ink); }
+.min { display: inline-flex; gap: 6px; align-items: center; margin-top: 6px; } .min input { width: 54px; text-align: center; border-radius: 8px; border: 1px solid var(--edge2); background: #0000002e; padding: 3px 6px; }
+
+/* Seitenpaneele (Gedächtnis, Einrichten) */
+.side { position: absolute; left: 16px; top: 112px; width: 360px; padding: 14px 16px; animation: pop .2s; max-height: calc(100% - 230px); overflow: hidden; }
+.side h4 { margin: 0 0 2px; font-size: 15px; } .side .snip { margin: 8px 0 0; padding: 9px 11px; border-radius: 10px; background: #0000002e; border: 1px solid var(--edge); font: 12px/1.5 ui-monospace, Menlo, monospace; color: #dcd3e6; white-space: pre-wrap; }
+.side .snip mark { background: #74aadc33; color: var(--cream); border-radius: 4px; padding: 0 3px; }
+.mem { margin-top: 6px; padding: 7px 10px; border-radius: 10px; border: 1px solid var(--edge); background: #ffffff08; font-size: 12.5px; } .mem small { display: block; }
+.okbox { margin-top: 10px; padding: 8px 11px; border-radius: 10px; border: 1px dashed var(--ok); color: #cfe9d6; font-size: 12px; line-height: 1.45; }
+.setup { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 1060px; max-width: 96vw; display: grid; grid-template-columns: 1.15fr 1fr; gap: 0; animation: pop .2s; overflow: hidden; }
+.setup > div { padding: 18px 22px; } .setup > div + div { border-left: 1px solid var(--edge); background: #ffffff05; }
+.setup h3 { margin: 0 0 2px; } .setup .crumb { font-size: 11px; color: var(--dim); letter-spacing: .06em; text-transform: uppercase; margin-bottom: 8px; display: block; }
+.res { display: flex; align-items: center; gap: 11px; padding: 8px 10px; margin-top: 7px; border-radius: 12px; border: 1px solid var(--edge); background: #ffffff08; }
+.res canvas { width: 40px; height: 40px; flex: none; } .res b { display: block; } .res small { display: block; }
+.res .rad { margin-left: auto; display: flex; align-items: center; gap: 7px; font-size: 12px; color: var(--dim); border-radius: 999px; border: 1px solid var(--edge2); padding: 3px 11px; background: transparent; }
+.res.me { border-color: var(--me); background: #74aadc14; } .res.me .rad { color: var(--ink); background: var(--me); border-color: var(--me); font-weight: 700; }
+.res .tpl { font-size: 11px; color: var(--plan); }
+
+/* Tagebuch, mit der eigenen Figur wie mit jeder anderen: dieselben Zeilen, kein „Warum“ bei dir, weil es keine Optionsliste gab */
+.entry .me-note { display: inline-block; margin-left: 6px; font-size: 10.5px; color: var(--dim); border: 1px dashed var(--edge2); border-radius: 99px; padding: 0 7px; }
+
+.tools .inv { white-space: nowrap; }
+.pop { bottom: 94px; }

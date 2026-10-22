@@ -56,6 +56,12 @@
 4. Härtung: Langlauf mit Fake 1 Spieltag mit Autopilot an (`scripts/langlauf.py --mode fake`), keine Lücken in den Ereignisnummern, Figur nie „hängend“.
 5. Doku: `docs/mitleben.md` (Bedienung, Grundsätze, Schalter) und `docs/schnittstellen.md` (neue Endpunkte).
 
+## Korrekturen aus Schritt 0 (21.10.2026)
+Befund, Mockup ([mitleben.html](../mockups/mitleben.html)) und Zerlegung in acht Teilschritte (a1–a3, b1–b3, c1, c2) stehen in [AP18h-schritt0.md](../status/AP18h-schritt0.md). Was dort am Plan zu ändern ist:
+- **Meta `player` gibt es noch nicht** (AP18d brachte nur `play_mode`); sie entsteht in a1.
+- **`ai_agent_ids()` nicht filtern**, sondern in `profile_ids()` (alle Bewohner: Bedürfnisse, Beobachtungen, Statistik, Wissensverteilung) und `thinking_ids()` (nutzt das Modell: Entscheidung, Reflexion, Zielplanung) teilen; die eigene Figur gehört zu `thinking_ids` nur bei laufendem Autopilot. Die Takt-Logik kommt in `simulation/mitleben.py` (`runner.py` hat schon 341 Zeilen).
+- **Fristen in echter Zeit** statt Spielminuten (Frage 83); **Abbrechen** für den Menschen (Frage 85); Wahl und Wechsel der Figur (Frage 84).
+
 ## Abnahme
 Henry startet „Leben mit eigener Figur“, geht zum See, angelt, spricht mit Mira und bekommt eine Antwort; Mira behandelt ihn wie jeden anderen (Gedächtnis-Einblick zeigt keine Besonderheit). Bericht `docs/status/AP18h.md`.
 
