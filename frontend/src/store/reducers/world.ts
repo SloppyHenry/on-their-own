@@ -1,9 +1,10 @@
-import { normalizeLook } from "../../world/dorf/look";
+import { applyLookOps, rawLook, type LookOp } from "../../world/dorf/look";
 import type { EventDataMap, EventType, LocationInfo } from "../../types/generated";
 import type { MapData, World } from "../types";
 import { setObject, toObjectInfo, without } from "./helpers";
 import type { Handler } from "./index";
 
+const same = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
 const charOf = (w: World, type: string): string | undefined => Object.entries(w.map.legend).find(([, t]) => t === type)?.[0];
 
 function paint(map: MapData, legend: World, changes: { x: number; y: number; type: string }[]): MapData {
@@ -37,7 +38,7 @@ export const worldHandlers: { [K in EventType]?: Handler<EventDataMap[K]> } = {
   "world.links_added": (w, d) => ({ ...w, links: [...(w.links ?? []), ...d.links] }),
   "world.look_added": (w, d) => {                                       // Ein Bewohner hat Weg, Beet, Baum, Laterne oder Brunnen gebaut: das Stück kommt an sein Gebiet (AP18g)
     if (!w.look) return w;
-    const cur = normalizeLook(w.look as object);
+    const cur = rawLook(w.look as object);
     const regions = cur.regions.map((r) => {
       if (r.id !== d.region) return r;
       const S = r.shapes;
@@ -46,9 +47,16 @@ export const worldHandlers: { [K in EventType]?: Handler<EventDataMap[K]> } = {
     });
     return { ...w, look: { ...cur, regions } as unknown as typeof w.look };
   },
+  "world.look_edited": (w, d) => {                                      // Gestalten (AP16a): Formen und Deko eintragen oder entfernen, Bildstellen setzen, Gebiete vergrößern
+    if (!w.look) return w;
+    return { ...w, look: applyLookOps(rawLook(w.look as object), d.ops as unknown as LookOp[]) as unknown as typeof w.look };
+  },
+  "world.location_removed": (w, d) => ({ ...w, locations: without(w.locations, d.id) }),
+  "world.resource_removed": (w, d) => ({ ...w, resources: without(w.resources, d.node) }),
+  "world.links_removed": (w, d) => ({ ...w, links: (w.links ?? []).filter((p) => !d.links.some((q) => (same(p[0], q[0]) && same(p[1], q[1])) || (same(p[0], q[1]) && same(p[1], q[0])))) }),
   "world.look_changed": (w, d) => {                                    // Gebiete und Landstraßen anhängen; alte Form vorher umwandeln (look.ts)
     if (!w.look) return w;
-    const cur = normalizeLook(w.look as object);
+    const cur = rawLook(w.look as object);
     const look = { ...cur, regions: [...cur.regions, ...(d.regions as unknown as typeof cur.regions)], roads: [...cur.roads, ...(d.roads as unknown as typeof cur.roads)] };
     return { ...w, look: look as unknown as typeof w.look };
   },

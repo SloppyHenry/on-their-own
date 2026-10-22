@@ -339,3 +339,4 @@ def add_look(ctx: Ctx, add: Any) -> None:
         raise WorldEditError("invalid", str(e)) from None
     st.set_meta("look", merged)
     ctx.emit("world.look_changed", data={"regions": add.get("regions", []), "roads": add.get("roads", []), "upgraded": not lk.is_v2(cur)})
+

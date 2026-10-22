@@ -122,7 +122,7 @@ class ObservationCollector:
             out.append((taker, "gift", f"{bodies[giver].name} gibt dir {what}.", 6))
         elif t == "world.object_created":
             o, cause = d["object"], d.get("cause", "")
-            if o["holder"] is None and o["kind"] != "construction_site":
+            if o["holder"] is None and o["kind"] != "construction_site" and not cause.startswith("patch:gestalten-"):          # Umbauten aus dem Editor merken die Bewohner nicht (AP16)
                 if who:
                     out.append((who, "result", f"Du hast {o['name']} " + {"build_done": "fertiggestellt", "plant": "eingepflanzt"}.get(cause, "geschaffen") + ".", 5))
                 out += [(w, "seen", f"Neu {loc_at(st, loc)}: {o['name']}.", 3) for w in self._at(bodies, loc, set(ev.agents))]

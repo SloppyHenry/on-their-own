@@ -35,6 +35,33 @@ class LookAdded(D):
     place: dict[str, dict[str, Any]] = {}
 
 
+class LookEdited(D):
+    """Die Gestaltung wurde im Editor geändert (AP16a): Formen und Deko eingetragen oder entfernt, Bildstellen gesetzt, Gebiete vergrößert (Operationen siehe `world/look_ops.py`)."""
+    ops: list[dict[str, Any]]
+    upgraded: bool = False
+
+
+class Edited(D):
+    """Der Entwurf aus dem Editor (Gestalten) wurde in einem Zug übernommen; steht nur im Protokoll der Leitstelle, die Bewohner erfahren davon nichts."""
+    patch: str
+    actions: int
+    summary: dict[str, int] = {}
+
+
+class LocationRemoved(D):
+    id: str
+    name: str
+    reassigned: dict[str, int] = {}
+
+
+class ResourceRemoved(D):
+    node: str
+
+
+class LinksRemoved(D):
+    links: list[list[list[int]]]
+
+
 class Generated(D):
     """Ein Dorf wurde mit dem Weltgenerator erzeugt (Erweiterung oder neue Simulation); `seed` ist der Seed, der die Prüfung bestanden hat."""
     kind: str

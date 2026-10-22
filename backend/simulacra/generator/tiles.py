@@ -50,14 +50,32 @@ def bounds(L: Layout) -> tuple[int, int, int, int]:
     return -L.ext_l - 64, -96, 320, 240 + L.extra_h
 
 
+@dataclass
+class Formen:
+    """Was die Abtastung einer Kachel braucht (Dorfkoordinaten): Plätze, Seen, Wasserlinien, Wege und Böden aus Holz (Steg, Brücken). Das Layout des Generators und die
+    gespeicherten Formen eines Gebiets (`look.regions[*].shapes`) füllen dieselbe Liste und werden darum gleich abgetastet."""
+    squares: list[dict]
+    lakes: list[dict]
+    waters: list[list]
+    paths: list[list]
+    floors: list[dict]
+
+    @classmethod
+    def of_layout(cls, L: Layout) -> "Formen":
+        return cls([L.sq], ([L.lake] if L.lake else []) + L.ponds, [pl for pl in [L.stream, *L.strands] if len(pl) > 1], L.paths,
+                   [*([L.dock] if L.dock else []), *([L.bridge] if L.bridge else []), *L.bridges2])
+
+    def indexes(self) -> tuple[SegIndex, SegIndex]:
+        return SegIndex(self.paths), SegIndex(self.waters)
+
+
 def rasterize(L: Layout) -> Outdoor:
     x0, y0, x1, y1 = bounds(L)
     w, h = (x1 - x0) // T, (y1 - y0) // T
     out = Outdoor(x0, y0, [[GRASS] * w for _ in range(h)])
-    lake, sq = L.lake, L.sq
+    formen = Formen.of_layout(L)
     decor_tiles: dict[tuple[int, int], str] = {}
-    idx_paths = SegIndex(L.paths)
-    idx_water = SegIndex([pl for pl in [L.stream, *L.strands] if len(pl) > 1])
+    idx_paths, idx_water = formen.indexes()
     for kind, x, y, e in L.decor:
         i, j = out.tile_of(x, y - 2)
         if kind in TREES:
@@ -70,7 +88,7 @@ def rasterize(L: Layout) -> Outdoor:
             for a in range(4):
                 for b in range(4):
                     px, py = x0 + T * i + 2 + 4 * a, y0 + T * j + 2 + 4 * b
-                    k = _sample(L, px, py, lake, sq, idx_paths, idx_water)
+                    k = sample(formen, px, py, idx_paths, idx_water)
                     cnt[k] = cnt.get(k, 0) + 1
             out.rows[j][i] = _decide(cnt)
     for (i, j), k in decor_tiles.items():
@@ -106,12 +124,13 @@ def rasterize(L: Layout) -> Outdoor:
     return out
 
 
-def _sample(L: Layout, px: float, py: float, lake: dict | None, sq: dict, idx_paths: SegIndex, idx_water: SegIndex) -> str:
-    for r in (*([L.dock] if L.dock else []), *([L.bridge] if L.bridge else []), *L.bridges2):
+def sample(F: Formen, px: float, py: float, idx_paths: SegIndex, idx_water: SegIndex) -> str:
+    """Die Art der Bodenfläche an einem Punkt: Holz, Wasser, Sand, Weg oder Gras."""
+    for r in F.floors:
         if r["x0"] <= px < r["x1"] and r["y0"] <= py < r["y1"]:
             return FLOOR
     q = 9.0
-    for k in ([lake] if lake else []) + L.ponds:
+    for k in F.lakes:
         a, b = (px - k["x"]) / k["rx"], (py - k["y"]) / k["ry"]
         q = min(q, a * a + b * b)
     dw = idx_water.dist(px, py, 5.4)
@@ -119,7 +138,7 @@ def _sample(L: Layout, px: float, py: float, lake: dict | None, sq: dict, idx_pa
         return WATER
     if q < 1.13 or dw < 5.4:
         return SAND
-    if math.hypot(px - sq["x"], (py - sq["y"]) * 1.08) < sq["r"] or idx_paths.dist(px, py, 5.2) < 5.2:
+    if any(math.hypot(px - sq["x"], (py - sq["y"]) * 1.08) < sq["r"] for sq in F.squares) or idx_paths.dist(px, py, 5.2) < 5.2:
         return PATH
     return GRASS
 

@@ -1897,6 +1897,31 @@
    "title": "Drank",
    "type": "object"
   },
+  "Edited": {
+   "additionalProperties": false,
+   "description": "Der Entwurf aus dem Editor (Gestalten) wurde in einem Zug übernommen; steht nur im Protokoll der Leitstelle, die Bewohner erfahren davon nichts.",
+   "properties": {
+    "actions": {
+     "type": "integer"
+    },
+    "patch": {
+     "type": "string"
+    },
+    "summary": {
+     "additionalProperties": {
+      "type": "integer"
+     },
+     "default": {},
+     "type": "object"
+    }
+   },
+   "required": [
+    "patch",
+    "actions"
+   ],
+   "title": "Edited",
+   "type": "object"
+  },
   "EffectEnded": {
    "additionalProperties": false,
    "properties": {
@@ -3770,6 +3795,28 @@
    "title": "LinksAdded",
    "type": "object"
   },
+  "LinksRemoved": {
+   "additionalProperties": false,
+   "properties": {
+    "links": {
+     "items": {
+      "items": {
+       "items": {
+        "type": "integer"
+       },
+       "type": "array"
+      },
+      "type": "array"
+     },
+     "type": "array"
+    }
+   },
+   "required": [
+    "links"
+   ],
+   "title": "LinksRemoved",
+   "type": "object"
+  },
   "LlmStats": {
    "additionalProperties": false,
    "properties": {
@@ -4088,6 +4135,30 @@
    "title": "LocationInfo",
    "type": "object"
   },
+  "LocationRemoved": {
+   "additionalProperties": false,
+   "properties": {
+    "id": {
+     "type": "string"
+    },
+    "name": {
+     "type": "string"
+    },
+    "reassigned": {
+     "additionalProperties": {
+      "type": "integer"
+     },
+     "default": {},
+     "type": "object"
+    }
+   },
+   "required": [
+    "id",
+    "name"
+   ],
+   "title": "LocationRemoved",
+   "type": "object"
+  },
   "LoginRequest": {
    "additionalProperties": false,
    "properties": {
@@ -4199,6 +4270,28 @@
     "upgraded"
    ],
    "title": "LookChanged",
+   "type": "object"
+  },
+  "LookEdited": {
+   "additionalProperties": false,
+   "description": "Die Gestaltung wurde im Editor geändert (AP16a): Formen und Deko eingetragen oder entfernt, Bildstellen gesetzt, Gebiete vergrößert (Operationen siehe `world/look_ops.py`).",
+   "properties": {
+    "ops": {
+     "items": {
+      "additionalProperties": true,
+      "type": "object"
+     },
+     "type": "array"
+    },
+    "upgraded": {
+     "default": false,
+     "type": "boolean"
+    }
+   },
+   "required": [
+    "ops"
+   ],
+   "title": "LookEdited",
    "type": "object"
   },
   "MapData": {
@@ -7282,6 +7375,19 @@
    "title": "ResourceInfo",
    "type": "object"
   },
+  "ResourceRemoved": {
+   "additionalProperties": false,
+   "properties": {
+    "node": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "node"
+   ],
+   "title": "ResourceRemoved",
+   "type": "object"
+  },
   "Rested": {
    "additionalProperties": false,
    "properties": {
@@ -9762,6 +9868,9 @@
   "Drank": {
    "$ref": "#/$defs/Drank"
   },
+  "Edited": {
+   "$ref": "#/$defs/Edited"
+  },
   "EffectEnded": {
    "$ref": "#/$defs/EffectEnded"
   },
@@ -9861,6 +9970,9 @@
   "LinksAdded": {
    "$ref": "#/$defs/LinksAdded"
   },
+  "LinksRemoved": {
+   "$ref": "#/$defs/LinksRemoved"
+  },
   "LlmStatusOut": {
    "$ref": "#/$defs/LlmStatusOut"
   },
@@ -9876,6 +9988,9 @@
   "LocationEvent": {
    "$ref": "#/$defs/LocationEvent"
   },
+  "LocationRemoved": {
+   "$ref": "#/$defs/LocationRemoved"
+  },
   "LoginRequest": {
    "$ref": "#/$defs/LoginRequest"
   },
@@ -9884,6 +9999,9 @@
   },
   "LookChanged": {
    "$ref": "#/$defs/LookChanged"
+  },
+  "LookEdited": {
+   "$ref": "#/$defs/LookEdited"
   },
   "MapExtended": {
    "$ref": "#/$defs/MapExtended"
@@ -10040,6 +10158,9 @@
   },
   "ResourceChanged": {
    "$ref": "#/$defs/ResourceChanged"
+  },
+  "ResourceRemoved": {
+   "$ref": "#/$defs/ResourceRemoved"
   },
   "Rested": {
    "$ref": "#/$defs/Rested"

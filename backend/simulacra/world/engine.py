@@ -60,6 +60,14 @@ class WorldEditor:
             return counts
         return self._do(work)
 
+    def apply_edit(self, patch: dict, actions: int):
+        """Entwurf aus dem Editor (Gestalten): der Patch und das Ereignis `world.edited` (nur Protokoll, Kategorie system) in einer Transaktion."""
+        def work(ctx):
+            counts = patches.apply_patch(ctx, patch)
+            ctx.emit("world.edited", data={"patch": patch["id"], "actions": actions, "summary": {k: v for k, v in counts.items() if v}})
+            return counts
+        return self._do(work)
+
     def dry_run(self, patch: dict, inspect=None) -> dict:
         """Trockenlauf: wendet den Patch an, schaut mit `inspect()` hinein (auf dem DB-Thread) und verwirft alles wieder (Rollback, Caches neu).
         Liefert {"counts", "inspected"}; Fehler als `WorldEditError`, genau wie beim Anwenden."""
