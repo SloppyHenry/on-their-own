@@ -4,6 +4,8 @@
 
 > **Nachtrag 19.10.2026 (AP18):** AP16 läuft jetzt innerhalb des Reworks nach AP18e (Weltenbibliothek und Werkstatt), siehe [AP18-plan.md](AP18-plan.md#ap16--gestalten-werkzeuge-bestehender-plan-angepasst). Die Werkzeuge arbeiten an zwei Orten: in der Welt-Werkstatt an einer Welt-Datei und im Spiel nur bei Spielart Gott. Neu sind die Werkzeuge Startplatz und (nur Werkstatt) Gebiet erzeugen. Im Spiel gibt es keinen Generator mehr. Die Bedienteile kommen im Stil aus AP18b.
 
+> **Stand 22.10.2026: AP16a (Backend) gebaut**, Bericht [status/AP16a.md](../status/AP16a.md), wartet auf Abnahme; AP16b–d folgen.
+
 > **Stand 21.10.2026 (Schritt 0 neu, auf `main` nach AP18):** Abgleich, Architektur und Zerlegung stehen in [status/AP16-schritt0.md](../status/AP16-schritt0.md); das Rahmen-Mockup ist [`docs/mockups/gestalten-neu.html`](../mockups/gestalten-neu.html), wartet auf Abnahme (Fragen 77–82). Was sich gegenüber dem Plan unten ändert:
 > - **Zwei Orte, ein Werkzeugkasten:** Werkstatt (Weltdatei, „Speichern“, Entwurf = ungespeicherter Stand) und Gestalten im Spiel in der Spielart Gott (Entwurf, „Übernehmen“). Ein Aktionsmodul `generator/edit/`, zwei Wege: `POST /api/worlds/draft` (zustandslos, Werkstatt) und `POST /api/world/draft/preview|apply` (Spiel).
 > - **Werkzeuge neu:** Startplatz und Gebiet erzeugen (nur Werkstatt), **Karte erweitern** (beide Orte) statt „Dorf anfügen“ im Spiel.

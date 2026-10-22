@@ -26,6 +26,7 @@ export interface SimulacraApi {
   Dialogue?: Dialogue;
   DownloadRequest?: DownloadRequest;
   Drank?: Drank;
+  Edited?: Edited;
   EffectEnded?: EffectEnded;
   EventDetail?: EventDetail;
   EventFired?: EventFired;
@@ -59,14 +60,17 @@ export interface SimulacraApi {
   ItemMoved?: ItemMoved;
   Knowledge?: Knowledge;
   LinksAdded?: LinksAdded;
+  LinksRemoved?: LinksRemoved;
   LlmStatusOut?: LlmStatusOut;
   LocationChanged?: LocationChanged;
   LocationDetail?: LocationDetail;
   LocationDiscovered?: LocationDiscovered;
   LocationEvent?: LocationEvent;
+  LocationRemoved?: LocationRemoved;
   LoginRequest?: LoginRequest;
   LookAdded?: LookAdded;
   LookChanged?: LookChanged;
+  LookEdited?: LookEdited;
   MapExtended?: MapExtended;
   MemoriesPage?: MemoriesPage;
   MemoryArchived?: MemoryArchived;
@@ -119,6 +123,7 @@ export interface SimulacraApi {
   ResetRequest?: ResetRequest;
   ResourceAdded?: ResourceAdded;
   ResourceChanged?: ResourceChanged;
+  ResourceRemoved?: ResourceRemoved;
   Rested?: Rested;
   RetrievalOut?: RetrievalOut;
   Rowed?: Rowed;
@@ -711,6 +716,19 @@ export interface DownloadRequest {
  */
 export interface Drank {
   thirst: number;
+}
+/**
+ * Der Entwurf aus dem Editor (Gestalten) wurde in einem Zug übernommen; steht nur im Protokoll der Leitstelle, die Bewohner erfahren davon nichts.
+ *
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "Edited".
+ */
+export interface Edited {
+  actions: number;
+  patch: string;
+  summary?: {
+    [k: string]: number;
+  };
 }
 /**
  * This interface was referenced by `SimulacraApi`'s JSON-Schema
@@ -1389,6 +1407,13 @@ export interface LinksAdded {
 }
 /**
  * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "LinksRemoved".
+ */
+export interface LinksRemoved {
+  links: number[][][];
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
  * via the `definition` "LlmStatusOut".
  */
 export interface LlmStatusOut {
@@ -1529,6 +1554,17 @@ export interface LocationEvent {
 }
 /**
  * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "LocationRemoved".
+ */
+export interface LocationRemoved {
+  id: string;
+  name: string;
+  reassigned?: {
+    [k: string]: number;
+  };
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
  * via the `definition` "LoginRequest".
  */
 export interface LoginRequest {
@@ -1567,6 +1603,18 @@ export interface LookChanged {
   }[];
   roads: number[][][];
   upgraded: boolean;
+}
+/**
+ * Die Gestaltung wurde im Editor geändert (AP16a): Formen und Deko eingetragen oder entfernt, Bildstellen gesetzt, Gebiete vergrößert (Operationen siehe `world/look_ops.py`).
+ *
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "LookEdited".
+ */
+export interface LookEdited {
+  ops: {
+    [k: string]: unknown;
+  }[];
+  upgraded?: boolean;
 }
 /**
  * This interface was referenced by `SimulacraApi`'s JSON-Schema
@@ -2375,6 +2423,13 @@ export interface ResourceChanged {
 }
 /**
  * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "ResourceRemoved".
+ */
+export interface ResourceRemoved {
+  node: string;
+}
+/**
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
  * via the `definition` "Rested".
  */
 export interface Rested {
@@ -3102,6 +3157,11 @@ export interface EventDataMap {
   "world.links_added": LinksAdded;
   "world.look_changed": LookChanged;
   "world.look_added": LookAdded;
+  "world.edited": Edited;
+  "world.look_edited": LookEdited;
+  "world.location_removed": LocationRemoved;
+  "world.resource_removed": ResourceRemoved;
+  "world.links_removed": LinksRemoved;
   "world.generated": Generated;
   "world.patch_applied": PatchApplied;
   "simulation.started": SimControl;
@@ -3189,6 +3249,11 @@ export const EVENT_CATEGORY: Record<EventType, EventCategory> = {
   "world.links_added": "world",
   "world.look_changed": "world",
   "world.look_added": "system",
+  "world.edited": "system",
+  "world.look_edited": "world",
+  "world.location_removed": "world",
+  "world.resource_removed": "world",
+  "world.links_removed": "world",
   "world.generated": "world",
   "world.patch_applied": "system",
   "simulation.started": "system",

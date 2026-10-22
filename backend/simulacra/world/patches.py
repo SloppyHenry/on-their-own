@@ -2,21 +2,22 @@
 
 Ein Patch ist ein JSON-Dokument mit denselben Abschnitten wie die Weltdatei (nur die benötigten):
     {"id": "...", "description": "...", "tile_types": {...}, "extend_map": {"width": 80, "height": 50, "fill": "grass"},
+     "remove": {"objects": ["id"], "resource_nodes": ["id"], "locations": ["id"], "links": [[[x, y], [x, y]]]},
      "tiles": [{"rect": [x, y, b, h], "type": "sand"}, {"at": [x, y], "rows": ["..s.", ".ss."]}],
      "locations": [{...}], "objects": [{...}], "resource_nodes": [{...}], "links": [[[x, y], [x, y]]], "agents": [{...}],
-     "look": {"regions": [{...}], "roads": [[[x, y], ...]]}, "max_objects": 300}
+     "look": {"regions": [{...}], "roads": [[[x, y], ...]], "ops": [{"op": "add", ...}]}, "max_objects": 300}
 `max_objects` hebt die Obergrenze für Objekte an (höchstens 500), damit ein erzeugtes Dorf hineinpasst.
-Reihenfolge der Anwendung: tile_types, extend_map, tiles, locations, objects, resource_nodes, links, agents, look.
+Reihenfolge der Anwendung: tile_types, extend_map, remove, tiles, locations, objects, resource_nodes, links, agents, look.
 Jede Patch-ID wird nur einmal angewendet; scheitert ein Teil, bleibt die Welt unverändert.
 """
 
 from typing import Any
 
-from . import extend
+from . import extend, extend_entfernen
 from .actions.base import Ctx
 from .extend import WorldEditError
 
-SECTIONS = ("tile_types", "extend_map", "tiles", "locations", "objects", "resource_nodes", "links", "agents", "look")
+SECTIONS = ("tile_types", "extend_map", "remove", "tiles", "locations", "objects", "resource_nodes", "links", "agents", "look")
 KNOWN_KEYS = {"id", "description", "max_objects", *SECTIONS}
 
 
@@ -46,6 +47,20 @@ def _tile_changes(ctx: Ctx, entries: list[dict]) -> list[tuple[int, int, str]]:
     return out
 
 
+def _remove(ctx: Ctx, rem: dict[str, Any]) -> int:
+    if not isinstance(rem, dict) or set(rem) - {"objects", "resource_nodes", "locations", "links"}:
+        raise WorldEditError("invalid", "remove kennt objects, resource_nodes, locations und links.")
+    for oid in rem.get("objects", []):
+        extend.remove_object(ctx, oid, cause="patch")
+    for nid in rem.get("resource_nodes", []):
+        extend_entfernen.remove_resource_node(ctx, nid)
+    if rem.get("links"):
+        extend_entfernen.remove_links(ctx, rem["links"])
+    for lid in rem.get("locations", []):
+        extend_entfernen.remove_location(ctx, lid)
+    return sum(len(v) for v in rem.values())
+
+
 def apply_patch(ctx: Ctx, patch: dict[str, Any]) -> dict[str, int]:
     if not isinstance(patch, dict) or not isinstance(patch.get("id"), str) or not patch["id"].strip():
         raise WorldEditError("invalid", "Ein Patch braucht eine 'id'.")
@@ -54,7 +69,7 @@ def apply_patch(ctx: Ctx, patch: dict[str, Any]) -> dict[str, int]:
         raise WorldEditError("invalid", f"Unbekannte Abschnitte im Patch: {sorted(unknown)}")
     if any(p["id"] == patch["id"] for p in applied(ctx)):
         raise WorldEditError("exists", f"Der Patch '{patch['id']}' wurde schon angewendet.")
-    counts = {s: 0 for s in SECTIONS if s not in ("links", "look")}                # links und look zählen nur, wenn der Patch sie nutzt
+    counts = {s: 0 for s in SECTIONS if s not in ("links", "look", "remove")}          # links, look und remove zählen nur, wenn der Patch sie nutzt
     try:
         for name, t in (patch.get("tile_types") or {}).items():
             extend.add_tile_type(ctx, name, walkable=t["walkable"], cost=t.get("cost", 1), char=t.get("char"),
@@ -64,6 +79,8 @@ def apply_patch(ctx: Ctx, patch: dict[str, Any]) -> dict[str, int]:
             m = patch["extend_map"]
             extend.extend_map(ctx, m["width"], m["height"], m.get("fill", "grass"))
             counts["extend_map"] = 1
+        if patch.get("remove"):
+            counts["remove"] = _remove(ctx, patch["remove"])
         if patch.get("tiles"):
             changes = _tile_changes(ctx, patch["tiles"])
             extend.set_tiles(ctx, changes, cause=f"patch:{patch['id']}")
@@ -94,8 +111,13 @@ def apply_patch(ctx: Ctx, patch: dict[str, Any]) -> dict[str, int]:
             extend.add_agent(ctx, a["id"], a["name"], a["tile"], a.get("capacity", 10), a.get("needs"))
             counts["agents"] += 1
         if patch.get("look"):
-            extend.add_look(ctx, patch["look"])
-            counts["look"] = len(patch["look"].get("regions", [])) + len(patch["look"].get("roads", []))
+            look = dict(patch["look"])
+            ops = look.pop("ops", None)
+            if look:
+                extend.add_look(ctx, look)
+            if ops:
+                extend_entfernen.edit_look(ctx, ops)
+            counts["look"] = len(look.get("regions", [])) + len(look.get("roads", [])) + len(ops or [])
     except KeyError as e:
         raise WorldEditError("invalid", f"Im Patch fehlt das Feld {e}.") from None
     except (TypeError, ValueError) as e:

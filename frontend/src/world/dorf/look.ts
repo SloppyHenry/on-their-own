@@ -61,6 +61,8 @@ export interface Look {
   regions: Region[];
   /** Landstraßen zwischen Gebieten, Linienzüge in Weltpixeln. */
   roads: number[][][];
+  /** Ausgeblendete Einträge im Block `legacy` (AP16a): bleiben in den Listen stehen, damit der Zufall des Bodens gleich bleibt; `normalizeLook` blendet sie aus. */
+  mask?: { region: string; liste: string; item: unknown }[];
 }
 
 /** Version 1 (ein Dorf, Einzelstücke), wie sie alte Weltdateien und Spielstände enthalten. */
@@ -91,18 +93,82 @@ function fromV1(o: LookV1): Look {
 }
 
 const cache = new WeakMap<object, Look>();
+const seen = new WeakMap<object, Look>();
 /** Die Gestaltung der Welt in Version 2 (null, wenn die Welt keine nach Mockup A hat). Alte Formen werden umgewandelt. */
 export function lookOf(w: World | null): Look | null {
   const raw = w?.look as unknown as { style?: string; version?: number } | null | undefined;
   if (!raw || raw.style !== "mockup-a") return null;
   return normalizeLook(raw);
 }
-export function normalizeLook(raw: object): Look {
+/** Die Gestaltung in Version 2 samt ausgeblendeter Einträge (zum Ändern, z. B. in den Reducern). */
+export function rawLook(raw: object): Look {
   const hit = cache.get(raw);
   if (hit) return hit;
   const l = (raw as { version?: number }).version === 2 ? (raw as Look) : fromV1(raw as LookV1);
   cache.set(raw, l);
   return l;
+}
+/** Die Gestaltung zum Zeichnen: Version 2, ausgeblendete Einträge sind aus den Listen genommen. */
+export function normalizeLook(raw: object): Look {
+  const hit = seen.get(raw);
+  if (hit) return hit;
+  const l = visibleLook(rawLook(raw));
+  seen.set(raw, l);
+  return l;
+}
+
+const SHAPE_LISTS = ["paths", "squares", "lakes", "gardens", "docks", "streams", "bridges", "pads"] as const;
+const same = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
+function visibleLook(L: Look): Look {
+  if (!L.mask?.length) return L;
+  const regions = L.regions.map((r) => {
+    const ms = L.mask!.filter((m) => m.region === r.id);
+    if (!ms.length) return r;
+    const shapes = { ...r.shapes } as unknown as Record<string, unknown[]>;
+    let decor: unknown[] = [...r.decor];
+    for (const m of ms) {
+      const lst = m.liste === "decor" ? decor : shapes[m.liste];
+      const i = lst ? lst.findIndex((x) => same(x, m.item)) : -1;
+      if (i < 0) continue;
+      const rest = lst.filter((_, j) => j !== i);
+      if (m.liste === "decor") decor = rest; else shapes[m.liste] = rest;
+    }
+    return { ...r, shapes: shapes as unknown as Region["shapes"], decor: decor as Region["decor"] };
+  });
+  return { ...L, regions };
+}
+
+/** Eine Änderung an der Gestaltung (Backend: `world/look_ops.py`). */
+export type LookOp =
+  | { op: "add" | "remove"; region: string; liste: string; item: unknown }
+  | { op: "place"; region: string; id: string; value: Region["place"][string] }
+  | { op: "unplace"; region: string; id: string }
+  | { op: "bounds"; region: string; right?: number | null; bottom?: number | null };
+
+/** Wendet Operationen an, ohne das Eingegebene zu verändern; im Block `legacy` wird nichts aus der Liste gestrichen, sondern in `mask` eingetragen. */
+export function applyLookOps(L: Look, ops: LookOp[]): Look {
+  let regions = L.regions, mask = L.mask;
+  for (const o of ops) {
+    const r = regions.find((x) => x.id === o.region);
+    if (!r) continue;
+    let nr = r;
+    const list = (liste: string, f: (l: unknown[]) => unknown[]): Region => {
+      if ((SHAPE_LISTS as readonly string[]).includes(liste)) return { ...r, shapes: { ...r.shapes, [liste]: f((r.shapes as unknown as Record<string, unknown[]>)[liste]) } } as Region;
+      return { ...r, [liste]: f((r as unknown as Record<string, unknown[]>)[liste]) } as Region;
+    };
+    if (o.op === "add") nr = list(o.liste, (l) => [...l, o.item]);
+    else if (o.op === "remove") {
+      if (L.legacy?.region === r.id && (o.liste === "decor" || (SHAPE_LISTS as readonly string[]).includes(o.liste))) { mask = [...(mask ?? []), { region: r.id, liste: o.liste, item: o.item }]; continue; }
+      nr = list(o.liste, (l) => { const k = l.findIndex((x) => same(x, o.item)); return k < 0 ? l : l.filter((_, j) => j !== k); });
+    } else if (o.op === "place") nr = { ...r, place: { ...r.place, [o.id]: o.value } };
+    else if (o.op === "unplace") { const { [o.id]: _gone, ...rest } = r.place; nr = { ...r, place: rest }; }
+    else if (o.op === "bounds") {
+      const b = r.bounds;
+      nr = { ...r, bounds: { ...b, ...(o.right != null && (b.right == null || o.right > b.right) ? { right: o.right } : {}), ...(o.bottom != null && (b.bottom == null || o.bottom > b.bottom) ? { bottom: o.bottom } : {}) } };
+    }
+    regions = regions.map((x) => (x === r ? nr : x));
+  }
+  return { ...L, regions, ...(mask ? { mask } : {}) };
 }
 
 export const inRect = (r: number[], tx: number, ty: number) => tx >= r[0] && ty >= r[1] && tx < r[0] + r[2] && ty < r[1] + r[3];

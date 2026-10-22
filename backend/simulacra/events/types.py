@@ -95,6 +95,11 @@ _ALL = [
     _t("world.links_added", "world", me.LinksAdded, "Neue Übergänge (Haustüren)"),
     _t("world.look_changed", "world", me.LookChanged, "Gebiete oder Landstraßen der Darstellung ergänzt"),
     _t("world.look_added", "system", me.LookAdded, "Gebautes in die Darstellung eingetragen (Weg, Beet, Baum, Laterne, Brunnen)"),
+    _t("world.edited", "system", me.Edited, "Entwurf aus dem Editor übernommen (nur Protokoll der Leitstelle)"),
+    _t("world.look_edited", "world", me.LookEdited, "Gestaltung im Editor geändert (Formen, Deko, Bildstellen)"),
+    _t("world.location_removed", "world", me.LocationRemoved, "Ort entfernt"),
+    _t("world.resource_removed", "world", me.ResourceRemoved, "Quelle entfernt"),
+    _t("world.links_removed", "world", me.LinksRemoved, "Übergänge (Haustüren) entfernt"),
     _t("world.generated", "world", me.Generated, "Dorf mit dem Weltgenerator erzeugt"),
     _t("world.patch_applied", "system", me.PatchApplied, "Welt-Patch angewendet"),
     # Simulation

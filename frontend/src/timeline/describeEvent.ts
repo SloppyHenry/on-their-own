@@ -102,6 +102,11 @@ const TEXT: Table = {
   "simulation.loaded": (d) => `Spielstand geladen: ${d.name}${d.backup ? ` (vorher gesichert als „${d.backup}“)` : ""}.`,
   "world.npc_acted": (d) => d.what || "Eine Nebenfigur hat etwas getan.",
   "world.nature_event": (d) => `${d.sign ? `${d.sign} ` : ""}${d.name || "Ereignis der Welt"}${d.text ? ` – ${d.text}` : ""}`,
+  "world.edited": (d) => `Gestaltet: ${d.actions} Aktion${d.actions === 1 ? "" : "en"} übernommen.`,
+  "world.look_edited": () => "Die Darstellung wurde im Editor geändert.",
+  "world.location_removed": (d) => `Ort entfernt: ${d.name}.`,
+  "world.resource_removed": (d) => `Quelle entfernt (${d.node}).`,
+  "world.links_removed": (d) => `${d.links.length} Tür${d.links.length === 1 ? "" : "en"} entfernt.`,
   "world.look_added": () => "Das Gebaute ist jetzt auch im Bild zu sehen.",
   "simulation.play_mode_changed": (d) => `Spielart gewechselt: ${d.play_mode === "leben" ? "Leben" : "Gott"}.`,
 };

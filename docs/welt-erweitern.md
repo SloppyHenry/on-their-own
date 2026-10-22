@@ -45,6 +45,16 @@ cd backend
 .venv/bin/python -m simulacra.cli world patches                  # was ist schon angewendet?
 ```
 
+### Entfernen und Gestaltung ändern (AP16a)
+```json
+{"remove": {"objects": ["e1_bench"], "resource_nodes": ["e2_holzstapel"], "locations": ["house.e2h1_werkstatt"], "links": [[[5, 26], [20, 38]]]},
+ "look": {"ops": [{"op": "add", "region": "welt", "liste": "paths", "item": [[88, 168], [200, 168]]},
+                  {"op": "remove", "region": "welt", "liste": "lakes", "item": {"x": 100, "y": 100, "rx": 48, "ry": 36}},
+                  {"op": "place", "region": "welt", "id": "e1_bench", "value": {"at": [120, 90], "sprite": "bench", "e": 0}},
+                  {"op": "bounds", "region": "welt", "right": 1536}]}}
+```
+`remove` läuft nach `extend_map` und vor `tiles` (ein Ding verschwindet, bevor seine Kachel unbegehbar wird). `look.ops` ändern Formen (`paths`, `squares`, `lakes`, `gardens`, `docks`, `streams`, `bridges`, `pads`), `decor`, `lights`, `houses`; `remove` trifft den ersten Eintrag mit gleichem Inhalt. Im Block `look.legacy` (Dorf A) wird nichts gestrichen: der Eintrag kommt in `look.mask` und wird beim Zeichnen ausgeblendet. Meistens baut man solche Patches nicht von Hand, sondern lässt sie aus einem Entwurf berechnen ([generator.md](generator.md#gestalten-aktionen-auf-einer-weltdatei-ap16a)).
+
 ## Regeln, die immer gelten
 - **Kachelarten** sind Daten (Tabelle `tile_types`): `walkable`, `cost` (1–20 Minuten), `char`, `color`, `label`. Dieselbe Definition noch einmal anzulegen ist wirkungslos, eine abweichende wird abgelehnt.
 - **Karte** kann nur **wachsen** (bis 256 × 256), bestehende Koordinaten bleiben gleich. Die neue Fläche wird mit einer Kachelart gefüllt und gehört dem Rückfallort `paths`. Der Baumgürtel am alten Rand trennt sie, bis ein Durchgang geöffnet wird.
@@ -53,7 +63,7 @@ cd backend
 - **IDs** von Orten, Objekten, Quellen und Agenten teilen sich einen Namensraum, weil sie alle Ziel von `move_to` sein können.
 - **Objekte** brauchen eine bekannte Objektart und ein gültiges Zustandsschema, respektieren `max_objects` und die Tragkraft. Mit `location_id` statt `tile` sucht die Engine einen freien Platz im Ort; mit `hidden` und `known_by` steuert man, wer es sieht.
 - **Agenten** können jederzeit dazukommen und nutzen dieselbe Schnittstelle (`propose`) wie alle anderen.
-- Jede Änderung erzeugt ein Ereignis (`world.tile_type_added`, `world.tiles_changed`, `world.map_extended`, `world.location_added`, `world.location_updated`, `world.agent_added`, `world.links_added`, `world.look_changed`, `world.object_created`, `world.object_removed`, `world.resource_added`, `world.patch_applied`).
+- Jede Änderung erzeugt ein Ereignis (`world.tile_type_added`, `world.tiles_changed`, `world.map_extended`, `world.location_added`, `world.location_updated`, `world.agent_added`, `world.links_added`, `world.look_changed`, `world.object_created`, `world.object_removed`, `world.resource_added`, `world.patch_applied`; seit AP16a außerdem `world.look_edited`, `world.location_removed`, `world.resource_removed`, `world.links_removed`).
 - Fehler sind `WorldEditError` mit den Codes `exists`, `invalid`, `out_of_bounds`, `blocked`, `unknown`, `limit`.
 
 ## Programmschnittstelle
