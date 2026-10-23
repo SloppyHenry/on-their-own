@@ -164,6 +164,8 @@ class StateSnapshot(Out):
     look: dict[str, Any] | None = None     # Darstellung der Welt (Formen, Bäume, Deko), z. B. die Startwelt nach Mockup A; None = aus den Kacheln
     play_mode: Literal["leben", "gott"] = "gott"   # Spielart (AP18d): Leben = nur die Bewohner verändern die Welt, Gott = von außen; alte Spielstände gelten als Gott
     voices: dict[str, Voice] = {}        # eigene Stimmen der Figuren (AP17d); fehlt eine, gilt im Browser der Vorschlag aus Geschlecht und Alter
+    player: str | None = None            # eigene Figur des Menschen (AP18h), nur in der Spielart Leben; nie in einem Prompt, nur für deine Oberfläche
+    player_autopilot: bool = False
 
 
 class DecisionBrief(Out):

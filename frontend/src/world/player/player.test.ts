@@ -3,7 +3,7 @@ import { applySnapshot } from "../../store/reducers";
 import { makeSnapshot } from "../../test/fixtures";
 import { choicesFor } from "./actions";
 import { findPath, gridOf, nearestOpen, walkMinutes, type PathGrid } from "./pathfind";
-import { isTyping, PlayerController, SAY_MAX, usePlayer } from "./PlayerController";
+import { isTyping, PlayerController, REJECT_MS, usePlayer } from "./PlayerController";
 
 // Kleines Dorf: Wand mit Tür, Weg, Gras, Wasser
 const rows = [
@@ -26,7 +26,7 @@ const world = (objects: object[] = []) => applySnapshot(makeSnapshot({
 const obj = (id: string, kind: string, x: number, y: number, state: object = {}, portable = false) =>
   ({ id, kind, name: id, x, y, location_id: "paths", holder: null, state, portable, owner: null, hidden: false, known_by: [] });
 
-afterEach(() => { vi.restoreAllMocks(); usePlayer.setState({ ghost: null, path: null, minutes: null, goal: null, menu: null, say: { open: false, to: null }, intents: [] }); });
+afterEach(() => { vi.restoreAllMocks(); usePlayer.setState({ path: null, minutes: null, goal: null, reject: null }); vi.useRealTimers(); });
 
 describe("Wegsuche (wie pathfinding.py)", () => {
   it("geht um die Wand herum durch die Tür, günstigster Weg über den Pfad", () => {
@@ -65,30 +65,44 @@ describe("Kontextmenü aus dem Aktionskatalog", () => {
   });
 });
 
-describe("PlayerController (Vorschau)", () => {
-  it("zeigt nur, was er tun würde, und schickt nichts an die Simulation", () => {
-    const fetchSpy = vi.fn();
+describe("PlayerController (eigene Figur)", () => {
+  // Kim (id "kim") steht links auf dem Weg; die Spielart Leben mit eigener Figur kommt aus dem Schnappschuss
+  const mine = () => { const w = world(); return { ...w, player: "kim", agents: { kim: { ...w.agents.kim, x: 1, y: 2 } } } as never; };
+  const reply = (body: object, status = 200) => vi.fn().mockResolvedValue(new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } }));
+
+  it("Klick auf eine Kachel schickt move_to mit der Kachel und zeigt Weg und Dauer", async () => {
+    const fetchSpy = reply({ ok: true, minutes: 7 });
     vi.stubGlobal("fetch", fetchSpy);
-    const w = world([obj("bett", "bed", 1, 1)]), pc = new PlayerController(() => w);
-    usePlayer.setState({ ghost: [1, 2] });
-    expect(pc.moveTo([5, 2])).toBe(true);
+    const w = mine(), pc = new PlayerController(() => w);
+    expect(await pc.moveTo([5, 2])).toBe(true);
+    const [url, init] = fetchSpy.mock.calls[0];
+    expect(url).toBe("/api/player/act");
+    expect(JSON.parse(init.body)).toEqual({ action: "move_to", params: { tile: [5, 2] } });
     expect(usePlayer.getState().path?.at(-1)).toEqual([5, 2]);
-    expect(usePlayer.getState().intents[0]).toMatch(/^würde gehen nach \(5, 2\), etwa \d+ Min\.$/);
-    expect(pc.moveTo([0, 0])).toBe(false);
-    pc.interact({ kind: "object", id: "bett" }, "use", { mode: "sleep" });
-    expect(usePlayer.getState().intents[0]).toBe("würde bett schlafen");
-    expect(pc.say("mira", "  Hallo Mira  ")).toBe(true);
-    expect(usePlayer.getState().intents[0]).toBe("würde zu Mira sagen: „Hallo Mira“");
-    expect(pc.say(null, "   ")).toBe(false);
-    pc.say(null, "x".repeat(SAY_MAX + 50));
-    expect(usePlayer.getState().intents[0].length).toBeLessThan(SAY_MAX + 20);
-    expect(fetchSpy).not.toHaveBeenCalled();
+    expect(usePlayer.getState().minutes).toBe(7);
     vi.unstubAllGlobals();
   });
 
-  it("Vorschau-Figur steht anfangs auf einer begehbaren Kachel", () => {
-    const w = world(), t = new PlayerController(() => w).place()!;
-    expect(gridOf(w).open(...t)).toBe(true);
+  it("zeigt den Ablehnungstext der Welt drei Sekunden und räumt den Weg weg", async () => {
+    vi.useFakeTimers();
+    vi.stubGlobal("fetch", reply({ ok: false, code: "unreachable", text: "Dorthin führt kein Weg." }));
+    const w = mine(), pc = new PlayerController(() => w);
+    expect(await pc.moveTo([0, 0])).toBe(false);
+    expect(usePlayer.getState().reject?.text).toBe("Dorthin führt kein Weg.");
+    expect(usePlayer.getState().path).toBeNull();
+    vi.advanceTimersByTime(REJECT_MS + 1);
+    expect(usePlayer.getState().reject).toBeNull();
+    vi.unstubAllGlobals();
+  });
+
+  it("ohne eigene Figur geht nichts hinaus; Abbrechen ruft /api/player/cancel", async () => {
+    const fetchSpy = reply({ ok: true });
+    vi.stubGlobal("fetch", fetchSpy);
+    expect(await new PlayerController(() => world()).moveTo([5, 2])).toBe(false);
+    expect(fetchSpy).not.toHaveBeenCalled();
+    await new PlayerController(() => mine()).cancel();
+    expect(fetchSpy.mock.calls[0][0]).toBe("/api/player/cancel");
+    vi.unstubAllGlobals();
   });
 });
 

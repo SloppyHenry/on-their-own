@@ -77,7 +77,13 @@ export const eventsExportUrl = (format: "csv" | "json", q: EventQuery & { from_m
   return `/api/events/export?${p}`;
 };
 
+/** Antwort von /api/player/act und /cancel (AP18h): angenommen, oder abgelehnt mit dem Text der Engine. */
+export interface PlayerActResult { ok: boolean; minutes?: number | null; ends_at?: number | null; code?: string | null; text?: string | null }
+
 export const api = {
+  /** Die eigene Figur steuern (AP18h): dieselbe Schnittstelle wie bei den Bewohnern. */
+  playerAct: (action: string, params: Record<string, unknown> = {}) => request<PlayerActResult>("POST", "/api/player/act", { action, params }),
+  playerCancel: () => request<PlayerActResult>("POST", "/api/player/cancel"),
   state: () => request<StateSnapshot>("GET", "/api/state"),
   events: (q: EventQuery = {}) => request<EventsPage>("GET", `/api/events${qs(q)}`),
   event: (ref: string | number) => request<EventDetail>("GET", `/api/events/${ref}`),

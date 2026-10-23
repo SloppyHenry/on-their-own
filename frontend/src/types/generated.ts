@@ -985,6 +985,8 @@ export interface StateSnapshot {
   map: MapData;
   objects: ObjectInfo[];
   play_mode: "leben" | "gott";
+  player: string | null;
+  player_autopilot: boolean;
   resources: ResourceInfo[];
   rules: {
     [k: string]: unknown;

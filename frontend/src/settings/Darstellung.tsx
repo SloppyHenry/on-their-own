@@ -1,5 +1,5 @@
 // Einstellungen › Darstellung (AP18b, neu geordnet nach docs/mockups/einstellungen.html): Ansicht Tiefe/Flach (auch Taste V) und Blasen als Bildwahl,
-// Titelbild beim Öffnen, Hilfe, Mitspieler-Vorschau. Alles gilt je Gerät.
+// Titelbild beim Öffnen, Hilfe. Alles gilt je Gerät.
 import { useUiStore } from "../store/uiStore";
 import { Abschnitt, Zeile } from "./Zeile";
 
@@ -26,7 +26,6 @@ function Bild({ name, text, img, an, onClick, pos }: { name: string; text: strin
 export function Darstellung() {
   const mode = useUiStore((s) => s.worldMode), setMode = useUiStore((s) => s.setWorldMode);
   const title = useUiStore((s) => s.titleOnStart), setTitle = useUiStore((s) => s.setTitleOnStart);
-  const player = useUiStore((s) => s.playerPreview), setPlayer = useUiStore((s) => s.setPlayerPreview);
   const wenig = useUiStore((s) => s.wenigText), setWenig = useUiStore((s) => s.setWenigText);
   return (
     <div data-testid="view-menu">
@@ -47,11 +46,6 @@ export function Darstellung() {
           <input id="titelbild" type="checkbox" role="switch" className="schalter" checked={title} onChange={(e) => setTitle(e.target.checked)} data-testid="title-on-start" />
         </Zeile>
         <Zeile name="Hilfe mit allen Tasten" hilfe="Beim allerersten Start blendet sie sich einmal ein."><kbd className="kbd">?</kbd></Zeile>
-      </Abschnitt>
-      <Abschnitt titel="Vorschau">
-        <Zeile name={<>Mitspieler-Steuerung <span className="einst-marke">Vorschau</span></>} hilfe="Klick geht und handelt, schickt aber nichts an die Simulation." fuer="mitspieler">
-          <input id="mitspieler" type="checkbox" role="switch" className="schalter" checked={player} onChange={(e) => setPlayer(e.target.checked)} data-testid="player-toggle" />
-        </Zeile>
       </Abschnitt>
     </div>
   );

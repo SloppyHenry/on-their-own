@@ -8,7 +8,7 @@ import { Figures } from "../view/figures";
 import { hitTest, locationAt } from "../view/picking";
 import { weather } from "../view/post";
 import { nameOf } from "../player/actions";
-import { drawGhost, drawPreviewGround } from "../view/previewDraw";
+import { drawPreviewGround } from "../view/previewDraw";
 import type { Target } from "../view/scene";
 import type { WorldBridge } from "../worldBridge";
 import { camFor, frameFor, unproject, type Mode } from "./abbild";
@@ -195,8 +195,8 @@ export class DorfView {
     this.hover = hit;
     this.mouse = { x: p.x / this.dpr, y: p.y / this.dpr };
     const tile = this.tileAt(p.x, p.y);
-    this.player?.hover(this.bridge.playerPreview() ? tile : null);
-    this.host.style.cursor = this.hover ? "pointer" : this.bridge.playerPreview() && tile ? "crosshair" : "default";
+    this.player?.hover(this.bridge.playerActive() ? tile : null);
+    this.host.style.cursor = this.hover ? "pointer" : this.bridge.playerActive() && tile ? "crosshair" : "default";
   }
 
   private up(e: PointerEvent) {
@@ -212,7 +212,7 @@ export class DorfView {
     if (!w) return;
     const p = this.point(e), hit = this.targetAt(p.x, p.y), tile = this.tileAt(p.x, p.y);
     if (!selectOnly && tile && this.bridge.tileClick?.(tile)) return;
-    if (!selectOnly && this.bridge.playerPreview() && this.player?.click(hit, tile, p.x / this.dpr, p.y / this.dpr)) return;
+    if (!selectOnly && this.bridge.playerActive() && this.player?.click(hit, tile, p.x / this.dpr, p.y / this.dpr)) return;
     if (hit?.kind === "agent") {
       const now = performance.now();
       this.bridge.select({ kind: "agent", id: hit.id });
@@ -264,6 +264,7 @@ export class DorfView {
     this.centerOn(x * T + 8, y * T + 8);
   }
 
+  tileCss(x: number, y: number) { const p = this.bild.p(x * T + 8, y * T + 8), k = this.S * this.kam.zoom, o = this.offset(); return { x: (p.x * k - o.x) / this.dpr, y: (p.y * k - o.y) / this.dpr }; }   // Mitte einer Kachel in CSS-Pixeln (für Tests)
   /** Kamera fährt zur Kachel (gleitend, ohne Zoomwechsel); mit reduzierter Bewegung springt sie. */
   flyTile(x: number, y: number) {
     this.leaveInterior(true);
@@ -361,13 +362,12 @@ export class DorfView {
     }
   }
 
-  /** Mitspieler-Vorschau: Weg, Ziel, Kachel unter dem Zeiger und die Vorschau-Figur „Du“ (nur hinter dem Schalter, nur draußen). */
+  /** Gehen (AP18h): Weg, Ziel und Kachel unter dem Zeiger, nur draußen. */
   private preview(lg: CanvasRenderingContext2D, t: number) {
-    if (!this.bridge.playerPreview() || !this.player) return;
+    if (!this.bridge.playerActive() || !this.player) return;
     const pv = this.player.preview(), L = this.look, out = (q: [number, number] | null) => (q && houseAt(L, q[0], q[1]) ? null : q);
     const proj = (x: number, y: number) => this.bild.p(x, y);
-    drawPreviewGround(lg, proj, { ghost: out(pv.ghost), path: pv.path?.filter((q) => !houseAt(L, q[0], q[1])) ?? null, goal: out(pv.goal), hover: out(pv.hover) }, t);
-    if (out(pv.ghost)) drawGhost(lg, proj, pv.ghost!);
+    drawPreviewGround(lg, proj, { from: out(pv.from), path: pv.path?.filter((q) => !houseAt(L, q[0], q[1])) ?? null, goal: out(pv.goal), hover: out(pv.hover) }, t);
   }
 
   private emit(w: World) {
@@ -389,7 +389,7 @@ export class DorfView {
       return { id: a.id, x: c.x, y: c.y, scale: (p.sc * k) / d, visible: !inside && p.t <= 1 && c.x > -20 && c.x < this.W / d + 20 && c.y > 0 && c.y < this.H / d + 30, house: num, ...at };
     });
     const rooms = this.interior >= 0 && this.innen ? this.innen.labels.map((r) => ({ id: r.id, x: r.x / d, y: r.y / d - 6 })) : [];
-    const goal = this.player && this.bridge.playerPreview() ? this.player.preview().goal : this.bridge.markierung?.() ?? null, gp = goal && !houseAt(L, goal[0], goal[1]) ? toCss(this.bild.p(goal[0] * T + 8, goal[1] * T + 8)) : null;
+    const goal = this.player && this.bridge.playerActive() ? this.player.preview().goal : this.bridge.markierung?.() ?? null, gp = goal && !houseAt(L, goal[0], goal[1]) ? toCss(this.bild.p(goal[0] * T + 8, goal[1] * T + 8)) : null;
     const h = this.hover, tip = h && h.kind !== "agent" && !this.drag && performance.now() - this.hoverSince >= TIP_MS ? { text: nameOf(h, w), x: this.mouse.x, y: this.mouse.y } : null;
     const hf = houses.map(({ n, region, house }) => {
       const roof = this.bild.p(region.frame[0] + house.at[0], region.frame[1] + house.at[1]);

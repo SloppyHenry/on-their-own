@@ -1,13 +1,11 @@
-// Mitspieler-Vorschau im Bild: gepunkteter Weg auf dem Boden, Zielring, Kachel unter dem Zeiger, Vorschau-Figur „Du“.
-import { figure } from "../art/people";
+// Gehen im Bild (AP18h): gepunkteter Weg auf dem Boden, Zielring, Kachel unter dem Zeiger.
 import type { Tile } from "../player/pathfind";
 import { T } from "./groundData";
-import { silhouette } from "./pieces";
 
 /** Weltpixel → Bildpunkt und Maßstab der jeweiligen Ansicht. */
 export type Proj = (x: number, y: number) => { x: number; y: number; sc: number };
 
-export interface PreviewIn { ghost: Tile | null; path: Tile[] | null; goal: Tile | null; hover: Tile | null }
+export interface PreviewIn { from: Tile | null; path: Tile[] | null; goal: Tile | null; hover: Tile | null }
 
 const foot = (t: Tile) => ({ x: t[0] * T + 8, y: t[1] * T + 8 });
 
@@ -21,8 +19,8 @@ export function drawPreviewGround(g: CanvasRenderingContext2D, project: Proj, p:
       for (let k = 0; k < n; k++) g.fillRect(Math.round(a.x + ((b.x - a.x) * k) / n), Math.round(a.y + ((b.y - a.y) * k) / n), 1, 1);
     }
   }
-  if (p.ghost && p.path?.length) {
-    const pts = [p.ghost, ...p.path].map(foot);
+  if (p.from && p.path?.length) {
+    const pts = [p.from, ...p.path].map(foot);
     g.fillStyle = "#fff8ec";
     let along = 0;
     for (let i = 0; i < pts.length - 1; i++) {
@@ -40,15 +38,4 @@ export function drawPreviewGround(g: CanvasRenderingContext2D, project: Proj, p:
     g.fillStyle = p.path ? "#fff8ec" : "#ff6b6b";
     for (let a = 0; a < Math.PI * 2; a += 0.1) g.fillRect(Math.round(q.x + Math.cos(a) * rx), Math.round(q.y + Math.sin(a) * ry), 1, 1);
   }
-}
-
-/** Vorschau-Figur (grau umrandet, halb durchsichtig); Fußpunkt in Weltpixeln. */
-export function drawGhost(g: CanvasRenderingContext2D, project: Proj, tile: Tile) {
-  const f = { x: tile[0] * T + 8, y: tile[1] * T + 14 }, q = project(f.x, f.y), spr = figure("du", "down", "stand");
-  const w = Math.round(spr.width * q.sc), h = Math.round(spr.height * q.sc), dx = Math.round(q.x - w / 2), dy = Math.round(q.y - h);
-  const sil = silhouette(spr, "#fff8ec");
-  for (const [ox, oy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) g.drawImage(sil, dx + ox, dy + oy, w, h);
-  g.globalAlpha = 0.7;
-  g.drawImage(spr, dx, dy, w, h);
-  g.globalAlpha = 1;
 }

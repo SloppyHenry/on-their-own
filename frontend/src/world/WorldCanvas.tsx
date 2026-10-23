@@ -7,7 +7,7 @@ import { useWerkstatt } from "../welten/werkstattStore";
 import { useSimStore } from "../store/simStore";
 import { useUiStore } from "../store/uiStore";
 import { Overlays } from "./Overlays";
-import { isTyping, PlayerController, usePlayer } from "./player/PlayerController";
+import { isTyping, pc, usePlayer } from "./player/PlayerController";
 import { PlayerLayer } from "./player/PlayerLayer";
 import { DorfView } from "./dorf/DorfView";
 import { lookOf } from "./dorf/look";
@@ -22,7 +22,6 @@ export function WorldCanvas() {
   const host = useRef<HTMLDivElement>(null), canvas = useRef<HTMLCanvasElement>(null), glow = useRef<HTMLCanvasElement>(null);
   const atmo = useRef<HTMLCanvasElement>(null), grade = useRef<HTMLDivElement>(null), tilt = useRef<HTMLDivElement>(null);
   const [bridge] = useState(createBridge);
-  const [pc] = useState(() => new PlayerController(() => bridge.world()));
   const [view, setView] = useState<ViewLike | null>(null);
   const editorWorld = useEditorStore((s) => s.preview?.world), werkWorld = useWerkstatt((s) => s.vorschau);
   const previewWorld = werkWorld ?? editorWorld;                                                       // im Welteditor und in der Werkstatt zeigt die Ansicht die Vorschau statt der laufenden Welt
@@ -34,7 +33,7 @@ export function WorldCanvas() {
   const viewRef = useRef<ViewLike | null>(null);
   const fly = useEditorStore((s) => s.fly);
   const dorf = !!lookJson;
-  const player = useUiStore((s) => s.playerPreview);
+  const playerId = useSimStore((s) => s.world?.player ?? null), player = !!playerId;
   const focus = useUiStore((s) => s.focusRequest);
   useEffect(() => { if (focus) bridge.commands.focusTile?.(focus.x, focus.y); }, [focus, bridge]);
   useEffect(() => verbindeBuehne(bridge, () => ({ w: host.current?.clientWidth ?? 1, h: host.current?.clientHeight ?? 1 })), [bridge]);   // Klang: nur Sichtbares, am Ort im Bild
@@ -49,9 +48,8 @@ export function WorldCanvas() {
     if (import.meta.env.DEV || location.search.includes("messen")) Object.assign(window, { __welt: v, __sim: useSimStore, __ui: useUiStore });   // Prüf- und Messzugang
     const onKey = (e: KeyboardEvent) => {
       if (isTyping(e.target as Element | null) || e.metaKey || e.ctrlKey || e.altKey || e.defaultPrevented) return;
-      if (e.key === "Enter" && bridge.playerPreview()) { e.preventDefault(); const sel = bridge.selection(); usePlayer.setState({ say: { open: true, to: sel?.kind === "agent" ? sel.id : null }, menu: null }); return; }
       if (e.key === "0") bridge.commands.fit?.();
-      if (e.key === "f" || e.key === "F") bridge.commands.toggleFollow?.();
+      if (e.key === "f" || e.key === "F") { const me = useSimStore.getState().world?.player; if (me) bridge.setFollow(bridge.follow() === me ? null : me); else bridge.commands.toggleFollow?.(); }   // mit eigener Figur folgt F immer ihr
     };
     window.addEventListener("keydown", onKey);
     const offEsc = anmelden(EBENE.Innenansicht, () => { if (v.interior < 0) return false; bridge.commands.leaveInterior?.(); });          // Esc gehört zuerst der Innenansicht (Raum → Haus → Dorf), erst dann dem Menü
@@ -70,22 +68,24 @@ export function WorldCanvas() {
     useEditorStore.getState().clearFly();
   }, [fly, view]);
 
-  // Mitspieler-Vorschau hinter dem Schalter: Klick geht/handelt, Umschalt- oder Rechtsklick wählt aus (wie bisher)
+  // Eigene Figur (AP18h): Klick auf eine Kachel schickt sie dorthin (`move_to`), Klick auf ein Ding oder eine Figur wählt wie bisher aus. Die Kamera folgt ihr von Anfang an.
+  useEffect(() => { if (playerId) useUiStore.getState().setFollow(playerId); return () => { if (useUiStore.getState().follow === playerId) useUiStore.getState().setFollow(null); }; }, [playerId]);
   useEffect(() => {
     if (!view) return;
-    if (!player) { view.player = null; pc.clear(); usePlayer.setState({ ghost: null }); return; }
+    if (!player) { view.player = null; pc.clear(); return; }
     let hover: [number, number] | null = null;
     view.player = {
-      click: (hit, tile, sx, sy) => {
-        if (hit) { usePlayer.setState({ menu: { x: sx, y: sy, target: hit } }); return true; }
-        usePlayer.setState({ menu: null });
-        if (tile) pc.moveTo([tile.x, tile.y]);
-        return !!tile;
+      click: (hit, tile) => {
+        if (hit || !tile) return false;
+        void pc.moveTo([tile.x, tile.y]);
+        return true;
       },
       hover: (t) => { hover = t ? [t.x, t.y] : null; },
-      preview: () => { const s = usePlayer.getState(); return { ghost: s.ghost ?? pc.place(), path: s.path, goal: s.goal, hover }; },
+      preview: () => { const s = usePlayer.getState(), me = pc.here(), act = useSimStore.getState().world?.agents[playerId!]?.action;
+        const rest = s.path && me && act?.type === "move_to" ? s.path.slice(Math.max(0, s.path.findIndex((q) => q[0] === me[0] && q[1] === me[1]) + 1)) : null;   // nur noch der Rest des Weges
+        return { from: me, path: rest, goal: act?.type === "move_to" ? s.goal : null, hover }; },
     };
-  }, [player, view, pc]);
+  }, [player, playerId, view]);
 
   return (
     <div className="absolute inset-0 overflow-hidden bg-[#0e1115]">
@@ -97,7 +97,7 @@ export function WorldCanvas() {
         <canvas ref={atmo} className="pointer-events-none absolute inset-0 size-full" style={{ display: dorf ? "none" : undefined }} />
       </div>
       <Overlays bridge={bridge} />
-      {player && <PlayerLayer bridge={bridge} view={view} pc={pc} />}
+      {player && <PlayerLayer bridge={bridge} />}
     </div>
   );
 }

@@ -8403,6 +8403,21 @@
      ],
      "type": "string"
     },
+    "player": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "player_autopilot": {
+     "default": false,
+     "type": "boolean"
+    },
     "resources": {
      "items": {
       "$ref": "#/$defs/ResourceInfo"
@@ -8456,7 +8471,9 @@
     "links",
     "look",
     "play_mode",
-    "voices"
+    "voices",
+    "player",
+    "player_autopilot"
    ],
    "title": "StateSnapshot",
    "type": "object"

@@ -95,9 +95,6 @@ interface UiStore {
   /** Titelbild beim Öffnen (je Gerät gemerkt, Standard an). */
   titleOnStart: boolean;
   setTitleOnStart: (on: boolean) => void;
-  /** Mitspieler-Steuerung als Vorschau (AP13): Klick geht/handelt, schickt aber nichts an die Simulation. */
-  playerPreview: boolean;
-  setPlayerPreview: (on: boolean) => void;
 }
 
 export const useUiStore = create<UiStore>((set) => ({
@@ -142,6 +139,4 @@ export const useUiStore = create<UiStore>((set) => ({
   openMenuAt: (s) => set({ menu: s.menu, menuSel: s.sel, menuSub: s.sub, returnTo: null }),
   titleOnStart: load<boolean>("simulacra.titelbild", true) !== false,
   setTitleOnStart: (titleOnStart) => { keep("simulacra.titelbild", titleOnStart); set({ titleOnStart }); },
-  playerPreview: load<boolean>("simulacra.mitspieler", false) === true,
-  setPlayerPreview: (playerPreview) => { keep("simulacra.mitspieler", playerPreview); set({ playerPreview }); },
 }));

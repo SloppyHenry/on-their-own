@@ -10,9 +10,11 @@ import { MemoryInspector } from "../memory/MemoryInspector";
 import { StatsView } from "../stats/StatsView";
 import { Bewohnerleiste } from "./Bewohnerleiste";
 import { Einblicke } from "./Einblicke";
+import { Handlungsleiste } from "./Handlungsleiste";
 import { Hilfe } from "./Hilfe";
 import { ObenLinks } from "./ObenLinks";
 import { ObenRechts } from "./ObenRechts";
+import { Plakette } from "./Plakette";
 import { Seite } from "./Seite";
 import { Tagebuch } from "./Tagebuch";
 import { useHudTasten } from "./tasten";
@@ -31,6 +33,8 @@ export function Hud() {
       <Bewohnerleiste />
       <Einblicke />
       <Werkzeuge />
+      <Handlungsleiste />
+      <Plakette />
       <Tagebuch />
       {view === "memory" && <Seite titel="Gedächtnis"><MemoryInspector /></Seite>}
       {view === "stats" && <Seite titel="Statistik"><StatsView /></Seite>}

@@ -163,9 +163,7 @@ export async function moveAgent(req: APIRequestContext, sentence: string) {
   expect((await patch("observer")).ok()).toBeTruthy();
 }
 
-/** Mitspieler-Vorschau ein- oder ausschalten (Einstellungen › Darstellung), danach zurück ins Spiel. */
-export async function setPlayer(page: Page, on: boolean) {
-  const box = (await viewMenu(page)).getByTestId("player-toggle");
-  await (on ? box.check() : box.uncheck());
-  await closeMenu(page);
+/** Eigene Figur wählen (Spielart Leben, AP18h): nur der Testserver kann das, bis der Assistent sie wählen lässt (c1). Danach neu laden. */
+export async function setPlayer(req: APIRequestContext, agent: string | null) {
+  await post(req, "/api/e2e/player", { agent });
 }

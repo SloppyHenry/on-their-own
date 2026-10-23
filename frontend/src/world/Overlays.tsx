@@ -37,7 +37,7 @@ export function Overlays({ bridge }: { bridge: WorldBridge }) {
         m.style.display = f.interior < 0 ? "" : "none";
       }
       const marke = el.querySelector<HTMLElement>("[data-marke]");                               // Werkstatt: Startplatz oder gewählte Ecke
-      if (marke) { marke.style.display = f.goal && !bridge.playerPreview() ? "" : "none"; if (f.goal) marke.style.transform = `translate(${f.goal.x}px, ${f.goal.y - 6}px) translate(-50%, -100%)`; }
+      if (marke) { marke.style.display = f.goal && !bridge.playerActive() ? "" : "none"; if (f.goal) marke.style.transform = `translate(${f.goal.x}px, ${f.goal.y - 6}px) translate(-50%, -100%)`; }
       const veil = el.querySelector<SVGSVGElement>("[data-testid=ghost]");
       if (veil) {
         const poly = veil.querySelector("polygon"), label = veil.querySelector<SVGGElement>("[data-ghost-label]");

@@ -11,7 +11,7 @@ export function vorschauBruecke(getWorld: () => World): WorldBridge {
   const listeners = new Set<(f: Frame) => void>();
   return {
     world: getWorld, bubbles: () => ({}), subscribe: () => () => {}, selection: () => null, lastAgent: () => null, follow: () => null, select: () => {},
-    mode: () => useUiStore.getState().worldMode, playerPreview: () => false, ghostRegion: () => null, setFollow: () => {},
+    mode: () => useUiStore.getState().worldMode, playerActive: () => false, ghostRegion: () => null, setFollow: () => {},
     emitFrame: (f) => listeners.forEach((fn) => fn(f)), onFrame: (fn) => { listeners.add(fn); return () => { listeners.delete(fn); }; }, commands: {},
   };
 }
