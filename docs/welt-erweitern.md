@@ -53,7 +53,7 @@ cd backend
                   {"op": "place", "region": "welt", "id": "e1_bench", "value": {"at": [120, 90], "sprite": "bench", "e": 0}},
                   {"op": "bounds", "region": "welt", "right": 1536}]}}
 ```
-`remove` läuft nach `extend_map` und vor `tiles` (ein Ding verschwindet, bevor seine Kachel unbegehbar wird). `look.ops` ändern Formen (`paths`, `squares`, `lakes`, `gardens`, `docks`, `streams`, `bridges`, `pads`), `decor`, `lights`, `houses`; `remove` trifft den ersten Eintrag mit gleichem Inhalt. Im Block `look.legacy` (Dorf A) wird nichts gestrichen: der Eintrag kommt in `look.mask` und wird beim Zeichnen ausgeblendet. Meistens baut man solche Patches nicht von Hand, sondern lässt sie aus einem Entwurf berechnen ([generator.md](generator.md#gestalten-aktionen-auf-einer-weltdatei-ap16a)).
+`remove` läuft nach `extend_map` und vor `tiles` (ein Ding verschwindet, bevor seine Kachel unbegehbar wird). `look.ops` ändern Formen (`replace` ersetzt einen Eintrag an derselben Stelle, AP16c; `paths`, `squares`, `lakes`, `gardens`, `docks`, `streams`, `bridges`, `pads`), `decor`, `lights`, `houses`; `remove` trifft den ersten Eintrag mit gleichem Inhalt. Im Block `look.legacy` (Dorf A) wird nichts gestrichen: der Eintrag kommt in `look.mask` und wird beim Zeichnen ausgeblendet. Meistens baut man solche Patches nicht von Hand, sondern lässt sie aus einem Entwurf berechnen ([generator.md](generator.md#gestalten-aktionen-auf-einer-weltdatei-ap16a)).
 
 ## Regeln, die immer gelten
 - **Kachelarten** sind Daten (Tabelle `tile_types`): `walkable`, `cost` (1–20 Minuten), `char`, `color`, `label`. Dieselbe Definition noch einmal anzulegen ist wirkungslos, eine abweichende wird abgelehnt.
