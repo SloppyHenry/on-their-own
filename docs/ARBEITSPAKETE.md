@@ -1,4 +1,4 @@
-# SIMULACRA – Arbeitspakete (Übersicht)
+# On Their Own – Arbeitspakete (Übersicht)
 
 Quelle: [AUFTRAG.md](AUFTRAG.md). Verweise `§n` beziehen sich auf dessen Abschnitte.
 Jedes Paket hat eine eigene Datei unter [arbeitspakete/](arbeitspakete/) mit Ziel, Lieferumfang, Dateien, Schnittstellen, Arbeitsschritten, Tests, Abnahme und Risiken.

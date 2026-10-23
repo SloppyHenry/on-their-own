@@ -1,6 +1,6 @@
 # Architektur
 
-SIMULACRA ist ein Prozess (FastAPI + asyncio) mit einer SQLite-Datenbank und einer Browser-Oberfläche (React, Weltansicht als eigener Canvas2D-Renderer). Das Sprachmodell läuft getrennt davon hinter einer OpenAI-kompatiblen Schnittstelle (llama.cpp-Router). Diese Seite zeigt das Zusammenspiel; Einzelheiten stehen in den verlinkten Dokumenten.
+On Their Own ist ein Prozess (FastAPI + asyncio) mit einer SQLite-Datenbank und einer Browser-Oberfläche (React, Weltansicht als eigener Canvas2D-Renderer). Das Sprachmodell läuft getrennt davon hinter einer OpenAI-kompatiblen Schnittstelle (llama.cpp-Router). Diese Seite zeigt das Zusammenspiel; Einzelheiten stehen in den verlinkten Dokumenten.
 
 ```mermaid
 flowchart LR

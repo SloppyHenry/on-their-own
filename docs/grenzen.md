@@ -1,6 +1,6 @@
 # Bekannte Grenzen und Ideen
 
-Was SIMULACRA bewusst vereinfacht, was gemessen nicht ideal ist und was als Nächstes sinnvoll wäre. Einzelheiten stehen in den Statusberichten (`docs/status/AP*.md`).
+Was On Their Own bewusst vereinfacht, was gemessen nicht ideal ist und was als Nächstes sinnvoll wäre. Einzelheiten stehen in den Statusberichten (`docs/status/AP*.md`).
 
 ## Verhalten der Agenten
 

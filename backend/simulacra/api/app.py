@@ -62,7 +62,7 @@ def create_app(sim: Simulation | None = None, settings: Settings | None = None) 
         if sim is None:
             app.state.sim.close()
 
-    app = FastAPI(title="Simulacra", version=__version__, lifespan=lifespan)
+    app = FastAPI(title="On Their Own", version=__version__, lifespan=lifespan)
     app.state.idempotency = Idempotency()
     app.state.settings = settings or get_settings()
     app.state.auth_fails = []
