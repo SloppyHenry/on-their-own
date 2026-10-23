@@ -1,6 +1,8 @@
 // REST-Zugriff. Verändernde Aufrufe tragen einen Idempotency-Key, damit Wiederholungen nichts doppelt tun.
 import type { AgentDetail, AgentNeeds, AgentOverview, DecisionOut, FactorRegistry, FailureOut, GoalOut, RelationOut, EventDetail, EventsPage, Knowledge, LocationDetail, MemoriesPage, MemoryDetail, MemoryStats, RetrievalOut, SimCommandResult, StateSnapshot, ParamPatchOut, ParamSchema, ParamValues, PresetBrief, PresetLoadOut, PresetOut, PresetPreview, StatusOut, InjectProposal, ScheduledOut, SaveOut, StatsOut, AuthStatus, GenerateRequest, GeneratePreview, GenerateApplyRequest, GenerateApplied, PatchPreview, Voice, VoiceOut, NewSimApplied, NewSimLimits, NewSimPreview, NewSimRequest, RulesPreviewRequest, TemplateImported, TemplateOut, CatalogOut, HardwareOut, ExternalTestOut, LlmStatusOut, ModeSet, WorldInfoOut, WorldDoc, AddAreaOut } from "../types/generated";
 
+import type { Aktion, DraftApplied, DraftPreview, FileDraft, Katalog } from "../gestalten/typen";
+
 export class ApiError extends Error {
   constructor(readonly status: number, readonly detail: string) {
     super(`HTTP ${status}: ${detail}`);
@@ -143,6 +145,10 @@ export const api = {
   worldFromSim: (name: string) => request<WorldInfoOut>("POST", "/api/worlds/from-sim", { name }),
   previewWorld: (world: object) => request<NewSimPreview>("POST", "/api/worlds/preview", { world }),
   addArea: (world: object, at: [number, number], seed: number, lake: "auto" | "east" | "south") => request<AddAreaOut>("POST", "/api/worlds/add-area", { world, at, seed, lake }),
+  gestaltenKatalog: () => request<Katalog>("GET", "/api/gestalten/katalog"),
+  entwurfVorschau: (actions: Aktion[]) => request<DraftPreview>("POST", "/api/world/draft/preview", { actions }),
+  entwurfUebernehmen: (actions: Aktion[], digest: string) => request<DraftApplied>("POST", "/api/world/draft/apply", { actions, digest, confirm: true }),
+  entwurfDatei: (world: object, actions: Aktion[], snapshot: boolean) => request<FileDraft>("POST", "/api/worlds/draft", { world, actions, snapshot }),
   worldExportUrl: (id: string) => `/api/worlds/${encodeURIComponent(id)}/export`,
   /** Eine Weltdatei (Text) als neue Welt importieren; Fehler stehen in ApiError.detail. */
   importWorld: async (text: string): Promise<WorldInfoOut> => {

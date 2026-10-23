@@ -1,0 +1,43 @@
+/* Gestalten (AP16b), Formensprache aus dem Mockup `gestalten-neu` und AP18b: schwebendes Glas über der Welt, Gold als Akzent, Violett für den Entwurf. */
+.gs-kopf { position: absolute; left: 16px; right: 16px; top: 14px; display: flex; align-items: center; gap: 10px; padding: 7px 10px; }
+.gs-kopf .sp { flex: 1; }
+.gs-kopf .stat { font-size: 12px; padding: 3px 10px; border-radius: 99px; border: 1px solid rgba(255, 236, 210, .24); }
+.gs-kopf .stat.still { color: #ffd36e; border-color: var(--color-alex); }
+.gs-kopf .name { width: 220px; background: transparent; border: 1px solid transparent; border-radius: 8px; padding: 3px 8px; font-size: 15px; font-weight: 600; color: var(--color-text); }
+.gs-kopf .name:hover, .gs-kopf .name:focus { border-color: rgba(255, 236, 210, .24); background: #0003; outline: none; }
+.gs-leiste { position: absolute; left: 16px; top: 78px; display: grid; gap: 2px; padding: 6px; width: 100px; }
+.gs-leiste .grp { font-size: 9.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--color-faint); margin: 7px 0 1px 6px; }
+.gs-leiste .grp:first-child { margin-top: 2px; }
+.gs-tool { display: grid; justify-items: center; gap: 1px; padding: 7px 4px 5px; border-radius: 10px; border: 1px solid transparent; background: transparent; font-size: 11px; color: var(--color-dim); position: relative; cursor: pointer; }
+.gs-tool > span { font-size: 19px; color: var(--color-text); }
+.gs-tool kbd { position: absolute; right: 4px; top: 3px; font-size: 9px; padding: 0 3px; color: var(--color-faint); }
+.gs-tool:hover { background: #ffffff0d; }
+.gs-tool.on { background: var(--color-alex); color: var(--color-ink); }
+.gs-tool.on > span { color: var(--color-ink); }
+.gs-tool.w::after { content: "W"; position: absolute; left: 5px; top: 3px; font-size: 8.5px; color: var(--color-plan); font-weight: 800; }
+.gs-seite { position: absolute; right: 16px; top: 78px; bottom: 16px; width: 330px; padding: 4px 16px 16px; overflow: auto; display: flex; flex-direction: column; }
+.gs-sub { margin: 14px 0 6px; font-size: 10.5px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--color-dim); }
+.gs-cat { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.gs-catit { display: grid; gap: 0; align-items: center; text-align: left; padding: 7px 9px; border-radius: 10px; border: 1px solid rgba(255, 236, 210, .13); background: #ffffff08; font-size: 12.5px; color: var(--color-text); cursor: pointer; }
+.gs-catit small { font-size: 11px; color: var(--color-dim); }
+.gs-catit.on { border-color: var(--color-alex); background: linear-gradient(180deg, rgba(255, 211, 110, .16), transparent); }
+.gs-opt { display: grid; grid-template-columns: 1fr auto; gap: 6px 10px; align-items: center; font-size: 13px; margin: 6px 0; }
+.gs-sw { display: flex; gap: 6px; flex-wrap: wrap; }
+.gs-swatch { width: 26px; height: 26px; border-radius: 8px; border: 2px solid transparent; box-shadow: 0 0 0 1px rgba(255, 236, 210, .24); cursor: pointer; }
+.gs-swatch.on { border-color: #ffd36e; }
+.gs-entwurf { display: grid; gap: 4px; }
+.gs-entwurf > div { display: flex; align-items: center; justify-content: space-between; font-size: 12.5px; padding: 3px 4px 3px 10px; border-radius: 8px; border: 1px dashed #d9c8ff70; background: #b99be612; }
+.gs-entwurf > div.bad { border-color: var(--color-warn); background: #e0806f1a; }
+.gs-entwurf .n { color: var(--color-dim); font-size: 11px; margin-left: 6px; }
+.gs-entwurf button { width: 22px; height: 22px; font-size: 11px; border-radius: 99px; border: 0; background: transparent; color: var(--color-dim); cursor: pointer; }
+.gs-entwurf button:hover { color: var(--color-text); background: #ffffff14; }
+.gs-pruef { display: grid; gap: 4px; font-size: 12.5px; }
+.gs-pruef .ok { color: #c7e8cf; } .gs-pruef .fehler { color: var(--color-warn); } .gs-pruef .hinweis { color: #ffd36e; }
+.gs-fuss { margin-top: auto; padding-top: 12px; }
+.gs-fuss p { font-size: 11.5px; color: var(--color-dim); margin: 6px 0 0; }
+.gs-tip { position: absolute; z-index: 6; padding: 4px 10px; font-size: 12px; border-radius: 9px; background: rgba(30, 22, 38, .94); border: 1px solid rgba(255, 236, 210, .24); white-space: nowrap; pointer-events: none; transform: translateY(-50%); color: var(--color-text); }
+.gs-tip.bad { border-color: var(--color-warn); color: #ffd2c8; }
+.gs-tip.ok { border-color: var(--color-ok); color: #d4f0da; }
+.gs-pfeil { position: absolute; width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; background: var(--color-alex); color: var(--color-ink); font-weight: 800; font-size: 20px; z-index: 5; cursor: pointer; border: 0; box-shadow: 0 4px 14px #0007; }
+.gs-pfeil:hover { filter: brightness(1.1); }
+.gs-hinweis { font-size: 12px; color: var(--color-dim); margin: 6px 0 0; }

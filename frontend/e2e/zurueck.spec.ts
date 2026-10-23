@@ -118,13 +118,16 @@ test("Editoren › Welten: Esc führt zu Editoren zurück, dann ins Spiel", asyn
   await expect(menu(page)).toHaveCount(0);
 });
 
-test("„Welt gestalten“ in der Kopfzeile: Esc führt ins Spiel zurück, nicht ins Menü", async ({ page }) => {
+test("„Gestalten“ im Spiel: Esc nimmt erst das Werkzeug zurück, dann führt es ins Spiel, nicht ins Menü", async ({ page }) => {
   await openApp(page);
   await page.getByTestId("open-editor").click();
-  await expect(page.getByTestId("editor-panel")).toBeVisible();
-  await expect(page.getByTestId("editor-close")).toContainText("Zurück ins Spiel");
+  await expect(page.getByTestId("gestalten")).toBeVisible();
+  await page.getByTestId("werkzeug-weg").click();
+  await esc(page);                                                                            // erst das Werkzeug zurück auf den Zeiger
+  await expect(page.getByTestId("werkzeug-zeiger")).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByTestId("gestalten")).toBeVisible();
   await esc(page);
-  await expect(page.getByTestId("editor-panel")).toHaveCount(0);
+  await expect(page.getByTestId("gestalten")).toHaveCount(0);
   await expect(menu(page)).toHaveCount(0);
 });
 

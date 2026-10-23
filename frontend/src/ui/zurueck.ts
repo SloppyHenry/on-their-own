@@ -6,7 +6,7 @@ import { useEffect, useRef } from "react";
 export type Rueckweg = () => boolean | void;
 
 /** Reihenfolge von unten nach oben: was weiter oben liegt, liegt auch im Bild weiter vorn. */
-export const EBENE = { Spiel: 0, Auswahl: 10, Innenansicht: 20, Schublade: 30, Einblick: 40, Werkstatt: 50, Menue: 60, MenueUnter: 65, Popover: 70, Dialog: 80 } as const;
+export const EBENE = { Spiel: 0, Auswahl: 10, Innenansicht: 20, Schublade: 30, Einblick: 40, Werkstatt: 50, Werkzeug: 55, Menue: 60, MenueUnter: 65, Popover: 70, Dialog: 80 } as const;
 
 interface Eintrag { ebene: number; n: number; fn: Rueckweg }
 let eintraege: Eintrag[] = [];

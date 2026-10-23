@@ -6,8 +6,8 @@ import { applySnapshot } from "../store/reducers";
 import type { World } from "../store/types";
 import { useUiStore } from "../store/uiStore";
 import type { WorldInfoOut } from "../types/generated";
+import { useGestalten } from "../gestalten/gestaltenStore";
 
-export type Werkzeug = "zeiger" | "startplatz" | "gebiet";
 export type Lake = "auto" | "east" | "south";
 /** Eine Weltdatei (Format wie `world_default.json`); nur die Felder, die die Werkstatt selbst liest. */
 export interface Weltdatei {
@@ -26,7 +26,6 @@ interface Werkstatt {
   /** Der Entwurf als Text, wie er zuletzt gespeichert wurde: Unterschied = „ungespeichert“. */
   gespeichert: string;
   vorschau: World | null;
-  werkzeug: Werkzeug;
   seed: number;
   lake: Lake;
   gewaehlt: [number, number] | null;
@@ -35,11 +34,11 @@ interface Werkstatt {
   hinweis: string | null;
   oeffnen: (id: string) => Promise<boolean>;
   schliessen: () => void;
-  setWerkzeug: (w: Werkzeug) => void;
   setSeed: (n: number) => void;
   setLake: (l: Lake) => void;
   klick: (t: { x: number; y: number }) => boolean;
-  setStartplatz: (x: number, y: number) => void;
+  /** Schreibt den Entwurf (Aktionen des Gestaltens) in die Welt im Speicher; `false`, wenn das nicht ging. Gespeichert wird erst mit `speichern`. */
+  festschreiben: () => Promise<boolean>;
   gebietErzeugen: () => Promise<void>;
   speichern: () => Promise<boolean>;
   speichernAls: (name: string) => Promise<boolean>;
@@ -69,7 +68,7 @@ export const useWerkstatt = create<Werkstatt>((set, get) => {
     } catch (e) { set({ error: detail(e) }); } finally { set({ busy: null }); }
   };
   return {
-    offen: false, info: null, welt: null, gespeichert: "", vorschau: null, werkzeug: "zeiger", seed: 1 + Math.floor(Math.random() * 99999), lake: "auto", gewaehlt: null,
+    offen: false, info: null, welt: null, gespeichert: "", vorschau: null, seed: 1 + Math.floor(Math.random() * 99999), lake: "auto", gewaehlt: null,
     busy: null, error: null, hinweis: null,
     oeffnen: async (id) => {
       set({ busy: "laden", error: null, hinweis: null });
@@ -77,30 +76,29 @@ export const useWerkstatt = create<Werkstatt>((set, get) => {
         const doc = await api.world(id);
         if (doc.info.readonly) { set({ error: "Diese Welt ist mitgeliefert und schreibgeschützt. „Kopie bearbeiten“ legt eine eigene an." }); return false; }
         const welt = doc.world as unknown as Weltdatei;
-        set({ offen: true, info: doc.info, welt, gespeichert: text(welt), werkzeug: "zeiger", gewaehlt: null, vorschau: null });
+        set({ offen: true, info: doc.info, welt, gespeichert: text(welt), gewaehlt: null, vorschau: null });
         await refresh();
         return true;
       } catch (e) { set({ error: detail(e) }); return false; } finally { set({ busy: null }); }
     },
     schliessen: () => set({ offen: false, info: null, welt: null, gespeichert: "", vorschau: null, gewaehlt: null, error: null, hinweis: null }),
-    setWerkzeug: (werkzeug) => set({ werkzeug, hinweis: null, error: null }),
     setSeed: (seed) => set({ seed: Math.max(0, Math.min(2_000_000_000, Math.round(seed) || 0)) }),
     setLake: (lake) => set({ lake }),
     klick: (t) => {
-      const s = get();
-      if (!s.offen || !s.welt) return false;
+      if (!get().offen || !get().welt) return false;
       set({ gewaehlt: [t.x, t.y], hinweis: null });
-      if (s.werkzeug === "startplatz") s.setStartplatz(t.x, t.y);
       return true;
     },
-    setStartplatz: (x, y) => {
-      const w = get().welt;
-      if (!w) return;
-      const k = kachelAn(w, x, y);
-      if (!k?.begehbar) { set({ error: "Der Startplatz muss auf einer begehbaren Kachel liegen (Wiese, Weg …).", hinweis: null }); return; }
-      set({ welt: { ...w, startplatz: [x, y] }, error: null, hinweis: `Startplatz gesetzt auf ${x}, ${y}.` });
+    festschreiben: async () => {
+      const g = useGestalten.getState(), vorschau = g.vorschau;
+      const welt = await g.festschreiben();
+      if (welt === undefined) return true;
+      if (!welt) { set({ error: "Der Entwurf lässt sich gerade nicht berechnen." }); return false; }
+      set({ welt: { ...(welt as Weltdatei), startplatz: (welt.startplatz as [number, number] | null | undefined) ?? null }, vorschau: vorschau ?? get().vorschau, error: null });
+      return true;
     },
     gebietErzeugen: async () => {
+      if (!(await get().festschreiben())) return;
       const { welt, gewaehlt, seed, lake } = get();
       if (!welt) return;
       if (!gewaehlt) { set({ error: "Bitte zuerst in der Welt die linke obere Ecke des Gebiets anklicken." }); return; }
@@ -113,6 +111,7 @@ export const useWerkstatt = create<Werkstatt>((set, get) => {
       } catch (e) { set({ error: detail(e) }); } finally { set({ busy: null }); }
     },
     speichern: async () => {
+      if (!(await get().festschreiben())) return false;
       const { info, welt } = get();
       if (!info || !welt) return false;
       set({ busy: "speichern", error: null });
@@ -123,6 +122,7 @@ export const useWerkstatt = create<Werkstatt>((set, get) => {
       } catch (e) { set({ error: detail(e) }); return false; } finally { set({ busy: null }); }
     },
     speichernAls: async (name) => {
+      if (!(await get().festschreiben())) return false;
       const { welt } = get();
       if (!welt) return false;
       set({ busy: "speichern", error: null });
@@ -140,6 +140,7 @@ export const useWerkstatt = create<Werkstatt>((set, get) => {
 
 /** Verlässt die Werkstatt: zurück an die Menüstelle, aus der man kam (Editoren › Welten), sonst ins Spiel. */
 export function verlasseWerkstatt() {
+  void useGestalten.getState().verlasse();
   useWerkstatt.getState().schliessen();
   const ui = useUiStore.getState(), back = ui.returnTo;
   ui.setAppMode("game");
@@ -153,5 +154,6 @@ export async function betreteWerkstatt(id: string, von: { menu: "title" | "pause
   ui.setReturnTo(von);
   ui.setMenu(null);
   ui.setAppMode("editor");
+  void useGestalten.getState().betrete("werkstatt", () => useWerkstatt.getState().welt);
   return true;
 }

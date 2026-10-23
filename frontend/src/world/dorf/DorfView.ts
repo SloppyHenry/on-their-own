@@ -38,22 +38,17 @@ export class DorfView {
   private figures = new Figures();
   private world: World | null = null;
   private dpr = 1;
-  private W = 0;
-  private H = 0;
-  private S = 1;
+  private W = 0; private H = 0; private S = 1;                           // Puffergröße in Gerätepixeln und ganzzahlige Vergrößerung
   private drawn: Drawn[] = [];
   private hover: Target | null = null;
   /** Namensblase: seit wann der Zeiger auf demselben Ding steht, und wo (CSS-Pixel). */
   private hoverSince = 0;
   private mouse = { x: 0, y: 0 };
   private drag: { x: number; y: number; moved: boolean; g: { x: number; y: number } | null } | null = null;
-  private keys = new Set<string>();
-  private wheelAt = -1e9;
+  private keys = new Set<string>(); private wheelAt = -1e9;
   private lastClick = { id: "", t: 0 };
-  private lastCompose = 0;
-  private composedCam = "";
-  private lastT = 0;
-  private raf = 0;
+  private lastCompose = 0; private composedCam = "";
+  private lastT = 0; private raf = 0;
   private haus: Hausbild | null = null;
   private hausKey = "";
   private innen: HausOut | null = null;
@@ -83,7 +78,7 @@ export class DorfView {
     on(host, "pointerdown", (e) => { this.hoverSince = Infinity; if (e.button === 0) this.drag = { x: e.clientX, y: e.clientY, moved: false, g: null }; });   // nach dem Klick keine Namensblase, bis der Zeiger weiterzieht
     on(host, "pointermove", (e) => this.move(e));
     on(host, "pointerup", (e) => this.up(e));
-    on(host, "pointerleave", () => { this.drag = null; this.hover = null; this.hoverSince = 0; this.player?.hover(null); });
+    on(host, "pointerleave", () => { this.drag = null; this.hover = null; this.hoverSince = 0; this.player?.hover(null); this.bridge.zeiger?.(null); });
     on(host, "contextmenu", (e) => { e.preventDefault(); this.click(e, true); });
     on(window, "keydown", (e) => {
       if (this.opt.keys === false || document.querySelector("[data-testid=start-menu]")) return;                     // die Vorschau und die Welt hinter dem Menü reagieren nicht auf Tasten
@@ -98,6 +93,7 @@ export class DorfView {
     bridge.commands.flyTile = (x, y) => this.flyTile(x, y);
     bridge.commands.fit = () => { this.leaveInterior(true); this.kam.reset(); };
     bridge.commands.focusTile = (x, y) => this.focusTile(x, y);
+    bridge.commands.punktCss = (wx, wy) => this.punktCss(wx, wy);
     bridge.commands.leaveInterior = () => { bridge.setFollow(null); this.leaveInterior(); };
     bridge.commands.toggleFollow = () => { const sel = bridge.selection(), f = bridge.follow(), id = sel?.kind === "agent" ? sel.id : bridge.lastAgent(); if (f) bridge.setFollow(null); else if (id) bridge.setFollow(id); };
     this.raf = requestAnimationFrame(this.loop);
@@ -195,6 +191,7 @@ export class DorfView {
     this.hover = hit;
     this.mouse = { x: p.x / this.dpr, y: p.y / this.dpr };
     const tile = this.tileAt(p.x, p.y);
+    this.bridge.zeiger?.(this.interior < 0 ? tile : null);                           // Raster-Cursor des Gestaltens (AP16b)
     this.player?.hover(this.bridge.playerPreview() ? tile : null);
     this.host.style.cursor = this.hover ? "pointer" : this.bridge.playerPreview() && tile ? "crosshair" : "default";
   }
@@ -278,6 +275,9 @@ export class DorfView {
     if (v >= d) { this.kam.focusAt(tx, ty); this.flying = null; return; }
     this.kam.focusAt(fx + ((tx - fx) / d) * v, fy + ((ty - fy) / d) * v);
   }
+
+  /** Weltpixel → CSS-Pixel in der Weltfläche (Cursor-Schicht des Gestaltens); null in der Innenansicht. */
+  private punktCss(wx: number, wy: number) { if (this.interior >= 0 || !this.bild.frame) return null; const p = this.bild.p(wx, wy), k = this.S * this.kam.zoom, o = this.offset(); return { x: (p.x * k - o.x) / this.dpr, y: (p.y * k - o.y) / this.dpr }; }
 
   /** Kamera so, dass der Weltpunkt in Bildmitte liegt. */
   private centerOn(wx: number, wy: number) { this.kam.focusAt(wx - this.shift[0], wy - this.shift[1]); }

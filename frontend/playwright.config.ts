@@ -2,6 +2,7 @@ import { defineConfig } from "@playwright/test";
 
 const BACKEND = Number(process.env.SIM_E2E_BACKEND_PORT ?? 8192);     // abweichend, wenn 8192 belegt ist (z. B. vom Langlauf)
 const FRONTEND = Number(process.env.SIM_E2E_FRONTEND_PORT ?? 5175);
+const DATA = process.env.SIM_E2E_DATA ?? "/tmp/simulacra-e2e-run";                  // abweichend, wenn eine zweite Sitzung gleichzeitig prüft
 
 /** Echtes Backend mit deterministischem Fake-LLM (scripts/e2e_server.py), echtes Frontend über Vite; kein Zugriff auf maintux. */
 export default defineConfig({
@@ -18,7 +19,7 @@ export default defineConfig({
   },
   webServer: [
     {
-      command: `rm -rf /tmp/simulacra-e2e-run && ../backend/.venv/bin/python ../scripts/e2e_server.py --port ${BACKEND} --data-dir /tmp/simulacra-e2e-run`,
+      command: `rm -rf ${DATA} && ../backend/.venv/bin/python ../scripts/e2e_server.py --port ${BACKEND} --data-dir ${DATA}`,
       url: `http://127.0.0.1:${BACKEND}/api/state`,
       reuseExistingServer: false,
       timeout: 60_000,

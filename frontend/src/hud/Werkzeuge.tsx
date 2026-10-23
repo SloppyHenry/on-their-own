@@ -1,7 +1,7 @@
 // Werkzeuge unten in der Mitte (AP18b, Mockup Bild 5): Ereignis (E) und Gestalten (B). Nur in der Spielart Gott (AP18d); alte Spielstände gelten als Gott.
 import { useEffect } from "react";
 import { EventComposer } from "../composer/EventComposer";
-import { enterEditor } from "../editor/editorStore";
+import { betreteGestalten } from "../gestalten/SpielGestalten";
 import { useSimStore } from "../store/simStore";
 import { useUiStore } from "../store/uiStore";
 import { EBENE, useRueckweg } from "../ui/zurueck";
@@ -15,7 +15,7 @@ export function Werkzeuge() {
 function GottWerkzeuge() {
   const pop = useUiStore((s) => s.pop), setPop = useUiStore((s) => s.setPop), menu = useUiStore((s) => s.menu);
   useRueckweg(pop !== null, EBENE.Popover, () => setPop(null));
-  const gestalten = () => { const ui = useUiStore.getState(); ui.setPop(null); ui.setView("world"); enterEditor("extend", null); };
+  const gestalten = betreteGestalten;
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.defaultPrevented || e.metaKey || e.ctrlKey || e.altKey || isTyping(e.target as Element | null) || menu !== null) return;

@@ -8,10 +8,10 @@ import { useUiStore } from "../store/uiStore";
 import { starteEsc } from "../ui/zurueck";
 import { SaveLoadDialog } from "../saves/SaveLoadDialog";
 import { WorldCanvas } from "../world/WorldCanvas";
-import { WorldEditor } from "../editor/WorldEditor";
 import { Hud } from "../hud/Hud";
+import { useGestalten } from "../gestalten/gestaltenStore";
+import { SpielGestalten } from "../gestalten/SpielGestalten";
 import { Werkstatt } from "../welten/Werkstatt";
-import { useWerkstatt } from "../welten/werkstattStore";
 import { StartMenu } from "./StartMenu";
 
 export function AppShell() {
@@ -19,24 +19,24 @@ export function AppShell() {
   const savesOpen = useUiStore((s) => s.savesOpen);
   const appMode = useUiStore((s) => s.appMode);
   const menu = useUiStore((s) => s.menu);
-  const werk = useWerkstatt((s) => s.offen);
+  const gestalten = useGestalten((s) => (s.offen ? s.ort : null));
   const title = menu === "title";                                                          // Titelbild: nur die Welt (langsam wandernd) und das Menü
-  const tools = appMode !== "game" && ready;                                               // Welteditor: Werkzeugleiste neben der Welt
+  const tools = appMode === "editor" && ready && gestalten !== null;                       // Gestalten (AP16b): der Werkzeugkasten schwebt über der Welt
   useEffect(() => startLive(), []);
   useEffect(() => starteEsc(), []);                                                        // Esc: eine Ebene zurück (AP18a, ui/zurueck.ts)
   useEffect(() => startKlang(), []);                                                       // Musik, Umgebung, Geräusche, Stimmen (AP17d)
 
   return (
     <div className="h-full overflow-hidden" data-menu={menu ?? "zu"}>
-      <main className={`grid h-full min-h-0 ${tools ? "grid-cols-[1fr_380px]" : "grid-cols-[1fr]"}`}>
+      <main className="grid h-full min-h-0 grid-cols-[1fr]">
         <div className="relative min-w-0 overflow-hidden bg-[#0e1115]">
           <div className={`h-full ${title ? "menu-drift pointer-events-none" : ""}`}>
             {!ready ? <p className="p-6 text-dim">Verbinde mit der Simulation …</p> : <WorldCanvas />}
           </div>
           <Hud />
+          {tools && (gestalten === "werkstatt" ? <Werkstatt /> : <SpielGestalten />)}
           <StartMenu />
         </div>
-        {tools && (werk ? <Werkstatt /> : <WorldEditor />)}
       </main>
       {savesOpen && <SaveLoadDialog />}
     </div>

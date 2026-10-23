@@ -109,7 +109,7 @@ function LeereWelt({ fertig }: { fertig: () => Promise<void> }) {
   );
   return (
     <form className="grid max-w-xl gap-3 text-[13px]" onSubmit={(e) => { e.preventDefault(); if (name.trim()) void go(); }} data-testid="leere-welt">
-      <p className="text-dim">Eine leere Wiese ohne Häuser. In der Werkstatt setzt du den Startplatz und fügst Gebiete hinzu; weitere Werkzeuge folgen mit dem Gestalten-Paket.</p>
+      <p className="text-dim">Eine leere Wiese ohne Häuser. In der Werkstatt setzt du den Startplatz, ziehst Wege und Seen, setzt Häuser, Bäume und Gärten und fügst Gebiete hinzu.</p>
       <label className="grid gap-1">Name<input className={field} value={name} maxLength={60} onChange={(e) => setName(e.target.value)} data-testid="leer-name" /></label>
       <div className="flex items-center gap-3"><span className="w-16 text-dim">Größe</span>{seg(size, setSize, [["klein", "Klein 48×32"], ["mittel", "Mittel 96×60"], ["gross", "Groß 128×80"]], "leer-groesse")}</div>
       <div className="flex items-center gap-3"><span className="w-16 text-dim">Rand</span>{seg(edge, setEdge, [["wald", "Waldrand"], ["offen", "Offen"]], "leer-rand")}</div>

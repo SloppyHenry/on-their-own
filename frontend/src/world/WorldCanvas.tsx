@@ -3,9 +3,11 @@
 // Darüber die DOM-Schilder. Daten kommen über die Brücke.
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useEditorStore } from "../editor/editorStore";
+import { useGestalten } from "../gestalten/gestaltenStore";
 import { useWerkstatt } from "../welten/werkstattStore";
 import { useSimStore } from "../store/simStore";
 import { useUiStore } from "../store/uiStore";
+import { CursorSchicht } from "../gestalten/CursorSchicht";
 import { Overlays } from "./Overlays";
 import { isTyping, PlayerController, usePlayer } from "./player/PlayerController";
 import { PlayerLayer } from "./player/PlayerLayer";
@@ -25,9 +27,10 @@ export function WorldCanvas() {
   const [pc] = useState(() => new PlayerController(() => bridge.world()));
   const [view, setView] = useState<ViewLike | null>(null);
   const editorWorld = useEditorStore((s) => s.preview?.world), werkWorld = useWerkstatt((s) => s.vorschau);
-  const previewWorld = werkWorld ?? editorWorld;                                                       // im Welteditor und in der Werkstatt zeigt die Ansicht die Vorschau statt der laufenden Welt
+  const gestOffen = useGestalten((s) => s.offen), gestWorld = useGestalten((s) => s.vorschau), gestOrt = useGestalten((s) => s.ort);
+  const previewWorld = gestWorld ?? werkWorld ?? editorWorld;                                                       // im Welteditor und in der Werkstatt zeigt die Ansicht die Vorschau statt der laufenden Welt
   const editorKind = useEditorStore((s) => s.preview?.kind ?? "");
-  const previewKind = werkWorld ? "new" : editorKind;
+  const previewKind = werkWorld || (gestWorld && gestOrt === "werkstatt") ? "new" : editorKind;
   const liveLook = useSimStore((s) => { const l = lookOf(s.world); return l ? JSON.stringify(l) : ""; });   // stabil über neue Schnappschüsse
   const lookJson = useMemo(() => { if (!previewWorld) return liveLook; const l = lookOf(previewWorld); return l ? JSON.stringify(l) : ""; }, [previewWorld, liveLook]);
   const cam = useRef<{ key: string; x: number; y: number; level: number } | null>(null);               // Kamera über den Austausch der Ansicht hinweg (neues Gebiet in der Vorschau)
@@ -46,7 +49,7 @@ export function WorldCanvas() {
     viewRef.current = v;
     const key = previewKind === "new" ? "neu" : "laufend";                                              // die Welt einer neuen Simulation hat ihre eigene Kamera
     if (v instanceof DorfView && cam.current?.key === key) { v.kam.setLevel(cam.current.level); v.kam.set(cam.current.x, cam.current.y); }
-    if (import.meta.env.DEV || location.search.includes("messen")) Object.assign(window, { __welt: v, __sim: useSimStore, __ui: useUiStore });   // Prüf- und Messzugang
+    if (import.meta.env.DEV || location.search.includes("messen")) Object.assign(window, { __welt: v, __sim: useSimStore, __ui: useUiStore, __gestalten: useGestalten });   // Prüf- und Messzugang
     const onKey = (e: KeyboardEvent) => {
       if (isTyping(e.target as Element | null) || e.metaKey || e.ctrlKey || e.altKey || e.defaultPrevented) return;
       if (e.key === "Enter" && bridge.playerPreview()) { e.preventDefault(); const sel = bridge.selection(); usePlayer.setState({ say: { open: true, to: sel?.kind === "agent" ? sel.id : null }, menu: null }); return; }
@@ -97,6 +100,7 @@ export function WorldCanvas() {
         <canvas ref={atmo} className="pointer-events-none absolute inset-0 size-full" style={{ display: dorf ? "none" : undefined }} />
       </div>
       <Overlays bridge={bridge} />
+      {gestOffen && <CursorSchicht bridge={bridge} />}
       {player && <PlayerLayer bridge={bridge} view={view} pc={pc} />}
     </div>
   );

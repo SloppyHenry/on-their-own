@@ -100,7 +100,7 @@ export async function showTab(page: Page, tab: "bewohner" | "protokoll" | "ansic
 
 /** Einstellungen › Darstellung öffnen (Menü); wer fertig ist, schließt das Menü mit Esc. */
 export async function viewMenu(page: Page) {
-  if (await page.getByTestId("editor-panel").isVisible()) return page.getByTestId("view-menu");          // im Welteditor gibt es den Schalter in der Werkzeugleiste
+  if (await page.getByTestId("gestalten").isVisible()) return page.getByTestId("view-menu");          // im Gestalten gibt es den Schalter in der oberen Leiste
   await openMenu(page);
   await page.getByTestId("menu-settings").click();
   await page.getByRole("tab", { name: "Darstellung" }).click();

@@ -61,6 +61,7 @@ test("Leere Welt anlegen, in der Werkstatt den Startplatz setzen, speichern; Esc
   expect(ws.find((w: { id: string }) => w.id === "testwiese").startplatz).toBe(true);
   await expect(page.getByTestId("werkstatt-spielen")).toBeEnabled();
 
+  await esc(page);                                                                            // erst das Werkzeug zurück
   await esc(page);                                                                            // gespeichert: ohne Rückfrage zur Bibliothek
   await expect(page.getByTestId("werkstatt")).toHaveCount(0);
   await expect(page.getByTestId("welten-pane")).toBeVisible();
