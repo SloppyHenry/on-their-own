@@ -348,7 +348,7 @@ export class DorfView {
 
   private follow(w: World, dt: number) {
     const f = this.bridge.follow(), p = f ? this.figures.position(f) : null;
-    if (!f || !p || !w.agents[f]) return;
+    if (!f || !p || !w.agents[f] || !this.bild.frame) return;                 // erst nach dem ersten Bild draußen ins Haus (sonst fehlt der Bildausschnitt)
     const L = this.look, h = houseAt(L, Math.floor(p.x / T), Math.floor(p.y / T)), inside = !!h;
     if (h) {
       const n = housesOf(L).find((q) => q.house === h.region.houses[h.i])!.n;

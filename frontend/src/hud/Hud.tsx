@@ -10,7 +10,9 @@ import { MemoryInspector } from "../memory/MemoryInspector";
 import { StatsView } from "../stats/StatsView";
 import { Bewohnerleiste } from "./Bewohnerleiste";
 import { Einblicke } from "./Einblicke";
+import { Benutzen } from "./Benutzen";
 import { Handlungsleiste } from "./Handlungsleiste";
+import { Sagenzeile } from "./Sagenzeile";
 import { Hilfe } from "./Hilfe";
 import { ObenLinks } from "./ObenLinks";
 import { ObenRechts } from "./ObenRechts";
@@ -23,6 +25,7 @@ import { Werkzeuge } from "./Werkzeuge";
 export function Hud() {
   const ready = useSimStore((s) => s.world !== null);
   const view = useUiStore((s) => s.view), selection = useUiStore((s) => s.selection), menu = useUiStore((s) => s.menu), appMode = useUiStore((s) => s.appMode);
+  const pop = useUiStore((s) => s.pop);
   const aktiv = ready && menu !== "title" && appMode === "game";
   useHudTasten(aktiv);
   if (!aktiv) return null;
@@ -35,6 +38,8 @@ export function Hud() {
       <Werkzeuge />
       <Handlungsleiste />
       <Plakette />
+      {pop === "benutzen" && ready && <Benutzen />}
+      <Sagenzeile />
       <Tagebuch />
       {view === "memory" && <Seite titel="Gedächtnis"><MemoryInspector /></Seite>}
       {view === "stats" && <Seite titel="Statistik"><StatsView /></Seite>}

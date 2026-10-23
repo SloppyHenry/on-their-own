@@ -56,6 +56,32 @@ export class PlayerController {
     }
   }
 
+  /** Eine Handlung der Figur abschicken (Benutzen, Geben …): Liste und Leiste schicken dieselben Wörter wie ein Bewohner. */
+  async act(action: string, params: Record<string, unknown> = {}): Promise<boolean> {
+    try {
+      const res = await api.playerAct(action, params);
+      if (!res.ok) this.refuse(res.text ?? "Das geht gerade nicht.");
+      return res.ok;
+    } catch (e) {
+      this.refuse(e instanceof ApiError ? e.detail : "Keine Verbindung zur Simulation.");
+      return false;
+    }
+  }
+
+  /** Sagen (höchstens SAY_MAX Zeichen); das Gespräch meldet das Backend an wie bei jedem Bewohner. */
+  async say(to: string, text: string): Promise<boolean> {
+    const t = text.trim().slice(0, SAY_MAX);
+    if (!t) return false;
+    try {
+      const res = await api.playerSay(to, t);
+      if (!res.ok) this.refuse(res.text ?? "Das geht gerade nicht.");
+      return res.ok;
+    } catch (e) {
+      this.refuse(e instanceof ApiError ? e.detail : "Keine Verbindung zur Simulation.");
+      return false;
+    }
+  }
+
   private refuse(text: string) {
     clearTimeout(this.timer);
     usePlayer.setState({ path: null, minutes: null, goal: null, reject: { text, at: Date.now() } });

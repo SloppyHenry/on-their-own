@@ -37,6 +37,9 @@ export type MenuPane = "newsim" | "load" | "editors" | "settings";
 /** Eine Stelle im Menü (Bereich und Unterebene): dorthin kehrt Esc zurück, wenn man das Menü für einen Editor verlassen hat (AP18a). */
 export interface MenuStelle { menu: Exclude<MenuMode, null>; sel: string | null; sub: string | null }
 
+/** Offenes Popover über der Leiste: Ereignis (Gott), bei eigener Figur Benutzen, Sagen, Bauen, Gepäck (AP18h). */
+export type Pop = "ereignis" | "benutzen" | "sagen" | "bauen" | "gepaeck" | null;
+
 interface UiStore {
   view: View;
   /** Agent, dessen Gedächtnis der Inspektor zeigt. */
@@ -61,8 +64,8 @@ interface UiStore {
   wenigText: boolean;
   setWenigText: (on: boolean) => void;
   /** Offenes Popover über den Werkzeugen unten in der Mitte (Ereignis). */
-  pop: "ereignis" | null;
-  setPop: (p: "ereignis" | null) => void;
+  pop: Pop;
+  setPop: (p: Pop) => void;
   /** Hilfe auf „?“ (blendet sich beim ersten Start einmal ein). */
   help: boolean;
   setHelp: (on: boolean) => void;

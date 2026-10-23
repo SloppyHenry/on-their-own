@@ -1,12 +1,14 @@
 // Handlungsleiste unten in der Mitte (AP18h-b1, Mockup docs/mockups/mitleben.html, Bild 1): die Leiste mit den fünf Möglichkeiten deiner Figur und darüber das Band
 // „Was deine Figur gerade tut“ mit Abbrechen. Nur in der Spielart Leben mit eigener Figur. Sagen, Benutzen, Bauen und Gepäck kommen mit b2 und b3.
 import { activityOf } from "../panels/AgentPanel";
+import { useEffect, useState } from "react";
 import { useSimStore } from "../store/simStore";
+import { useUiStore } from "../store/uiStore";
 import { EBENE, useRueckweg } from "../ui/zurueck";
 import type { World } from "../store/types";
-import { pc, usePlayer } from "../world/player/PlayerController";
+import { pending } from "./Sagenzeile";
+import { isTyping, pc, usePlayer } from "../world/player/PlayerController";
 
-const KOMMT: [string, string, string, string][] = [["💬", "Sagen", "T", "kommt mit AP18h-b2"], ["✋", "Benutzen", "U", "kommt mit AP18h-b2"], ["🔨", "Bauen", "B", "kommt mit AP18h-b3"]];
 
 /** Wohin es geht, wenn das Ziel eine Kachel ist: der kleinste Ort, der sie enthält („zum See“); sonst nichts. */
 function placeAt(w: World, t: unknown): string | null {
@@ -18,6 +20,20 @@ function placeAt(w: World, t: unknown): string | null {
 
 export function Handlungsleiste() {
   const w = useSimStore((s) => s.world), me = w?.player ? w.agents[w.player] : null, estimate = usePlayer((s) => s.minutes);
+  const pop = useUiStore((s) => s.pop), setPop = useUiStore((s) => s.setPop), bubbles = useSimStore((s) => s.bubbles), menu = useUiStore((s) => s.menu);
+  const [now, setNow] = useState(Date.now());
+  useEffect(() => { const t = setInterval(() => setNow(Date.now()), 1000); return () => clearInterval(t); }, []);
+  const ask = me ? pending(bubbles, me.id, now) : null, has = !!me;
+  useEffect(() => {                                                                          // T Sagen, U Benutzen (nicht beim Tippen)
+    if (!has) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.defaultPrevented || e.metaKey || e.ctrlKey || e.altKey || isTyping(e.target as Element | null) || menu !== null) return;
+      const k = e.key.toLowerCase(), want = k === "t" ? "sagen" : k === "u" ? "benutzen" : null;
+      if (want) { e.preventDefault(); setPop(useUiStore.getState().pop === want ? null : want); }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [has, menu, setPop]);
   const busy = !!me?.action;
   useRueckweg(busy, EBENE.Spiel, () => { void pc.cancel(); });                       // Esc bricht ab, wenn sonst nichts offen ist
   if (!w || !me) return null;
@@ -27,7 +43,7 @@ export function Handlungsleiste() {
   const ort = act?.type === "move_to" ? placeAt(w, act.params.tile) : null, text = ort ? `geht zu ${ort}` : act ? activityOf(me, w).text : "";
   return (
     <>
-      {act && (
+      {act && !pop && !ask && (
         <div className="glas hud-pop pointer-events-auto absolute bottom-[82px] left-1/2 z-10 flex -translate-x-1/2 items-center gap-3 !rounded-full py-[7px] pl-3.5 pr-2 text-[13px]" data-testid="band" role="status">
           <span>🚶 <b className="text-world">{me.name}</b> {text}{rest != null ? ` · noch ${rest} Min.` : ""}</span>
           <span className="block h-1.5 w-[120px] overflow-hidden rounded-full bg-white/[.08]"><i className="block h-full rounded-full bg-world" style={{ width: `${done}%` }} /></span>
@@ -35,12 +51,16 @@ export function Handlungsleiste() {
         </div>
       )}
       <div className="glas pointer-events-auto absolute bottom-4 left-1/2 z-10 flex -translate-x-1/2 gap-1.5 p-1.5" role="group" aria-label="Handlungen" data-testid="handlungsleiste">
-        {KOMMT.map(([ic, name, key, hint]) => (
-          <button key={name} type="button" disabled title={hint} className="btn !px-4 !py-2 font-semibold">{ic} {name} <kbd className="kbd max-[1320px]:hidden">{key}</kbd></button>
-        ))}
+        <Knopf on={pop === "sagen" || !!ask} ic="💬" name="Sagen" kbd="T" testid="leiste-sagen" onClick={() => setPop(pop === "sagen" ? null : "sagen")} />
+        <Knopf on={pop === "benutzen"} ic="✋" name="Benutzen" kbd="U" testid="leiste-benutzen" onClick={() => setPop(pop === "benutzen" ? null : "benutzen")} />
+        <button type="button" disabled title="kommt mit AP18h-b3" className="btn !px-4 !py-2 font-semibold">🔨 Bauen <kbd className="kbd max-[1320px]:hidden">B</kbd></button>
         <button type="button" className="btn !px-4 !py-2 font-semibold" title="Klick in die Welt schickt deine Figur dorthin" data-testid="leiste-gehen" onClick={() => undefined}>🧭 Gehen <small className="text-dim font-normal">Klick in die Welt</small></button>
         <button type="button" disabled title="kommt mit AP18h-b3" className="btn !px-4 !py-2 font-semibold">🎒 Gepäck <kbd className="kbd max-[1320px]:hidden">I</kbd></button>
       </div>
     </>
   );
+}
+
+function Knopf({ on, ic, name, kbd, testid, onClick }: { on: boolean; ic: string; name: string; kbd: string; testid: string; onClick: () => void }) {
+  return <button type="button" className={`btn !px-4 !py-2 font-semibold ${on ? "on" : ""}`} aria-pressed={on} data-testid={testid} onClick={onClick}>{ic} {name} <kbd className="kbd max-[1320px]:hidden">{kbd}</kbd></button>;
 }
