@@ -9,6 +9,7 @@ import math
 from ...world import look_ops as lo
 from ..geometry import line_dist
 from . import ableiten as ab
+from . import innen
 from .modell import Abgelehnt, Welt, T
 
 GEBAUT = ("house", "bs", "bw", "bb", "bt")
@@ -24,7 +25,7 @@ def tile_von(a: dict) -> tuple[int, int]:
 def ausfuehren(m: Welt, a: dict) -> None:
     x, y = tile_von(a)
     m.art(x, y)
-    for fn in (ding, deko, haus, form):
+    for fn in (ding, lambda m, x, y: innen.loesche(m, x, y), deko, haus, form):
         if fn(m, x, y):
             return
     raise Abgelehnt("Dort ist nichts, was sich löschen lässt.", (x, y))
@@ -54,6 +55,8 @@ def ding(m: Welt, x: int, y: int) -> bool:
                 break
     m.w["objects"].remove(o)
     m.mit_kacheln(lambda: m.op(*ops), box)
+    if m.g[y][x] == "m":
+        m.g[y][x] = "_"                                                                 # Möbel im Haus: die Kachel wird wieder Boden
     return True
 
 

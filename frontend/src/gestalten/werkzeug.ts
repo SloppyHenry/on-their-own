@@ -2,6 +2,12 @@
 // alles andere genügt einer. Dasselbe Aktionsdatum geht an die Backend-Aktionen (`generator/edit/`), als Kandidat auch für die Prüfung „Fehler am Cursor“.
 import type { Aktion, Optionen, Punkt, Werkzeug } from "./typen";
 
+/** Werkzeuge im Haus (Puppenhaus-Ansicht), Tasten 1–5. */
+export const LEISTE_INNEN: { id: Werkzeug; zeichen: string; name: string; gruppe?: string; w?: boolean }[] = [
+  { id: "zeiger", zeichen: "⇱", name: "Zeiger", gruppe: "Ansehen" }, { id: "moebel", zeichen: "🛏", name: "Möbel", gruppe: "Einrichten" }, { id: "wand", zeichen: "🖼", name: "Wand" },
+  { id: "teppich", zeichen: "◯", name: "Teppich" }, { id: "farbe", zeichen: "🎨", name: "Farben" }, { id: "loeschen", zeichen: "✕", name: "Löschen", gruppe: "Ändern" },
+];
+
 /** Werkzeuge in der Reihenfolge der Leiste (Tasten 1–9, 0); `w` = nur in der Werkstatt. */
 export const LEISTE: { id: Werkzeug; zeichen: string; name: string; gruppe?: string; w?: boolean }[] = [
   { id: "zeiger", zeichen: "⇱", name: "Zeiger", gruppe: "Ansehen" }, { id: "weg", zeichen: "〰", name: "Weg", gruppe: "Zeichnen" }, { id: "see", zeichen: "◍", name: "See" },
@@ -42,6 +48,13 @@ export function kandidat(w: Werkzeug, pending: Punkt[], hover: Punkt | null, o: 
     case "garten": return pending[0] ? { art: "garten", rechteck: rechteck(pending[0], hover) } : null;
     case "haus": return hausAktion(hover, o.haus);
     case "natur": return { art: "deko", sorte: o.deko.sorte, tile: hover };
+    case "moebel": return { art: "moebel", kind: o.innen.moebel, tile: hover };
+    case "wand": return { art: "wand", kind: o.innen.wand, tile: hover };
+    case "teppich": return { art: "teppich", tile: hover, farbe: o.innen.teppich };
+    case "farbe": {
+      const { tapete, boden, vorhang } = o.innen;
+      return tapete || boden || vorhang ? { art: "farbe", tile: hover, ...(tapete ? { tapete } : {}), ...(boden ? { boden } : {}), ...(vorhang ? { vorhang } : {}) } : null;
+    }
     case "loeschen": return { art: "loeschen", tile: hover };
     case "startplatz": return { art: "startplatz", tile: hover };
     default: return null;

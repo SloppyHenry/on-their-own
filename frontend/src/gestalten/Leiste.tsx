@@ -2,11 +2,12 @@
 import { useEffect } from "react";
 import { isTyping } from "../world/player/PlayerController";
 import { useGestalten } from "./gestaltenStore";
-import { LEISTE } from "./werkzeug";
+import { LEISTE, LEISTE_INNEN } from "./werkzeug";
 
 export function Leiste() {
   const ort = useGestalten((s) => s.ort), aktiv = useGestalten((s) => s.werkzeug), setW = useGestalten((s) => s.setWerkzeug);
-  const liste = LEISTE.filter((t) => ort === "werkstatt" || !t.w);
+  const innen = useGestalten((s) => s.innen);
+  const liste = (innen ? LEISTE_INNEN : LEISTE).filter((t) => ort === "werkstatt" || !t.w);
   useEffect(() => {
     const on = (e: KeyboardEvent) => {
       if (e.defaultPrevented || e.metaKey || e.ctrlKey || e.altKey || isTyping(e.target as Element | null) || document.querySelector("[role=dialog]")) return;

@@ -3,7 +3,7 @@ import { LEER, beschreibung, entfernen, hinzu, rueckgaengig, umrissKacheln, wied
 import type { Katalog } from "./typen";
 
 const a = { art: "deko", sorte: "bank", tile: [3, 4] }, b = { art: "weg", punkte: [[1, 1], [5, 1], [5, 4]] }, c = { art: "see", mitte: [10, 10], rx: 3 };
-const katalog = { deko: [{ sorte: "bank", name: "Bank", blockiert: false }], haeuser: [{ gebaeude: "shop", name: "Laden" }], daecher: [], waende: [], karte: { richtungen: [], kacheln: [], max: 256 } } as Katalog;
+const katalog = { deko: [{ sorte: "bank", name: "Bank", blockiert: false }], haeuser: [{ gebaeude: "shop", name: "Laden" }], daecher: [], waende: [], karte: { richtungen: [], kacheln: [], max: 256 }, innen: { moebel: [{ kind: "sofa", name: "Sofa", modes: ["sit"] }], wand: [], tapeten: [], boeden: [], vorhaenge: [], teppiche: [] } } as unknown as Katalog;
 
 describe("Entwurf", () => {
   it("sammelt Aktionen der Reihe nach", () => {

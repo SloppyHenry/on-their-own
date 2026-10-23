@@ -82,6 +82,10 @@ function tipText(w: Werkzeug, pending: number, name: string): string {
     case "natur": return "Klick setzt";
     case "loeschen": return "Klick löscht";
     case "startplatz": return "Klick setzt den Startplatz";
+    case "moebel": return "Klick stellt das Möbel auf";
+    case "wand": return "Klick hängt den Schmuck an die Wand";
+    case "teppich": return "Klick legt den Teppich";
+    case "farbe": return "Klick färbt den Raum";
     case "gebiet": return "Klick setzt die linke obere Ecke";
     default: return "";
   }

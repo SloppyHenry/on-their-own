@@ -26,4 +26,5 @@ WAENDE = ["creme", "rosa", "gelb", "blau", "holz"]
 
 
 def katalog() -> dict:
-    return {"deko": DEKO, "haeuser": HAEUSER, "daecher": DAECHER, "waende": WAENDE, "karte": {"richtungen": ["ost", "sued"], "kacheln": [8, 16, 32], "max": 256}}
+    from . import innen
+    return {"deko": DEKO, "haeuser": HAEUSER, "daecher": DAECHER, "waende": WAENDE, "karte": {"richtungen": ["ost", "sued"], "kacheln": [8, 16, 32], "max": 256}, "innen": innen.katalog()}

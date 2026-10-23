@@ -27,7 +27,7 @@ export function SpielGestalten() {
   const [frage, setFrage] = useState<"verlassen" | "uebernehmen" | null>(null);
   const n = g.aktionen.length, kannUebernehmen = n > 0 && uebernehmbar(g.rechnung) && g.busy === null;
   const gehen = () => { if (n > 0) setFrage("verlassen"); else verlasseGestalten(); };
-  useRueckweg(true, EBENE.Werkstatt, () => { gehen(); });
+  useRueckweg(true, EBENE.Werkstatt, () => { if (useGestalten.getState().innen) return false; gehen(); });
   const kopf = (
     <>
       <b className="text-[#ffd36e]">✎ Gestalten</b>

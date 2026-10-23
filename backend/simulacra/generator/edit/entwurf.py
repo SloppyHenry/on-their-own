@@ -8,12 +8,12 @@ import copy
 from dataclasses import dataclass, field
 from typing import Any
 
-from . import deko, garten, haus, karte, loeschen, pruefung, see, weg
+from . import deko, garten, haus, innen, karte, loeschen, pruefung, see, weg
 from .modell import Abgelehnt, Welt
 from .patch import patch_aus
 
 AKTIONEN = {"weg": weg.ausfuehren, "see": see.ausfuehren, "garten": garten.ausfuehren, "haus": haus.ausfuehren, "deko": deko.ausfuehren, "loeschen": loeschen.ausfuehren,
-            "karte": karte.ausfuehren, "startplatz": karte.startplatz}
+            "karte": karte.ausfuehren, "startplatz": karte.startplatz, "moebel": innen.moebel, "wand": innen.wand, "teppich": innen.teppich, "farbe": innen.farbe}
 MAX_AKTIONEN = 200
 
 

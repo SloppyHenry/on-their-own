@@ -141,6 +141,7 @@ function visibleLook(L: Look): Look {
 /** Eine Änderung an der Gestaltung (Backend: `world/look_ops.py`). */
 export type LookOp =
   | { op: "add" | "remove"; region: string; liste: string; item: unknown }
+  | { op: "replace"; region: string; liste: string; item: unknown; value: unknown }
   | { op: "place"; region: string; id: string; value: Region["place"][string] }
   | { op: "unplace"; region: string; id: string }
   | { op: "bounds"; region: string; right?: number | null; bottom?: number | null };
@@ -160,7 +161,8 @@ export function applyLookOps(L: Look, ops: LookOp[]): Look {
     else if (o.op === "remove") {
       if (L.legacy?.region === r.id && (o.liste === "decor" || (SHAPE_LISTS as readonly string[]).includes(o.liste))) { mask = [...(mask ?? []), { region: r.id, liste: o.liste, item: o.item }]; continue; }
       nr = list(o.liste, (l) => { const k = l.findIndex((x) => same(x, o.item)); return k < 0 ? l : l.filter((_, j) => j !== k); });
-    } else if (o.op === "place") nr = { ...r, place: { ...r.place, [o.id]: o.value } };
+    } else if (o.op === "replace") nr = list(o.liste, (l) => { const k = l.findIndex((x) => same(x, o.item)); return k < 0 ? l : l.map((x, j) => (j === k ? o.value : x)); });
+    else if (o.op === "place") nr = { ...r, place: { ...r.place, [o.id]: o.value } };
     else if (o.op === "unplace") { const { [o.id]: _gone, ...rest } = r.place; nr = { ...r, place: rest }; }
     else if (o.op === "bounds") {
       const b = r.bounds;

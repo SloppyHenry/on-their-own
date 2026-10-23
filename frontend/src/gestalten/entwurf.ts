@@ -30,6 +30,10 @@ export function beschreibung(a: Aktion, k: Katalog | null): string {
     case "loeschen": { const t = pt(a.tile); return `Gelöscht: ${t ? `${t[0]}, ${t[1]}` : "?"}`; }
     case "karte": return `Karte: ${ORT[String(a.richtung)] ?? a.richtung} +${a.kacheln}`;
     case "startplatz": return "Startplatz";
+    case "moebel": return `Möbel: ${k?.innen.moebel.find((q) => q.kind === a.kind)?.name ?? String(a.kind)}`;
+    case "wand": return `Wand: ${String(a.kind).split(":")[0]}`;
+    case "teppich": return "Teppich";
+    case "farbe": return "Farben im Raum";
     default: return String(a.art);
   }
 }

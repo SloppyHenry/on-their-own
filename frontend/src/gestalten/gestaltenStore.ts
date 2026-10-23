@@ -33,6 +33,10 @@ interface Gestalten {
   lief: boolean;
   fertig: Uebernommen | null;
   /** Raster um den Zeiger anzeigen. */
+  innen: boolean;
+  /** Von der Weltansicht gesetzt: zurück vor das Haus. */
+  verlasseInnen: (() => void) | null;
+  setInnen: (an: boolean, verlasse?: (() => void) | null) => void;
   raster: boolean;
   setRaster: (an: boolean) => void;
   betrete: (ort: Ort, basis?: () => Record<string, unknown> | null) => Promise<void>;
@@ -97,7 +101,8 @@ export const useGestalten = create<Gestalten>((set, get) => {
 
   return {
     offen: false, ort: "werkstatt", werkzeug: "zeiger", opt: START_OPTIONEN, pending: [], hover: null, aktionen: [], wieder: [], rechnung: null, vorschau: null, busy: null,
-    fehler: null, probe: null, katalog: null, lief: false, fertig: null, raster: true,
+    fehler: null, probe: null, katalog: null, lief: false, fertig: null, raster: true, innen: false, verlasseInnen: null,
+    setInnen: (an, verlasseInnen = null) => { if (an !== get().innen) { set({ innen: an, werkzeug: "zeiger", pending: [], probe: null, verlasseInnen }); schiebeProbe(); } else set({ verlasseInnen }); },
     setRaster: (raster) => set({ raster }),
     betrete: async (ort, basis) => {
       zaehler++; cache.clear();

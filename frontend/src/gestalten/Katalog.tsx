@@ -15,7 +15,8 @@ const Farben = ({ farben, wert, onWahl, id }: { farben: Record<string, string>; 
 
 export function Katalog(): ReactNode {
   const { werkzeug: w, katalog: k, opt, ort } = useGestalten();
-  const setOpt = useGestalten((s) => s.setOpt), setze = useGestalten((s) => s.setze), map = useGestalten((s) => s.rechnung);
+  const setOpt = useGestalten((s) => s.setOpt), setze = useGestalten((s) => s.setze), map = useGestalten((s) => s.rechnung), innen = useGestalten((s) => s.innen);
+  if (innen) return <InnenKatalog />;
   if (w === "haus" && k) {
     const h = opt.haus;
     return (
@@ -57,7 +58,7 @@ export function Katalog(): ReactNode {
     );
   }
   const text: Record<string, string> = {
-    zeiger: ort === "werkstatt" ? "Klick auf die Welt zeigt die Kachel." : "Ansehen: Klick wählt wie sonst, nichts wird verändert.",
+    zeiger: (ort === "werkstatt" ? "Klick auf die Welt zeigt die Kachel. " : "Ansehen: Klick wählt wie sonst, nichts wird verändert. ") + "Klick auf ein Haus zeigt es von innen; dort richtest du es ein.",
     weg: "Klick setzt Punkte, die gestrichelte Vorschau läuft mit dem Zeiger. Doppelklick oder Enter beendet, Esc bricht ab. Ein Weg bleibt begehbar; er schneidet Gras, nie Wasser oder Mauern.",
     see: "Erst die Mitte, dann den Rand anklicken. Ein See ist 1,5 bis 12 Kacheln breit; das Ufer (Sand) entsteht von selbst.",
     garten: "Zwei gegenüberliegende Ecken anklicken. Zaun und Beete entstehen von selbst, die Südseite bleibt offen.",
@@ -66,4 +67,40 @@ export function Katalog(): ReactNode {
     gebiet: "Klick auf die linke obere Ecke: der gestrichelte Rahmen zeigt, wo das Dorf entsteht. Wiese und Wald weichen dem Dorf, Wege, Wasser und Häuser nicht.",
   };
   return <p className="gs-hinweis" data-testid="werkzeug-hilfe" style={{ marginTop: 14 }}>{text[w]}</p>;
+}
+
+const TAPETE: Record<string, string> = { streifen: "#96aac4", blumen: "#ecbec4", ranken: "#78a078", kacheln: "#f2ecde", bretter: "#a67852" };
+const BODEN: Record<string, string> = { dielen: "#c98c56", dielenHell: "#e2b884", parkett: "#b27042", fliesen: "#ece2ce", werkstatt: "#967050" };
+const TEPPICH: Record<string, string> = { blau: "#5d7fb0", rosa: "#d97a92", gruen: "#7fa878" };
+const NIX = "–";
+
+/** Katalog im Haus (Mockup Bild 7–9): Möbel, Wandschmuck, Teppich, Farben; „Löschen“ und „Zeiger“ erklären sich selbst. */
+function InnenKatalog(): ReactNode {
+  const { werkzeug: w, katalog: k, opt } = useGestalten();
+  const setOpt = useGestalten((s) => s.setOpt), raus = useGestalten((s) => s.verlasseInnen);
+  const i = opt.innen, set = (p: Partial<typeof i>) => setOpt({ innen: { ...i, ...p } });
+  const kopf = <button type="button" className="btn mt-3 w-full" onClick={() => raus?.()} data-testid="nach-draussen">← Nach draußen <kbd className="kbd">Esc</kbd></button>;
+  const ik = k?.innen;
+  let inhalt: ReactNode;
+  if (w === "moebel" && ik) {
+    inhalt = (<><div className="gs-sub">Möbel</div><div className="gs-cat">{ik.moebel.map((q) => <button key={q.kind} type="button" className={`gs-catit ${i.moebel === q.kind ? "on" : ""}`} aria-pressed={i.moebel === q.kind} onClick={() => set({ moebel: q.kind })} data-testid={`moebel-${q.kind}`}>{q.name}<small>{q.modes.join(", ") || "Dekoration"}</small></button>)}</div>
+      <p className="gs-hinweis">Vor jeder Tür bleibt eine Kachel frei; Möbel dürfen keinen Weg im Haus abschneiden. Schlafzimmer brauchen ein Bett, Küchen einen Herd.</p></>);
+  } else if (w === "wand" && ik) {
+    inhalt = (<><div className="gs-sub">Wandschmuck</div><div className="gs-cat">{ik.wand.map((q) => <button key={q.kind} type="button" className={`gs-catit ${i.wand === q.kind ? "on" : ""}`} aria-pressed={i.wand === q.kind} onClick={() => set({ wand: q.kind })} data-testid={`wand-${q.kind}`}>{q.kind.split(":")[0]}{q.kind.includes(":") && <small>{q.kind.split(":")[1]}</small>}</button>)}</div>
+      <p className="gs-hinweis">Hängt an der Rückwand des Raums, über der angeklickten Kachel.</p></>);
+  } else if (w === "teppich" && ik) {
+    inhalt = (<><div className="gs-sub">Teppich</div><div className="gs-opt"><span>Farbe</span><span className="gs-sw">{ik.teppiche.map((c) => <button key={c} type="button" className={`gs-swatch ${i.teppich === c ? "on" : ""}`} style={{ background: TEPPICH[c] }} title={c} aria-label={c} aria-pressed={i.teppich === c} onClick={() => set({ teppich: c })} data-testid={`teppich-${c}`} />)}</span></div></>);
+  } else if (w === "farbe" && ik) {
+    const reihe = (titel: string, id: string, werte: string[], farben: (v: string) => string, wert: string | null, key: "tapete" | "boden" | "vorhang") => (
+      <div className="gs-opt"><span>{titel}</span><span className="gs-sw">
+        <button type="button" className={`gs-swatch ${wert === null ? "on" : ""}`} style={{ background: "transparent", color: "#a99fb3" }} aria-label={`${titel} nicht ändern`} aria-pressed={wert === null} onClick={() => set({ [key]: null })} data-testid={`${id}-keine`}>{NIX}</button>
+        {werte.map((v) => <button key={v} type="button" className={`gs-swatch ${wert === v ? "on" : ""}`} style={{ background: farben(v) }} title={v} aria-label={v} aria-pressed={wert === v} onClick={() => set({ [key]: v })} data-testid={`${id}-${v}`} />)}</span></div>);
+    inhalt = (<><div className="gs-sub">Farben des Raums</div>{reihe("Tapete", "tapete", ik.tapeten, (v) => TAPETE[v] ?? "#888", i.tapete, "tapete")}{reihe("Boden", "boden", ik.boeden, (v) => BODEN[v] ?? "#888", i.boden, "boden")}{reihe("Vorhang", "vorhang", ik.vorhaenge, (v) => v, i.vorhang, "vorhang")}
+      <p className="gs-hinweis">Klick auf einen Raum setzt die gewählten Farben; „–“ lässt den Teil, wie er ist.</p></>);
+  } else if (w === "loeschen") {
+    inhalt = <p className="gs-hinweis" style={{ marginTop: 14 }}>Löschen: Klick auf ein Möbel oder einen Teppich; Wandschmuck löscht ein Klick auf die oberste Reihe des Raums darunter. Betten mit Besitzer und Türen bleiben.</p>;
+  } else {
+    inhalt = <p className="gs-hinweis" style={{ marginTop: 14 }}>Das Haus von innen: Räume anklicken zeigt sie groß. Zum Einrichten ein Werkzeug links wählen.</p>;
+  }
+  return <>{kopf}{inhalt}</>;
 }

@@ -191,7 +191,7 @@ export class DorfView {
     this.hover = hit;
     this.mouse = { x: p.x / this.dpr, y: p.y / this.dpr };
     const tile = this.tileAt(p.x, p.y);
-    this.bridge.zeiger?.(this.interior < 0 ? tile : null);                           // Raster-Cursor des Gestaltens (AP16b)
+    this.bridge.zeiger?.(tile);                           // Raster-Cursor des Gestaltens (AP16b)
     this.player?.hover(this.bridge.playerPreview() ? tile : null);
     this.host.style.cursor = this.hover ? "pointer" : this.bridge.playerPreview() && tile ? "crosshair" : "default";
   }
@@ -277,7 +277,7 @@ export class DorfView {
   }
 
   /** Weltpixel → CSS-Pixel in der Weltfläche (Cursor-Schicht des Gestaltens); null in der Innenansicht. */
-  private punktCss(wx: number, wy: number) { if (this.interior >= 0 || !this.bild.frame) return null; const p = this.bild.p(wx, wy), k = this.S * this.kam.zoom, o = this.offset(); return { x: (p.x * k - o.x) / this.dpr, y: (p.y * k - o.y) / this.dpr }; }
+  private punktCss(wx: number, wy: number) { if (this.interior >= 0) { const h = this.innen, P = this.haus?.plan; return h && P ? { x: (h.ox + (P.X(wx) - h.box.x) * h.z) / this.dpr, y: (h.oy + (P.Y(wy) - h.box.y) * h.z) / this.dpr } : null; } if (!this.bild.frame) return null; const p = this.bild.p(wx, wy), k = this.S * this.kam.zoom, o = this.offset(); return { x: (p.x * k - o.x) / this.dpr, y: (p.y * k - o.y) / this.dpr }; }
 
   /** Kamera so, dass der Weltpunkt in Bildmitte liegt. */
   private centerOn(wx: number, wy: number) { this.kam.focusAt(wx - this.shift[0], wy - this.shift[1]); }

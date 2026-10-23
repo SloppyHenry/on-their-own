@@ -28,7 +28,7 @@ export function Werkstatt() {
       ui.setMenu("title"); ui.setMenuSel("newsim"); ui.setMenuSub("define");
     }
   };
-  useRueckweg(true, EBENE.Werkstatt, () => { if (als) setAls(false); else gehen("zurueck"); });
+  useRueckweg(true, EBENE.Werkstatt, () => { if (useGestalten.getState().innen) return false; if (als) setAls(false); else gehen("zurueck"); });
   useEffect(() => {
     const on = (e: KeyboardEvent) => { if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "s") { e.preventDefault(); void useWerkstatt.getState().speichern(); } };
     window.addEventListener("keydown", on);

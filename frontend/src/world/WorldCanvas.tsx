@@ -33,22 +33,39 @@ export function WorldCanvas() {
   const previewKind = werkWorld || (gestWorld && gestOrt === "werkstatt") ? "new" : editorKind;
   const liveLook = useSimStore((s) => { const l = lookOf(s.world); return l ? JSON.stringify(l) : ""; });   // stabil über neue Schnappschüsse
   const lookJson = useMemo(() => { if (!previewWorld) return liveLook; const l = lookOf(previewWorld); return l ? JSON.stringify(l) : ""; }, [previewWorld, liveLook]);
-  const cam = useRef<{ key: string; x: number; y: number; level: number } | null>(null);               // Kamera über den Austausch der Ansicht hinweg (neues Gebiet in der Vorschau)
+  const cam = useRef<{ key: string; x: number; y: number; level: number; interior: number; room: string | null } | null>(null);               // Kamera über den Austausch der Ansicht hinweg (neues Gebiet in der Vorschau)
   const viewRef = useRef<ViewLike | null>(null);
   const fly = useEditorStore((s) => s.fly);
   const dorf = !!lookJson;
   const player = useUiStore((s) => s.playerPreview);
   const focus = useUiStore((s) => s.focusRequest);
   useEffect(() => { if (focus) bridge.commands.focusTile?.(focus.x, focus.y); }, [focus, bridge]);
+  useEffect(() => {                                                                                    // Gestalten: ist ein Haus von innen offen? (andere Werkzeuge, Esc geht zuerst nach draußen)
+    if (!gestOffen) return;
+    let anders = 0;                                                                                      // ein neues Bild der Gestaltung baut die Ansicht neu auf: erst nach ein paar Bildern gilt der Wechsel
+    return bridge.onFrame((f) => {
+      const g = useGestalten.getState(), innen = f.interior >= 0;
+      anders = innen === g.innen ? 0 : anders + 1;
+      if (anders > 20 || (anders === 0 && !g.verlasseInnen)) g.setInnen(innen, () => bridge.commands.leaveInterior?.());
+    });
+  }, [bridge, gestOffen]);
   useEffect(() => verbindeBuehne(bridge, () => ({ w: host.current?.clientWidth ?? 1, h: host.current?.clientHeight ?? 1 })), [bridge]);   // Klang: nur Sichtbares, am Ort im Bild
 
   useEffect(() => {
+    let restoreRaf = 0;
     const v: ViewLike = lookJson ? new DorfView(canvas.current!, host.current!, bridge, JSON.parse(lookJson))
       : new WorldView({ host: host.current!, canvas: canvas.current!, glow: glow.current!, atmo: atmo.current!, grade: grade.current!, tilt: tilt.current! }, bridge);
     setView(v);
     viewRef.current = v;
     const key = previewKind === "new" ? "neu" : "laufend";                                              // die Welt einer neuen Simulation hat ihre eigene Kamera
-    if (v instanceof DorfView && cam.current?.key === key) { v.kam.setLevel(cam.current.level); v.kam.set(cam.current.x, cam.current.y); }
+    if (v instanceof DorfView && cam.current?.key === key) { v.kam.setLevel(cam.current.level); v.kam.set(cam.current.x, cam.current.y);
+      if (cam.current.interior >= 0 && useGestalten.getState().offen) {                                  // Gestalten: das Haus bleibt offen, wenn sich die Gestaltung ändert
+        const { interior, room } = cam.current;
+        let n = 0;
+        const hin = () => { v.enterInterior(interior); if (v.interior === interior) v.room = room; else if (++n < 30) restoreRaf = requestAnimationFrame(hin); };   // die Ansicht kennt die Welt erst nach dem ersten Bild
+        hin();
+      }
+    }
     if (import.meta.env.DEV || location.search.includes("messen")) Object.assign(window, { __welt: v, __sim: useSimStore, __ui: useUiStore, __gestalten: useGestalten });   // Prüf- und Messzugang
     const onKey = (e: KeyboardEvent) => {
       if (isTyping(e.target as Element | null) || e.metaKey || e.ctrlKey || e.altKey || e.defaultPrevented) return;
@@ -59,9 +76,10 @@ export function WorldCanvas() {
     window.addEventListener("keydown", onKey);
     const offEsc = anmelden(EBENE.Innenansicht, () => { if (v.interior < 0) return false; bridge.commands.leaveInterior?.(); });          // Esc gehört zuerst der Innenansicht (Raum → Haus → Dorf), erst dann dem Menü
     return () => {
+      cancelAnimationFrame(restoreRaf);
       offEsc();
       window.removeEventListener("keydown", onKey);
-      if (v instanceof DorfView) cam.current = { key, x: v.kam.x, y: v.kam.y, level: v.kam.level };
+      if (v instanceof DorfView) cam.current = { key, x: v.kam.x, y: v.kam.y, level: v.kam.level, interior: v.interior, room: v.room };
       v.destroy();
     };
   }, [bridge, lookJson]);                                                                              // previewKind gehört zum Austausch des Looks und ändert ihn nie allein

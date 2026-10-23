@@ -4,6 +4,7 @@ Dieselben Operationen laufen im Backend (`apply`), im Browser (Reducer zu `world
 Eine Operation ist ein Wörterbuch:
     {"op": "add", "region": id, "liste": "paths|squares|lakes|gardens|docks|streams|bridges|pads|decor|lights|houses", "item": …}
     {"op": "remove", "region": id, "liste": …, "item": …}          # der erste Eintrag mit gleichem Inhalt
+    {"op": "replace", "region": id, "liste": …, "item": alt, "value": neu}  # der erste Eintrag mit gleichem Inhalt wird an derselben Stelle ersetzt (Haus einrichten)
     {"op": "place", "region": id, "id": objekt, "value": {…}}  /  {"op": "unplace", "region": id, "id": objekt}
     {"op": "bounds", "region": id, "right": px, "bottom": px}      # Gebiet nach Osten oder Süden vergrößern (nur größer)
 Im Block `legacy` (Bild A, Zufall in fester Reihenfolge) wird nichts aus der Liste gestrichen: `remove` trägt den Eintrag in `look.mask` ein, die Bildschichten blenden ihn aus.
@@ -52,6 +53,11 @@ def apply(look: dict[str, Any], ops: list[dict[str, Any]]) -> None:
             if o["item"] not in lst:
                 raise LookOpError("Das gibt es in der Gestaltung nicht (mehr).")
             lst.remove(o["item"])
+        elif kind == "replace":
+            lst = _list(r, o["liste"])
+            if o["item"] not in lst:
+                raise LookOpError("Das gibt es in der Gestaltung nicht (mehr).")
+            lst[lst.index(o["item"])] = o["value"]
         elif kind == "place":
             r["place"][o["id"]] = o["value"]
         elif kind == "unplace":
