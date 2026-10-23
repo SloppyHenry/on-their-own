@@ -29,6 +29,8 @@ export type PlayMode = "leben" | "gott";
 export interface Draft {
   /** Spielart (AP18d): wer die Welt verändern darf. */
   playMode: PlayMode;
+  /** Eigene Figur (AP18h): Nummer in `residents`, nur in der Spielart Leben; null = du schaust zu. */
+  player: number | null;
   world: WorldDraft;
   residents: ResidentDraft[];
   rel: Record<string, Rel>;
@@ -50,6 +52,7 @@ export const fromTemplate = (t: TemplateOut): ResidentDraft => ({ ...blankReside
 
 export const newDraft = (seed = 1 + Math.floor(Math.random() * 99999)): Draft => ({
   playMode: "leben",
+  player: null,
   world: { kind: "generated", libraryId: null, stil: { ...START }, seed, lake: "auto", houses: null, mix: null },
   residents: [],
   rel: {},
@@ -104,5 +107,6 @@ export function toRequest(d: Draft): NewSimRequest {
     ...(d.model ? { model: d.model } : {}),
     run: d.run,
     play_mode: d.playMode,
+    ...(d.playMode === "leben" && d.player !== null && d.player < d.residents.length ? { player: d.player } : {}),
   };
 }

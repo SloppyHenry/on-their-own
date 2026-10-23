@@ -64,7 +64,7 @@ test("Einstellungen › Spielart: Wechsel mit Bestätigung in beide Richtungen, 
   expect(JSON.stringify(log)).toContain("simulation.play_mode_changed");
 });
 
-test("Der Assistent beginnt mit der Spielart; „Leben mit eigener Figur“ ist noch ausgegraut", async ({ page }) => {
+test("Der Assistent beginnt mit der Spielart; „Leben mit eigener Figur“ ist wählbar", async ({ page }) => {
   await openApp(page);
   await page.keyboard.press("Escape");
   await expect(page.getByTestId("start-menu")).toBeVisible();
@@ -73,7 +73,10 @@ test("Der Assistent beginnt mit der Spielart; „Leben mit eigener Figur“ ist 
   await page.getByTestId("newsim-define").click();
   await expect(page.getByTestId("step-spielart")).toBeVisible();
   await expect(page.getByTestId("spielart-leben")).toHaveAttribute("aria-pressed", "true");  // Standard
-  await expect(page.getByTestId("spielart-eigene-figur")).toContainText("kommt mit Mitleben");
+  await expect(page.getByTestId("spielart-eigene-figur")).toContainText("einer von ihnen");
+  await page.getByTestId("spielart-eigene-figur").click();
+  await expect(page.getByTestId("spielart-eigene-figur")).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByTestId("spielart-leben")).toHaveAttribute("aria-pressed", "false");
   await page.getByTestId("spielart-gott").click();
   await page.getByTestId("schritt-5").click();
   await expect(page.getByTestId("start-uebersicht")).toContainText("Gott");

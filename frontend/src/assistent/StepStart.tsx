@@ -23,7 +23,7 @@ export function StepStart() {
       <p className="mb-3 text-[13px] text-dim">Alles auf einen Blick. Die bisherige Welt wird vorher als Spielstand „Vor der neuen Simulation“ gesichert, nicht gelöscht.</p>
       <section className="mb-3 rounded-xl border border-line bg-black/15 p-3">
         <dl className="grid grid-cols-[110px_1fr] gap-x-3.5 gap-y-1.5 text-[13px]" data-testid="start-uebersicht">
-          {row("Spielart", draft.playMode === "leben" ? "Leben (nur die Bewohner verändern die Welt)" : "Gott (du greifst von außen ein)")}
+          {row("Spielart", draft.playMode === "leben" ? (draft.player !== null && rs[draft.player] ? `Leben mit eigener Figur: du bist ${rs[draft.player].profile.name}` : "Leben (nur die Bewohner verändern die Welt)") : "Gott (du greifst von außen ein)")}
           {row("Welt", draft.world.kind === "start" ? "Startwelt (Dorf am See, Heimhaus)" : draft.world.kind === "library" ? `Welt aus der Bibliothek: ${preview?.village || draft.world.libraryId}` : `Neues Dorf, Seed ${draft.world.seed}, ${houseCount(draft)} Wohnhäuser mit ${houseCount(draft) * 2} Betten`)}
           {row("Bewohner", `${n}: ${rs.map((r) => r.profile.name).join(", ")}`)}
           {row("Beziehungen", changed ? `${changed} Angaben geändert` : "alle auf Standard")}

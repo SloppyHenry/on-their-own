@@ -4,6 +4,7 @@ import { useState } from "react";
 import { ApiError, api } from "../net/api";
 import { useSimStore } from "../store/simStore";
 import { Rueckfrage } from "../ui/Rueckfrage";
+import { EigeneFigur } from "./EigeneFigur";
 import { Abschnitt } from "./Zeile";
 
 const ARTEN = [
@@ -31,6 +32,7 @@ export function SpielartSeite() {
         </div>
         <div className="einst-zeile breit einst-hilfe">Wechseln geht in beide Richtungen, mit Rückfrage. Bereits Geschehenes bleibt.</div>
       </Abschnitt>
+      <EigeneFigur />
       {fehler && <p role="alert" className="mt-3 text-[13px] text-warn">{fehler}</p>}
       {frage && (
         <Rueckfrage titel={`Spielart „${frage === "leben" ? "Leben" : "Gott"}“ wählen?`} testid="spielart-frage"

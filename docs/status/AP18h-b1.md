@@ -6,7 +6,7 @@
 - **Vorschau weg:** Vorschau-Figur „Du (Vorschau)“, „würde …“-Meldungen, Kontextmenü, Sagen-Feld und der Schalter Einstellungen › Darstellung › Mitspieler-Steuerung (`playerPreview`) sind entfernt.
 - **Echte Figur:** `StateSnapshot` trägt `player` und `player_autopilot` (nur für die Oberfläche, nie in einem Prompt). Deine Figur hat einen Himmelblau-Ring unter den Füßen, im Bild gezeichnet (verdeckt wie die Figur selbst), in beiden Ansichten (Dorf und alte Ansicht).
 - **Kamera folgt** deiner Figur von Anfang an, auch ins Haus; `F` schaltet um. Plaketten oben links: „Kamera folgt Kim“, „Kim wartet · frei seit …“, „Autopilot“.
-- **Handlungsleiste** (`hud/Handlungsleiste.tsx`): Rahmen wie die Werkzeugleiste, Band „Kim geht zum See · noch 9 Min.“ mit **Abbrechen** (auch `Esc`, wenn sonst nichts offen ist). Sagen, Benutzen, Bauen, Gepäck stehen ausgegraut da (b2/b3).
+- **Handlungsleiste** (`hud/Handlungsleiste.tsx`): Rahmen wie die Werkzeugleiste, Band „Kim geht zum See · noch 9 Min.“ mit **Abbrechen** (nur der Knopf: Esc gehört dem Menü). Sagen, Benutzen, Bauen, Gepäck stehen ausgegraut da (b2/b3).
 - **Klick geht:** Klick auf eine freie Kachel → `POST /api/player/act` `move_to {tile}`; Weg und „etwa N Min.“ als Vorschau, Ablehnung der Welt als rote Blase drei Sekunden über der Figur. Klick auf Ding/Figur wählt wie bisher aus.
 - Hilfsmethode `DorfView.tileCss` (Kachel → Bildschirmpunkt) für Tests; nur im e2e-Server `POST /api/e2e/player` zum Wählen der Figur (bis c1).
 

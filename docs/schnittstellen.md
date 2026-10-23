@@ -366,3 +366,20 @@ Code: `backend/simulacra/models/` (`service.py` verbindet alles; `transfer.py` D
 **Probelauf** (Frage 42): zehn Entscheidungen mit dem Messprompt aus AP00 (`models/probe_data.py`, dieselben Daten wie `scripts/probe_llm.py`), `json_schema`, ohne Denken. Gemessen: **gültig in %**, **Ø Sekunden je Entscheidung**, **Token/s**. Siegel: unter 90 % gültig **ungeeignet** (Fehlschläge zählen als ungültig), ab 90 % **geprüft**, bei Ø über 20 s **mit Einschränkung** (die Grenze 20 s ist eine Annahme, siehe Frage 50).
 
 **WebSocket:** Nachricht `{"type": "models", "status": LlmStatusOut}` bei jeder Änderung (Fortschritt höchstens fünfmal je Sekunde). Sie hat keine Nummer und geht nicht in die Lückenprüfung ein; beim Verbinden kommt sie nicht von selbst, die Oberfläche holt `GET /api/llm`.
+
+
+## Eigene Figur (AP18h)
+
+Nur in der Spielart **Leben** mit gewählter Figur (`meta.player`), sonst **409**. Alles geht über dieselbe Schnittstelle wie bei den Bewohnern (`WorldEngine.propose`); für Handlungen des Menschen gibt es kein `agent.decision`.
+
+| Aufruf | Zweck |
+|---|---|
+| `POST /api/player/act` `{action, params}` | Handlung der Figur (`ALLOWED_OTHER` ohne `speak`); Antwort `ActResult` mit dem Ablehnungstext der Engine |
+| `POST /api/player/say` `{to, text}` | Sagen (≤ 500 Zeichen), meldet das Gespräch vorher an |
+| `POST /api/player/cancel` | laufende Handlung unterbrechen (für die anderen ein Abbruch wie jeder andere) |
+| `GET /api/player/choices` | die Möglichkeiten des Optionsgenerators mit Dauer und, bei Unmöglichem, Grund |
+| `GET/PUT /api/player/takt` | `hold` („Anhalten, wenn ich dran bin“), `auto` (Autopilot), `auto_minutes` (echte Minuten ohne Eingabe, 1–240, Standard 5), `autopilot`, `waiting` |
+| `POST /api/player/takeover` | „Übernehmen“: Autopilot aus |
+| `PUT /api/player/figure` `{agent, confirm}` | Figur wählen oder wechseln (Bestätigung nötig); die bisherige wird ein normaler Bewohner |
+
+`StateSnapshot` trägt `player`, `player_autopilot`, `player_hold`, `player_auto`, `player_auto_minutes`, `player_waiting`; Änderungen kommen als Systemereignis `simulation.player_takt` (ohne Agenten, nie in einem Prompt). `POST /api/sim/new` kennt `player` (Nummer in `residents`, nur mit `play_mode: "leben"`). Eine Eingabe des Menschen (`act`, `say`, `cancel`, `takeover`) schaltet den Autopiloten aus und beendet das Warten; war die Zeit angehalten, läuft sie weiter.

@@ -52,7 +52,7 @@ export function WorldCanvas() {
       if (e.key === "f" || e.key === "F") { const me = useSimStore.getState().world?.player; if (me) bridge.setFollow(bridge.follow() === me ? null : me); else bridge.commands.toggleFollow?.(); }   // mit eigener Figur folgt F immer ihr
     };
     window.addEventListener("keydown", onKey);
-    const offEsc = anmelden(EBENE.Innenansicht, () => { if (v.interior < 0) return false; bridge.commands.leaveInterior?.(); });          // Esc gehört zuerst der Innenansicht (Raum → Haus → Dorf), erst dann dem Menü
+    const offEsc = anmelden(EBENE.Innenansicht, () => { if (v.interior < 0) return false; if (bridge.follow() && bridge.follow() === useSimStore.getState().world?.player) bridge.setFollow(null); bridge.commands.leaveInterior?.(); });    // wer der eigenen Figur folgt, würde sonst gleich wieder ins Haus gezogen          // Esc gehört zuerst der Innenansicht (Raum → Haus → Dorf), erst dann dem Menü
     return () => {
       offEsc();
       window.removeEventListener("keydown", onKey);

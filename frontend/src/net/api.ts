@@ -92,6 +92,7 @@ export const api = {
   playerChoices: () => request<PlayerChoice[]>("GET", "/api/player/choices"),
   playerTakt: () => request<PlayerTakt>("GET", "/api/player/takt"),
   setPlayerTakt: (patch: { hold?: boolean; auto?: boolean; auto_minutes?: number }) => request<PlayerTakt>("PUT", "/api/player/takt", patch),
+  setPlayerFigure: (agent: string) => request<PlayerTakt>("PUT", "/api/player/figure", { agent, confirm: true }),
   playerTakeover: () => request<PlayerTakt>("POST", "/api/player/takeover"),
   playerCancel: () => request<PlayerActResult>("POST", "/api/player/cancel"),
   state: () => request<StateSnapshot>("GET", "/api/state"),

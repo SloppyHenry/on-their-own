@@ -104,3 +104,23 @@ def test_change_figure_needs_confirm_and_leben():
         from simulacra.world import spielart
         spielart.set_mode(sim.engine.state, "gott")
         assert c.put("/api/player/figure", json={"agent": "alex", "confirm": True}, headers={"Idempotency-Key": "figure-4567"}).status_code == 409
+
+
+async def test_one_day_with_autopilot_has_no_gaps_and_the_figure_is_never_stuck():
+    """AP18h-c2: ein Spieltag mit Fake-Modell und Autopilot: Ereignisnummern lückenlos, die Figur entscheidet (Autopilot) und hängt nie in einer Handlung fest."""
+    sim = leben(make_sim())
+    st = sim.engine.state
+    st.set_meta(mitleben.AUTO_KEY, True)
+    st.set_meta(mitleben.AUTO_MIN_KEY, 1)
+    sim.runner.takt.last_input = time.monotonic() - 61
+    busy_run = longest = 0
+    for _ in range(1440):
+        await sim.runner.step()
+        a = st.agent("alex")
+        busy_run = busy_run + 1 if a.action is not None else 0
+        longest = max(longest, busy_run)
+    assert mitleben.autopilot_on(st)
+    assert sim.store.conn.execute("SELECT COUNT(*) c FROM decisions WHERE agent_id='alex'").fetchone()["c"] > 0
+    seqs = [r["seq"] for r in sim.engine.state.conn.execute("SELECT seq FROM events ORDER BY seq")]
+    assert seqs == list(range(seqs[0], seqs[0] + len(seqs)))
+    assert longest < 240                                                    # keine Handlung dauert länger als ein paar Stunden

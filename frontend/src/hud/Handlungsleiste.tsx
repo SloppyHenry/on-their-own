@@ -4,7 +4,6 @@ import { activityOf } from "../panels/AgentPanel";
 import { useEffect, useState } from "react";
 import { useSimStore } from "../store/simStore";
 import { useUiStore } from "../store/uiStore";
-import { EBENE, useRueckweg } from "../ui/zurueck";
 import type { World } from "../store/types";
 import { pending } from "./Sagenzeile";
 import { isTyping, pc, usePlayer } from "../world/player/PlayerController";
@@ -34,8 +33,6 @@ export function Handlungsleiste() {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [has, menu, setPop]);
-  const busy = !!me?.action;
-  useRueckweg(busy, EBENE.Spiel, () => { void pc.cancel(); });                       // Esc bricht ab, wenn sonst nichts offen ist
   if (!w || !me) return null;
   const act = me.action, end = act ? w.walks[me.id]?.arrive.at(-1) ?? act.ends_at ?? (act.type === "move_to" && estimate != null ? act.started_at + estimate : null) : null;   // beim Gehen steht das Ende im Weg (`arrive`, erst ab dem ersten Schritt), sonst in der Handlung; bis dahin gilt die Schätzung
   const rest = end != null ? Math.max(0, end - w.clock.minute) : null;
@@ -47,7 +44,7 @@ export function Handlungsleiste() {
         <div className="glas hud-pop pointer-events-auto absolute bottom-[82px] left-1/2 z-10 flex -translate-x-1/2 items-center gap-3 !rounded-full py-[7px] pl-3.5 pr-2 text-[13px]" data-testid="band" role="status">
           <span>🚶 <b className="text-world">{me.name}</b> {text}{rest != null ? ` · noch ${rest} Min.` : ""}</span>
           <span className="block h-1.5 w-[120px] overflow-hidden rounded-full bg-white/[.08]"><i className="block h-full rounded-full bg-world" style={{ width: `${done}%` }} /></span>
-          <button type="button" className="btn" onClick={() => void pc.cancel()} data-testid="abbrechen">Abbrechen <kbd className="kbd">Esc</kbd></button>
+          <button type="button" className="btn" onClick={() => void pc.cancel()} data-testid="abbrechen">Abbrechen</button>
         </div>
       )}
       <div className="glas pointer-events-auto absolute bottom-4 left-1/2 z-10 flex -translate-x-1/2 gap-1.5 p-1.5" role="group" aria-label="Handlungen" data-testid="handlungsleiste">
