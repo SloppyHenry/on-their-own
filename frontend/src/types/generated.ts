@@ -106,6 +106,7 @@ export interface SimulacraApi {
   PhaseChanged?: PhaseChanged;
   PlayModeChanged?: PlayModeChanged;
   PlayModeRequest?: PlayModeRequest;
+  PlayerTakt?: PlayerTakt;
   PresetBrief?: PresetBrief;
   PresetDuplicate?: PresetDuplicate;
   PresetLoadOut?: PresetLoadOut;
@@ -986,7 +987,11 @@ export interface StateSnapshot {
   objects: ObjectInfo[];
   play_mode: "leben" | "gott";
   player: string | null;
+  player_auto: boolean;
+  player_auto_minutes: number;
   player_autopilot: boolean;
+  player_hold: boolean;
+  player_waiting: boolean;
   resources: ResourceInfo[];
   rules: {
     [k: string]: unknown;
@@ -1817,6 +1822,7 @@ export interface NewSimApplyRequest {
   digest: string;
   model?: string | null;
   play_mode?: "leben" | "gott";
+  player?: number | null;
   relations?: RelationIn[];
   residents: ResidentIn[];
   rules?: RulesSpec;
@@ -1950,6 +1956,7 @@ export interface HouseOut {
 export interface NewSimRequest {
   model?: string | null;
   play_mode?: "leben" | "gott";
+  player?: number | null;
   relations?: RelationIn[];
   residents: ResidentIn[];
   rules?: RulesSpec1;
@@ -2224,6 +2231,20 @@ export interface PlayModeChanged {
 export interface PlayModeRequest {
   confirm?: boolean;
   play_mode: "leben" | "gott";
+}
+/**
+ * Takt der eigenen Figur (AP18h): wer sie steuert, ob die Zeit auf sie wartet, Autopilot und die Schalter. Nur Leitstelle, nie in einem Prompt.
+ *
+ * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * via the `definition` "PlayerTakt".
+ */
+export interface PlayerTakt {
+  auto?: boolean;
+  auto_minutes?: number;
+  autopilot?: boolean;
+  hold?: boolean;
+  player?: string | null;
+  waiting?: boolean;
 }
 /**
  * This interface was referenced by `SimulacraApi`'s JSON-Schema
@@ -3180,6 +3201,7 @@ export interface EventDataMap {
   "simulation.effect_ended": EffectEnded;
   "agent.informed": Informed;
   "world.nature_event": NatureEvent;
+  "simulation.player_takt": PlayerTakt;
   "simulation.play_mode_changed": PlayModeChanged;
   "simulation.voice_changed": VoiceChanged;
   "simulation.saved": SimSaved;
@@ -3272,6 +3294,7 @@ export const EVENT_CATEGORY: Record<EventType, EventCategory> = {
   "simulation.effect_ended": "system",
   "agent.informed": "dialogue",
   "world.nature_event": "world",
+  "simulation.player_takt": "system",
   "simulation.play_mode_changed": "system",
   "simulation.voice_changed": "system",
   "simulation.saved": "system",

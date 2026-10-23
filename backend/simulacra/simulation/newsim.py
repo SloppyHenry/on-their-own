@@ -18,7 +18,8 @@ from ..generator.stil import Stil
 from ..generator.validate import Report
 from ..params.presets import PresetError
 from ..params.registry import REGISTRY
-from ..world import loader
+from ..world import loader, spielart
+from . import mitleben
 
 START_IDS = ("alex", "mira")                      # die Startwelt hat feste Zimmer nur für diese beiden
 RESERVED = {"paths", "square", "garden", "lake", "forest"}
@@ -54,6 +55,7 @@ class Resolved:
     stories: dict[tuple[int, int], str]
     warnings: list[str] = field(default_factory=list)
     params: list[tuple[str, None, Any]] = field(default_factory=list)      # Parameter, die beim Anlegen gesetzt werden (Preset, Autonomie, Knappheit, Modus)
+    player: int | None = None                                              # Nummer der eigenen Figur (AP18h)
 
 
 def resolve(req: NewSimRequest, presets: Any = None, library: Any = None) -> Resolved:
@@ -144,7 +146,12 @@ def resolve(req: NewSimRequest, presets: Any = None, library: Any = None) -> Res
         params.append(("mode.creator_text", None, rules.creator_text.strip()))
     if errors:
         raise SpecError(errors)
-    return Resolved(req.world.kind, residents, rel, stories, warnings, params)
+    if req.player is not None:
+        if req.play_mode != "leben":
+            raise SpecError(["Eine eigene Figur gibt es nur in der Spielart Leben."])
+        if req.player >= len(residents):
+            raise SpecError([f"Die eigene Figur (Nr. {req.player + 1}) gibt es im Entwurf nicht."])
+    return Resolved(req.world.kind, residents, rel, stories, warnings, params, req.player)
 
 
 def make_new_world(req: NewSimRequest, res: Resolved, library: Any = None) -> tuple[dict, Any]:
@@ -211,6 +218,8 @@ def setup(fresh: Any, res: Resolved, world: dict) -> None:
         voices = {r.id: r.voice for r in res.residents if r.voice}
         if voices:
             st.set_meta("voices", voices)
+        if res.player is not None:
+            mitleben.set_player(st, ids[res.player])                         # Wahl der eigenen Figur (AP18h); die Spielart setzt `reset` danach
 
 
 # --- Weltregeln als Startereignisse ---------------------------------------------------------------------------------------------------

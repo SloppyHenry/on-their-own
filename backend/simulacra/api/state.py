@@ -66,7 +66,7 @@ def snapshot(sim: Simulation) -> StateSnapshot:
         agents=[agent_info(sim, a) for a in st.agents()], clock=ClockInfo(**clock.snapshot(st.minute)),
         weather=WeatherInfo(**w), simulation=sim_status(sim), rules=st.rules.model_dump(),
         links=st.get_meta("links") or [], look=st.get_meta("look"), voices=voices(st), play_mode=spielart.get(st),
-        player=mitleben.player_id(st), player_autopilot=mitleben.autopilot_on(st))
+        player=mitleben.player_id(st), player_autopilot=mitleben.autopilot_on(st), **{f"player_{k}": v for k, v in mitleben.settings(st).items() if k in ("hold", "auto", "auto_minutes", "waiting")})
 
 
 def agent_detail(sim: Simulation, agent_id: str) -> AgentDetail | None:

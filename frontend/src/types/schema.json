@@ -5077,6 +5077,18 @@
      ],
      "type": "string"
     },
+    "player": {
+     "anyOf": [
+      {
+       "minimum": 0,
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
     "relations": {
      "default": [],
      "items": {
@@ -5294,6 +5306,18 @@
       "gott"
      ],
      "type": "string"
+    },
+    "player": {
+     "anyOf": [
+      {
+       "minimum": 0,
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
     },
     "relations": {
      "default": [],
@@ -6389,6 +6413,45 @@
     "play_mode"
    ],
    "title": "PlayModeRequest",
+   "type": "object"
+  },
+  "PlayerTakt": {
+   "additionalProperties": false,
+   "description": "Takt der eigenen Figur (AP18h): wer sie steuert, ob die Zeit auf sie wartet, Autopilot und die Schalter. Nur Leitstelle, nie in einem Prompt.",
+   "properties": {
+    "auto": {
+     "default": false,
+     "type": "boolean"
+    },
+    "auto_minutes": {
+     "default": 5,
+     "type": "integer"
+    },
+    "autopilot": {
+     "default": false,
+     "type": "boolean"
+    },
+    "hold": {
+     "default": false,
+     "type": "boolean"
+    },
+    "player": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "waiting": {
+     "default": false,
+     "type": "boolean"
+    }
+   },
+   "title": "PlayerTakt",
    "type": "object"
   },
   "PresetBrief": {
@@ -8414,7 +8477,23 @@
      ],
      "default": null
     },
+    "player_auto": {
+     "default": false,
+     "type": "boolean"
+    },
+    "player_auto_minutes": {
+     "default": 5,
+     "type": "integer"
+    },
     "player_autopilot": {
+     "default": false,
+     "type": "boolean"
+    },
+    "player_hold": {
+     "default": false,
+     "type": "boolean"
+    },
+    "player_waiting": {
      "default": false,
      "type": "boolean"
     },
@@ -8473,7 +8552,11 @@
     "play_mode",
     "voices",
     "player",
-    "player_autopilot"
+    "player_autopilot",
+    "player_hold",
+    "player_auto",
+    "player_auto_minutes",
+    "player_waiting"
    ],
    "title": "StateSnapshot",
    "type": "object"
@@ -10124,6 +10207,9 @@
   },
   "PlayModeRequest": {
    "$ref": "#/$defs/PlayModeRequest"
+  },
+  "PlayerTakt": {
+   "$ref": "#/$defs/PlayerTakt"
   },
   "PresetBrief": {
    "$ref": "#/$defs/PresetBrief"

@@ -83,11 +83,16 @@ export interface PlayerActResult { ok: boolean; minutes?: number | null; ends_at
 /** Eine Möglichkeit der eigenen Figur (GET /api/player/choices): dieselbe Liste, die der Optionsgenerator einem Bewohner anbieten würde; Unmögliches mit Grund. */
 export interface PlayerChoice { kind: string; label: string; action: string; params: Record<string, unknown>; utterance_key?: string | null; eta?: number | null; ok: boolean; reason?: string | null }
 
+export interface PlayerTakt { player: string | null; hold: boolean; auto: boolean; auto_minutes: number; autopilot: boolean; waiting: boolean }
+
 export const api = {
   /** Die eigene Figur steuern (AP18h): dieselbe Schnittstelle wie bei den Bewohnern. */
   playerAct: (action: string, params: Record<string, unknown> = {}) => request<PlayerActResult>("POST", "/api/player/act", { action, params }),
   playerSay: (to: string, text: string) => request<PlayerActResult>("POST", "/api/player/say", { to, text }),
   playerChoices: () => request<PlayerChoice[]>("GET", "/api/player/choices"),
+  playerTakt: () => request<PlayerTakt>("GET", "/api/player/takt"),
+  setPlayerTakt: (patch: { hold?: boolean; auto?: boolean; auto_minutes?: number }) => request<PlayerTakt>("PUT", "/api/player/takt", patch),
+  playerTakeover: () => request<PlayerTakt>("POST", "/api/player/takeover"),
   playerCancel: () => request<PlayerActResult>("POST", "/api/player/cancel"),
   state: () => request<StateSnapshot>("GET", "/api/state"),
   events: (q: EventQuery = {}) => request<EventsPage>("GET", `/api/events${qs(q)}`),

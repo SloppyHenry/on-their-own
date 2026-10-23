@@ -117,6 +117,7 @@ _ALL = [
     _t("simulation.effect_ended", "system", mu.EffectEnded, "Eine befristete Wirkung ist abgelaufen"),
     _t("agent.informed", "dialogue", mu.Informed, "Information, Nachricht, Einladung oder Situation erreicht bestimmte Agenten"),
     _t("world.nature_event", "world", mu.NatureEvent, "Die Welt hat von sich aus ein Ereignis gebracht (Gewitter, Fuchs im Garten …); nur Protokoll, ohne Urheber"),
+    _t("simulation.player_takt", "system", mu.PlayerTakt, "Takt der eigenen Figur: wartet, Autopilot, Schalter (nur Leitstelle, nie in einem Prompt)"),
     _t("simulation.play_mode_changed", "system", mu.PlayModeChanged, "Spielart gewechselt (Leben oder Gott; nur Leitstelle, nie in einem Prompt)"),
     _t("simulation.voice_changed", "system", mu.VoiceChanged, "Stimme einer Figur eingestellt (nur Darstellung, die Bewohner merken nichts)"),
     _t("simulation.saved", "system", mu.SimSaved, "Spielstand gespeichert (manuell, automatisch oder als Sicherung)"),

@@ -20,6 +20,10 @@ export function makeSnapshot(over: Partial<StateSnapshot> = {}): StateSnapshot {
     play_mode: "gott",
     player: null,
     player_autopilot: false,
+    player_hold: false,
+    player_auto: false,
+    player_auto_minutes: 5,
+    player_waiting: false,
     agents: [
       { id: "alex", name: "Alex", x: 1, y: 1, location_id: "paths", facing: "down", capacity: 10, action: null, walk: null, status: "idle", needs: { energy: 80, hunger: 20, thirst: 20 }, words: {}, inventory: {}, held: [], profile: null, plan_next: "" },
       { id: "mira", name: "Mira", x: 2, y: 1, location_id: "paths", facing: "down", capacity: 10, action: null, walk: null, status: "idle", needs: { energy: 80, hunger: 20, thirst: 20 }, words: {}, inventory: {}, held: [], profile: null, plan_next: "" },

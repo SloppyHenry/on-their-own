@@ -166,6 +166,10 @@ class StateSnapshot(Out):
     voices: dict[str, Voice] = {}        # eigene Stimmen der Figuren (AP17d); fehlt eine, gilt im Browser der Vorschlag aus Geschlecht und Alter
     player: str | None = None            # eigene Figur des Menschen (AP18h), nur in der Spielart Leben; nie in einem Prompt, nur für deine Oberfläche
     player_autopilot: bool = False
+    player_hold: bool = False             # Takt (AP18h-a3): „Anhalten, wenn ich dran bin“, Autopilot-Schalter und -Frist, wartet die Zeit gerade auf dich
+    player_auto: bool = False
+    player_auto_minutes: int = 5
+    player_waiting: bool = False
 
 
 class DecisionBrief(Out):

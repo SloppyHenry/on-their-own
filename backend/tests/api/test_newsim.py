@@ -276,3 +276,17 @@ def test_unmoegliches_startereignis_laesst_die_welt_unveraendert(c):
     r = post(c, "/api/sim/new", {**body, "digest": p["digest"], "confirm": True})
     assert r.status_code == 422 and "Startereignis" in r.text
     assert state(c) == before
+
+
+def test_eigene_figur_wird_beim_anlegen_gewaehlt_und_gespeichert(c):
+    """AP18h-c1: `player` ist die Nummer in `residents`; nur in der Spielart Leben, höchstens eine, Spielstand und Schnappschuss kennen sie."""
+    assert post(c, "/api/sim/new/preview", spec(2, player=0, play_mode="gott"), key=None).status_code in (200, 422)
+    p = post(c, "/api/sim/new/preview", spec(2, player=0, play_mode="gott"), key=None).json()
+    assert not p.get("ok", False) and any("nur in der Spielart Leben" in e for e in p["errors"])
+    p = post(c, "/api/sim/new/preview", spec(2, player=5), key=None).json()
+    assert not p["ok"] and any("gibt es im Entwurf nicht" in e for e in p["errors"])
+    r, _ = apply(c, spec(3, player=1, play_mode="leben"), key="eigene-figur-1")
+    assert r.status_code == 200, r.text
+    snap = c.get("/api/state").json()
+    assert snap["play_mode"] == "leben" and snap["player"] == "jo"
+    assert "jo" not in c.sim.store.thinking_ids() and "ida" in c.sim.store.thinking_ids()
