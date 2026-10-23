@@ -56,3 +56,27 @@ test("Spricht Mira Alex an, steht die Antwortzeile mit Zähler da; Antworten sch
   await expect(page.getByTestId("bubble-alex")).toContainText("Ja, gern.");
   await expect(zeile).toHaveCount(0);
 });
+
+/** Teil b3 (AP18h): Bauen zeigt die Bauvorlagen mit Kosten und Grund, Gepäck zeigt Hände und Rucksack mit Geben an Mira. */
+test("B zeigt die Bauvorlagen (Unmögliches mit Grund), I das Gepäck mit Geben an Mira", async ({ page, request }) => {
+  await page.keyboard.press("b");
+  const bauen = page.getByTestId("bauen");
+  await expect(bauen).toBeVisible();
+  await expect(bauen.getByTestId("benutzen-option").first()).toContainText("bauen");
+  await expect(bauen).toContainText("Kosten");
+  await page.keyboard.press("Escape");
+  await expect(bauen).toHaveCount(0);
+
+  const alex = (await state(request)).agents.find((a: { id: string }) => a.id === "alex");
+  await page.keyboard.press("i");
+  const gepaeck = page.getByTestId("gepaeck");
+  await expect(gepaeck).toBeVisible();
+  await expect(gepaeck).toContainText("Geben geht nur, wer am selben Ort steht: Mira");
+  const stock = Object.entries(alex.inventory as Record<string, number>).filter(([, n]) => n > 0);
+  if (stock.length) {                                                      // hat Alex etwas im Rucksack, lässt es sich Mira geben
+    await gepaeck.getByRole("button", { name: "Geben an Mira" }).first().click();
+    await expect.poll(async () => (await state(request)).agents.find((a: { id: string }) => a.id === "alex").action !== null).toBe(true);
+  } else {
+    await expect(gepaeck.getByTestId("gepaeck-zeile")).toHaveCount(0);
+  }
+});

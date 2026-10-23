@@ -1,5 +1,5 @@
 // Handlungsleiste unten in der Mitte (AP18h-b1, Mockup docs/mockups/mitleben.html, Bild 1): die Leiste mit den fünf Möglichkeiten deiner Figur und darüber das Band
-// „Was deine Figur gerade tut“ mit Abbrechen. Nur in der Spielart Leben mit eigener Figur. Sagen, Benutzen, Bauen und Gepäck kommen mit b2 und b3.
+// „Was deine Figur gerade tut“ mit Abbrechen. Nur in der Spielart Leben mit eigener Figur. Sagen, Benutzen, Bauen und Gepäck öffnen die Popover darüber.
 import { activityOf } from "../panels/AgentPanel";
 import { useEffect, useState } from "react";
 import { useSimStore } from "../store/simStore";
@@ -28,7 +28,7 @@ export function Handlungsleiste() {
     if (!has) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.defaultPrevented || e.metaKey || e.ctrlKey || e.altKey || isTyping(e.target as Element | null) || menu !== null) return;
-      const k = e.key.toLowerCase(), want = k === "t" ? "sagen" : k === "u" ? "benutzen" : null;
+      const k = e.key.toLowerCase(), want = k === "t" ? "sagen" : k === "u" ? "benutzen" : k === "b" ? "bauen" : k === "i" ? "gepaeck" : null;
       if (want) { e.preventDefault(); setPop(useUiStore.getState().pop === want ? null : want); }
     };
     window.addEventListener("keydown", onKey);
@@ -53,9 +53,9 @@ export function Handlungsleiste() {
       <div className="glas pointer-events-auto absolute bottom-4 left-1/2 z-10 flex -translate-x-1/2 gap-1.5 p-1.5" role="group" aria-label="Handlungen" data-testid="handlungsleiste">
         <Knopf on={pop === "sagen" || !!ask} ic="💬" name="Sagen" kbd="T" testid="leiste-sagen" onClick={() => setPop(pop === "sagen" ? null : "sagen")} />
         <Knopf on={pop === "benutzen"} ic="✋" name="Benutzen" kbd="U" testid="leiste-benutzen" onClick={() => setPop(pop === "benutzen" ? null : "benutzen")} />
-        <button type="button" disabled title="kommt mit AP18h-b3" className="btn !px-4 !py-2 font-semibold">🔨 Bauen <kbd className="kbd max-[1320px]:hidden">B</kbd></button>
+        <Knopf on={pop === "bauen"} ic="🔨" name="Bauen" kbd="B" testid="leiste-bauen" onClick={() => setPop(pop === "bauen" ? null : "bauen")} />
         <button type="button" className="btn !px-4 !py-2 font-semibold" title="Klick in die Welt schickt deine Figur dorthin" data-testid="leiste-gehen" onClick={() => undefined}>🧭 Gehen <small className="text-dim font-normal">Klick in die Welt</small></button>
-        <button type="button" disabled title="kommt mit AP18h-b3" className="btn !px-4 !py-2 font-semibold">🎒 Gepäck <kbd className="kbd max-[1320px]:hidden">I</kbd></button>
+        <Knopf on={pop === "gepaeck"} ic="🎒" name="Gepäck" kbd="I" testid="leiste-gepaeck" onClick={() => setPop(pop === "gepaeck" ? null : "gepaeck")} />
       </div>
     </>
   );

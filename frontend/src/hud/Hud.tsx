@@ -11,6 +11,7 @@ import { StatsView } from "../stats/StatsView";
 import { Bewohnerleiste } from "./Bewohnerleiste";
 import { Einblicke } from "./Einblicke";
 import { Benutzen } from "./Benutzen";
+import { Gepaeck } from "./Gepaeck";
 import { Handlungsleiste } from "./Handlungsleiste";
 import { Sagenzeile } from "./Sagenzeile";
 import { Hilfe } from "./Hilfe";
@@ -39,6 +40,8 @@ export function Hud() {
       <Handlungsleiste />
       <Plakette />
       {pop === "benutzen" && ready && <Benutzen />}
+      {pop === "bauen" && ready && <Benutzen nur={["build", "resume"]} titel="🔨 Bauen" sub="Bauvorlagen, die hier gerade gehen" testid="bauen" />}
+      {pop === "gepaeck" && ready && <Gepaeck />}
       <Sagenzeile />
       <Tagebuch />
       {view === "memory" && <Seite titel="Gedächtnis"><MemoryInspector /></Seite>}

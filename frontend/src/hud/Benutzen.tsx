@@ -7,6 +7,7 @@ import { EBENE, useRueckweg } from "../ui/zurueck";
 import { pc } from "../world/player/PlayerController";
 
 const GROUP: Record<string, [string, string]> = {
+  resume: ["🔨", "Weiterbauen"],
   move_to: ["🚶", "Gehen"], use: ["✋", "Benutzen"], gather: ["🧺", "Sammeln"], drink: ["💧", "Trinken"], eat: ["🍎", "Essen"], take: ["🤲", "Nehmen"], drop: ["⬇", "Ablegen"],
   give: ["🎁", "Geben"], speak: ["💬", "Sprechen"], build: ["🔨", "Bauen"], water: ["🌱", "Gießen"], plant: ["🌳", "Pflanzen"], wait: ["⏳", "Warten"],
 };
@@ -17,12 +18,13 @@ export function groupChoices(list: PlayerChoice[]): [string, PlayerChoice[]][] {
   return [...by.entries()];
 }
 
-export function Benutzen() {
+/** `nur`: nur diese Handlungsarten (Bauen zeigt die Bauvorlagen mit Kosten, die gerade gehen; Unmögliches mit Grund). */
+export function Benutzen({ nur, titel = "✋ Benutzen", sub = "hier, jetzt, für dich", testid = "benutzen" }: { nur?: string[]; titel?: string; sub?: string; testid?: string }) {
   const setPop = useUiStore((s) => s.setPop);
   const [list, setList] = useState<PlayerChoice[] | null>(null), [sel, setSel] = useState(0), [err, setErr] = useState("");
   useRueckweg(true, EBENE.Popover, () => setPop(null));
   useEffect(() => { api.playerChoices().then(setList).catch((e) => setErr(String(e.detail ?? e))); }, []);
-  const flat = list ?? [];
+  const flat = (list ?? []).filter((c) => !nur || nur.includes(c.action));
   const run = async (c: PlayerChoice) => {
     if (!c.ok) return;
     if (c.action === "speak") { useUiStore.getState().select({ kind: "agent", id: String(c.params.to ?? "") }); setPop("sagen"); return; }
@@ -41,11 +43,11 @@ export function Benutzen() {
   });
   let n = -1;
   return (
-    <div className="glas hud-pop pointer-events-auto absolute bottom-[82px] left-1/2 z-20 max-h-[60%] w-[470px] -translate-x-1/2 overflow-auto px-4 py-3.5" data-testid="benutzen" role="menu">
-      <h4 className="text-[15px] font-semibold">✋ Benutzen <small className="font-normal text-dim">· hier, jetzt, für dich</small></h4>
+    <div className="glas hud-pop pointer-events-auto absolute bottom-[82px] left-1/2 z-20 max-h-[60%] w-[470px] -translate-x-1/2 overflow-auto px-4 py-3.5" data-testid={testid} role="menu">
+      <h4 className="text-[15px] font-semibold">{titel} <small className="font-normal text-dim">· {sub}</small></h4>
       {err && <p className="mt-2 text-xs text-warn">{err}</p>}
       {list === null && !err && <p className="mt-2 text-xs text-dim">Einen Moment …</p>}
-      {list?.length === 0 && <p className="mt-2 text-xs text-dim">Gerade gibt es nichts zu tun.</p>}
+      {list && flat.length === 0 && <p className="mt-2 text-xs text-dim">Gerade gibt es hier nichts davon.</p>}
       {groupChoices(flat).map(([action, items]) => (
         <div key={action}>
           <div className="mt-2.5 text-[11px] font-bold uppercase tracking-[.1em] text-dim">{GROUP[action]?.[0] ?? "•"} {GROUP[action]?.[1] ?? action}</div>
