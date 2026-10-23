@@ -29,6 +29,10 @@ test("T öffnet die Sagen-Zeile an Mira; Enter sagt es als normale Sprechblase, 
   await page.keyboard.press("t");
   const zeile = page.getByTestId("sagenzeile");
   await expect(zeile).toBeVisible();
+  await zeile.getByRole("textbox", { name: "Sagen" }).press("Escape");                   // Esc schließt die leere Zeile
+  await expect(zeile).toHaveCount(0);
+  await page.keyboard.press("t");
+  await expect(zeile).toBeVisible();
   await expect(page.getByTestId("sagen-wer")).toContainText("Mira");
   const box = zeile.getByRole("textbox", { name: "Sagen" });
   await expect(box).toBeFocused();
@@ -36,9 +40,6 @@ test("T öffnet die Sagen-Zeile an Mira; Enter sagt es als normale Sprechblase, 
   await box.press("Enter");
   await post(request, "/api/sim/step", { n: 3 });                          // Sprechen dauert eine Minute: erst dann steht die Blase
   await expect(page.getByTestId("bubble-alex")).toContainText("Guten Morgen, Mira!");
-  await expect(zeile).toHaveCount(0);
-  await page.keyboard.press("t");
-  await page.getByRole("textbox", { name: "Sagen" }).press("Escape");
   await expect(zeile).toHaveCount(0);
 });
 
