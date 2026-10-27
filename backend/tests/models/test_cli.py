@@ -47,7 +47,17 @@ def test_modell_waehlen_und_unbekanntes(capsys):
     _, out = run(capsys, "recommend", "--shell", "--kind", "metal", "--ram-mb", "65536", "--model", "qwen3-4b")
     assert out.startswith("qwen3-4b|")
     _, out = run(capsys, "recommend", "--shell", "--kind", "cpu", "--ram-mb", "8192", "--model", "gibtesnicht")
-    assert out.startswith("FEHLER|unbekanntes Modell gibtesnicht (bekannt: qwen3-4b, qwen3-8b, qwen3-14b)")
+    assert out.startswith("FEHLER|unbekanntes Modell gibtesnicht (bekannt: qwen3-4b, qwen3-8b, qwen3-14b, stheno-8b, rocinante-12b, dolphin-8b, llama32-3b-unc)")
+
+
+def test_liste_mit_zusatzmodellen_empfiehlt_nur_normale(capsys):
+    _, out = run(capsys, "list", "--kind", "metal", "--name", "Apple M1", "--ram-mb", "16384")
+    rows = [r.split("|") for r in out.strip().splitlines()]
+    assert {r[1] for r in rows} >= {"qwen3-8b", "stheno-8b", "dolphin-8b"}
+    assert [r[1] for r in rows if r[0] == "*"] == ["qwen3-8b"]
+    assert {r[1]: r[-2] for r in rows}["stheno-8b"] == "roleplay" and {r[1]: r[-2] for r in rows}["dolphin-8b"] == "uncensored"
+    _, out = run(capsys, "recommend", "--shell", "--kind", "metal", "--name", "Apple M1", "--ram-mb", "16384", "--model", "dolphin-8b")
+    assert out.startswith("dolphin-8b|")
 
 
 def test_json_und_hardware(capsys):

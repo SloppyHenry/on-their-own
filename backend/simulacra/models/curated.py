@@ -25,10 +25,13 @@ def load(path: Path | str | None = None) -> Curated:
     return Curated(data.get("publishers", []), data["models"])
 
 
-def items(cur: Curated, hw: Hardware) -> list[Item]:
-    """Kuratierte Modelle als bewertete Einträge (Größe aus der Liste; die Live-Liste liefert genaue Größe und Prüfsumme nach)."""
+def items(cur: Curated, hw: Hardware, extras: bool = False) -> list[Item]:
+    """Kuratierte Modelle als bewertete Einträge (Größe aus der Liste; die Live-Liste liefert genaue Größe und Prüfsumme nach).
+    Modelle mit "style" (Rollenspiel, ungefiltert) kommen nur mit extras=True: für die Auswahl in install.sh, nie in Empfehlung und Live-Liste."""
     out = []
     for m in cur.models:
+        if m.get("style") and not extras:
+            continue
         quant = quant_of(m["file"]) or "Q4_K_M"
         active = m.get("active_b") or active_from_name(m["name"])
         v = make_variant(m["file"], quant, round(m["size_gb"] * GB), None, m.get("params_b"), active, hw)

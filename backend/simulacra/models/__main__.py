@@ -1,6 +1,7 @@
 """Kommandozeile: dieselbe Rechnung wie die API, für install.sh und von Hand.
 
     python -m simulacra.models hardware [--json]
+    python -m simulacra.models list --shell        (alle kuratierten Modelle, Zeile wie bei recommend, vorn "*" bei der Empfehlung)
     python -m simulacra.models recommend [--model SCHLÜSSEL] [--shell | --json] [Rechner: --kind K --name N --ram-mb R --vram-mb V --vram-free-mb F]
     python -m simulacra.models catalog [--q TEXT] [--only-fit] [--all-publishers] [--refresh] [--limit N]
 
@@ -44,7 +45,7 @@ def shell_line(i: Item) -> str:
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(prog="python -m simulacra.models", description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("command", choices=["hardware", "recommend", "catalog"])
+    ap.add_argument("command", choices=["hardware", "recommend", "list", "catalog"])
     ap.add_argument("--json", action="store_true")
     ap.add_argument("--shell", action="store_true", help="recommend: eine Zeile für Skripte (Schlüssel|Name|Repo|Datei|GB|Passung|Sekunden|Quantisierung|Stufe)")
     ap.add_argument("--model", default="", help="recommend: Schlüssel eines kuratierten Modells statt der Empfehlung")
@@ -70,9 +71,16 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     cur = curated.load()
+    if a.command == "list":
+        its = sorted(curated.items(cur, hw, extras=True), key=lambda i: -i.variant.size_mb)
+        best = curated.best(cur, hw)
+        for i in its:
+            m = next(m for m in cur.models if m["key"] == i.curated_key)
+            print(("*" if best is not None and i.curated_key == best.curated_key else "-") + "|" + shell_line(i) + "|" + m.get("style", "") + "|" + m.get("desc", ""))
+        return 0
     if a.command == "recommend":
         if a.model:
-            sel = next((i for i in curated.items(cur, hw) if i.curated_key == a.model), None)
+            sel = next((i for i in curated.items(cur, hw, extras=True) if i.curated_key == a.model), None)
             if sel is None:
                 print("FEHLER|unbekanntes Modell " + a.model + " (bekannt: " + ", ".join(m["key"] for m in cur.models) + ")")
                 return 0
