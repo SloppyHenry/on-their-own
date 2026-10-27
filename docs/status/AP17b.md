@@ -1,6 +1,6 @@
 # AP17b – Simulation selbst definieren (Stand 19.10.2026)
 
-Plan: [AP17b-plan.md](../arbeitspakete/AP17b-plan.md), Mockup: [assistent.html](../mockups/assistent.html) (von Henry abgenommen, „ok leg los“), Schritt-0-Bericht: [AP17b-schritt0.md](AP17b-schritt0.md). Branch `ap/17b-simulation-definieren` (von `ap/12c-leitstelle`), nicht ausgerollt.
+Plan: [AP17b-plan.md](../arbeitspakete/AP17b-plan.md), Mockup: [assistent.html](../mockups/assistent.html) (abgenommen, „ok leg los“), Schritt-0-Bericht: [AP17b-schritt0.md](AP17b-schritt0.md). Branch `ap/17b-simulation-definieren` (von `ap/12c-leitstelle`), nicht ausgerollt.
 
 ## Bilder
 Alles sind Bildschirmfotos der echten Oberfläche gegen das Backend mit Fake-Modell (Playwright, `frontend/e2e/assistent.spec.ts`).
@@ -56,4 +56,4 @@ Im Browser: Menü → Neue Simulation → „Selbst definieren“. Welt „Neues
 1. Die vier neuen Vorlagen (Texte und Werte in `backend/simulacra/agents/defaults/hanne.json` und Co.): passen sie?
 2. Frage 49 in [offene-fragen.md](../offene-fragen.md): die Annahmen (Wortprüfung als Warnung, Preset nur allgemein, Modus nur bei stehender Zeit, Vorlagen nicht im Backup).
 3. Probelauf mit dem echten Modell auf maintux/thirdtux, sobald erreichbar (4 und 8 Bewohner über mehrere Tage).
-4. Ausrollen nur auf deine Freigabe.
+4. Ausrollen nur auf Freigabe.

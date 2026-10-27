@@ -1,6 +1,6 @@
-// Kamera der Dorfansicht (AP12a, Entscheidung Henry 14.10.2026): Sie fährt durch die Welt, 1× ist immer der Standard. Zoomstufen in
+// Kamera der Dorfansicht (AP12a, Entscheidung 14.10.2026): Sie fährt durch die Welt, 1× ist immer der Standard. Zoomstufen in
 // ganzen Schritten: ¼×, ½× (herausgezoomt: der Puffer zeigt 4- bzw. 2-mal so viel Welt), 1×, 2×, 3× (der fertige Ausschnitt wird vergrößert).
-// Beim Fahren wird der Boden weich gelesen; die Wölbung des Horizonts bleibt immer wie in A (Henry, 14.10.2026: „immer gewölbt“, statt sie
+// Beim Fahren wird der Boden weich gelesen; die Wölbung des Horizonts bleibt immer wie in A (14.10.2026: „immer gewölbt“, statt sie
 // beim Fahren wie in Variante d auszublenden – das hob und senkte die Seiten). Im Stillstand ist das Bild genau Bild A.
 import { FOCUS, TH } from "./abbild";
 

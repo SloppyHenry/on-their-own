@@ -1,10 +1,10 @@
 # Abschlussbericht SIMULACRA (AP11)
 
-Stand: 13.10.2026 · Branch `ap/11-abnahme` · Freigabe zum Zusammenführen: **erteilt (13.10.2026, Henry)**
+Stand: 13.10.2026 · Branch `ap/11-abnahme` · Freigabe zum Zusammenführen: **erteilt (13.10.2026)**
 
 ## Ergebnis in Kürze
 
-- **Alle 16 Kriterien aus Auftrag §17 haben einen grünen Nachweis**, je Kriterium ein benannter Test (`backend/tests/acceptance/`, `frontend/e2e/acceptance/`). Eine Abweichung braucht deine Entscheidung (offene Frage 17, siehe unten).
+- **Alle 16 Kriterien aus Auftrag §17 haben einen grünen Nachweis**, je Kriterium ein benannter Test (`backend/tests/acceptance/`, `frontend/e2e/acceptance/`). Eine Abweichung braucht eine Entscheidung (offene Frage 17, siehe unten).
 - **Langläufe** mit dem endgültigen Code: 2 Stunden mit dem echten Modell (Qwen 9B auf SecondTux, 7,4 Sim-Tage, 1190 Entscheidungen, 99,4 % gültig) und 4 Stunden mit Fake-LLM bei Höchsttempo (1027 Sim-Tage, 220 146 Entscheidungen), ohne Absturz und innerhalb aller Grenzwerte.
 - **Sieben Befunde** aus Abnahme und Langlauf behoben, darunter zwei, die man im Alltag gemerkt hätte: Die Agenten schliefen nie, und bei Höchsttempo entstand alle 3–4 Sekunden eine volle Kopie der Datenbank. Dazu ein Befund, der das Repository betraf: Die Weltdaten waren nie eingecheckt.
 - **Dokumentation vollständig**; eine Neuinstallation an einem frischen Klon nach `docs/installation.md` gelingt (Einrichtung, alle Tests, Build, Start mit Oberfläche und Modell).
@@ -31,7 +31,7 @@ Stand: 13.10.2026 · Branch `ap/11-abnahme` · Freigabe zum Zusammenführen: **e
 | 15 | Ungültige Antworten harmlos | ✅ | `test_k15_serie_kaputter_antworten_laesst_die_welt_unbeschaedigt`: Garbage-Serie (leer, kein JSON, falsche Typen, erfundene Optionen, Shell-Befehle, 200 000 Zeichen, Netzfehler …), danach Integritätsprüfung des Weltzustands |
 | 16 | Ressourcenverbrauch begrenzt | ✅ | `test_k16_*`: Entscheidungen je Minute, Objekte, aktive Erinnerungen, Gesprächslänge, Eingaben je Minute, WebSocket-Rückstand halten im Lauf; `test_k16_langlauf_bleibt_innerhalb_der_grenzwerte` gegen beide Langläufe |
 
-### Abweichung, die deine Entscheidung braucht
+### Abweichung, die eine Entscheidung braucht
 
 - **Warte-Serien (offene Frage 17):** Der AP11-Grenzwert „keine Aktion ≥ 5× hintereinander“ ist für alle Aktionen geprüft, die der Wiederholungsschutz überwacht. Warten und Gesprächszüge nimmt der Schutz absichtlich aus. Im Fake-Lauf kamen nachts Warte-Serien bis 7 vor (vor der neuen Schlaf-Option bis 8), im Lauf mit echtem Modell höchstens 3 gleiche Aktionen in Folge, gleich welcher Art. Geprüft ist der Grenzwert deshalb nur für überwachte Aktionen (dort höchstens 3). Soll Warten ebenfalls begrenzt werden?
 
@@ -39,7 +39,7 @@ Stand: 13.10.2026 · Branch `ap/11-abnahme` · Freigabe zum Zusammenführen: **e
 
 - Langlauf mit echtem Modell gegen **SecondTux statt maintux** (maintux war aus). Gleiches Modell in anderer Quantisierung (`qwen3.8-9b` Q8_0 statt `-uncensored`), RTX 3060 statt 3080.
 - Die **Obergrenze aktiver Erinnerungen** greift einmal je Sim-Tag (bei der Pflege), nicht hart; Einsichten, Zusammenfassungen und offene Vorhaben werden nie archiviert ([grenzen.md](../grenzen.md)).
-- Neustart von maintux als Teil der AP10-Abnahme ausgesetzt (deine Entscheidung); Python 3.14 statt 3.12.
+- Neustart von maintux als Teil der AP10-Abnahme ausgesetzt (Entscheidung); Python 3.14 statt 3.12.
 - Alle bekannten Vereinfachungen: [grenzen.md](../grenzen.md).
 
 ## Befunde und Korrekturen in AP11
@@ -127,7 +127,7 @@ cd frontend && npm run build && cd ../backend && SIM_DATA_DIR=../data SIM_STATIC
 scripts/deploy_maintux.sh
 
 # SecondTux (vom Mac)
-SIM_DEPLOY_HOST=tuxtower SIM_DEPLOY_USER=henry SIM_SSH_OPTS="-o IdentitiesOnly=yes -i $HOME/.ssh/id_ed25519_datenstein" scripts/deploy_maintux.sh
+SIM_DEPLOY_HOST=tuxtower SIM_DEPLOY_USER=<benutzer> SIM_SSH_OPTS="-o IdentitiesOnly=yes -i $HOME/.ssh/id_ed25519_server" scripts/deploy_maintux.sh
 
 # Langlauf und Bericht
 caffeinate -i backend/.venv/bin/python scripts/langlauf.py run --mode real --hours 2 --out data/langlauf/real

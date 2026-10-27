@@ -1,59 +1,47 @@
 # On Their Own
 
-*Früher SIMULACRA. Intern (Python-Paket `simulacra`, Dienste, Pfade) heißt es vorerst weiter so.*
+A small pixel village where AI characters live their own lives. They have personalities, memories, needs and goals; they decide for themselves what to do, talk to each other, make plans and build relationships. You watch, ask them "why?" and shape their world. Everything runs locally on your own machine, with no cloud.
 
-Zwei autonome KI-Agenten, Alex und Mira, leben in einer kleinen, begehbaren Pixelwelt: Haus mit Zimmern, Garten, Wald, See und Dorfplatz, mit Tag und Nacht, Wetter, Ressourcen und Gegenständen. Jeder hat eine eigene Persönlichkeit, ein eigenes Gedächtnis, Bedürfnisse und Ziele. Sie entscheiden selbst, was sie tun, reden miteinander, schließen Abmachungen und bauen Beziehungen auf. Gedacht wird mit einem lokalen Sprachmodell (Qwen 9B über einen llama.cpp-Router), ohne Cloud.
+*Deutsch [weiter unten](#deutsch).*
 
-Im Browser siehst du live zu, verstehst jede Entscheidung („Warum?“), blätterst im Gedächtnis jedes Agenten, drehst an Reglern für Persönlichkeit, Autonomie und Welt, und lässt mit freien Sätzen Dinge geschehen („Heute beginnt es zu regnen.“, „Mira erfährt, dass Alex gestern allein am See war.“). Alles ist persistent: Neustart, Spielstände, Export.
+![The village by day: Alex heads to the workshop, Mira to the lake](docs/img/readme-village.jpg)
 
-Inspiriert von „Generative Agents: Interactive Simulacra of Human Behavior“ (Stanford).
-
-![On Their Own im Browser: Nacht an Tag 4, Alex geht zum See, Mira trinkt am Brunnen; rechts Bewohner und Protokoll, unten die freie Ereigniseingabe](docs/status/img/ap11-app.png)
-
-## Schnellstart (Mac oder Linux)
-
-Voraussetzungen: Python 3.14 (ab 3.12), [uv](https://docs.astral.sh/uv/), Node.js 24, ein erreichbarer OpenAI-kompatibler Endpunkt mit Qwen 9B. Ausführlich: [docs/installation.md](docs/installation.md).
-
-```bash
-cd backend && uv venv .venv --python 3.14 && uv pip install --python .venv/bin/python -r requirements.lock && uv pip install --python .venv/bin/python -e . --group dev && cd ..
-cd frontend && npm ci && cd ..
-cp .env.example backend/.env      # Endpunkt, Schlüsseldatei und Modell eintragen
-scripts/dev.sh                    # http://127.0.0.1:5173 öffnen; beenden mit scripts/stop.sh
-```
-
-## Schnellstart auf dem Server (maintux, SecondTux)
-
-Ein Container liefert API, WebSocket und Oberfläche auf Port 8090; der Router bleibt auf dem Host. Ausrollen vom Mac (nur nach Freigabe):
-
-```bash
-scripts/deploy_maintux.sh --dry-run    # zeigt die Schritte
-scripts/deploy_maintux.sh              # Tests, Rückfrage, Backup, Bauen, Starten, Prüfen, bei Fehler zurück
-```
-
-Danach `http://maintux:8090`. Anderer Rechner, Backup, Wiederherstellung, Fehlersuche: [docs/betrieb.md](docs/betrieb.md).
-
-## Tests
-
-```bash
-cd backend && .venv/bin/python -m pytest -q              # ca. 950 Tests, ohne Modell und ohne Netz
-cd frontend && npm run typecheck && npm test && npx playwright test
-```
-
-Die Abnahme nach Auftrag §17 steht in `backend/tests/acceptance/` und `frontend/e2e/acceptance/` (je Kriterium ein Test), das Ergebnis in [docs/status/ABSCHLUSS.md](docs/status/ABSCHLUSS.md).
-
-## Dokumentation
-
-| Thema | Datei |
+| | |
 |---|---|
-| Installation | [docs/installation.md](docs/installation.md) |
-| Betrieb im Container, Backup | [docs/betrieb.md](docs/betrieb.md) |
-| Sprachmodell anbinden, Messwerte | [docs/llm-anbindung.md](docs/llm-anbindung.md) |
-| Konfiguration (`SIM_*`) und Parameter | [docs/konfiguration.md](docs/konfiguration.md), [docs/parameter.md](docs/parameter.md) |
-| Architektur | [docs/architektur.md](docs/architektur.md) |
-| REST, WebSocket, Ereignisse | [docs/schnittstellen.md](docs/schnittstellen.md) |
-| Erweitern (Aktion, Objekt, Parameter, Ereignis, Agent) | [docs/erweitern.md](docs/erweitern.md), [docs/welt-erweitern.md](docs/welt-erweitern.md) |
-| Agenten, Gedächtnis, Autonomie, freie Ereignisse | [docs/agenten.md](docs/agenten.md), [docs/gedaechtnis.md](docs/gedaechtnis.md), [docs/autonomie.md](docs/autonomie.md), [docs/ereignisse.md](docs/ereignisse.md) |
-| Oberfläche | [docs/frontend.md](docs/frontend.md) |
-| Spielstände | [docs/spielstaende.md](docs/spielstaende.md) |
-| Bekannte Grenzen und Ideen | [docs/grenzen.md](docs/grenzen.md) |
-| Auftrag, Arbeitspakete, offene Fragen, Statusberichte | [docs/AUFTRAG.md](docs/AUFTRAG.md), [docs/ARBEITSPAKETE.md](docs/ARBEITSPAKETE.md), [docs/offene-fragen.md](docs/offene-fragen.md), [docs/status/](docs/status/) |
+| ![Inside the house: rooms, furniture and both residents in the kitchen](docs/img/readme-house.jpg) | ![The diary: every decision with its reason](docs/img/readme-diary.jpg) |
+
+## Install
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/SloppyHenry/on-their-own/main/get.sh | bash
+```
+
+That's it. The script fetches the project to `~/on-their-own`, detects your machine (macOS or Linux, Apple Silicon, NVIDIA/CUDA, Vulkan or CPU only, memory and disk) and installs what fits: uv and Node.js if missing, llama.cpp, a language model sized to your hardware, and a background service. No `sudo`, every download is checksummed. Then open **http://127.0.0.1:8090**.
+
+Options are passed through, e.g. `… | bash -s -- --headless` for a server without a screen, `--no-llm` to use an existing OpenAI-compatible endpoint, `--dry-run` to only see the plan. From a checkout: `./install.sh --help`.
+
+## What's inside
+
+- **Autonomous residents** (Alex, Mira and more): memory with reflection, daily plans, conversations, agreements, relationships
+- **A living world**: day and night, weather, house with rooms, garden, lake, things to use, events that just happen
+- **Ways to play**: watch, play god (events in plain words: *"It starts to rain."*), or build and furnish the village; living in it with your own character is on the way
+- **Your own simulations**: pick or write residents, generate villages, set the rules, save and load
+- **Local model** via llama.cpp, picked from a curated list to fit your hardware, swappable in the settings
+
+Inspired by *Generative Agents: Interactive Simulacra of Human Behavior* (Stanford). Documentation is in German: [docs/](docs/).
+
+---
+
+## Deutsch
+
+Ein kleines Pixeldorf, in dem KI-Figuren ihr eigenes Leben führen: mit Persönlichkeit, Gedächtnis, Bedürfnissen und Zielen. Sie entscheiden selbst, reden miteinander, schmieden Pläne und knüpfen Beziehungen. Du schaust zu, fragst „Warum?“ und gestaltest ihre Welt. Alles läuft lokal, ohne Cloud.
+
+**Installation** (macOS und Linux, erkennt den Rechner und installiert alles Passende):
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/SloppyHenry/on-their-own/main/get.sh | bash
+```
+
+Danach **http://127.0.0.1:8090** öffnen. Details: [docs/installation.md](docs/installation.md) · Betrieb und Backup: [docs/betrieb.md](docs/betrieb.md) · Architektur: [docs/architektur.md](docs/architektur.md) · Schnittstellen: [docs/schnittstellen.md](docs/schnittstellen.md) · Erweitern: [docs/erweitern.md](docs/erweitern.md)
+
+**Entwickeln:** `scripts/dev.sh` startet Backend und Oberfläche mit Neuladen. Tests: `cd backend && .venv/bin/python -m pytest -q` sowie `cd frontend && npm run typecheck && npm test && npx playwright test`.

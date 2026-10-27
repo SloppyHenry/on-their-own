@@ -9,7 +9,7 @@ Plan: [AP17b-plan.md](../arbeitspakete/AP17b-plan.md). Mockup: [assistent.html](
 4. **Profile ohne Datei:** `AgentStore.ensure` legt Profile nur aus `agents/defaults/<id>.json` an; für beliebige Bewohner braucht es den Weg über die Vorlage.
 5. **Schöpfermodus:** `mode` und `mode.creator_text` gibt es als Parameter, jederzeit änderbar. Neu: beim Anlegen wählbar und im Spiel nur im Editor-Modus.
 
-## Entscheidungen von dir (heute)
+## Entscheidungen (heute)
 - Größeres Haus: **eigener Baustein nach dem Assistenten.**
 - Karte wächst mit der Bewohnerzahl: **ja** (Vorschau zeigt Betten statt Namen).
 - Vorlagen: **4 weitere**, sehr verschieden.
@@ -28,11 +28,11 @@ Ausprobieren: Welt „Neues Dorf erzeugen“, Wohnhäuser ± (Betten rechnen mit
 Echte Daten: Alex und Mira wörtlich aus `agents/defaults/*.json`, die zwölf Bezeichnungen aus `PERSONALITY_LABELS`, die sechs Presets mit ihren Beschreibungen, das Dorfbild aus `frontend/public/menue/`, die Standardwerte der Beziehungen aus `relations.py`, der Text des Schöpfermodus aus `agents/modes.py`. **Nur Beispiel:** Hanne, Jonas, Rosa und Kim (vier vorgeschlagene Vorlagen, bitte lesen und ändern), die Vorschau des Dorfs (festes Bild von Seed 31) und die Vorschau der Weltregeln (einfache Stichwörter statt Ereigniseingabe).
 
 ## Was du entscheiden oder prüfen sollst
-1. Gefällt dir der Ablauf (Welt · Bewohner · Regeln · Modell · Start)? Der Schöpfermodus steht im Schritt Regeln.
+1. Passt der Ablauf (Welt · Bewohner · Regeln · Modell · Start)? Der Schöpfermodus steht im Schritt Regeln.
 2. Passen die vier neuen Vorlagen (Texte, Alter, Werte)?
 3. Beziehungsmatrix: Zeile → Spalte, Klick öffnet das Paar mit beiden Richtungen und einer Vorgeschichte. Reicht das?
 4. Annahmen aus dem Plan, die ich ohne Rückfrage übernommen habe: **Nebenfiguren** nicht in AP17b; **Würfeln** je Feld mit sichtbarem Seed; **Vorlagen als Dateien** neben den Spielständen; **Wortprüfung** (Spieler, Leitstelle, Simulation …) nur als Warnung, nicht als Sperre.
 5. Offen geblieben: Bewohner mit eigener Vorlage in der **Startwelt** (nur Alex und Mira passen zu den festen Zimmern). Ich lasse es dabei und weise im Assistenten darauf hin.
 
 ## Nächster Schritt
-Nach deiner Abnahme: Branch `ap/17b-simulation-definieren` ist angelegt; Teilpaket **a** (Backend) beginnt mit Profilschema und Wortprüfung, dann Generator für N Bewohner und Bleibe suchen.
+Nach der Abnahme: Branch `ap/17b-simulation-definieren` ist angelegt; Teilpaket **a** (Backend) beginnt mit Profilschema und Wortprüfung, dann Generator für N Bewohner und Bleibe suchen.

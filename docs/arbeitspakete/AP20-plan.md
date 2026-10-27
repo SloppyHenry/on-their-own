@@ -1,6 +1,6 @@
 # AP20 – Musik-Editor (Plan, 20.10.2026)
 
-**Auftrag:** Henry, 18.10.2026 ([ausblick.md](../ausblick.md), Nachtrag): „Musik-Editor, in dem man aus Elementen eigene Hintergrundmusik baut“, unter Menü › Editoren. Am 20.10.2026 beauftragt.
+**Auftrag:** 18.10.2026 ([ausblick.md](../ausblick.md), Nachtrag): „Musik-Editor, in dem man aus Elementen eigene Hintergrundmusik baut“, unter Menü › Editoren. Am 20.10.2026 beauftragt.
 **Umfang:** L, Schritt 0 plus vier Teilpakete (a–d). **Abhängig von:** AP18b (Formensprache), AP18a (Esc). Unabhängig von AP19 und AP21, kann also auch früher kommen.
 
 ## Ziel
@@ -69,7 +69,7 @@ Musikstücke sind **Daten** statt Code. Ein Editor baut aus denselben Bausteinen
 - **Bild 2, Editor:** oben Leiste mit ▶/■, Taktanzeige 1–8 (A A′ B A″ farbig), Tempo, „Regen“ und „Nacht“ als Vorhör-Schalter. Darunter Gruppen: **Grundlagen** (Name, Grundton als Notenname mit Oktave, Tonleiter), **Akkorde** (1–8 Kästchen mit römischen Stufen I–VII, Klick wechselt, +/−), **Melodie** (Instrument-Chips, Sparsam, „Motive neu würfeln“, „Motive selbst zeichnen“), **Begleitung** (Bass-Chips, Fläche, Gebrochene Akkorde, Gegenstimme, Warm), **Schlagwerk** (Chips), **Ausdruck** (Swing, Lautstärke).
 - **Bild 3, Motiv-Raster:** zwei Raster A und B, je 8 Achtel × 15 Tonstufen, Töne setzen durch Klick, Länge durch Ziehen nach rechts.
 - **Bild 4, Zuordnung:** Liste der Regeln mit Bedingungen als Chips, Ziehen zum Umsortieren, Stück je Regel als Auswahl. Erreichbar im Editor (Reiter) und in Menü › Einstellungen › Ton („Musik dieser Welt …“).
-Henry nimmt ab, bevor a beginnt.
+Die Projektleitung nimmt ab, bevor a beginnt.
 
 ## AP20a – Noten als reine Funktion, Stücke als Daten (kein hörbarer Unterschied)
 1. **Noten-Basis sichern (zuerst!):** Teile `playBar` in zwei Hälften:
@@ -103,7 +103,7 @@ Henry nimmt ab, bevor a beginnt.
 3. **Prüfen:** Vitest: festes Motiv → Melodietöne genau an den gezeichneten Stellen in Takt 0; Playwright: Ton setzen, ▶, keine Fehler in der Konsole.
 
 ## Abnahme
-Henry baut ein eigenes Stück, hört es vor, ordnet es dem Regen zu und hört es im Spiel, wenn es regnet. Die Standardmusik klingt wie vorher. Bericht `docs/status/AP20.md`.
+Jemand baut ein eigenes Stück, hört es vor, ordnet es dem Regen zu und hört es im Spiel, wenn es regnet. Die Standardmusik klingt wie vorher. Bericht `docs/status/AP20.md`.
 
 ## Fallen
 - **Zeit im Browser:** Der Planer `sched` läuft mit `setTimeout`. Wird der Entwurf während des Spielens geändert, darf kein zweiter Planer entstehen (genau ein `timer`).

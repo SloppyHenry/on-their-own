@@ -1,8 +1,8 @@
 # AP21 – Gegenstände als Daten (Plan, 20.10.2026)
 
-**Auftrag:** Henry, 20.10.2026: „baue direkt alle APs – auch Gegenstände und Epochen“. Grundlage ist der Ausblick ([ausblick.md](../ausblick.md), Abschnitt 4): „Erst die Objektarten als Daten (Voraussetzung für Epochen **und** Baustein-Editor), dann Epochenpakete, dann der Editor.“
+**Auftrag:** 20.10.2026: „baue direkt alle APs – auch Gegenstände und Epochen“. Grundlage ist der Ausblick ([ausblick.md](../ausblick.md), Abschnitt 4): „Erst die Objektarten als Daten (Voraussetzung für Epochen **und** Baustein-Editor), dann Epochenpakete, dann der Editor.“
 **Umfang:** L, vier Teilpakete (a–d), je eine Sitzung. **Abhängig von:** AP18g (dort kommen neue Bauvorlagen hinzu; AP21 überführt sie gleich mit). **Ermöglicht:** AP22 (Epochen) und AP23 (Baustein-Editor).
-**Sichtbare Änderung für Henry:** keine. Das ist ein Umbau unter der Haube. Am Ende steht eine Anleitung, mit der man eine neue Objektart **ohne Python** anlegt.
+**Sichtbare Änderung im Spiel:** keine. Das ist ein Umbau unter der Haube. Am Ende steht eine Anleitung, mit der man eine neue Objektart **ohne Python** anlegt.
 
 ## Ziel in einem Satz
 Alles, was heute eine Objektart ausmacht und von Hand in sechs Python- und TypeScript-Dateien steht, kommt in **eine Katalogdatei je Paket**. Die Engine liest diese Daten und verhält sich danach Ereignis für Ereignis genauso wie vorher.
@@ -132,7 +132,7 @@ Bedürfnisse (Ausruhen, Schlafen) bleiben in v1 Handler (`sleep`, `sit`), weil s
 
 ### AP21d – Anleitung, Probe und Härtung
 1. `docs/dinge-katalog.md`: Aufbau, alle Bausteine mit Beispiel, „Eine neue Objektart ohne Python anlegen“ Schritt für Schritt, Fehlermeldungen des Loaders mit Bedeutung.
-2. **Probe mit einer Testart:** Fixture-Paket `backend/tests/fixtures/katalog/probe/` mit einer Art `rain_barrel` („Regentonne“, Bild `barrel`, Modus `fill`: `freie_plaetze 1`, `rohstoff water 1`, Dauer 3). Ein Test lädt `["grund", "probe"]`, stellt die Tonne neben Alex, Fake wählt `fill`, Alex hat danach 1 Wasser, und die Option erscheint mit dem Katalogtext im Prompt. **Die Tonne kommt nicht ins Grundpaket** (neue Dinge nur mit Henrys Abnahme).
+2. **Probe mit einer Testart:** Fixture-Paket `backend/tests/fixtures/katalog/probe/` mit einer Art `rain_barrel` („Regentonne“, Bild `barrel`, Modus `fill`: `freie_plaetze 1`, `rohstoff water 1`, Dauer 3). Ein Test lädt `["grund", "probe"]`, stellt die Tonne neben Alex, Fake wählt `fill`, Alex hat danach 1 Wasser, und die Option erscheint mit dem Katalogtext im Prompt. **Die Tonne kommt nicht ins Grundpaket** (neue Dinge nur mit Abnahme).
 3. **Loader-Härtung** (Tests in `backend/tests/world/test_katalog.py`): falsches Format, falsche Version, doppelte Art, unbekannter Baustein, Wirkung auf unbekanntes Zustandsfeld, `zustand_setzen` mit falschem Typ, Bauvorlage mit unbekanntem Rohstoff, Optionstext ohne `{obj}` (erlaubt), Text mit Wörtern aus der Wortprüfung (`META_RE` aus `agents/schema.py`: Warnung, keine Sperre). Jede Meldung nennt Datei, Art und Feld auf Deutsch.
 4. **Grenzen** (Gleichgewicht, gelten ab jetzt für jedes Paket): `rohstoff` je Benutzung höchstens ±5, `zufall.chance` 0–1, `dauer` 1–240 Minuten, höchstens 8 Modi je Art, höchstens 12 Zustandsfelder. Verstöße sind Ladefehler.
 
@@ -141,7 +141,7 @@ Bedürfnisse (Ausruhen, Schlafen) bleiben in v1 Handler (`sleep`, `sit`), weil s
 - Bestehend und weiter grün: alle Backend-Tests, Vitest, Playwright, insbesondere Prompt-Tests (`tests/agents/test_planner.py`, `test_perception_options.py`) und Akzeptanztests.
 
 ## Abnahme
-Henry sieht keinen Unterschied im Spiel. Im Bericht `docs/status/AP21.md` stehen: Gleichlauf-Ergebnis, Liste „Daten“ und „Handler“ je Modus, die Regentonne als Beweis, die echten Testzahlen.
+Im Spiel ist kein Unterschied zu sehen im Spiel. Im Bericht `docs/status/AP21.md` stehen: Gleichlauf-Ergebnis, Liste „Daten“ und „Handler“ je Modus, die Regentonne als Beweis, die echten Testzahlen.
 
 ## Fallen
 - **Reihenfolge der Ereignisse:** `inv_add` erzeugt selbst ein Ereignis. Wirkungen in genau der heutigen Reihenfolge ausführen.

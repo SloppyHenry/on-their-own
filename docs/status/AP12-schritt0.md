@@ -15,7 +15,7 @@ Neun Dörfer aus Bild A (3 × 3), durch Landstraßen verbunden. Die Startlage de
 
 **Was bleibt in jeder Art:** Sprites ändern ihre Größe mit der Tiefe (wie in A). Beim Fahren nach vorn oder hinten springen sie dadurch in Pixelstufen. Straßen enden am Rand des Originalblocks von A (dort setzt später der Generator die Anschlüsse).
 
-**Nach deinem ersten Test (14.10.2026):** „Alles wobbelt, und beim Fahren nach vorn und hinten ist der Globus-Effekt wieder da.“ Zwei Ursachen:
+**Nach dem ersten Test (14.10.2026):** „Alles wobbelt, und beim Fahren nach vorn und hinten ist der Globus-Effekt wieder da.“ Zwei Ursachen:
 - **Mein Mockup:** Es zeichnete nur 25 Bilder je Sekunde (Takt von A für Wasser und Wolken) und rundete jedes Sprite einzeln auf ganze Pixel, Boden und Figuren verschoben sich dadurch gegeneinander. Jetzt: jedes Bild neu (60 fps gemessen, Bildzeit etwa 13 ms) und beim Fahren Bruchteile von Pixeln für Sprites und Boden, im Stillstand wieder ganze Pixel.
 - **Das Bild A selbst:** Der Globus-Eindruck ist kein Stilmittel, sondern folgt aus der Projektion von A: Der Horizont ist gewölbt, Boden und Bäume an den Seiten laufen beim Fahren auf Bögen, und alles wächst auf dem Weg nach vorn. Das lässt sich im Stillstand nicht sehen, in der Fahrt schon. Neu Variante **(d)**: Die Wölbung verschwindet beim Fahren und kommt im Stillstand sanft zurück. Die Vergrößerung mit der Tiefe bleibt in jeder Variante.
 
@@ -43,7 +43,7 @@ Vier Dörfer aus Seeds. Das Regelwerk (`dorf.js`) ist nur eine Skizze des Genera
 - Die Häuser sind parametrisch (Breite, Dach- und Wandfarbe) und passen zur Vorgabe „Zeichenbausteine mit Parametern“; neue Arten sind neue Funktionen in `art/`.
 - Nicht geprüft: Verhalten auf einem Gerät mit anderer Pixeldichte, Leistung im echten Spiel (kommt in AP12a), die Bewegung selbst (siehe oben).
 
-## Abnahme durch dich (erledigt 14.10.2026)
+## Abnahme (erledigt 14.10.2026)
 **Frage 24:** Bewegung (d), 1× Standard, herauszoomen möglich. **Frage 25:** Bausteine freigegeben („neue Bausteine sind super“).
 
 ## Ursprünglicher Abnahmetext

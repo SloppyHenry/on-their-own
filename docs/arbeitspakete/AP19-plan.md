@@ -1,7 +1,7 @@
 # AP19 – Aussehen der Figuren: Avatar-Editor (Plan, 20.10.2026)
 
-**Auftrag:** Henry, 14.10.2026 ([ausblick.md](../ausblick.md), Abschnitt 2): „Figuren auf Basis der Vorlage-Avatare erstellen und Farben, Haare, Kleidung usw. ändern.“ Am 20.10.2026 beauftragt („baue direkt alle APs“).
-**Umfang:** L, Schritt 0 plus drei Teilpakete (a–c). **Abhängig von:** AP18b (Formensprache, Bausteine in `frontend/src/ui/`), AP17b (Charaktereditor, Vorlagen). **Vor:** AP18h (Mitleben), damit Henry seine eigene Figur gestalten kann.
+**Auftrag:** 14.10.2026 ([ausblick.md](../ausblick.md), Abschnitt 2): „Figuren auf Basis der Vorlage-Avatare erstellen und Farben, Haare, Kleidung usw. ändern.“ Am 20.10.2026 beauftragt („baue direkt alle APs“).
+**Umfang:** L, Schritt 0 plus drei Teilpakete (a–c). **Abhängig von:** AP18b (Formensprache, Bausteine in `frontend/src/ui/`), AP17b (Charaktereditor, Vorlagen). **Vor:** AP18h (Mitleben), damit man die eigene Figur gestalten kann.
 
 ## Ziel
 Jede Figur hat ein **Aussehen als Daten** (Hautton, Frisur, Haarfarbe, Oberteil, Beine, Schuhe, Zubehör, Akzentfarbe). Es steht im Profil und damit in Vorlagen und Spielständen. Ein **Avatar-Editor** mit großer Vorschau ändert es. Alex und Mira sehen danach **Pixel für Pixel** aus wie heute.
@@ -17,7 +17,7 @@ Jede Figur hat ein **Aussehen als Daten** (Hautton, Frisur, Haarfarbe, Oberteil,
 1. **Aussehen steht nie im Prompt** (Frage 64, Vorschlag). Die Bewohner „sehen“ es nicht; `profile_texts` in `agents/schema.py` bleibt unverändert. Ein Test sichert das.
 2. **Ändern im laufenden Spiel** nur in der Spielart Gott (Bewohner-Karte › Aussehen, Zeit steht still) und für die eigene Figur (AP18h). In der Spielart Leben lehnt das Backend mit 403 ab (Frage 65).
 3. Das Ereignis `agent.appearance_changed` hat **keine Agenten** (`agents=[]`) und wird von `agents/observations.py` nicht beachtet (dort steht eine feste Liste von Ereignistypen; der neue Typ kommt **nicht** hinein). Es erzeugt also keine Erinnerung.
-4. **Neue Pixelteile** (Frisuren, Hüte, Brille, Bart, Hauttöne) gibt es nur nach Mockup und Henrys Abnahme (Mockup-Treue). Bis dahin kann der Editor nur, was `people.ts` heute zeichnen kann (Farben, kurz/lang, Kleid/Hose, Spange).
+4. **Neue Pixelteile** (Frisuren, Hüte, Brille, Bart, Hauttöne) gibt es nur nach Mockup und Abnahme (Mockup-Treue). Bis dahin kann der Editor nur, was `people.ts` heute zeichnen kann (Farben, kurz/lang, Kleid/Hose, Spange).
 5. Ohne gespeichertes Aussehen bleibt alles wie heute (Aussehen aus der Kennung).
 
 ## Datenformat `Appearance` (Version 1)
@@ -42,14 +42,14 @@ Jede Farbe in den Tupeln wird mit demselben Muster geprüft (Validator). `AgentP
 **Alex und Mira** bekommen in `agents/defaults/alex.json` und `mira.json` ein `appearance`, das **genau** die heutigen Werte aus `LOOKS` trägt:
 - Alex: `skin #f7cba2`, `hair_style kurz`, `hair [#7a4a2b, #9b6a44]`, `top_style hemd`, `top [#efa24b, #ffc07a, #c9802f]`, `legs #4f6c9c`, `shoes #5a3a2a`, `accessory keins`, `accent #e8ac5c`.
 - Mira: `skin #f7cba2`, `hair_style lang`, `hair [#3d2a3c, #5a4058]`, `top_style kleid`, `top [#7fc48f, #a2dcae, #5ea873]`, `legs #f7cba2`, `shoes #c95c6c`, `accessory spange`, `accessory_color #ff9fc2`, `accent #93c79f`.
-Hanne, Jonas, Rosa und Kim bekommen **kein** `appearance` in a (sie behalten ihr Aussehen aus der Kennung); Henry kann ihnen später eines geben.
+Hanne, Jonas, Rosa und Kim bekommen **kein** `appearance` in a (sie behalten ihr Aussehen aus der Kennung); die Projektleitung kann ihnen später eines geben.
 
 ## Schritt 0 – Mockup und Fragen (eine Sitzung, kein Anwendungscode)
 1. Mockup `docs/mockups/avatar.html` mit `docs/mockups/avatar/` im Stil von `docs/mockups/rework/stil.css`:
    - **Bild 1, Avatar-Editor** als Bereich in Menü › Editoren › Figuren › (Vorlage) › Reiter „Aussehen“: links große Vorschau (Figur 8-fach vergrößert, `image-rendering: pixelated`), darunter vier Knöpfe für die Richtungen und „Laufen“ (Animation 0–3), daneben das Bildnis in 44 und 88 px. Rechts Gruppen: **Haut** (6 Töne), **Frisur** (Chips), **Haarfarbe** (8 Felder + „eigene …“), **Oberteil** (Chips Hemd/Kleid …), **Farbe** (10 Felder + eigene), **Beine**, **Schuhe**, **Zubehör** (Chips + Farbe), **Akzent**. Oben „Würfeln“, „Zurück zur Vorlage“, unten „Speichern“.
    - **Bild 2, Teilebogen:** alle neuen Teile in allen Richtungen und Laufbildern auf Wiese und im Haus (Tiefe und Flach), je auf Alex' und Miras Körper: Frisuren Zopf, Dutt, Locken, Glatze; Oberteile Pulli, Schürze, Mantel; Zubehör Hut, Mütze, Brille, Tuch, Bart; 6 Hauttöne. Gezeichnet mit derselben `Spr`-API wie `people.ts` (das Mockup darf `docs/mockups/` eigene Kopien von `pen.ts`-Hilfen benutzen).
    - **Bild 3, im Spiel:** Bewohnerleiste und Bewohner-Karte (AP18b) mit drei neuen Figuren, damit man sieht, ob sie sich gut unterscheiden.
-2. Fragen in `docs/offene-fragen.md` ergänzen, wenn das Mockup neue aufwirft. **Abnahme durch Henry**, bevor a beginnt.
+2. Fragen in `docs/offene-fragen.md` ergänzen, wenn das Mockup neue aufwirft. **Abnahme durch die Projektleitung**, bevor a beginnt.
 
 ## AP19a – Aussehen als Daten, Zeichnen daraus (keine sichtbare Änderung)
 1. **Pixel-Basis sichern (zuerst!):** Vitest läuft ohne Canvas (`environment: "node"`), darum im Browser: Hänge in `people.ts` eine Testhilfe an `window.__figuren = { hash(id, dir, frame, pose) }` (nur wenn `import.meta.env.DEV` oder `?test` in der Adresse, wie `window.__welt` in `e2e/bilder-editor.spec.ts`). `hash` zeichnet die Figur und bildet FNV-1a über `getImageData`. Playwright `frontend/e2e/figuren-basis.spec.ts` ruft das für `alex`, `mira`, `hanne`, `x1`, `x2` je Richtung × Bild × Pose (`""`, `"sit"`) auf, dazu `sleeper` und `portrait(…, 44)`, und vergleicht mit `frontend/e2e/fixtures/figuren-basis.json`. **Test und Datei entstehen auf dem alten Code und werden committet, bevor `people.ts` sonst geändert wird** (Schalter `UPDATE_BASIS=1` schreibt die Datei neu).
@@ -77,7 +77,7 @@ Hanne, Jonas, Rosa und Kim bekommen **kein** `appearance` in a (sie behalten ihr
 4. **Prüfen:** pytest für den Endpunkt (Gott erlaubt, Leben 403, Ereignis ohne Agenten, keine Erinnerung entsteht: nach dem Ereignis ist `memories` für alle Bewohner unverändert), Playwright: Gott › Aussehen ändern → Figur in der Welt ändert sich ohne Neuladen.
 
 ## Abnahme
-Henry gestaltet im Editor eine neue Figur, startet damit eine Simulation und sieht sie in Welt, Bewohnerleiste und Bewohner-Karte. Alex und Mira sind unverändert. Bericht `docs/status/AP19.md` mit Bildern.
+Jemand gestaltet im Editor eine neue Figur, startet damit eine Simulation und sieht sie in Welt, Bewohnerleiste und Bewohner-Karte. Alex und Mira sind unverändert. Bericht `docs/status/AP19.md` mit Bildern.
 
 ## Fallen
 - **Zwischenspeicher:** Ohne Stempel im `memo`-Schlüssel bleibt die alte Figur stehen. Bei Spielstandwechsel (`simulation.reset`) das Register leeren.

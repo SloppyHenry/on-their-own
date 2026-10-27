@@ -2,7 +2,7 @@
 
 Auftrag: [AP12-weltgenerator.md](AP12-weltgenerator.md) (Ziel, Validierung und Tests gelten weiter; Vorgaben für AP04 und Darstellung sind durch diesen Plan ersetzt). Dieser Plan berücksichtigt AP13 bis AP15. Branch `ap/12-weltgenerator`.
 
-## Entscheidungen (Henry, 14.10.2026)
+## Entscheidungen (14.10.2026)
 | Frage | Entscheidung |
 |---|---|
 | **14a** Neue Startwelten oder nur erweitern? | **Beides, ein Generator.** Neue Startwelt = Dorf ohne Anschluss in einer neuen Weltdatei; Erweiterung = Dorf mit Weg zum Bestand. Gleicher Code, Unterschied nur Anschlusspunkt und Startplätze der Agenten. |
@@ -28,15 +28,15 @@ Auftrag: [AP12-weltgenerator.md](AP12-weltgenerator.md) (Ziel, Validierung und T
 Das Paket ist größer als „L“; drei Teilpakete mit je eigener Abnahme, jeweils eigener Statusbericht.
 
 ### Schritt 0 – Prototypen (Mockups, nichts im Spiel)
-- **Scrollen** (`docs/mockups/welt-optik/scrollen.html`): Boden von A mit beweglicher Kamera über eine größere Fläche, damit du das Krisseln selbst siehst. Drei Bewegungsarten zum Vergleich: (a) frei fließend, (b) ganze Kachelschritte mit sanftem Gleiten, (c) fließend, nach dem Stoppen sofort scharf. Dazu Zoom 1×–3×. Ergebnis: deine Wahl, notfalls Rückfall auf das Bild-Wechsel-Konzept.
+- **Scrollen** (`docs/mockups/welt-optik/scrollen.html`): Boden von A mit beweglicher Kamera über eine größere Fläche, damit das Krisseln selbst zu sehen ist. Drei Bewegungsarten zum Vergleich: (a) frei fließend, (b) ganze Kachelschritte mit sanftem Gleiten, (c) fließend, nach dem Stoppen sofort scharf. Dazu Zoom 1×–3×. Ergebnis: deine Wahl, notfalls Rückfall auf das Bild-Wechsel-Konzept.
 - **Neue Bausteine** (`bausteine.html`): die neuen Gebäudearten, Dachfarben, Brücke, Marktstand, Landstraße und ein erzeugtes Beispieldorf, als Bild A daneben.
-- Abnahme durch dich, bevor Code im Spiel entsteht.
-- **Stand 14.10.2026: gebaut, wartet auf deine Abnahme** (Fragen 24 und 25 in [offene-fragen.md](../offene-fragen.md)). Bericht mit Bildern: [status/AP12-schritt0.md](../status/AP12-schritt0.md).
+- Abnahme, bevor Code im Spiel entsteht.
+- **Stand 14.10.2026: gebaut, wartet auf Abnahme** (Fragen 24 und 25 in [offene-fragen.md](../offene-fragen.md)). Bericht mit Bildern: [status/AP12-schritt0.md](../status/AP12-schritt0.md).
 
 ### AP12a – Darstellung: scrollende Welt, verallgemeinertes `look` (gebaut 14.10.2026, Bericht [status/AP12a.md](../status/AP12a.md), abgenommen 14.10.2026)
 1. **`look` Version 2:** Listen statt Einzelstücke (Gebiete mit Seen, Plätzen, Gärten, Wegen, Stegen; Häuser mit Tür, Innenbereich, Rauch; Lichter). Die Startwelt wird in diese Form umgeschrieben (`startwelt_a.mjs`), die alte Form lädt über einen Adapter weiter. Goldbild-Test grün.
 2. **Boden in Blöcken:** Dorfrand und Wildnis ergeben sich aus den Gebieten, Zufall (Gräser, Blumen, Seerosen, Keimlinge) wird je Block aus Blockkoordinaten gezogen. Der Block mit der Startwelt behält die alte Reihenfolge, damit er byte-gleich bleibt. Hintergrund (Himmel, Hügel, Wolken) bleibt wie in A.
-3. **Kamera mit Fokus:** `Frame` bekommt die Kameralage; bei der Startlage identisch zu A. WASD, Ziehen, Mausrad (ganze Stufen), „hingehen“, Folgen, Gesamtansicht; Bewegungsart **(d)** (Entscheidung Henry, 14.10.2026): weich beim Fahren, Horizontkrümmung nur im Stillstand, im Stillstand exakt Bild A. **Zoom:** 1× ist immer Standard; herauszoomen auf ½× und ¼× (Übersicht der Welt; der Boden wird dafür in gröberen Stufen vorgehalten, Blöcke je Stufe), hineinzoomen auf 2×/4× wie in AP14. Die Bildmitte bleibt beim Zoomen am Ort.
+3. **Kamera mit Fokus:** `Frame` bekommt die Kameralage; bei der Startlage identisch zu A. WASD, Ziehen, Mausrad (ganze Stufen), „hingehen“, Folgen, Gesamtansicht; Bewegungsart **(d)** (Entscheidung, 14.10.2026): weich beim Fahren, Horizontkrümmung nur im Stillstand, im Stillstand exakt Bild A. **Zoom:** 1× ist immer Standard; herauszoomen auf ½× und ¼× (Übersicht der Welt; der Boden wird dafür in gröberen Stufen vorgehalten, Blöcke je Stufe), hineinzoomen auf 2×/4× wie in AP14. Die Bildmitte bleibt beim Zoomen am Ort.
 4. **Mehrere Häuser:** Klick auf jedes Haus, Innenansicht je Haus (`look.houses[i].interior`), Schilder mit Bewohnern, Rauch je Haus, Licht je Laterne und Fenster.
 5. **Sichtbereich:** Dinge, Schilder und Klicktreffer nur für das, was im Bild ist (Index nach Block).
 6. **Leistung:** Messlauf mit 256 × 256 Welt, 50 Figuren, 1000 Dingen; Ziel 60 fps wie bisher.
@@ -71,7 +71,7 @@ Das Paket ist größer als „L“; drei Teilpakete mit je eigener Abnahme, jewe
 - Keine Jahreszeiten, kein Gelände mit Höhen; Hügel bleiben Hintergrund wie in A.
 - Landstraßen verbinden Dörfer; innerhalb eines Dorfs sehen Wege aus wie in A.
 - Mitspieler und Agenten sehen erzeugte Dörfer gleich (Wahrnehmung nach Ort und Hörweite wie bisher).
-- Ausrollen nur nach deiner Freigabe.
+- Ausrollen nur nach Freigabe.
 
 ## Spätere Wünsche (nicht Teil von AP12)
 Dörfer selbst gestalten, eigene Figuren, Epochen, Baustein-Editor mit Funktionen für die KI: [ausblick.md](../ausblick.md). In AP12c darauf achten: Vorschau und Trockenlauf nicht nur für ganze Dörfer, sondern auch für Einzeländerungen auslegen; `appMode = editor` ist der Platz für die Werkzeuge.

@@ -1,4 +1,4 @@
-// Neue Bausteine im Stil von Mockup A, 1:1 aus docs/mockups/welt-optik/bausteine.js (von Henry am 14.10.2026 abgenommen): Wohnhaus in
+// Neue Bausteine im Stil von Mockup A, 1:1 aus docs/mockups/welt-optik/bausteine.js (am 14.10.2026 abgenommen): Wohnhaus in
 // Breiten und Farben, Werkstatt, Laden, Scheune, Stall, Marktstände, Heuballen, Holzstapel, Kiste. Gleiche Palette und Zeichenweise wie village.ts.
 import { WP } from "./palette";
 import { hash, sprite } from "./pen";

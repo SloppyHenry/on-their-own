@@ -1,6 +1,6 @@
 # AP18a – Rückweg mit Esc und Brotkrumen (20.10.2026)
 
-**Auftrag:** Henry: „Wenn man ein neues Spiel gestalten will und Escape drückt, soll man zum vorherigen Menü kommen können, das sollte grundsätzlich gehen.“ **Plan:** [AP18-plan.md](../arbeitspakete/AP18-plan.md), Abschnitt AP18a. **Branch:** `ap/18a-esc` (Worktree `.claude/worktrees/ap18a`, von `main` aus). Nicht ausgerollt.
+**Auftrag:** Vorgabe: „Wenn man ein neues Spiel gestalten will und Escape drückt, soll man zum vorherigen Menü kommen können, das sollte grundsätzlich gehen.“ **Plan:** [AP18-plan.md](../arbeitspakete/AP18-plan.md), Abschnitt AP18a. **Branch:** `ap/18a-esc` (Worktree `.claude/worktrees/ap18a`, von `main` aus). Nicht ausgerollt.
 
 ## Was jetzt gilt
 **Esc nimmt immer genau eine Ebene zurück.** Alle bisherigen Esc-Behandler hängen an einem zentralen Stapel (`frontend/src/ui/zurueck.ts`). Von oben nach unten: Dialog → Popover → Unterebene im Menü (Assistentenschritt, Charaktereditor) → Menü → Editor → Einblick → Einstellungs-Schublade → Innenansicht → Detail → Spiel (öffnet das Pausenmenü).

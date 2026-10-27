@@ -2,7 +2,7 @@
 
 Alle Grafiken der Oberfläche und der Welt entstehen **im Projekt aus Code**. Es gibt keine Bilddateien, keine heruntergeladenen Pakete und keine fremde Lizenz.
 
-Seit AP13 gilt der Stil von Mockup A (`docs/mockups/welt-optik/world.js`, von Henry gewählt); die Zeichenfunktionen sind daraus 1:1 übertragen.
+Seit AP13 gilt der Stil von Mockup A (`docs/mockups/welt-optik/world.js`, gewählt); die Zeichenfunktionen sind daraus 1:1 übertragen.
 
 | Was | Wo | Hinweis |
 |---|---|---|
@@ -13,7 +13,7 @@ Seit AP13 gilt der Stil von Mockup A (`docs/mockups/welt-optik/world.js`, von He
 | Figuren | `art/people.ts` | Vorderansicht wie `wPerson`, dazu hinten, Seite, vier Laufbilder, Sitzen, Schlafen, Werkzeug; Palette je Agent, unbekannte aus der Kennung |
 | Möbel, Pflanzen nach Stufe, Baustelle, Vorräte, Kleinkram | `art/things.ts` | im Stil des Mockups; unbekannte Arten als neutrale Kiste |
 | Dorf nach Mockup A: Boden, Himmel, Effekte | `world/dorf/boden.ts`, `grund.ts`, `bild.ts` | `wTexel` und `frame()` aus `world.js`, verallgemeinert auf Listen, mehrere Gebiete und Blöcke; Formen und Deko aus `look` der Weltdatei (AP14, AP12a) |
-| Neue Bausteine: Wohnhaus in drei Breiten, sechs Dach- und fünf Wandfarben, Werkstatt, Laden, Scheune, Stall, Marktstände, Heu, Holz, Kiste | `art/bausteine.ts`, Arten `bh:Breite:Dach:Wand`, `bw`, `bs`, `bb`, `bt`, `bm:N`, `bhay`, `blog`, `bcr` in `dorf/sprites.ts` | 1:1 aus `docs/mockups/welt-optik/bausteine.js` (von Henry am 14.10.2026 freigegeben) |
+| Neue Bausteine: Wohnhaus in drei Breiten, sechs Dach- und fünf Wandfarben, Werkstatt, Laden, Scheune, Stall, Marktstände, Heu, Holz, Kiste | `art/bausteine.ts`, Arten `bh:Breite:Dach:Wand`, `bw`, `bs`, `bb`, `bt`, `bm:N`, `bhay`, `blog`, `bcr` in `dorf/sprites.ts` | 1:1 aus `docs/mockups/welt-optik/bausteine.js` (am 14.10.2026 freigegeben) |
 | Boden (Gras, Wege, Pflaster, Wasser, Ufer, Steg, Beete, Böden innen) für Welten ohne `look` | `world/view/ground.ts` | wie `wTexel`, aus Kacheln und Orten; Grasbüschel, Blumen, Schatten |
 | Himmel, Wolken, Sterne, Mond, Hügel | `view/sky.ts` | wie im Mockup |
 | Lichtschein, Teilchen, Regen, Schnee, Nebel, Vignette | `view/post.ts` | Farbstimmung und Tilt-Shift per CSS (`WorldCanvas.tsx`) |
@@ -29,7 +29,7 @@ Der Stil (gemütliches Farmdorf, 16-Pixel-Kacheln, dunkle Konturen, warme Farben
 Die Bausteine werden aus Weltdaten gezeichnet, nicht aus festen Bildern. Stilangaben stehen in den Daten (`props.style` am Ort: `floor` = `planks|tile|workshop`, `rug`, `surface` = `cobble`, `fence`), Objektzustand in `state` (z. B. `stage` einer Pflanze, `lit` eines Kamins, `locked` einer Tür). Neue Orte und Objekte aus Patches oder dem späteren Generator (AP12) erscheinen deshalb ohne neue Grafik.
 
 ## Klang (AP17d, im Spiel seit 18.10.2026)
-**Stand 19.10.2026: Die CC0-Aufnahmen sind vorerst ausgeschaltet** (Henry): `CC0_AKTIV = false` in `frontend/src/klang/einstellungen.ts`; alle Quellen sind „Code“, in den Einstellungen gibt es keine Quellenwahl. Dateien und Code bleiben erhalten; mit `true` gilt wieder die Wahl je Kanal. Einzelne Klänge anhören gehört später in den Sound-Generator, nicht in die Einstellungen.
+**Stand 19.10.2026: Die CC0-Aufnahmen sind vorerst ausgeschaltet**: `CC0_AKTIV = false` in `frontend/src/klang/einstellungen.ts`; alle Quellen sind „Code“, in den Einstellungen gibt es keine Quellenwahl. Dateien und Code bleiben erhalten; mit `true` gilt wieder die Wahl je Kanal. Einzelne Klänge anhören gehört später in den Sound-Generator, nicht in die Einstellungen.
 
 Klänge gibt es in zwei Quellen, je Kanal in den Einstellungen „Ton“ wählbar: **aus Code** (Web Audio im Browser, `frontend/src/klang/`: `geraeusche.ts`, `umgebung.ts`, `stimmen.ts`, `musik.ts`; keine fremde Quelle) und **CC0-Aufnahmen** in `frontend/public/klang/` (Mono-MP3, 32 kHz; geladen erst, wenn CC0 gewählt ist). Das Mockup `docs/mockups/klang.html` bettet dieselben Aufnahmen der ersten Fassung ein. Die Lizenz wurde auf der jeweiligen Seite beziehungsweise in der Lizenzdatei des Pakets geprüft; alle Quellen sind CC0.
 
@@ -44,4 +44,4 @@ Klänge gibt es in zwei Quellen, je Kanal in den Einstellungen „Ton“ wählba
 | `regen` | Ylmir, „Rain (loopable)“ (opengameart.org/content/rain-loopable) | CC0 |
 | `bach` | KEPPLER1332, „Babbling Brook“ (freesound.org/s/691616), Clear Creek bei Portland; 20 s nahtlos geschnitten | CC0 |
 
-Nicht mehr verwendet: der Wasser-Loop aus rubberduck „30 CC0 SFX loops“ (1,9 s, fast nur Höhen über 3 kHz, klang laut Henry nach Urwald) und die Kenney-Grasschritte (nur ein dumpfer Stoß unter 800 Hz, kein Rascheln). Aufbereitung: `scripts/klang_aufnahmen.py`.
+Nicht mehr verwendet: der Wasser-Loop aus rubberduck „30 CC0 SFX loops“ (1,9 s, fast nur Höhen über 3 kHz, klang beim Probehören nach Urwald) und die Kenney-Grasschritte (nur ein dumpfer Stoß unter 800 Hz, kein Rascheln). Aufbereitung: `scripts/klang_aufnahmen.py`.

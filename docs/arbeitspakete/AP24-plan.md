@@ -1,6 +1,6 @@
 # AP24 – Szenen: sichtbare Naturereignisse (Plan, 20.10.2026)
 
-**Auftrag:** Frage 38, Henry, 17.10.2026: „eigenes Paket“ für sichtbare Naturereignisse (Blitz, Feuer, Überschwemmung, Tornado, Meteor). AP18i verweist für die Bilder der Ereignisse von allein hierher. Am 20.10.2026 mit allen Paketen beauftragt.
+**Auftrag:** Frage 38, 17.10.2026: „eigenes Paket“ für sichtbare Naturereignisse (Blitz, Feuer, Überschwemmung, Tornado, Meteor). AP18i verweist für die Bilder der Ereignisse von allein hierher. Am 20.10.2026 mit allen Paketen beauftragt.
 **Umfang:** L, Schritt 0 plus drei Teilpakete (a–c). **Abhängig von:** AP18i (Ereignisse von allein), AP18d (Spielarten), AP18b (Tagebuch).
 
 ## Ziel
@@ -11,7 +11,7 @@ Ereignisse, die heute nur im Tagebuch und an veränderten Dingen sichtbar sind, 
 2. **Szenen sind Bild, Wirkungen bleiben Operationen.** Eine Szene ändert die Welt nie selbst. Was sie bewirkt (Baum fällt, Weg versperrt, Holz liegt da, Wasser steigt), läuft über die vorhandenen Operationen der Ereigniseingabe (AP08, `events_user/schema.py`: `change_object`, `spawn_object`, `set_weather`, `inform` …). So gelten Prüfung, Wissensverteilung und Spielstand wie immer.
 3. **Keine höhere Instanz:** Für die Bewohner hat eine Szene keinen Urheber. Die Wahrnehmungstexte beschreiben, was man sieht („Ein Blitz schlägt in die Eiche am Weg ein.“).
 4. **Leistung:** höchstens eine große Szene gleichzeitig, Teilchen höchstens 400, Szene endet spätestens nach 2 Spielstunden. Bei Tempo „Max“ werden Szenen nur als Endbild gezeigt.
-5. Jede Szene braucht ein **Mockup und Henrys Abnahme** (Mockup-Treue), auch in der flachen Ansicht.
+5. Jede Szene braucht ein **Mockup und Abnahme** (Mockup-Treue), auch in der flachen Ansicht.
 
 ## Datenformat
 **Szenenkatalog** `backend/simulacra/data/szenen.json` (`format: "simulacra-szenen"`, `version: 1`), je Szene:
@@ -29,7 +29,7 @@ Ereignisse, die heute nur im Tagebuch und an veränderten Dingen sichtbar sind, 
 **Operation** `scene` in der Ereigniseingabe (`events_user/schema.py`): `{ "op": "scene", "scene": "blitz", "target": "<objekt- oder ortskennung, optional>", "at": "<zeit, optional>" }`. Das Backend prüft, wählt ein Ziel, falls keins angegeben ist, sendet `world.scene_started` (mit `scene`, `target`, `location_id`, `x`, `y`, `ends_at`) und führt die Wirkungen aus. Am Ende `world.scene_ended`.
 
 ## Schritt 0 – Mockup (eine Sitzung)
-`docs/mockups/szenen.html` mit `docs/mockups/szenen/`: je Szene eine Animation über dem Dorfbild (Tiefe und Flach, Tag und Nacht), mit Regler für die Zeit, damit man jedes Bild einzeln ansehen kann. Gezeichnet mit Canvas wie DorfView. Henry nimmt Szene für Szene ab.
+`docs/mockups/szenen.html` mit `docs/mockups/szenen/`: je Szene eine Animation über dem Dorfbild (Tiefe und Flach, Tag und Nacht), mit Regler für die Zeit, damit man jedes Bild einzeln ansehen kann. Gezeichnet mit Canvas wie DorfView. Die Projektleitung nimmt Szene für Szene ab.
 
 ## AP24a – Backend: Katalog, Operation, Auslöser
 1. `backend/simulacra/events_user/szenen.py` (neu): Katalog laden und prüfen (jede Wirkung ist eine gültige Operation, `$ziel` nur in erlaubten Feldern), `ziel_waehlen(state, szene, rng)`.
@@ -51,7 +51,7 @@ Ereignisse, die heute nur im Tagebuch und an veränderten Dingen sichtbar sind, 
 Wie a und b, nach Abnahme der Mockups. Feuer: breitet sich nur auf Bäume und Büsche im Umkreis von 2 Kacheln aus, höchstens 3 Ausbreitungen, Regen löscht; Bewohner bekommen die Option „Feuer löschen“ (Eimer Wasser, neuer Modus im Katalog mit Baukasten). Tornado zieht einen Pfad, wirft Vogelscheuchen um (`upright: false`) und verweht leichte Dinge um 1–3 Kacheln. Meteor (nur Gott) hinterlässt einen Stein (`resource` Stein 10) und einen Krater als Deko.
 
 ## Abnahme
-Henry sieht in einem Lauf mit Ereignissen „oft“ ein Gewitter mit Blitz, einen umgestürzten Baum mit Holz daneben und eine Sternschnuppennacht, und im Tagebuch, wie die Bewohner darauf reagieren. Bericht `docs/status/AP24.md`.
+Jemand sieht in einem Lauf mit Ereignissen „oft“ ein Gewitter mit Blitz, einen umgestürzten Baum mit Holz daneben und eine Sternschnuppennacht, und im Tagebuch, wie die Bewohner darauf reagieren. Bericht `docs/status/AP24.md`.
 
 ## Fallen
 - **Szene und Wirkung zeitlich:** Der Baum soll erst umfallen, wenn der Blitz zu sehen war. Wirkungen mit `"nach_min": 1` verzögert ausführen (über `events_user/scheduler.py`, gibt es schon für Zeitangaben).

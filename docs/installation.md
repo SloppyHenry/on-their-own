@@ -1,5 +1,18 @@
 # Installation
 
+## Ein Befehl (Linux und macOS)
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/SloppyHenry/on-their-own/main/get.sh | bash
+```
+
+`get.sh` holt das Projekt nach `~/on-their-own` (ein vorhandener Ordner wird aktualisiert) und startet `install.sh --yes`, das den Rechner erkennt und alles Passende einrichtet (siehe unten).
+
+- `OTO_DIR=/pfad` wählt einen anderen Zielordner.
+- `OTO_ASK=1` fragt vor jedem Schritt, statt die Standardantworten zu nehmen.
+- Schalter von `install.sh` werden durchgereicht: `curl -fsSL …/get.sh | bash -s -- --headless`.
+- Solange das Repository privat ist, schlägt der Aufruf mit 404 fehl; dann: `gh repo clone SloppyHenry/on-their-own ~/on-their-own && ~/on-their-own/install.sh --yes`.
+
 ## Schnell: ein Aufruf (Linux und macOS)
 
 ```bash

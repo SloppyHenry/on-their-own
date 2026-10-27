@@ -66,6 +66,6 @@ Nachweis, dass alle 16 Akzeptanzkriterien aus §17 erfüllt sind, mit echten Tes
 - Langlauf-Ergebnisse.
 
 ## Abnahme
-- [x] Alle 16 Kriterien mit grünem Nachweis oder offen dokumentierter Abweichung, die du akzeptiert hast. (13.10.2026, Abweichung: offene Frage 17)
+- [x] Alle 16 Kriterien mit grünem Nachweis oder offen dokumentierter akzeptierter Abweichung. (13.10.2026, Abweichung: offene Frage 17)
 - [x] Langlauf ohne Absturz und innerhalb der Grenzwerte.
 - [x] Dokumentation vollständig; eine Neuinstallation nach `docs/installation.md` gelingt.

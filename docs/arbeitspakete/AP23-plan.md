@@ -1,6 +1,6 @@
 # AP23 – Baustein-Editor: eigene Dinge, Möbel und Häuser mit Funktionen (Plan, 20.10.2026)
 
-**Auftrag:** Henry, 14.10. und 17.10.2026 ([ausblick.md](../ausblick.md), Abschnitt 4 und Nachtrag): „eigene Assets in einem Editor entwerfen und Funktionen definieren, damit die KI damit interagieren kann“, dazu „Assets und Häuser selbst entwerfen“. Am 20.10.2026 beauftragt.
+**Auftrag:** 14.10. und 17.10.2026 ([ausblick.md](../ausblick.md), Abschnitt 4 und Nachtrag): „eigene Assets in einem Editor entwerfen und Funktionen definieren, damit die KI damit interagieren kann“, dazu „Assets und Häuser selbst entwerfen“. Am 20.10.2026 beauftragt.
 **Umfang:** XL, Schritt 0 plus fünf Teilpakete (a–e). **Abhängig von:** AP21 (Katalog und Baukasten, Pflicht), AP18e (Weltenbibliothek, Werkstatt), AP16 (Deko-Werkzeug), AP22a (Paletten je Epoche). AP23e hängt zusätzlich an AP19.
 
 ## Ziel
@@ -53,7 +53,7 @@ In Menü › Editoren › **Bausteine** zeichnet man ein Ding Pixel für Pixel, 
 - **Bild 3, Funktionen:** „Was kann man damit tun?“ als Liste von Modi; je Modus Formular: Verb, Optionstext (mit Vorschau „So sieht der Bewohner die Wahl: …“), Dauer, Bedingungen und Wirkungen als Bausteinzeilen mit Auswahllisten (keine freien Felder außer Texten und Zahlen), Ereignistext fürs Tagebuch.
 - **Bild 4, Prüfen und Probelauf:** Liste der Prüfungen (grün/rot mit Erklärung), Knopf „Probelauf“ und dessen Bericht.
 - **Bild 5, Gebäude:** Fassade zeichnen (wie Bild 2, größer), Grundriss aus Bändern und Räumen (Format `data/gebaeude/*.json`), Tür festlegen.
-Henry nimmt ab, bevor a beginnt.
+Die Projektleitung nimmt ab, bevor a beginnt.
 
 ## AP23a – Format, Bibliothek, Zeichnen im Spiel (ohne Editor)
 1. Backend `backend/simulacra/bausteine/` (neu): `schema.py` (Pydantic, Format oben; `ding` wird mit den Modellen aus AP21 `katalog.py` geprüft), `pruefung.py` (alle Prüfungen aus den Festlegungen mit deutschen Meldungen, Rückgabe `[{"stufe": "fehler"|"warnung", "feld": "...", "text": "..."}]`), `store.py` (wie `TemplateStore`: Liste, Lesen, Anlegen, Ändern, Löschen, Duplizieren, Export, Import legt neu an).
@@ -90,13 +90,13 @@ Henry nimmt ab, bevor a beginnt.
 3. **Prüfen:** Figur mit eigenem Hut in allen Richtungen (Pixelprobe), Spielstand-Export nimmt den Hut mit.
 
 ## Abnahme
-Henry zeichnet eine Schaukel, gibt ihr „schaukeln“, besteht Prüfung und Probelauf, setzt sie in der Werkstatt in ein Dorf, startet die Simulation, und ein Bewohner schaukelt (sichtbar im Tagebuch). Ein eigenes Haus lässt sich setzen und betreten. Bericht `docs/status/AP23.md`.
+Jemand zeichnet eine Schaukel, gibt ihr „schaukeln“, besteht Prüfung und Probelauf, setzt sie in der Werkstatt in ein Dorf, startet die Simulation, und ein Bewohner schaukelt (sichtbar im Tagebuch). Ein eigenes Haus lässt sich setzen und betreten. Bericht `docs/status/AP23.md`.
 
 ## Fallen
 - **Pixelzeilen** müssen genau `groesse[0]` Zeichen lang sein und es müssen genau `groesse[1]` Zeilen sein; die Prüfung nennt die erste falsche Zeile.
 - **Kollision mit dem Grundpaket:** Nur Arten mit `eigene-` zulassen. Beim Import einer Datei mit bestehender Kennung neue Kennung vergeben (`eigene-schaukel-2`) und `ding.art` mit umbenennen.
 - **Leistung:** `pixelBild` zeichnet einmal je Zustand und speichert; nie je Bild neu.
-- **Gleichgewicht:** Die Prüfung ist die einzige Schranke gegen Bausteine, die das Spiel kaputt machen. Lieber zu streng; Henry kann Grenzen später lockern.
+- **Gleichgewicht:** Die Prüfung ist die einzige Schranke gegen Bausteine, die das Spiel kaputt machen. Lieber zu streng; die Projektleitung kann Grenzen später lockern.
 
 ## Nicht in diesem Paket
 Animationen (mehr als Zustände), eigene Geräusche, Handel mit Bausteinen über das Netz, eigene Bodenarten.

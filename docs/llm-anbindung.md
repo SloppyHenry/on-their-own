@@ -65,7 +65,7 @@ Die App spricht jeden OpenAI-kompatiblen Endpunkt an (`/v1/chat/completions`, `/
 
 | Variable | Bedeutung |
 |---|---|
-| `SIM_LLM_BASE_URL` | Endpunkt, z. B. `http://maintux:8080/v1` oder `http://192.168.178.160:8080/v1` |
+| `SIM_LLM_BASE_URL` | Endpunkt, z. B. `http://maintux:8080/v1` oder `http://192.168.1.20:8080/v1` |
 | `SIM_LLM_API_KEY_FILE` / `SIM_LLM_API_KEY` | Schlüssel als Datei oder direkt (im Container als Docker-Secret) |
 | `SIM_LLM_MODEL` | Vorbelegung für neue Simulationen; muss in `/v1/models` stehen. Eine bestehende Simulation behält ihr Modell (offene Frage 10). |
 

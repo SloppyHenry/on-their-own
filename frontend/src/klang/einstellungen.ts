@@ -4,7 +4,7 @@ import { create } from "zustand";
 import type { Stimme } from "./stimmen";
 
 export type Quelle = "code" | "cc0";
-/** Die CC0-Aufnahmen sind vorerst ausgeschaltet (19.10.2026, Henry): der Code dafür bleibt, aber jede Quelle ist „code“ und in den Einstellungen gibt es keine Wahl.
+/** Die CC0-Aufnahmen sind vorerst ausgeschaltet (19.10.2026): der Code dafür bleibt, aber jede Quelle ist „code“ und in den Einstellungen gibt es keine Wahl.
  *  Auf `true` gestellt, gilt wieder die Wahl je Kanal (Standard: Musik aus Aufnahmen). */
 export const CC0_AKTIV = false;
 export type Regler = "music" | "amb" | "fig" | "voice";

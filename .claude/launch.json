@@ -2,50 +2,10 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "welt-fake",
+      "name": "readme-shots",
       "runtimeExecutable": "bash",
-      "runtimeArgs": [
-        "-c",
-        "rm -rf /tmp/simulacra-ap13 && (backend/.venv/bin/python scripts/e2e_server.py --port 8193 --data-dir /tmp/simulacra-ap13 &) && cd frontend && SIM_BACKEND=http://127.0.0.1:8193 SIM_FRONTEND_PORT=5176 npx vite --host 127.0.0.1 --strictPort"
-      ],
-      "port": 5176
-    },
-    {
-      "name": "mockup-ruhig",
-      "runtimeExecutable": "python3",
-      "runtimeArgs": [
-        "-m",
-        "http.server",
-        "8766",
-        "--bind",
-        "127.0.0.1",
-        "--directory",
-        "docs/mockups/welt-optik"
-      ],
-      "port": 8766
-    },
-    {
-      "name": "welt-generiert",
-      "runtimeExecutable": "bash",
-      "runtimeArgs": [
-        "-c",
-        "(backend/.venv/bin/python scripts/e2e_server.py --port 8195 --data-dir /tmp/simgen &) && cd frontend && SIM_BACKEND=http://127.0.0.1:8195 SIM_FRONTEND_PORT=5177 npx vite --host 127.0.0.1 --strictPort"
-      ],
-      "port": 5177
-    },
-    {
-      "name": "mockups",
-      "runtimeExecutable": "python3",
-      "runtimeArgs": [
-        "-m",
-        "http.server",
-        "8767",
-        "--bind",
-        "127.0.0.1",
-        "--directory",
-        "docs/mockups"
-      ],
-      "port": 8767
+      "runtimeArgs": ["-c", "rm -rf /tmp/oto-readme && (backend/.venv/bin/python scripts/e2e_server.py --port 8197 --data-dir /tmp/oto-readme &) && cd frontend && SIM_BACKEND=http://127.0.0.1:8197 SIM_FRONTEND_PORT=5179 npx vite --host 127.0.0.1 --strictPort"],
+      "port": 5179
     }
   ]
 }

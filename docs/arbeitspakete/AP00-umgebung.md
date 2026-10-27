@@ -72,5 +72,5 @@ Für `qwen3.8-9b-uncensored` und `bonsai2-27b`, je 20 Durchläufe mit einem real
 | `json_schema` wird vom Fork anders unterstützt als vom Original | Sondierung deckt das auf; Rückfall auf `json_object` plus Pydantic-Prüfung |
 | Denken lässt sich per Request nicht abschalten | Rückfall: eigener Preset-Eintrag im Router mit `reasoning-budget = 0` (Änderung auf maintux nur nach Freigabe) |
 
-## Offene Fragen an dich
+## Offene Fragen
 - Soll die App lokal zwingend unter Python 3.14 laufen, oder ist eine 3.12-venv per `uv` auf dem Mac in Ordnung?

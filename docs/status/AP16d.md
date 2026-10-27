@@ -6,4 +6,4 @@
 - **Prompt-Test „keine höhere Instanz“:** weder in den Prompts (alle Aufrufe des Fake-Modells) noch in den Erinnerungen der Figuren kommen Editor, Leitstelle, Spieler, Gott, Entwurf, Gestalten oder `world.edited` vor; das Ereignis der Übernahme steht nur im Protokoll (Sichtbarkeit `system`).
 - **Leistung:** Vorschau mit 20 Aktionen auf einer großen leeren Welt 0,11 s (Grenze 1 s), alle 200 Aktionen 2,7 s (Test: unter 15 s). Der Zwischenspeicher der Werkstatt aus AP16a bleibt.
 - **Doku:** `generator.md`, `frontend.md`, `schnittstellen.md`, `welt-erweitern.md` ergänzt; Status in `AP16-plan.md`.
-- **Offen (bewusst):** Bilder für die Berichte und Beispielwelten für die Bibliothek (brauchen Henrys Auge); der Entwurf der Werkstatt liegt nicht im `sessionStorage`; Wegoptionen Breite/Belag aus dem Mockup fehlen im Backend.
+- **Offen (bewusst):** Bilder für die Berichte und Beispielwelten für die Bibliothek (brauchen einen prüfenden Blick); der Entwurf der Werkstatt liegt nicht im `sessionStorage`; Wegoptionen Breite/Belag aus dem Mockup fehlen im Backend.

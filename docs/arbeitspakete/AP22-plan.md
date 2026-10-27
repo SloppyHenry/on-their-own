@@ -1,6 +1,6 @@
 # AP22 – Epochen (Plan, 20.10.2026)
 
-**Auftrag:** Henry, 14.10.2026 ([ausblick.md](../ausblick.md), Abschnitt 3): neben dem jetzigen Dorf „eher Mittelalter“ auch **Beginn der Industrialisierung**, **Gegenwart** und **Zukunft (Sci-Fi)**. Am 20.10.2026 beauftragt („auch Gegenstände und Epochen“).
+**Auftrag:** 14.10.2026 ([ausblick.md](../ausblick.md), Abschnitt 3): neben dem jetzigen Dorf „eher Mittelalter“ auch **Beginn der Industrialisierung**, **Gegenwart** und **Zukunft (Sci-Fi)**. Am 20.10.2026 beauftragt („auch Gegenstände und Epochen“).
 **Umfang:** XL, ein Rahmen-Paket (AP22a) und je Epoche ein Paket mit eigenem Schritt 0 (AP22b–d). **Abhängig von:** AP21 (Gegenstände als Daten, Pflicht), AP18f (Generator mit Stellgrößen), AP20a (Musik als Daten). **Vor:** AP23 nutzt die Paletten der Epochen.
 
 ## Ziel
@@ -9,7 +9,7 @@ Eine **Epoche** ist ein Paket aus Daten und Bildern: Farben, Gebäude, Dinge, Ro
 ## Festlegungen (Fragen 67–69, Vorschlag)
 1. **Eine Epoche je Welt.** Kein Mischen in v1, kein Wechsel im laufenden Spiel. Die Epoche steht in der Welt (`info.json` der Weltenbibliothek, AP18e) und im Spielstand (Meta `epoche`). Alte Welten und Spielstände ohne Feld gelten als `mittelalter`.
 2. **Geschlossenes Dorf:** Auch in Gegenwart und Zukunft gibt es in v1 **kein Geld, kein Telefon, kein Internet und keine Außenwelt**. Die Bewohner leben im Ort, wie heute. Geld und Handel kommen, wenn überhaupt, als eigenes Paket.
-3. **Reihenfolge:** Industrialisierung (AP22b), Gegenwart (AP22c), Zukunft (AP22d). Jede Epoche hat ein eigenes Schritt 0 mit Mockup „Bild A“ der Epoche und Henrys Abnahme. **Vorher entsteht kein Bild.**
+3. **Reihenfolge:** Industrialisierung (AP22b), Gegenwart (AP22c), Zukunft (AP22d). Jede Epoche hat ein eigenes Schritt 0 mit Mockup „Bild A“ der Epoche und Abnahme. **Vorher entsteht kein Bild.**
 4. **Keine höhere Instanz:** Der Epochensatz im Prompt beschreibt nur die Welt („Du lebst in einer kleinen Siedlung …“), nie „Epoche“, „Szenario“ oder „Simulation“.
 5. Die Bedürfnisse (Energie, Hunger, Durst, Geselligkeit, Ruhe, Wärme) bleiben in allen Epochen gleich. Eine Epoche darf nur die Schalter `enabled` (z. B. Wärme) und die Texte ändern.
 
@@ -50,7 +50,7 @@ Jedes dieser Pakete hat **drei Schritte**:
 **Schritt 0 – Mockup und Katalog (eine Sitzung, kein Anwendungscode).**
 - Mockup `docs/mockups/epoche-<id>.html` nach dem Vorbild von Mockup A (`docs/mockups/`, das abgenommene Dorfbild): ein Dorf der Epoche bei Tag und Nacht, in Tiefe und Flach, ein Innenraum (wie innen2), alle neuen Dinge einzeln mit Zuständen, zwei Figuren in Kleidung der Epoche (Teile aus AP19).
 - Katalogvorschlag als Tabelle im Plan `docs/arbeitspakete/AP22<x>-<id>.md`: Gebäude, Dinge mit Modi (nur Baukasten aus AP21, Handler nur mit Begründung), Rohstoffe, Bauvorlagen, Ereignisse von allein, Musikstücke, Namen.
-- **Henrys Abnahme** von Bild und Katalog.
+- **Abnahme** von Bild und Katalog.
 
 **Schritt 1 – Daten und Bild.** Paket nach dem Aufbau oben, Bilder 1:1 nach Mockup. Je neues Ding ein Test im Stil der Regentonne aus AP21d (Bewohner benutzt es mit Fake-Modell, Wirkung stimmt). Goldbild der neuen Epoche (eigene Datei `e2e/epoche-<id>.spec.ts`).
 

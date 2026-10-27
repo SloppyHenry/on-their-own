@@ -1,6 +1,6 @@
 # AP18h – Mitleben mit eigener Figur (Plan, 20.10.2026)
 
-**Auftrag:** Frage 11 (Henry, 11.10.2026): Menschen steuern eigene Figuren, für die KI-Bewohner sind sie „einer von ihnen“. Im Rework (AP18) die Spielart **„Leben mit eigener Figur“** (Mockup `docs/mockups/rework.html`, Bild 4). Dieser Plan ersetzt das „eigene Schritt 0“ aus `AP18-plan.md`; die offenen Punkte aus Frage 11 sind als Fragen 73–75 mit Vorschlag festgehalten.
+**Auftrag:** Frage 11 (11.10.2026): Menschen steuern eigene Figuren, für die KI-Bewohner sind sie „einer von ihnen“. Im Rework (AP18) die Spielart **„Leben mit eigener Figur“** (Mockup `docs/mockups/rework.html`, Bild 4). Dieser Plan ersetzt das „eigene Schritt 0“ aus `AP18-plan.md`; die offenen Punkte aus Frage 11 sind als Fragen 73–75 mit Vorschlag festgehalten.
 **Umfang:** L, drei Teilpakete (a–c). **Abhängig von:** AP18d (Spielart, Meta `player`), AP18b (HUD), AP18g (Bauvorlagen), AP19 (eigenes Aussehen, empfohlen, nicht Pflicht).
 
 ## Grundsätze (nicht verhandelbar)
@@ -63,7 +63,7 @@ Befund, Mockup ([mitleben.html](../mockups/mitleben.html)) und Zerlegung in acht
 - **Fristen in echter Zeit** statt Spielminuten (Frage 83); **Abbrechen** für den Menschen (Frage 85); Wahl und Wechsel der Figur (Frage 84).
 
 ## Abnahme
-Henry startet „Leben mit eigener Figur“, geht zum See, angelt, spricht mit Mira und bekommt eine Antwort; Mira behandelt ihn wie jeden anderen (Gedächtnis-Einblick zeigt keine Besonderheit). Bericht `docs/status/AP18h.md`.
+Ein Mensch startet „Leben mit eigener Figur“, geht zum See, angelt, spricht mit Mira und bekommt eine Antwort; Mira behandelt ihn wie jeden anderen (Gedächtnis-Einblick zeigt keine Besonderheit). Bericht `docs/status/AP18h.md`.
 
 ## Fallen
 - **Reihenfolge im Runner:** Handlungen des Menschen kommen zwischen zwei Schritten an. Sie laufen über `engine.db.run` wie alles andere, nie direkt auf der Datenbank im Request-Thread.

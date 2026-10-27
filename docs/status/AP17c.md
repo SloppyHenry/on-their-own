@@ -23,8 +23,8 @@ Plan: [AP17c-plan.md](../arbeitspakete/AP17c-plan.md). Mockup: [modelle.html](..
 - Gefunden und behoben beim Testen: ein Absturz durch `pipefail` bei der Token-Erzeugung, ein Rückgabewert der Aufräumschleife, eine Kopie ohne `backend/simulacra/data`.
 
 ## Lauf auf thirdtux (17.10.2026, `ssh thirdtux`, Ubuntu, RTX 3060 12 GB, 16 GB RAM)
-- Auf der Karte lief schon der Dienst `rea-llm.service` (Qwen3.6-35B-A3B auf Port 8080, 10,4 von 12 GB belegt, mit API-Schlüssel). Das Skript hätte ohne Korrektur den **gesamten** Grafikspeicher gerechnet und ein 8B- oder 14B-Modell daneben starten wollen. Jetzt zählt es den **freien** Speicher, warnt („Grafikkarte belegt, nichts wird beendet oder verdrängt“), schlägt nur das kleinste Modell mit Standard „nein“ vor.
-- Installiert wurde deshalb **nur die App** (`./install.sh --yes --headless --no-llm`): `uv` und Node 24 im Benutzerordner, Backend und Oberfläche, Dienst `simulacra.service` (systemd --user, mit linger). Läuft auf `http://thirdtux:8090`, **ohne Zugangsschutz** (Henry: Token standardmäßig aus; `--token` schaltet ihn ein). Der Dienst `rea-llm` und seine Grafikkartenbelegung blieben unberührt.
+- Auf der Karte lief schon ein anderer Dienst (Qwen3.6-35B-A3B auf Port 8080, 10,4 von 12 GB belegt, mit API-Schlüssel). Das Skript hätte ohne Korrektur den **gesamten** Grafikspeicher gerechnet und ein 8B- oder 14B-Modell daneben starten wollen. Jetzt zählt es den **freien** Speicher, warnt („Grafikkarte belegt, nichts wird beendet oder verdrängt“), schlägt nur das kleinste Modell mit Standard „nein“ vor.
+- Installiert wurde deshalb **nur die App** (`./install.sh --yes --headless --no-llm`): `uv` und Node 24 im Benutzerordner, Backend und Oberfläche, Dienst `simulacra.service` (systemd --user, mit linger). Läuft auf `http://thirdtux:8090`, **ohne Zugangsschutz** (Vorgabe: Token standardmäßig aus; `--token` schaltet ihn ein). Der andere Dienst und seine Grafikkartenbelegung blieben unberührt.
 - Es ist noch **kein Modell** für Simulacra eingerichtet (Standardadresse zeigt auf maintux, offline).
 - Auf dem Weg gefundene und behobene Fehler: (1) ein zweiter Lauf löschte das Zugangs-Token (Block wurde ohne Token neu geschrieben; Test `test_zweiter_lauf_behaelt_das_token`), (2) `thirdtux` löst nur zu IPv6 auf, der Server lauschte aber nur auf IPv4 (jetzt `::` bei vorhandenem IPv6), (3) die Speicherrechnung ignorierte belegte Grafikkarten.
 
@@ -68,7 +68,7 @@ Stand 18.10.2026. Plan: [AP17c-plan.md](../arbeitspakete/AP17c-plan.md) (Baustei
 
 # AP17c-3 und -4 – Modellverwaltung im Tool
 
-Stand 19.10.2026, Branch `ap/17c-modelle` (von `ap/17b-simulation-definieren`, nicht committet bis zur Abnahme). Plan: [AP17c-plan.md](../arbeitspakete/AP17c-plan.md). Mockup: [modelle.html](../mockups/modelle.html) (von Henry am 19.10. abgenommen). Schnittstelle: [schnittstellen.md](../schnittstellen.md#modellverwaltung-ap17c-3--4).
+Stand 19.10.2026, Branch `ap/17c-modelle` (von `ap/17b-simulation-definieren`, nicht committet bis zur Abnahme). Plan: [AP17c-plan.md](../arbeitspakete/AP17c-plan.md). Mockup: [modelle.html](../mockups/modelle.html) (am 19.10. abgenommen). Schnittstelle: [schnittstellen.md](../schnittstellen.md#modellverwaltung-ap17c-3--4).
 
 ## Gebaut
 - **Download** (`models/transfer.py`, `download.py`): nur nach Bestätigung (`confirm: true`), nur HTTPS von `huggingface.co`/`hf.co` (Weiterleitungen werden von Hand verfolgt und jeder Schritt gegen die Liste geprüft), Dateiname, Größe und SHA-256 holt das Backend selbst aus der Dateiliste, fortsetzbar (`Range`, `.part`), Verbindungsabbruch setzt bis zu dreimal fort, Platzprüfung Größe + 10 %, ein Auftrag zugleich, Prüfsumme vor dem Umbenennen, Abbruch räumt die Teildatei weg.
@@ -84,7 +84,7 @@ Stand 19.10.2026, Branch `ap/17c-modelle` (von `ap/17b-simulation-definieren`, n
 - Beim Bauen gefunden und behoben: ein Spielstand-Laden mit unbekannter Kennung scheiterte an meinem neuen Aufruf (jetzt nur, wenn die Metadaten lesbar sind); `aiter_bytes` verwarf bei einem Abbruch bis zu 1 MB Gepuffertes (jetzt `aiter_raw`, Fortsetzen verliert nichts); die bestehende Browser-Prüfung nach dem Reiter „Modell“ traf auch „Modelle“ (jetzt `exact`).
 
 ## Nicht geprüft
-- **Kein Probelauf mit einem echten Modell und keine echten Downloads** (alles gegen Attrappen): weder auf diesem Mac noch auf thirdtux (Grafikkarte durch `rea-llm` belegt) noch auf maintux (offline). Das Siegel und die 20-Sekunden-Grenze sind damit nur mit dem falschen Server geprüft.
+- **Kein Probelauf mit einem echten Modell und keine echten Downloads** (alles gegen Attrappen): weder auf diesem Mac noch auf thirdtux (Grafikkarte durch einen anderen Dienst belegt) noch auf maintux (offline). Das Siegel und die 20-Sekunden-Grenze sind damit nur mit dem falschen Server geprüft.
 - „Laufzeit installieren“ gegen die echten GitHub-Releases (Dateinamen und `digest` kommen aus dem Skript, dort an der echten API geprüft, hier nur mit nachgebauten Antworten).
 - Der Fall „Eingebaut“ auf einem Rechner, den `install.sh` mit Modelldienst und `SIM_LLM_BASE_URL` eingerichtet hat: dort bleibt die Betriebsart fest „Externer Server“ (Fragen 50, 51).
 - Mehrere Browser gleichzeitig; sehr lange Downloads über Stunden; Rechte von `llm.json` auf anderen Systemen als macOS.

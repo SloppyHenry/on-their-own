@@ -1,4 +1,4 @@
-// Mockup Innenräume (nach Henrys Rückmeldung „eintönig und unschön“): das Haus der Startwelt als Puppenhaus oder Raum für Raum,
+// Mockup Innenräume (nach Rückmeldung „eintönig und unschön“): das Haus der Startwelt als Puppenhaus oder Raum für Raum,
 // mit Tapeten, Fenstern, Bildern, Teppichen, mehr Einrichtung und Licht nach Tageszeit. Kein Produktionscode; gebaut zu ../innen2.js.
 import { TIMES, WP, css } from "../../../../frontend/src/world/art/palette";
 import { accentOf, figure, sleeper, tool } from "../../../../frontend/src/world/art/people";
