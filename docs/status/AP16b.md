@@ -18,7 +18,8 @@ Vitest 36 neue Tests (Werkzeuglogik, Entwurf, Szene, Store mit Zeit anhalten/for
 - Das Mockup zeigt für Wege „Breite/Belag“; die Backend-Aktion kennt das nicht, darum nur Hilfetext.
 - Ein ✗ eines gespeicherten Entwurfs erscheint beim Wiederöffnen als „!“ (schon vorher so, Regel aus AP16a).
 - Der Rahmen für „Gebiet“ hat feste Größe 68 × 46 (echte Größe je Seed 58–77 × 40–51).
-- Nicht gebaut: Entwurf der Werkstatt im `sessionStorage` sichern; Bilder für den Bericht (AP16d); „Von innen einrichten“ (AP16c).
+- Entwurf-Sicherung (nachgeholt): `welten/entwurfSicherung.ts` spiegelt Weltdatei und Aktionen der Werkstatt in `sessionStorage` (300 ms nach der letzten Änderung), stellt sie beim Start in `AppShell` wieder her („Entwurf wiederhergestellt.“) und löst beim Neuladen/Schließen des Tabs die Browser-Rückfrage aus, solange etwas ungespeichert ist. Speichern, Verwerfen und Verlassen räumen die Sicherung weg. Eine Welt, die es nicht mehr gibt, wird nicht wiederhergestellt. Die Rückfrage beim Verlassen der Werkstatt selbst gab es schon.
+- Nicht gebaut (war es damals): Bilder für den Bericht (AP16d); „Von innen einrichten“ (AP16c).
 - `backend/.venv` und `frontend/node_modules` sind Symlinke im Worktree (nicht eingecheckt).
 
 ## Bilder

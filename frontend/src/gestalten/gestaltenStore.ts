@@ -52,6 +52,8 @@ interface Gestalten {
   zurueck: () => void;
   wiederhole: () => void;
   verwerfen: () => void;
+  /** Setzt einen gesicherten Entwurf (Aktionen) ein, z. B. nach einem Neuladen. */
+  setzeEntwurf: (aktionen: Aktion[]) => void;
   /** Wartet auf die laufende Rechnung und liefert die Welt (Datei) mit allen Aktionen; leert den Entwurf. Nur Werkstatt. */
   festschreiben: () => Promise<Record<string, unknown> | null | undefined>;
   uebernehmen: () => Promise<boolean>;
@@ -145,6 +147,7 @@ export const useGestalten = create<Gestalten>((set, get) => {
     zurueck: () => aendern(rueckgaengig({ aktionen: get().aktionen, wieder: get().wieder })),
     wiederhole: () => aendern(wiederholen({ aktionen: get().aktionen, wieder: get().wieder })),
     verwerfen: () => aendern(LEER),
+    setzeEntwurf: (aktionen) => aendern({ aktionen, wieder: [] }),
     festschreiben: async () => {
       if (get().aktionen.length === 0) return undefined;
       await laufend;

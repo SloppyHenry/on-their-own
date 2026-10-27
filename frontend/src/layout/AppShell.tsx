@@ -12,6 +12,7 @@ import { Hud } from "../hud/Hud";
 import { useGestalten } from "../gestalten/gestaltenStore";
 import { SpielGestalten } from "../gestalten/SpielGestalten";
 import { Werkstatt } from "../welten/Werkstatt";
+import { stelleEntwurfWiederHer, starteSicherung } from "../welten/entwurfSicherung";
 import { StartMenu } from "./StartMenu";
 
 export function AppShell() {
@@ -24,6 +25,7 @@ export function AppShell() {
   const tools = appMode === "editor" && ready && gestalten !== null;                       // Gestalten (AP16b): der Werkzeugkasten schwebt über der Welt
   useEffect(() => startLive(), []);
   useEffect(() => starteEsc(), []);                                                        // Esc: eine Ebene zurück (AP18a, ui/zurueck.ts)
+  useEffect(() => { void stelleEntwurfWiederHer().then(() => undefined); return starteSicherung(); }, []);        // Werkstatt-Entwurf überlebt Neuladen (sessionStorage)
   useEffect(() => startKlang(), []);                                                       // Musik, Umgebung, Geräusche, Stimmen (AP17d)
 
   return (

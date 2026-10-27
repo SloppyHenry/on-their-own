@@ -34,6 +34,8 @@ interface Werkstatt {
   hinweis: string | null;
   oeffnen: (id: string) => Promise<boolean>;
   schliessen: () => void;
+  /** Legt eine gesicherte Weltdatei (ungespeicherter Entwurf) über die frisch geöffnete und baut die Vorschau neu. */
+  wiederherstellen: (welt: Weltdatei) => Promise<void>;
   setSeed: (n: number) => void;
   setLake: (l: Lake) => void;
   klick: (t: { x: number; y: number }) => boolean;
@@ -82,6 +84,7 @@ export const useWerkstatt = create<Werkstatt>((set, get) => {
       } catch (e) { set({ error: detail(e) }); return false; } finally { set({ busy: null }); }
     },
     schliessen: () => set({ offen: false, info: null, welt: null, gespeichert: "", vorschau: null, gewaehlt: null, error: null, hinweis: null }),
+    wiederherstellen: async (welt) => { set({ welt, hinweis: "Entwurf wiederhergestellt." }); await refresh(); },
     setSeed: (seed) => set({ seed: Math.max(0, Math.min(2_000_000_000, Math.round(seed) || 0)) }),
     setLake: (lake) => set({ lake }),
     klick: (t) => {
