@@ -71,6 +71,11 @@ class EventBus:
         self.listeners: list[Callable[[list[Event]], None]] = []   # synchrone Rückrufe (z. B. Konsolenausgabe)
         self._subs: set[Subscription] = set()
 
+    @property
+    def watched(self) -> bool:
+        """Mindestens ein Browser (WebSocket) hört zu."""
+        return bool(self._subs)
+
     def subscribe(self, max_backlog: int = 2000) -> Subscription:
         """Warteschlange für die aktuelle asyncio-Schleife anlegen."""
         sub = Subscription(self, asyncio.get_running_loop(), max_backlog)

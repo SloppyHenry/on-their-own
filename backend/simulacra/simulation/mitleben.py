@@ -48,6 +48,7 @@ def human_controlled(state: Any) -> str | None:
 HOLD_KEY, AUTO_KEY, AUTO_MIN_KEY, WAIT_KEY = "player_hold", "player_auto", "player_auto_minutes", "player_waiting"
 REPLY_SECONDS = 60                      # so lange wartet ein Gespräch auf dich, mindestens (echte Sekunden, Frage 83)
 AUTO_MINUTES = 5                        # Standard des Autopiloten in echten Minuten
+ABSENT_SECONDS = 30                     # so lange ohne verbundenen Browser, dann gilt der Mensch als weg (Festlegung 4; kurze Neuverbindungen zählen nicht)
 
 
 def settings(state: Any) -> dict[str, Any]:
@@ -67,6 +68,18 @@ class Takt:
         self.last_input = time.monotonic()
         self._seen: dict[int, tuple[int, float]] = {}
         self.waiting = False                # Spiegel von `meta.player_waiting` für die Schleife (keine Abfrage je Schritt)
+        self.unwatched_since: float | None = None
+
+    def watch(self, watched: bool) -> None:
+        """Merkt sich, seit wann kein Browser verbunden ist (die Schleife ruft das je Schritt)."""
+        if watched:
+            self.unwatched_since = None
+        elif self.unwatched_since is None:
+            self.unwatched_since = time.monotonic()
+
+    def absent(self) -> bool:
+        """Kein Browser seit `ABSENT_SECONDS`: niemand kann für die Figur handeln oder antworten."""
+        return self.unwatched_since is not None and time.monotonic() - self.unwatched_since >= ABSENT_SECONDS
 
     def touch(self, state: Any) -> bool:
         """Eingabe des Menschen: Autopilot aus, Warten beendet. Liefert, ob sich der Zustand geändert hat. Gehört auf den DB-Thread."""
@@ -78,9 +91,11 @@ class Takt:
         return changed
 
     def autopilot_due(self, state: Any) -> bool:
-        """Schaltet den Autopiloten ein, wenn er erlaubt ist und der Mensch lange nichts getan hat."""
+        """Schaltet den Autopiloten ein, wenn er erlaubt ist und der Mensch lange nichts getan hat oder kein Browser mehr verbunden ist."""
         s = settings(state)
-        if s["player"] is None or not s["auto"] or s["autopilot"] or time.monotonic() - self.last_input < s["auto_minutes"] * 60:
+        if s["player"] is None or not s["auto"] or s["autopilot"]:
+            return False
+        if time.monotonic() - self.last_input < s["auto_minutes"] * 60 and not self.absent():
             return False
         set_autopilot(state, True)
         return True
@@ -88,7 +103,7 @@ class Takt:
     def protects(self, conv: Any, state: Any) -> bool:
         """Ein Gespräch mit dem Menschen endet nicht durch Stille, bevor `REPLY_SECONDS` echte Sekunden seit der letzten Äußerung vergangen sind."""
         pid = human_controlled(state)
-        if pid is None or pid not in conv.participants:
+        if pid is None or pid not in conv.participants or self.absent():
             return False
         minute, at = self._seen.get(conv.id, (None, 0.0))
         if minute != conv.last_minute:
@@ -100,6 +115,6 @@ class Takt:
         """„Anhalten, wenn ich dran bin“: Figur frei und (jemand hat sie angesprochen oder ihre Handlung ist zu Ende) in diesem Schritt."""
         pid = human_controlled(state)
         body = state.agent(pid) if pid else None
-        if body is None or body.action is not None or not state.get_meta(HOLD_KEY, False) or waiting_on(state):
-            return False
+        if body is None or body.action is not None or not state.get_meta(HOLD_KEY, False) or waiting_on(state) or self.absent():
+            return False                    # ohne Browser hielte das Anhalten die Welt für immer an
         return any((e.type == "agent.dialogue" and e.data.get("to") == pid) or (e.type in ("agent.action_completed", "agent.action_interrupted") and e.agents and e.agents[0] == pid) for e in events)

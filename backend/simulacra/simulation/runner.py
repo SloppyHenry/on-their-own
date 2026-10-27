@@ -157,7 +157,7 @@ class SimulationRunner:
                 self._idle.clear()
                 if self._stop_req or (ticks is not None and done >= ticks):
                     break
-                if self.power_save and not self.engine.bus._subs:       # niemand schaut zu: nichts tun, bis ein Browser verbunden ist
+                if self.power_save and not self.engine.bus.watched:     # niemand schaut zu: nichts tun, bis ein Browser verbunden ist
                     await asyncio.sleep(1.0)
                     continue
                 async with self._step_lock:
@@ -326,6 +326,7 @@ class SimulationRunner:
         for ev in events:
             if ev.type == "agent.dialogue":
                 extra += self.convs.on_dialogue(ev)
+        self.takt.watch(self.engine.bus.watched)
         extra += self.convs.expire(self.engine.minute, lambda c: self.takt.protects(c, self.engine.state))
         extra += self._takt(events)
         if self.inject is not None:

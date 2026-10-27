@@ -53,6 +53,35 @@ async def test_autopilot_after_timeout_and_input_switches_back():
         assert not mitleben.autopilot_on(st) and "alex" not in sim.store.thinking_ids()
 
 
+async def test_without_browser_autopilot_takes_over_and_nothing_waits():
+    """Festlegung 4: kein Browser seit `ABSENT_SECONDS` – Autopilot sofort (wenn erlaubt), kein Anhalten, keine Antwortfrist."""
+    sim = leben(make_sim())
+    st = sim.engine.state
+    st.set_meta(mitleben.AUTO_KEY, True)
+    st.set_meta(mitleben.AUTO_MIN_KEY, 60)                               # Frist weit weg: nur die Abwesenheit zählt
+    st.set_meta(mitleben.HOLD_KEY, True)
+    t = sim.runner.takt
+    await sim.runner.step()
+    assert not mitleben.autopilot_on(st) and t.unwatched_since is not None   # gerade erst weg: noch nichts
+    t.unwatched_since = time.monotonic() - mitleben.ABSENT_SECONDS - 1
+    conv = type("C", (), {"id": 1, "participants": ["alex", "mira"], "last_minute": 5})()
+    assert t.protects(conv, st) is False
+    await sim.runner.step()
+    assert mitleben.autopilot_on(st) and "alex" in sim.store.thinking_ids()
+    t.watch(True)
+    assert t.unwatched_since is None and mitleben.autopilot_on(st)      # zurück ist erst, wer etwas tut
+    t.touch(st)
+    assert not mitleben.autopilot_on(st)
+
+
+def test_without_browser_and_autopilot_off_the_figure_just_stays():
+    sim = leben(make_sim())
+    st = sim.engine.state
+    t = sim.runner.takt
+    t.unwatched_since = time.monotonic() - mitleben.ABSENT_SECONDS - 1
+    assert t.autopilot_due(st) is False and "alex" not in sim.store.thinking_ids()
+
+
 async def test_hold_pauses_when_addressed_and_say_resumes():
     sim = leben(make_sim())
     put(sim, "alex", 20, 13)

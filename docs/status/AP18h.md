@@ -13,7 +13,7 @@ Alle Teilschritte stehen auf dem Branch `claude/ap18h-b1-figur-gehen-8d8c59` (au
 | c2 Härtung | Test „ein Spieltag mit Autopilot“ (lückenlose Ereignisnummern, nie hängend), Doku |
 
 ## Abweichungen und offene Punkte
-- Der Autopilot bei fehlendem Browser (Plan, Festlegung 4) ist nicht gebaut: ohne Autopilot bleibt die Figur stehen, mit Autopilot gilt die Frist in echter Zeit.
+- Autopilot bei fehlendem Browser (Plan, Festlegung 4): Ist 30 Sekunden lang kein Browser verbunden (`ABSENT_SECONDS`), schaltet der Autopilot sofort ein, sofern erlaubt; Gesprächsschutz und „Anhalten, wenn ich dran bin“ greifen dann nicht, damit die Welt nicht stehen bleibt. Kürzere Neuverbindungen zählen nicht. Bewusst nicht gebaut: Ist der Autopilot nicht erlaubt, geht die Figur nachts nicht ins eigene Bett, sondern bleibt stehen.
 - `scripts/langlauf.py --mode fake` wurde nicht eigens gelaufen; ersetzt durch den pytest-Tag mit Autopilot.
 - Esc: Abbrechen einer Handlung hat nur den Knopf; Esc gehört dem Menü. Folgt die Kamera der Figur, beendet Esc aus dem Haus das Folgen.
 - Fehler behoben (b2): Start mit der Figur im Haus ließ die Ansicht pro Bild abstürzen.
