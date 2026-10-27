@@ -13,3 +13,9 @@
 
 ## Grenzen
 Möbel werden einzeln auf Kacheln gestellt (kein Drehen: die Sprites haben nur eine Ausrichtung); die Prüfung „Schlafzimmer braucht ein Bett, Küche einen Herd“ kommt aus AP16a und gilt hier mit.
+
+## Bild
+
+Haus von innen mit dem Möbel-Werkzeug (Katalog rechts, Innenleiste links):
+
+![Haus von innen](img/ap16c-1-haus-innen.png)

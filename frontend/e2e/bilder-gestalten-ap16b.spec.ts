@@ -47,8 +47,9 @@ test("Gott: Entwurf, Übernehmen, Haus von innen", async ({ page, request }) => 
   await page.screenshot({ path: `${OUT}/ap16b-4-uebernehmen.png` });
   await page.getByTestId("uebernehmen-ok").click();
   await expect(page.getByTestId("gestalten-fertig-hinweis")).toBeVisible();
-  const marke = page.locator('[data-house="0"]'), b = (await marke.boundingBox())!;
-  await page.mouse.click(b.x, b.y);
+  await page.getByTestId("werkzeug-zeiger").click();
+  await page.evaluate(() => (window as unknown as { __welt: { enterInterior(i: number): void } }).__welt.enterInterior(0));
+  await expect(page.getByTestId("werkzeug-moebel")).toBeVisible({ timeout: 15000 });
   await page.getByTestId("werkzeug-moebel").click();
   await page.waitForTimeout(1200);
   await page.screenshot({ path: `${OUT}/ap16c-1-haus-innen.png` });
