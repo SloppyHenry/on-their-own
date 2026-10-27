@@ -2,10 +2,10 @@
 
 import pytest
 
-from simulacra.agents.factors import Env, core
-from simulacra.agents.observations import _short_state
-from simulacra.agents.scoring import Tuning
-from simulacra.world import loader
+from on_their_own.agents.factors import Env, core
+from on_their_own.agents.observations import _short_state
+from on_their_own.agents.scoring import Tuning
+from on_their_own.world import loader
 
 from tests.conftest import START_WORLD
 

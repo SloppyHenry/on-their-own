@@ -2,7 +2,7 @@
 
 import pytest
 
-from simulacra.generator.generate import GenerationError, default_mix, dumps, new_world
+from on_their_own.generator.generate import GenerationError, default_mix, dumps, new_world
 
 
 def residents(n, homes=()):

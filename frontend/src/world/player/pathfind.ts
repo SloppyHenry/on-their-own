@@ -1,4 +1,4 @@
-// Wegsuche für die Mitspieler-Vorschau: A* auf dem Kachelraster wie backend/simulacra/world/pathfinding.py
+// Wegsuche für die Mitspieler-Vorschau: A* auf dem Kachelraster wie backend/on_their_own/world/pathfinding.py
 // (4er-Nachbarschaft plus Übergänge wie die Haustür, Kosten je Kachelart, blockierende Objekte und verschlossene Türen sperren).
 // Nur Vorschau, das Backend entscheidet später.
 import type { World } from "../../store/types";

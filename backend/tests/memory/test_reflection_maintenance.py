@@ -3,7 +3,7 @@ import json
 import pytest
 
 from agents.conftest import make_sim
-from simulacra.memory.retrieval import Situation
+from on_their_own.memory.retrieval import Situation
 
 
 def reflect_fn(sources=(1, 2), text="Ich merke, dass mir der Garten Ruhe gibt.", extra=None):
@@ -159,7 +159,7 @@ def test_plans_are_stored_only_when_they_persist_or_contain_a_commitment(sim):
 
 
 def test_source_citations_are_removed_from_reflection_text():
-    from simulacra.memory.reflection import Reflector
+    from on_their_own.memory.reflection import Reflector
     assert Reflector._clean("Ich merke, dass ich gern plane (Quelle: 3, 5).") == "Ich merke, dass ich gern plane."
     assert Reflector._clean("Alex ist geduldig. Quellen: 2, 4.") == "Alex ist geduldig."
     assert Reflector._clean("Ich mag den See [Erinnerung 2].") == "Ich mag den See."

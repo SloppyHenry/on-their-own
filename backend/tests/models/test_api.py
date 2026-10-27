@@ -2,7 +2,7 @@
 
 from api.conftest import api
 
-from simulacra.models.hardware import Hardware
+from on_their_own.models.hardware import Hardware
 
 from .conftest import FakeHF, machine
 

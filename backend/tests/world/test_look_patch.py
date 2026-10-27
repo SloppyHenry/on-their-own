@@ -5,11 +5,11 @@ from pathlib import Path
 
 import pytest
 
-from simulacra.db.connection import Database
-from simulacra.world import loader
-from simulacra.world import look as lk
-from simulacra.world.engine import WorldEngine
-from simulacra.world.extend import WorldEditError
+from on_their_own.db.connection import Database
+from on_their_own.world import loader
+from on_their_own.world import look as lk
+from on_their_own.world.engine import WorldEngine
+from on_their_own.world.extend import WorldEditError
 
 ROOT = Path(__file__).parents[3]
 V1 = ROOT / "frontend/src/world/dorf/look-v1-startwelt.json"

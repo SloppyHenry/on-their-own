@@ -6,7 +6,7 @@ import uuid
 
 from api.conftest import api, post
 
-from simulacra.params.registry import SPEC_LIST
+from on_their_own.params.registry import SPEC_LIST
 
 from .conftest import ROOT, Server
 

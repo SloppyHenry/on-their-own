@@ -15,7 +15,7 @@ import pytest
 from agents.conftest import make_sim, put
 from autonomy.test_longrun import model
 from params.conftest import patch
-from simulacra.events_user.service import InjectError
+from on_their_own.events_user.service import InjectError
 
 ROOT = Path(__file__).resolve().parents[3]
 _spec = importlib.util.spec_from_file_location("langlauf", ROOT / "scripts" / "langlauf.py")

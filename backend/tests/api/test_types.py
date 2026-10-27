@@ -6,9 +6,9 @@ from pathlib import Path
 
 import pytest
 
-from simulacra.api.schema_export import build_schema, ts_extra
-from simulacra.events import models as event_models
-from simulacra.events.types import CATEGORIES, REGISTRY
+from on_their_own.api.schema_export import build_schema, ts_extra
+from on_their_own.events import models as event_models
+from on_their_own.events.types import CATEGORIES, REGISTRY
 
 ROOT = Path(__file__).resolve().parents[3]
 TYPES = ROOT / "frontend" / "src" / "types"

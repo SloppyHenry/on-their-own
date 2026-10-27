@@ -14,10 +14,10 @@ if [[ -f "$SRC_KEY" ]]; then
 fi
 [[ -f "$SIM_KEY_FILE" ]] || die "API-Schlüssel nicht gefunden ($SRC_KEY). Pfad mit SIM_KEY_SOURCE=… angeben."
 
-if [[ -n "$(sim_compose ps -a -q simulacra)" ]]; then
+if [[ -n "$(sim_compose ps -a -q on-their-own)" ]]; then
   echo "== Backup vor dem Ausrollen"
   "$ROOT/scripts/backup.sh"
-  docker image inspect simulacra:latest >/dev/null 2>&1 && docker tag simulacra:latest simulacra:previous
+  docker image inspect on-their-own:latest >/dev/null 2>&1 && docker tag on-their-own:latest on-their-own:previous
 fi
 
 echo "== Bauen"
@@ -25,7 +25,7 @@ sim_compose build
 echo "== Starten"
 sim_compose up -d
 
-healthy() { [[ "$(docker inspect -f '{{.State.Health.Status}}' simulacra 2>/dev/null)" == "healthy" ]]; }
+healthy() { [[ "$(docker inspect -f '{{.State.Health.Status}}' on-their-own 2>/dev/null)" == "healthy" ]]; }
 for _ in $(seq 1 60); do healthy && break; sleep 2; done
 
 if healthy && curl -fsS "http://127.0.0.1:$PORT/api/health" >/dev/null; then
@@ -35,10 +35,10 @@ if healthy && curl -fsS "http://127.0.0.1:$PORT/api/health" >/dev/null; then
 fi
 
 echo "== FEHLER: Container wurde nicht gesund. Letzte Logzeilen:" >&2
-sim_compose logs --tail 40 simulacra >&2 || true
-if docker image inspect simulacra:previous >/dev/null 2>&1; then
+sim_compose logs --tail 40 on-their-own >&2 || true
+if docker image inspect on-their-own:previous >/dev/null 2>&1; then
   echo "== Zurück auf die vorherige Version" >&2
-  docker tag simulacra:previous simulacra:latest
+  docker tag on-their-own:previous on-their-own:latest
   sim_compose up -d --no-build --force-recreate
 fi
 exit 1

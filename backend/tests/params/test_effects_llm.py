@@ -4,7 +4,7 @@ import asyncio
 
 import pytest
 
-from simulacra.llm.providers import FakeProvider, LLMError, OpenAICompatProvider
+from on_their_own.llm.providers import FakeProvider, LLMError, OpenAICompatProvider
 
 from .conftest import patch
 from .test_effects_memory import SIT, fill

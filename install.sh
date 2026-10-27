@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# On Their Own: Installation in einem Aufruf (Linux und macOS). Plan: docs/arbeitspakete/AP17c-plan.md, Handbuch: docs/installation.md
+# On Their Own: Installation in einem Aufruf (Linux und macOS).
 #
 #   ./install.sh                 interaktiv, fragt vor jedem Schritt mit Wirkung nach
 #   ./install.sh --yes           ohne Rückfragen (Standardantworten)
@@ -20,10 +20,10 @@ RUNTIME="$DATA/runtime/llama.cpp"
 MODELS_DIR="$DATA/models"
 LOGS="$DATA/logs"
 LOCAL_BIN="$HOME/.local/bin"
-LLM_PORT="${SIMULACRA_LLM_PORT:-8081}"
-APP_PORT="${SIMULACRA_PORT:-8090}"
-MARK_BEGIN="# --- simulacra install (verwaltet von install.sh) ---"
-MARK_END="# --- ende simulacra install ---"
+LLM_PORT="${OTO_LLM_PORT:-8081}"
+APP_PORT="${OTO_PORT:-8090}"
+MARK_BEGIN="# --- on-their-own install (verwaltet von install.sh) ---"
+MARK_END="# --- ende on-their-own install ---"
 
 YES=0; DRY=0; TOKEN=0; NO_MODEL=0; NO_LLM=0; HEADLESS=0; UPDATE=0; UNINSTALL=0; PURGE=0; MODEL_KEY=""
 while [ $# -gt 0 ]; do

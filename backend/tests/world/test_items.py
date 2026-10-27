@@ -20,7 +20,7 @@ def test_inspect_reveals_hidden_object_only_for_the_inspector(eng):
     reject(eng, "alex", "take", "invalid_target", object_id="old_key")        # unbekannt
     put(eng, "alex", 8, 25)
     # Untersuchen irgendeines Objekts am Ort deckt Verborgenes in Reichweite auf; im Wald liegt nur die Quelle, also ein Stein dazu
-    from simulacra.world.models import WorldObject
+    from on_their_own.world.models import WorldObject
     with eng.db.transaction():
         eng.state.save_object(WorldObject(id="stone_1", kind="item", name="Stein", location_id="forest", x=8, y=25), new=True)
     events = ok(eng, "alex", "inspect", object_id="stone_1")

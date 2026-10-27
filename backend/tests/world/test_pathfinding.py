@@ -1,5 +1,5 @@
-from simulacra.world.loader import grid_from_world, load_world_file
-from simulacra.world.pathfinding import Pathfinder
+from on_their_own.world.loader import grid_from_world, load_world_file
+from on_their_own.world.pathfinding import Pathfinder
 
 
 def grid():
@@ -68,7 +68,7 @@ def test_start_equals_goal():
 
 
 def _small(rows: list[str]):
-    from simulacra.world.grid import Grid, TileType
+    from on_their_own.world.grid import Grid, TileType
     types = {"g": TileType("g", True, 1, "."), "w": TileType("w", False, 0, "#")}
     return Grid.from_rows(rows, types)
 
@@ -92,8 +92,8 @@ def test_uebergang_nur_wenn_kuerzer():
 
 def test_uebergang_ungueltig_in_weltdatei():
     import pytest
-    from simulacra.db.connection import Database
-    from simulacra.world.loader import load_world_file, seed_world
+    from on_their_own.db.connection import Database
+    from on_their_own.world.loader import load_world_file, seed_world
     w = load_world_file()
     w["links"] = [[[0, 0], [1, 1]]]                          # Ecke ist Wald, nicht begehbar
     with pytest.raises(ValueError):

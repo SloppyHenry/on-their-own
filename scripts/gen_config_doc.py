@@ -10,9 +10,9 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "backend"))
 
-from simulacra.params.presets import DIR
-from simulacra.params.registry import SPEC_LIST
-from simulacra.params.spec import EFFECTS, GROUPS
+from on_their_own.params.presets import DIR
+from on_their_own.params.registry import SPEC_LIST
+from on_their_own.params.spec import EFFECTS, GROUPS
 
 OUT = Path(__file__).resolve().parents[1] / "docs" / "parameter.md"
 
@@ -39,7 +39,7 @@ def row(s):
 
 def build() -> str:
     out = ["# Parameter", "",
-           "*Erzeugt von `scripts/gen_config_doc.py` aus `backend/simulacra/params/` – nicht von Hand ändern.*", "",
+           "*Erzeugt von `scripts/gen_config_doc.py` aus `backend/on_their_own/params/` – nicht von Hand ändern.*", "",
            "Jeder Parameter steht genau einmal in der Registry. Die Oberfläche (`GET /api/params/schema`), die Prüfung (`PATCH /api/params`) und diese Seite entstehen daraus. "
            "Jeder Parameter nennt den **Wirkungstest**, der nachweist, dass der Wert beim Verbraucher ankommt und das Verhalten ändert. Werte außerhalb des Bereichs werden abgelehnt, nie stillschweigend begrenzt.", "",
            "Wirkung: *sofort* = gilt in der laufenden Welt; *ab der nächsten Entscheidung* = der nächste Prompt oder Abruf nutzt den Wert; *nur mit Neustart des Modells* = nicht im Lauf änderbar.", ""]
@@ -48,7 +48,7 @@ def build() -> str:
         if not specs:
             continue
         out += [f"## {label}", "", "| Schlüssel | Name | Bedeutung | Bereich | Standard | Wirkung | Wirkungstest |", "|---|---|---|---|---|---|---|", *[row(s) for s in specs], ""]
-    out += ["## Presets", "", "Sechs mitgelieferte Presets (`backend/simulacra/params/presets/*.json`, schreibgeschützt). Eigene Presets liegen in SQLite (Tabelle `presets`). "
+    out += ["## Presets", "", "Sechs mitgelieferte Presets (`backend/on_their_own/params/presets/*.json`, schreibgeschützt). Eigene Presets liegen in SQLite (Tabelle `presets`). "
             "Beim Laden zeigt die Vorschau jede Änderung mit altem und neuem Wert; Adresse und Modell sind nie Teil eines Presets.", ""]
     for f in sorted(DIR.glob("*.json")):
         d = json.loads(f.read_text())
@@ -59,10 +59,14 @@ def build() -> str:
 if __name__ == "__main__":
     text = build()
     if "--check" in sys.argv:
-        if not OUT.exists() or OUT.read_text() != text:
+        if not OUT.exists():                                   # docs/ gehört nicht ins Repository: ohne die Datei gibt es nichts zu prüfen
+            print("docs/parameter.md fehlt, nichts zu prüfen.")
+            sys.exit(0)
+        if OUT.read_text() != text:
             print("docs/parameter.md ist veraltet: scripts/gen_config_doc.py ausführen.", file=sys.stderr)
             sys.exit(1)
         print("docs/parameter.md aktuell.")
     else:
+        OUT.parent.mkdir(parents=True, exist_ok=True)
         OUT.write_text(text)
         print(f"Geschrieben: {OUT} ({len(text.splitlines())} Zeilen)")

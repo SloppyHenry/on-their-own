@@ -6,7 +6,7 @@ import re
 import pytest
 
 from agents.conftest import make_sim, put
-from simulacra.agents.relations import METRICS
+from on_their_own.agents.relations import METRICS
 
 pytestmark = pytest.mark.slow
 

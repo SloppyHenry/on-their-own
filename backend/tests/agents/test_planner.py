@@ -1,6 +1,6 @@
 import json
 
-from simulacra.llm.providers import FakeProvider, LLMError
+from on_their_own.llm.providers import FakeProvider, LLMError
 
 from .conftest import chooser, make_sim, options_of, put
 

@@ -4,8 +4,8 @@ import json
 import httpx
 import pytest
 
-from simulacra.llm.client import LLMClient
-from simulacra.llm.providers import FakeProvider, LLMError, LLMParams, OpenAICompatProvider
+from on_their_own.llm.client import LLMClient
+from on_their_own.llm.providers import FakeProvider, LLMError, LLMParams, OpenAICompatProvider
 
 MSGS = [{"role": "user", "content": "Hallo"}]
 SCHEMA = {"type": "object", "properties": {"a": {"type": "string"}}}
@@ -165,7 +165,7 @@ async def test_fake_provider_scripts_errors_and_dicts():
 
 
 def test_settings_build_client(tmp_path):
-    from simulacra.config import Settings
+    from on_their_own.config import Settings
     s = Settings(llm_api_key_file=tmp_path / "none", llm_model="m2", llm_max_concurrent=2, llm_thinking=True)
     c = LLMClient.from_settings(s)
     assert c.params.model == "m2" and c.params.thinking and c._max_concurrent == 2 and c.params.max_tokens == 400

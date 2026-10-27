@@ -48,7 +48,7 @@ async def test_export_download_and_import_upload(sim):
         post(c, "/api/sim/step", {"n": 15})
         s = post(c, "/api/saves", {"name": "Rundreise"}).json()
         r = c.get(f"/api/saves/{s['id']}/export")
-        assert r.status_code == 200 and r.headers["content-type"] == "application/zip" and "simulacra-Rundreise.zip" in r.headers["content-disposition"]
+        assert r.status_code == 200 and r.headers["content-type"] == "application/zip" and "on-their-own-Rundreise.zip" in r.headers["content-disposition"]
         up = c.post("/api/saves/import", content=r.content, headers={"Idempotency-Key": str(uuid.uuid4()), "Content-Type": "application/zip"})
         assert up.status_code == 200 and up.json()["kind"] == "import" and up.json()["sim_minute"] == s["sim_minute"]
         bad = c.post("/api/saves/import", content=b"kaputt", headers={"Idempotency-Key": str(uuid.uuid4())})

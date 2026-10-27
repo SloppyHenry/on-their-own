@@ -5,11 +5,11 @@ import os
 
 import pytest
 
-from simulacra.models import download as dl
-from simulacra.models.download import ModelDownloader
-from simulacra.models.hf import HFClient
-from simulacra.models.store import ModelStore
-from simulacra.models.transfer import TransferError, TransferManager
+from on_their_own.models import download as dl
+from on_their_own.models.download import ModelDownloader
+from on_their_own.models.hf import HFClient
+from on_their_own.models.store import ModelStore
+from on_their_own.models.transfer import TransferError, TransferManager
 
 from .fakes import FakeHub
 

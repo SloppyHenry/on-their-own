@@ -74,9 +74,9 @@ def test_backup_script_writes_a_checked_archive_and_keeps_only_the_newest(env):
         made.append(r.stdout.strip())
         assert Path(made[-1]).is_file() and tarfile.is_tarfile(made[-1])
     assert len(set(made)) == 4
-    kept = sorted(str(p) for p in (tmp / "backups").glob("simulacra-*.tar.gz"))
+    kept = sorted(str(p) for p in (tmp / "backups").glob("on-their-own-*.tar.gz"))
     assert kept == sorted(made)[1:] and not list((tmp / "backups").glob("*.part"))          # die älteste ist weg
-    assert any(" exec -T simulacra " in c for c in calls(tmp))                                # läuft: im laufenden Container gesichert
+    assert any(" exec -T on-their-own " in c for c in calls(tmp))                                # läuft: im laufenden Container gesichert
     assert oct((tmp / "backups").stat().st_mode & 0o777) == "0o700"
 
 
@@ -84,14 +84,14 @@ def test_backup_script_works_with_a_stopped_container_through_a_one_off_run(env)
     e, data, tmp = env
     (tmp / "state").write_text("stopped")
     assert sh(e, ROOT / "scripts/backup.sh").returncode == 0
-    assert any(" run --rm -T --no-deps simulacra " in c for c in calls(tmp))
+    assert any(" run --rm -T --no-deps on-their-own " in c for c in calls(tmp))
 
 
 def test_backup_script_leaves_nothing_behind_when_the_command_fails(env):
     e, data, tmp = env
     (tmp / "state").write_text("stopped")
     r = sh({**e, "STUB_RUN_FAILS": "1"}, ROOT / "scripts/backup.sh")
-    assert r.returncode != 0 and not list((tmp / "backups").glob("simulacra-*"))
+    assert r.returncode != 0 and not list((tmp / "backups").glob("on-their-own-*"))
 
 
 def test_restore_script_needs_the_confirmation_word_and_changes_nothing_otherwise(env):
@@ -117,7 +117,7 @@ def test_restore_script_backs_up_stops_restores_and_starts_again(env):
     log = calls(tmp)
     order = [next(i for i, c in enumerate(log) if k in c) for k in (" exec ", " stop ", " run --rm", " start ")]
     assert order == sorted(order)                                     # erst sichern, dann stoppen, einspielen, starten
-    assert len(list((tmp / "backups").glob("simulacra-*.tar.gz"))) == 2 and (tmp / "state").read_text() == "running"      # Backup + Sicherung vor dem Einspielen
+    assert len(list((tmp / "backups").glob("on-their-own-*.tar.gz"))) == 2 and (tmp / "state").read_text() == "running"      # Backup + Sicherung vor dem Einspielen
 
 
 def test_restore_script_restarts_the_app_even_when_the_restore_fails(env):
@@ -153,25 +153,25 @@ def test_deploy_rejects_unknown_options(env):
 def test_key_file_default_lies_in_a_private_folder_of_the_user(env):
     e, data, tmp = env
     r = subprocess.run(["bash", "-c", f"source {ROOT}/scripts/_compose.sh; echo $SIM_KEY_FILE"], env=e, capture_output=True, text=True)
-    assert r.stdout.strip() == f"{tmp}/simulacra-secrets/llm_api_key"
+    assert r.stdout.strip() == f"{tmp}/on-their-own-secrets/llm_api_key"
 
 
 def test_rsync_to_maintux_copies_every_tracked_file_and_no_data(tmp_path):
-    """Gegen den Fehler vom ersten Ausrollen: ein zu grober Ausschluss (`data`) ließ backend/simulacra/data/ mit den Weltdaten weg."""
+    """Gegen den Fehler vom ersten Ausrollen: ein zu grober Ausschluss (`data`) ließ backend/on_their_own/data/ mit den Weltdaten weg."""
     target = tmp_path / "ziel"
     (tmp_path / "quelle").mkdir()
     subprocess.run(["rsync", "-a", "--exclude-from", str(ROOT / "scripts/rsync-excludes.txt"), f"{ROOT}/", f"{target}/"], check=True)
     tracked = subprocess.run(["git", "ls-files"], cwd=ROOT, capture_output=True, text=True, check=True).stdout.split()
     missing = [f for f in tracked if (ROOT / f).exists() and not (target / f).exists()]
     assert not missing, missing
-    assert (target / "backend/simulacra/data/blueprints.json").is_file()
+    assert (target / "backend/on_their_own/data/blueprints.json").is_file()
     assert not (target / "data").exists() and not (target / ".git").exists() and not list(target.rglob("node_modules"))
 
 
 def test_every_file_the_app_needs_at_runtime_survives_the_docker_context_rules():
-    """Die Muster aus .dockerignore dürfen nichts unter backend/simulacra oder backend/requirements.lock treffen."""
+    """Die Muster aus .dockerignore dürfen nichts unter backend/on_their_own oder backend/requirements.lock treffen."""
     patterns = [l.strip() for l in (ROOT / ".dockerignore").read_text().splitlines() if l.strip() and not l.startswith(("#", "!"))]
-    needed = [str(p.relative_to(ROOT)) for p in (ROOT / "backend/simulacra").rglob("*") if p.is_file() and "__pycache__" not in p.parts] + ["backend/requirements.lock"]
+    needed = [str(p.relative_to(ROOT)) for p in (ROOT / "backend/on_their_own").rglob("*") if p.is_file() and "__pycache__" not in p.parts] + ["backend/requirements.lock"]
     import fnmatch
     hit = [f for f in needed for pat in patterns
            if (pat.startswith("**/") and any(fnmatch.fnmatch(part, pat[3:]) for part in f.split("/")))

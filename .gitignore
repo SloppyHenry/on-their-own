@@ -1,5 +1,9 @@
-# nur der Datenordner im Projektstamm; backend/simulacra/data/ (Weltdaten) gehört ins Repository
+# nur der Datenordner im Projektstamm; backend/on_their_own/data/ (Weltdaten) gehört ins Repository
 /data/
+# Dokumentation, Berichte und Mockups liegen lokal, nicht im Repository
+/docs/
+# lokale Werkzeug-Einstellungen und Arbeitsbäume
+/.claude/
 node_modules/
 .venv
 .venv/

@@ -1,8 +1,8 @@
 import httpx
 from fastapi.testclient import TestClient
 
-from simulacra import app as app_module
-from simulacra.config import Settings, get_settings
+from on_their_own import app as app_module
+from on_their_own.config import Settings, get_settings
 
 
 def _client(monkeypatch, handler, tmp_path):

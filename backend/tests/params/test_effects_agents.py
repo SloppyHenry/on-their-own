@@ -5,7 +5,7 @@ import json
 from agents.conftest import make_sim
 from autonomy.helpers import ctx, goal, opt, person, score, stub, total
 
-from simulacra.agents.model import PERSONALITY_LABELS, Personality
+from on_their_own.agents.model import PERSONALITY_LABELS, Personality
 
 from .conftest import patch
 

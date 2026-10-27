@@ -15,9 +15,9 @@ import httpx
 import pytest
 from agents.conftest import with_goals
 
-from simulacra.config import Settings
-from simulacra.llm.providers import first_option_fn
-from simulacra.simulation.builder import Simulation
+from on_their_own.config import Settings
+from on_their_own.llm.providers import first_option_fn
+from on_their_own.simulation.builder import Simulation
 
 from .conftest import ROOT
 
@@ -105,7 +105,7 @@ async def test_k14_simulation_laeuft_hinter_einer_netzsperre_nur_mit_lokalem_mod
 
 
 def test_k14_kein_cloud_endpunkt_in_code_oder_konfiguration():
-    roots = [ROOT / "backend" / "simulacra", ROOT / "frontend" / "src", ROOT / "deploy", ROOT / "scripts"]
+    roots = [ROOT / "backend" / "on_their_own", ROOT / "frontend" / "src", ROOT / "deploy", ROOT / "scripts"]
     hits = [f"{p.relative_to(ROOT)}:{i}" for r in roots for p in r.rglob("*") if p.is_file() and p.suffix in {".py", ".ts", ".tsx", ".yaml", ".sh", ".example", ".json", ".html"}
             for i, line in enumerate(p.read_text(errors="ignore").splitlines(), 1) if CLOUD.search(line)]
     assert hits == []

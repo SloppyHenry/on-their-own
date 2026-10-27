@@ -3,7 +3,7 @@
 import json
 from pathlib import Path
 
-from simulacra.generator.generate import dumps, new_world
+from on_their_own.generator.generate import dumps, new_world
 
 OUT = Path(__file__).parents[3] / "frontend/src/world/dorf/fixtures/dorf-seed-12.json"
 

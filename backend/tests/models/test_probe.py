@@ -4,9 +4,9 @@ import json
 
 import pytest
 
-from simulacra.llm.providers import FakeProvider, LLMError
-from simulacra.models import probe as pr
-from simulacra.models.probe_data import SCENARIOS, build_messages
+from on_their_own.llm.providers import FakeProvider, LLMError
+from on_their_own.models import probe as pr
+from on_their_own.models.probe_data import SCENARIOS, build_messages
 
 
 def answer(option_ids, **over):

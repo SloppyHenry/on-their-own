@@ -4,11 +4,11 @@ A small pixel village where AI characters live their own lives. They have person
 
 *Deutsch [weiter unten](#deutsch).*
 
-![The village by day: Alex heads to the workshop, Mira to the lake](docs/img/readme-village.jpg)
+![The village by day: Alex heads to the workshop, Mira to the lake](assets/readme-village.jpg)
 
 | | |
 |---|---|
-| ![Inside the house: rooms, furniture and both residents in the kitchen](docs/img/readme-house.jpg) | ![The diary: every decision with its reason](docs/img/readme-diary.jpg) |
+| ![Inside the house: rooms, furniture and both residents in the kitchen](assets/readme-house.jpg) | ![The diary: every decision with its reason](assets/readme-diary.jpg) |
 
 ## Install
 
@@ -28,7 +28,7 @@ Options are passed through, e.g. `… | bash -s -- --headless` for a server with
 - **Your own simulations**: pick or write residents, generate villages, set the rules, save and load
 - **Local model** via llama.cpp, picked from a curated list to fit your hardware, swappable in the settings
 
-Inspired by *Generative Agents: Interactive Simulacra of Human Behavior* (Stanford). Documentation is in German: [docs/](docs/).
+Inspired by *Generative Agents: Interactive Simulacra of Human Behavior* (Stanford).
 
 ---
 
@@ -42,6 +42,6 @@ Ein kleines Pixeldorf, in dem KI-Figuren ihr eigenes Leben führen: mit Persönl
 curl -fsSL https://raw.githubusercontent.com/SloppyHenry/on-their-own/main/get.sh | bash
 ```
 
-Danach **http://127.0.0.1:8090** öffnen. Details: [docs/installation.md](docs/installation.md) · Betrieb und Backup: [docs/betrieb.md](docs/betrieb.md) · Architektur: [docs/architektur.md](docs/architektur.md) · Schnittstellen: [docs/schnittstellen.md](docs/schnittstellen.md) · Erweitern: [docs/erweitern.md](docs/erweitern.md)
+Danach **http://127.0.0.1:8090** öffnen. Ohne Dienst startet `scripts/start.sh` alles im Vordergrund; `./install.sh --help` zeigt alle Schalter.
 
 **Entwickeln:** `scripts/dev.sh` startet Backend und Oberfläche mit Neuladen. Tests: `cd backend && .venv/bin/python -m pytest -q` sowie `cd frontend && npm run typecheck && npm test && npx playwright test`.

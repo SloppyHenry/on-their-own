@@ -4,9 +4,9 @@ import json
 
 import pytest
 
-from simulacra.agents.model import AgentProfile, Personality
-from simulacra.agents.schema import template_data
-from simulacra.agents.templates import TemplateError, TemplateStore
+from on_their_own.agents.model import AgentProfile, Personality
+from on_their_own.agents.schema import template_data
+from on_their_own.agents.templates import TemplateError, TemplateStore
 
 
 @pytest.fixture(params=["datei", "speicher"])

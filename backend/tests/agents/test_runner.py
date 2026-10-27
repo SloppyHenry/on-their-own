@@ -4,10 +4,10 @@ import re
 
 import pytest
 
-from simulacra.llm.providers import FakeProvider
-from simulacra.simulation.builder import Simulation
-from simulacra.simulation.limits import DecisionLimiter
-from simulacra.simulation.runner import SimState
+from on_their_own.llm.providers import FakeProvider
+from on_their_own.simulation.builder import Simulation
+from on_their_own.simulation.limits import DecisionLimiter
+from on_their_own.simulation.runner import SimState
 
 from .conftest import chooser, make_sim, put
 
@@ -223,7 +223,7 @@ async def test_reset_keeps_the_old_world_as_backup(tmp_path):
     assert saved is not None and saved.exists() and saved.parent.name == "saves"                  # seit AP09 als Spielstand „Vor dem Zurücksetzen“
     assert [e["name"] for e in sim.saves.list() if e["kind"] == "backup"][0].startswith("Vor dem Zurücksetzen")
     assert sim.engine.minute < old_minute and sim.runner.state == SimState.STOPPED
-    from simulacra.db.connection import Database
+    from on_their_own.db.connection import Database
     check = Database(saved)
     assert check.conn.execute("SELECT minute FROM clock").fetchone()[0] == old_minute        # alter Stand unverändert gesichert
     await sim.runner.step(1)                                                                  # die neue Welt läuft

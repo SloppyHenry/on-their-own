@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from simulacra.models import hardware as h
+from on_their_own.models import hardware as h
 
 REC = Path(__file__).resolve().parent.parent / "fixtures" / "hardware"
 

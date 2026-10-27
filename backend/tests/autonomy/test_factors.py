@@ -1,7 +1,7 @@
 import pytest
 
-from simulacra.agents.factors import FACTOR_KEYS, KEY_LABELS, key_of
-from simulacra.agents.model import Personality
+from on_their_own.agents.factors import FACTOR_KEYS, KEY_LABELS, key_of
+from on_their_own.agents.model import Personality
 
 from .helpers import ctx, factor, goal, opt, person, relation, score, stub, total
 

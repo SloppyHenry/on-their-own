@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Spielt ein Backup zurück. Der aktuelle Stand wird vorher gesichert (nach ~/simulacra-backups und im Volume unter /data/backups).
-# Aufruf auf maintux:  scripts/restore.sh <simulacra-….tar.gz> [--yes]
+# Spielt ein Backup zurück. Der aktuelle Stand wird vorher gesichert (nach ~/on-their-own-backups und im Volume unter /data/backups).
+# Aufruf auf maintux:  scripts/restore.sh <on-their-own-….tar.gz> [--yes]
 set -euo pipefail
 # shellcheck source=scripts/_compose.sh
 source "$(dirname "$0")/_compose.sh"
@@ -16,12 +16,12 @@ if [[ "${2:-}" != "--yes" ]]; then
 fi
 
 was_running="$(sim_running)"
-if [[ -n "$was_running" || -n "$(sim_compose ps -a -q simulacra)" ]]; then
+if [[ -n "$was_running" || -n "$(sim_compose ps -a -q on-their-own)" ]]; then
   "$(dirname "$0")/backup.sh" >/dev/null || die "Sicherung des aktuellen Stands fehlgeschlagen, nichts geändert."
 fi
-[[ -z "$was_running" ]] || sim_compose stop simulacra
-restart() { [[ -z "$was_running" ]] || sim_compose start simulacra; }
+[[ -z "$was_running" ]] || sim_compose stop on-their-own
+restart() { [[ -z "$was_running" ]] || sim_compose start on-their-own; }
 trap restart EXIT                               # auch bei Fehlern: die App läuft danach wieder, wenn sie vorher lief
 
-sim_compose run --rm -T --no-deps simulacra python -m simulacra.saves.cli restore - <"$file"
+sim_compose run --rm -T --no-deps on-their-own python -m on_their_own.saves.cli restore - <"$file"
 echo "Fertig. Prüfen: http://localhost:${SIM_PUBLISH:-8090}/api/health"

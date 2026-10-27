@@ -4,7 +4,7 @@
 detect_hw() {
   case "$(uname -s)" in Darwin) OS=macos;; Linux) OS=linux;; *) die "Betriebssystem $(uname -s) wird nicht unterstützt (Linux und macOS).";; esac
   case "$(uname -m)" in arm64|aarch64) ARCH=arm64;; x86_64|amd64) ARCH=x64;; *) die "Architektur $(uname -m) wird nicht unterstützt.";; esac
-  if [ "$OS" = macos ]; then MEM_MB=$(( $(sysctl -n hw.memsize) / 1048576 )); else MEM_MB=$(awk '/^MemTotal/ {print int($2/1024)}' "${SIMULACRA_MEMINFO:-/proc/meminfo}"); fi
+  if [ "$OS" = macos ]; then MEM_MB=$(( $(sysctl -n hw.memsize) / 1048576 )); else MEM_MB=$(awk '/^MemTotal/ {print int($2/1024)}' "${OTO_MEMINFO:-/proc/meminfo}"); fi
   GPU_KIND=cpu; GPU_NAME=""; VRAM_MB=0; VRAM_FREE_MB=0; CUDA_VER=""
   local nv
   if have nvidia-smi && nv="$(nvidia-smi --query-gpu=name,memory.total,memory.free --format=csv,noheader,nounits 2>/dev/null | head -1)" && [ -n "$nv" ]; then
@@ -15,7 +15,7 @@ detect_hw() {
     CUDA_VER="$(nvidia-smi 2>/dev/null | sed -n 's/.*CUDA Version: *\([0-9][0-9.]*\).*/\1/p' | head -1 || true)"
   elif [ "$OS" = macos ] && [ "$ARCH" = arm64 ]; then
     GPU_KIND=metal; GPU_NAME="$(sysctl -n machdep.cpu.brand_string 2>/dev/null || echo 'Apple Silicon')"
-  elif [ "$OS" = linux ] && [ -z "${SIMULACRA_NO_VULKAN:-}" ] && { have vulkaninfo || ls /usr/share/vulkan/icd.d/*.json >/dev/null 2>&1; }; then
+  elif [ "$OS" = linux ] && [ -z "${OTO_NO_VULKAN:-}" ] && { have vulkaninfo || ls /usr/share/vulkan/icd.d/*.json >/dev/null 2>&1; }; then
     GPU_KIND=vulkan; GPU_NAME="Vulkan-Grafik"
   fi
   CUDA_MAJOR="${CUDA_VER%%.*}"; CUDA_MAJOR="${CUDA_MAJOR:-0}"
@@ -54,8 +54,8 @@ check_machine() {
     if [ "$nm" -ge 22 ] 2>/dev/null; then NODE_OK=1; ok "node $(node --version) ✓"; else warn "node $(node --version) ist zu alt (22 oder neuer nötig)"; fi
   else warn "node fehlt (wird in Schritt 2 geholt)"; fi
   [ "$FREE_MB" -ge 3000 ] || warn "Wenig Platz frei (unter 3 GB); Modelle brauchen mehr."
-  if port_busy "$APP_PORT"; then warn "Port $APP_PORT (Oberfläche) ist schon belegt. Läuft dort eine frühere Installation, ist das in Ordnung; sonst einen anderen Port wählen: SIMULACRA_PORT=$((APP_PORT + 1)) ./install.sh"; fi
-  if port_busy "$LLM_PORT"; then warn "Port $LLM_PORT (Modell) ist schon belegt. Läuft dort eine frühere Installation, ist das in Ordnung; sonst: SIMULACRA_LLM_PORT=$((LLM_PORT + 1)) ./install.sh"; fi
+  if port_busy "$APP_PORT"; then warn "Port $APP_PORT (Oberfläche) ist schon belegt. Läuft dort eine frühere Installation, ist das in Ordnung; sonst einen anderen Port wählen: OTO_PORT=$((APP_PORT + 1)) ./install.sh"; fi
+  if port_busy "$LLM_PORT"; then warn "Port $LLM_PORT (Modell) ist schon belegt. Läuft dort eine frühere Installation, ist das in Ordnung; sonst: OTO_LLM_PORT=$((LLM_PORT + 1)) ./install.sh"; fi
 }
 
 # ---------- 2: Voraussetzungen ----------
@@ -71,7 +71,7 @@ install_prereqs() {
   fi
   if [ "$NODE_OK" != 1 ]; then
     did=1
-    if ask "Node.js 24 nach ~/.local/share/simulacra/node installieren (von nodejs.org, mit Prüfsumme, kein sudo)?" j; then
+    if ask "Node.js 24 nach ~/.local/share/on-their-own/node installieren (von nodejs.org, mit Prüfsumme, kein sudo)?" j; then
       install_node
     else die "ohne Node.js 22 oder neuer lässt sich die Oberfläche nicht bauen."; fi
   fi
@@ -86,7 +86,7 @@ install_node() {
   file="$(printf '%s\n' "$sums" | awk -v p="-$osn-$arch.tar.gz" 'index($2,p) && $2 ~ /^node-v/ {print $2; exit}')"
   sha="$(printf '%s\n' "$sums" | awk -v f="$file" '$2==f {print $1}')"
   [ -n "$file" ] && [ -n "$sha" ] || die "Keine passende Node-Datei für $osn-$arch gefunden."
-  dir="$HOME/.local/share/simulacra/node"
+  dir="$HOME/.local/share/on-their-own/node"
   if [ "$DRY" = 1 ]; then plan "$file laden, Prüfsumme prüfen und nach $dir entpacken"; export PATH="$dir/bin:$PATH"; return; fi
   local tmp; tmp="$(mktemp -d)"
   fetch "$base/$file" "$tmp/$file" "$sha"

@@ -2,7 +2,7 @@ import { defineConfig } from "@playwright/test";
 
 const BACKEND = Number(process.env.SIM_E2E_BACKEND_PORT ?? 8192);     // abweichend, wenn 8192 belegt ist (z. B. vom Langlauf)
 const FRONTEND = Number(process.env.SIM_E2E_FRONTEND_PORT ?? 5175);
-const DATA = process.env.SIM_E2E_DATA ?? "/tmp/simulacra-e2e-run";                  // abweichend, wenn eine zweite Sitzung gleichzeitig prüft
+const DATA = process.env.SIM_E2E_DATA ?? "/tmp/on-their-own-e2e-run";                  // abweichend, wenn eine zweite Sitzung gleichzeitig prüft
 
 /** Echtes Backend mit deterministischem Fake-LLM (scripts/e2e_server.py), echtes Frontend über Vite; kein Zugriff auf maintux. */
 export default defineConfig({
@@ -15,7 +15,7 @@ export default defineConfig({
   // Das Titelbild (AP17a) und die Hilfe beim ersten Start (AP18b) sind je Gerät abschaltbar; die Tests starten ohne, damit sie direkt im Spiel sind. menue.spec.ts schaltet das Titelbild wieder an.
   use: {
     baseURL: `http://127.0.0.1:${FRONTEND}`, viewport: { width: 1440, height: 900 }, trace: "retain-on-failure", screenshot: "only-on-failure",
-    storageState: { cookies: [], origins: [{ origin: `http://127.0.0.1:${FRONTEND}`, localStorage: [{ name: "simulacra.titelbild", value: "false" }, { name: "simulacra.hilfe-gesehen", value: "true" }] }] },
+    storageState: { cookies: [], origins: [{ origin: `http://127.0.0.1:${FRONTEND}`, localStorage: [{ name: "on-their-own.titelbild", value: "false" }, { name: "on-their-own.hilfe-gesehen", value: "true" }] }] },
   },
   webServer: [
     {

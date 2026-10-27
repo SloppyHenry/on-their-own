@@ -1,10 +1,10 @@
 from types import SimpleNamespace
 
-from simulacra.agents.context import AgentContext
-from simulacra.agents.goals import Goal
-from simulacra.agents.model import Personality
-from simulacra.agents.relations import Relation
-from simulacra.agents.scoring import Option, Tuning, score_option
+from on_their_own.agents.context import AgentContext
+from on_their_own.agents.goals import Goal
+from on_their_own.agents.model import Personality
+from on_their_own.agents.relations import Relation
+from on_their_own.agents.scoring import Option, Tuning, score_option
 
 NO_JITTER = Tuning(jitter=0.0)
 

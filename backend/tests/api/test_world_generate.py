@@ -2,7 +2,7 @@
 
 import pytest
 
-from simulacra.world import loader
+from on_their_own.world import loader
 from tests.saves.conftest import file_sim
 
 from .conftest import api, post

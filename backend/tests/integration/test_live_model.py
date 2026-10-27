@@ -8,9 +8,9 @@ import os
 
 import pytest
 
-from simulacra.config import Settings
-from simulacra.llm.providers import OpenAICompatProvider
-from simulacra.simulation.builder import Simulation
+from on_their_own.config import Settings
+from on_their_own.llm.providers import OpenAICompatProvider
+from on_their_own.simulation.builder import Simulation
 
 pytestmark = pytest.mark.integration
 

@@ -3,7 +3,7 @@ import json
 import pytest
 
 from agents.conftest import GOAL_ANSWER, make_sim, put
-from simulacra.agents.plans import GoalPlanner
+from on_their_own.agents.plans import GoalPlanner
 
 from .helpers import give
 
@@ -123,9 +123,9 @@ def test_plan_progress_is_part_of_goal_progress(sim):
 
 
 def test_goals_are_mirrored_as_intention_memories_and_survive_a_restart(tmp_path):
-    from simulacra.config import Settings
-    from simulacra.llm.providers import FakeProvider, first_option_fn
-    from simulacra.simulation.builder import Simulation
+    from on_their_own.config import Settings
+    from on_their_own.llm.providers import FakeProvider, first_option_fn
+    from on_their_own.simulation.builder import Simulation
     s = Settings(llm_api_key_file="/nonexistent", llm_backoff_s=0.0)
     a = Simulation.create(s, tmp_path / "w.db", FakeProvider(fn=first_option_fn))
     a.store.ensure_all()
@@ -220,7 +220,7 @@ async def test_a_new_goal_replaces_a_stuck_one_and_marks_it_abandoned():
 
 
 async def test_an_accepted_proposal_switches_a_goal_that_is_not_far_along_but_not_one_that_is():
-    from simulacra.world.models import Event  # noqa: F401
+    from on_their_own.world.models import Event  # noqa: F401
     s = make_sim()
     s.store.ensure_all()
     first = await s.autonomy.planner.run("alex", "kein aktives Ziel")

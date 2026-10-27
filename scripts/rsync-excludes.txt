@@ -1,5 +1,5 @@
 # Was deploy_maintux.sh NICHT nach maintux kopiert. Mit „/“ am Anfang gilt ein Muster nur im Projektstamm;
-# ohne „/“ trifft es jeden Ordner gleichen Namens (backend/simulacra/data/ mit den Weltdaten muss mit!).
+# ohne „/“ trifft es jeden Ordner gleichen Namens (backend/on_their_own/data/ mit den Weltdaten muss mit!).
 /.git
 /data
 .env

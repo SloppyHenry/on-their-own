@@ -4,8 +4,8 @@ import json
 
 import pytest
 
-from simulacra.models import catalog as cat
-from simulacra.models.catalog import Catalog
+from on_their_own.models import catalog as cat
+from on_their_own.models.catalog import Catalog
 
 from .conftest import FakeHF, machine
 

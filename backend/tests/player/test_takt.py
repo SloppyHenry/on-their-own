@@ -6,8 +6,8 @@ import time
 import pytest
 from agents.conftest import make_sim, put
 
-from simulacra.simulation import mitleben
-from simulacra.simulation.runner import SimState
+from on_their_own.simulation import mitleben
+from on_their_own.simulation.runner import SimState
 from tests.api.conftest import api, post
 from tests.player.test_handeln import leben
 
@@ -130,7 +130,7 @@ def test_change_figure_needs_confirm_and_leben():
         r = c.put("/api/player/figure", json={"agent": "mira", "confirm": True}, headers={"Idempotency-Key": "figure-3456"})
         assert r.status_code == 200 and r.json()["player"] == "mira"
         assert "alex" in sim.store.thinking_ids() and "mira" not in sim.store.thinking_ids()      # die alte Figur ist ein normaler Bewohner
-        from simulacra.world import spielart
+        from on_their_own.world import spielart
         spielart.set_mode(sim.engine.state, "gott")
         assert c.put("/api/player/figure", json={"agent": "alex", "confirm": True}, headers={"Idempotency-Key": "figure-4567"}).status_code == 409
 

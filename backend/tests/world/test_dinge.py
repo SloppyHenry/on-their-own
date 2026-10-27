@@ -1,7 +1,7 @@
 """Dinge im Dorf (AP15): Boot, Lichter, Briefkasten, Wegweiser, Vogelscheuche, Katze, Sessel, Ablagen, Korb, Regentonne."""
 
-from simulacra.world import object_kinds
-from simulacra.world.models import WorldObject
+from on_their_own.world import object_kinds
+from on_their_own.world.models import WorldObject
 
 from .conftest import ok, put, reject, stock, types
 
@@ -149,7 +149,7 @@ def test_reed_basket_gives_three_more_slots(eng):
     e = ok(eng, "alex", "build", blueprint="basket")
     basket = [x for x in e if x.type == "world.object_created" and x.data["object"]["kind"] == "basket"][0].data["object"]
     assert eng.state.obj(basket["id"]).portable and eng.state.obj(basket["id"]).state["extra_slots"] == 4
-    from simulacra.world.actions.base import Ctx
+    from on_their_own.world.actions.base import Ctx
     ctx = Ctx(eng, eng.state.minute)
     free = ctx.free_slots(eng.state.agent("alex"))
     put(eng, "alex", basket["x"], basket["y"])

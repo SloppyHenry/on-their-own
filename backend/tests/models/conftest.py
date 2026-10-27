@@ -7,8 +7,8 @@ from urllib.parse import parse_qs
 import httpx
 import pytest
 
-from simulacra.models import curated
-from simulacra.models.hardware import Hardware
+from on_their_own.models import curated
+from on_their_own.models.hardware import Hardware
 
 FIX = Path(__file__).resolve().parent.parent / "fixtures"
 HF = FIX / "models"

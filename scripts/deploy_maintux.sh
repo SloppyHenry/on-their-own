@@ -4,7 +4,7 @@
 # --dry-run   zeigt nur, was passieren würde (kein ssh, kein rsync, keine Tests)
 # --with-e2e  führt vorher auch die Browser-Tests aus (dauert ca. 2 Minuten)
 # --yes       keine Rückfrage
-# Umgebung: SIM_DEPLOY_HOST (maintux), SIM_DEPLOY_DIR (simulacra), SIM_KEY_SOURCE (Schlüsseldatei auf dem Ziel, Standard ~/llm/api-key),
+# Umgebung: SIM_DEPLOY_HOST (maintux), SIM_DEPLOY_DIR (on-their-own), SIM_KEY_SOURCE (Schlüsseldatei auf dem Ziel, Standard ~/llm/api-key),
 #   SIM_SSH_OPTS (zusätzliche ssh-Optionen, z. B. "-i ~/.ssh/id_x -o IdentitiesOnly=yes"), SIM_DEPLOY_USER (Benutzer, falls nicht aus der ssh-Konfiguration)
 # Anderes Ziel (z. B. SecondTux): Router-Adresse und Modellname stehen in deploy/.env auf dem Ziel, siehe docs/betrieb.md.
 set -euo pipefail
@@ -14,7 +14,7 @@ HOST="${SIM_DEPLOY_USER:+$SIM_DEPLOY_USER@}$NAME"
 SSH_OPTS="${SIM_SSH_OPTS:-}"          # absichtlich ohne Anführungszeichen expandiert (mehrere Optionen)
 # shellcheck disable=SC2086,SC2029
 ssh() { command ssh $SSH_OPTS "$@"; }
-DIR="${SIM_DEPLOY_DIR:-simulacra}"
+DIR="${SIM_DEPLOY_DIR:-on-their-own}"
 dry=0; e2e=0; yes=0
 for a in "$@"; do
   case "$a" in

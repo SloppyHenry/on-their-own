@@ -4,9 +4,9 @@ import asyncio
 
 import pytest
 
-from simulacra.models import llamacpp as lc
-from simulacra.models.hardware import Hardware
-from simulacra.models.transfer import TransferError, TransferManager
+from on_their_own.models import llamacpp as lc
+from on_their_own.models.hardware import Hardware
+from on_their_own.models.transfer import TransferError, TransferManager
 
 from .fakes import FakeHub, asset, tar_with_server
 

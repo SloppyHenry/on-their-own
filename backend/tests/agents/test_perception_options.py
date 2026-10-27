@@ -1,9 +1,9 @@
 import json
 
-from simulacra.agents import options as opt_mod
-from simulacra.agents import perception, prompts
-from simulacra.agents.model import Personality
-from simulacra.agents.scoring import Tuning, agent_themes
+from on_their_own.agents import options as opt_mod
+from on_their_own.agents import perception, prompts
+from on_their_own.agents.model import Personality
+from on_their_own.agents.scoring import Tuning, agent_themes
 
 from .conftest import needs, put
 

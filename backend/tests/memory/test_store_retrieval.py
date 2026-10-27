@@ -4,9 +4,9 @@ from pathlib import Path
 import pytest
 
 from agents.conftest import make_sim
-from simulacra.memory.models import Observed
-from simulacra.memory.params import MemoryParams
-from simulacra.memory.retrieval import Situation
+from on_their_own.memory.models import Observed
+from on_their_own.memory.params import MemoryParams
+from on_their_own.memory.retrieval import Situation
 
 
 @pytest.fixture
@@ -150,8 +150,8 @@ def test_recent_experiences_already_in_the_prompt_buffer_are_not_repeated(sim):
 
 
 def test_reflections_and_open_intentions_are_preferred(sim):
-    from simulacra.memory.models import Memory
-    from simulacra.memory.retrieval import PIN_BONUS
+    from on_their_own.memory.models import Memory
+    from on_their_own.memory.retrieval import PIN_BONUS
     sit = Situation(minute=560, location_id="garden", location_name="Garten")
     base = dict(id="m", agent_id="alex", text="x", importance=5, sim_created=500, location_id="garden", keywords=["gart"])
     r = sim.memory.retriever
@@ -162,9 +162,9 @@ def test_reflections_and_open_intentions_are_preferred(sim):
 
 
 def test_persistence_across_restart(tmp_path):
-    from simulacra.config import Settings
-    from simulacra.simulation.builder import Simulation
-    from simulacra.llm.providers import FakeProvider, first_option_fn
+    from on_their_own.config import Settings
+    from on_their_own.simulation.builder import Simulation
+    from on_their_own.llm.providers import FakeProvider, first_option_fn
     s = Settings(llm_api_key_file="/nonexistent", llm_backoff_s=0.0)
     a = Simulation.create(s, tmp_path / "w.db", FakeProvider(fn=first_option_fn))
     a.store.ensure_all()

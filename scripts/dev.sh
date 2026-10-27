@@ -24,7 +24,7 @@ for name in backend frontend; do
 done
 
 cd "$ROOT/backend"
-nohup .venv/bin/python -m uvicorn simulacra.app:app --host "$HOST" --port "$PORT" \
+nohup .venv/bin/python -m uvicorn on_their_own.app:app --host "$HOST" --port "$PORT" \
   >"$LOGS/backend.log" 2>&1 &
 echo $! >"$RUN/backend.pid"
 

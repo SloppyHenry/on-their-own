@@ -4,12 +4,12 @@ import json
 
 import pytest
 
-from simulacra.db.connection import Database
-from simulacra.generator.generate import GenerationError, WorldInfo, dumps, extension_patch, new_world
-from simulacra.generator.validate import reachable
-from simulacra.world import loader
-from simulacra.world import look as lk
-from simulacra.world.engine import WorldEngine
+from on_their_own.db.connection import Database
+from on_their_own.generator.generate import GenerationError, WorldInfo, dumps, extension_patch, new_world
+from on_their_own.generator.validate import reachable
+from on_their_own.world import loader
+from on_their_own.world import look as lk
+from on_their_own.world.engine import WorldEngine
 
 SEEDS = list(range(1, 25))
 

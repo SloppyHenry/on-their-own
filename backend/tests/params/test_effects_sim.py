@@ -2,7 +2,7 @@
 
 import asyncio
 
-from simulacra.llm.providers import FakeProvider
+from on_their_own.llm.providers import FakeProvider
 
 from saves.conftest import file_sim
 
@@ -110,7 +110,7 @@ async def test_autosave_follows_the_interval_and_keeps_a_ring(tmp_path, monkeypa
     n = len([e for e in sim.saves.list() if e["kind"] == "auto"])
     await sim.runner.step(130)
     assert len([e for e in sim.saves.list() if e["kind"] == "auto"]) == n                                          # beides aus bzw. Echtzeit nicht erreicht
-    import simulacra.saves.service as svc
+    import on_their_own.saves.service as svc
     real = svc.time.monotonic()
     monkeypatch.setattr(svc.time, "monotonic", lambda: real + 301)
     await sim.runner.step(1)
@@ -122,7 +122,7 @@ async def test_autosave_follows_the_interval_and_keeps_a_ring(tmp_path, monkeypa
 
 async def test_autosave_by_sim_hours_keeps_a_real_time_gap_at_full_speed(tmp_path, monkeypatch):
     """Langlauf-Befund (AP11): bei Höchsttempo entstand alle 3–4 s eine volle Kopie der Datenbank (≈ 100 MB/s Schreiblast)."""
-    import simulacra.saves.service as svc
+    import on_their_own.saves.service as svc
     sim = file_sim(tmp_path / "live.db")
     await sim.params.patch([{"key": "sim.autosave_sim_hours", "value": 1}, {"key": "sim.autosave_real_minutes", "value": 0}])
     now = [svc.time.monotonic()]

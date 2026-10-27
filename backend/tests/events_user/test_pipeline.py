@@ -5,10 +5,10 @@ import json
 import pytest
 from agents.conftest import make_sim
 
-from simulacra.config import Settings
-from simulacra.events_user.service import InjectError
-from simulacra.llm.providers import FakeProvider, LLMError
-from simulacra.simulation.builder import Simulation
+from on_their_own.config import Settings
+from on_their_own.events_user.service import InjectError
+from on_their_own.llm.providers import FakeProvider, LLMError
+from on_their_own.simulation.builder import Simulation
 
 from .conftest import llm_says, memories, objects, say
 
@@ -58,7 +58,7 @@ async def test_invalid_model_answers_are_rejected_and_the_world_stays_unchanged(
 
 
 async def test_object_limit_is_respected(sim):
-    from simulacra.world.rules import WorldRules
+    from on_their_own.world.rules import WorldRules
     sim.engine.set_rules(WorldRules(max_objects=sim.engine.state.object_count()))
     llm_says(sim, ops=[{"op": "spawn_object", "name": "Zuviel", "location": "garden"}])
     p = await sim.inject.parse("Da liegt noch ein Ding im Garten herum")
@@ -134,7 +134,7 @@ async def test_a_time_in_the_past_or_too_far_ahead_is_not_planned(sim):
     llm_says(sim, ops=[{"op": "message", "recipients": ["mira"], "content": "Fest", "invite": True, "when_text": "morgen um 18 Uhr"}])
     p = await sim.inject.parse("Der Dorfrat lädt Mira ein")
     assert p["status"] == "needs_confirmation"
-    from simulacra.events_user.validate import Reject
+    from on_their_own.events_user.validate import Reject
     sim.engine.advance(3000)
     p = await sim.engine.db.run(lambda: sim.inject.confirm(p["id"]))
     assert p["status"] == "rejected" and "Zukunft" in p["reason"]

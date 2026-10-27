@@ -16,12 +16,12 @@ from pathlib import Path
 import pytest
 
 from agents.conftest import make_sim
-from simulacra.api import app as app_module
-from simulacra.db.connection import Database
+from on_their_own.api import app as app_module
+from on_their_own.db.connection import Database
 
 from .conftest import api, minute, post
 
-SRC = Path(app_module.__file__).resolve().parents[1]                                # .../simulacra
+SRC = Path(app_module.__file__).resolve().parents[1]                                # .../on_their_own
 
 
 @contextmanager

@@ -10,10 +10,10 @@ OUT="$TYPES"
 [[ "${1:-}" == "--check" ]] && OUT="$(mktemp -d)"
 mkdir -p "$TYPES"
 
-( cd "$ROOT/backend" && "$PY" -m simulacra.api.schema_export schema ) > "$OUT/schema.json"
+( cd "$ROOT/backend" && "$PY" -m on_their_own.api.schema_export schema ) > "$OUT/schema.json"
 ( cd "$ROOT/frontend" && npx --no-install json2ts -i "$OUT/schema.json" -o "$OUT/generated.ts" \
     --bannerComment "/* GENERIERT von scripts/gen_types.sh aus den Pydantic-Modellen – nicht von Hand ändern. */" --unreachableDefinitions )
-( cd "$ROOT/backend" && "$PY" -m simulacra.api.schema_export ts-extra ) >> "$OUT/generated.ts"
+( cd "$ROOT/backend" && "$PY" -m on_their_own.api.schema_export ts-extra ) >> "$OUT/generated.ts"
 
 if [[ "${1:-}" == "--check" ]]; then
   diff -q "$OUT/schema.json" "$TYPES/schema.json" >/dev/null && diff -q "$OUT/generated.ts" "$TYPES/generated.ts" >/dev/null \

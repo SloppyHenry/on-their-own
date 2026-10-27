@@ -2,8 +2,8 @@
 
 import pytest
 
-from simulacra.agents.model import AgentProfile, Personality, load_default
-from simulacra.agents.schema import (LIM, TemplateInvalid, check_profile, meta_hits, parse_template, profile_warnings, slug, template_data, template_errors,
+from on_their_own.agents.model import AgentProfile, Personality, load_default
+from on_their_own.agents.schema import (LIM, TemplateInvalid, check_profile, meta_hits, parse_template, profile_warnings, slug, template_data, template_errors,
                                      unique_id)
 
 
@@ -61,4 +61,5 @@ def test_vorlagendatei_rundlauf_und_alle_fehler_auf_einmal():
         parse_template(bad)
     assert ex.value.errors == e
     assert template_errors([1]) == ["Die Datei enthält kein JSON-Objekt."]
-    assert template_errors({"format": "simulacra-vorlage", "version": True, "profile": {}, "personality": {}})[0] == "„version“ fehlt."
+    assert not [m for m in template_errors({"format": "simulacra-vorlage", "version": 1, "profile": {}, "personality": {}}) if "format" in m]      # alte Exporte vor der Umbenennung
+    assert template_errors({"format": "on-their-own-vorlage", "version": True, "profile": {}, "personality": {}})[0] == "„version“ fehlt."

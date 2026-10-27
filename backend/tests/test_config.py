@@ -1,4 +1,4 @@
-from simulacra.config import Settings
+from on_their_own.config import Settings
 
 
 def test_defaults(monkeypatch, tmp_path):

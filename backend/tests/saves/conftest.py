@@ -5,9 +5,9 @@ from pathlib import Path
 import pytest
 from agents.conftest import with_goals
 
-from simulacra.config import Settings
-from simulacra.llm.providers import FakeProvider
-from simulacra.simulation.builder import Simulation
+from on_their_own.config import Settings
+from on_their_own.llm.providers import FakeProvider
+from on_their_own.simulation.builder import Simulation
 
 
 def wait_one_minute(messages, schema, params):

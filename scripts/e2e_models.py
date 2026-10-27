@@ -10,7 +10,7 @@ import httpx
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "backend" / "tests" / "models"))
 from fakes import FakeHub, asset, tar_with_server  # noqa: E402
 
-from simulacra.models.hardware import Hardware  # noqa: E402
+from on_their_own.models.hardware import Hardware  # noqa: E402
 
 MODEL_BYTES = 1_500_000                    # klein, aber genug Stücke, um den Fortschritt zu sehen (mit Pause je Stück)
 REPOS = {"Qwen/Qwen3-8B-GGUF": "Qwen3-8B-Q4_K_M.gguf", "Qwen/Qwen3-4B-GGUF": "Qwen3-4B-Q4_K_M.gguf", "Qwen/Qwen3-14B-GGUF": "Qwen3-14B-Q4_K_M.gguf", "unsloth/Gemma-Test-GGUF": "Gemma-Test-Q4_K_M.gguf"}

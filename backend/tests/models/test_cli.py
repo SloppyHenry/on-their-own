@@ -1,4 +1,4 @@
-"""Kommandozeile `python -m simulacra.models` (von install.sh genutzt) und ihre Übereinstimmung mit dem Skript."""
+"""Kommandozeile `python -m on_their_own.models` (von install.sh genutzt) und ihre Übereinstimmung mit dem Skript."""
 
 import json
 import shutil
@@ -9,8 +9,8 @@ from pathlib import Path
 import pytest
 from test_install_script import dry, machine as shell_machine
 
-from simulacra.models import __main__ as cli
-from simulacra.models.hardware import Hardware
+from on_their_own.models import __main__ as cli
+from on_their_own.models.hardware import Hardware
 
 from .conftest import machine
 
@@ -93,7 +93,7 @@ def test_kern_laeuft_mit_dem_system_python_von_install_sh():
     py39 = shutil.which("python3.9") or ("/usr/bin/python3" if Path("/usr/bin/python3").exists() else None)
     if py39 and subprocess.run([py39, "-c", "import sys; sys.exit(0 if sys.version_info < (3, 10) else 1)"]).returncode == 0:
         env = {"PYTHONPATH": str(PKG.parent.parent), "PATH": "/usr/bin:/bin"}
-        r = subprocess.run([py39, "-m", "simulacra.models", "recommend", "--shell", "--kind", "cpu", "--ram-mb", "16384"], capture_output=True, text=True, env=env)
+        r = subprocess.run([py39, "-m", "on_their_own.models", "recommend", "--shell", "--kind", "cpu", "--ram-mb", "16384"], capture_output=True, text=True, env=env)
         assert r.returncode == 0 and r.stdout.startswith("qwen3-8b|"), r.stderr
     else:
         pytest.skip("kein Python 3.9 zum Gegenprüfen")

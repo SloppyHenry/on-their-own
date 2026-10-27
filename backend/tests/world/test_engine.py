@@ -4,12 +4,12 @@ from pathlib import Path
 
 import pytest
 
-from simulacra.db.connection import Database
-from simulacra.world import actions
-from simulacra.world.actions.base import Action
-from simulacra.world.engine import WorldEngine
-from simulacra.world.models import Accepted
-from simulacra.world.rules import WorldRules
+from on_their_own.db.connection import Database
+from on_their_own.world import actions
+from on_their_own.world.actions.base import Action
+from on_their_own.world.engine import WorldEngine
+from on_their_own.world.models import Accepted
+from on_their_own.world.rules import WorldRules
 
 from .conftest import ok, put, reject, run, stock, types
 
@@ -193,7 +193,7 @@ def test_create_does_not_overwrite_existing_world(tmp_path):
     eng.db.close()
     eng2 = WorldEngine.create(Database(path))                              # lädt statt neu anzulegen
     assert eng2.minute == minute
-    from simulacra.world.loader import seed_world
+    from on_their_own.world.loader import seed_world
     with pytest.raises(RuntimeError):
         seed_world(eng2.db)
 
@@ -201,7 +201,7 @@ def test_create_does_not_overwrite_existing_world(tmp_path):
 # --- Unabhängigkeit vom LLM ----------------------------------------------------------------------
 
 def test_world_package_does_not_import_llm_or_network_code():
-    code = ("import sys, simulacra.world.engine, simulacra.cli\n"
+    code = ("import sys, on_their_own.world.engine, on_their_own.cli\n"
             "bad = [m for m in sys.modules if m.split('.')[0] in ('httpx','fastapi','requests','openai') or 'llm' in m]\n"
             "print(bad); sys.exit(1 if bad else 0)")
     root = Path(__file__).resolve().parents[2]

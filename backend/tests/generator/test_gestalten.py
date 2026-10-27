@@ -5,15 +5,15 @@ import random
 
 import pytest
 
-from simulacra.db.connection import Database
-from simulacra.generator.blank import blank_world
-from simulacra.generator.edit import entwurf
-from simulacra.generator.edit.ableiten import ableiten
-from simulacra.generator.generate import new_world
-from simulacra.generator.stil import Stil
-from simulacra.world import loader
-from simulacra.world.engine import WorldEngine
-from simulacra.world.export import world_file
+from on_their_own.db.connection import Database
+from on_their_own.generator.blank import blank_world
+from on_their_own.generator.edit import entwurf
+from on_their_own.generator.edit.ableiten import ableiten
+from on_their_own.generator.generate import new_world
+from on_their_own.generator.stil import Stil
+from on_their_own.world import loader
+from on_their_own.world.engine import WorldEngine
+from on_their_own.world.export import world_file
 
 
 def leer():
@@ -167,7 +167,7 @@ def test_pruefung_unerreichbar():
     r2 = ein(dicht, {"art": "deko", "sorte": "stein", "tile": [30, 3]})
     assert any(m["stufe"] == "hinweis" and "Haustür" in m["text"] and "schon vorher" in m["text"] for m in r2.meldungen)
     r3 = ein(w, {"art": "deko", "sorte": "stein", "tile": [30, 3]})
-    from simulacra.generator.edit import pruefung
+    from on_their_own.generator.edit import pruefung
     assert [m for m in pruefung.befund(dicht, {}) if m["stufe"] == "fehler" and "Haustür" in m["text"]]
 
 
@@ -209,7 +209,7 @@ def test_zufallsfolgen(basis, seed):
     assert len(r.stati) == len(akt)
     an_engine_gleich(w, r)
     # Bild und Kacheln: überall, wo die Formen nachher etwas anderes ergeben als vorher, steht der neue Wert
-    from simulacra.world import look as lk
+    from on_their_own.world import look as lk
     vor = w["look"] if lk.is_v2(w["look"]) else lk.upgrade_v1(w["look"])
     rect = (0, 0, min(len(w["tiles"][0]), len(r.welt["tiles"][0])), len(w["tiles"]))
     a, b = ableiten(vor, rect), ableiten(r.welt["look"], rect)

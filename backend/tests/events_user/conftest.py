@@ -3,8 +3,8 @@ import json
 import pytest
 from agents.conftest import make_sim
 
-from simulacra.events import types as event_types
-from simulacra.llm.providers import FakeProvider
+from on_their_own.events import types as event_types
+from on_their_own.llm.providers import FakeProvider
 
 
 @pytest.fixture

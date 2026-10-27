@@ -4,10 +4,10 @@ import json
 
 import pytest
 
-from simulacra.agents import options as opt_mod
-from simulacra.agents import perception, prompts
-from simulacra.agents.schema import META_RE
-from simulacra.world import loader
+from on_their_own.agents import options as opt_mod
+from on_their_own.agents import perception, prompts
+from on_their_own.agents.schema import META_RE
+from on_their_own.world import loader
 from tests.saves.conftest import file_sim
 
 from .conftest import api, post
@@ -46,7 +46,7 @@ def test_vorlagen_liste_eigene_export_import(c):
     mine = c.post("/api/templates", json={"profile": person("Ida")["profile"], "personality": person("Ida")["personality"]}).json()
     assert mine["id"] == "eigene-ida" and not mine["builtin"]
     exp = c.get("/api/templates/eigene-ida/export")
-    assert exp.status_code == 200 and "attachment" in exp.headers["content-disposition"] and json.loads(exp.text)["format"] == "simulacra-vorlage"
+    assert exp.status_code == 200 and "attachment" in exp.headers["content-disposition"] and json.loads(exp.text)["format"] == "on-their-own-vorlage"
     imp = c.post("/api/templates/import", content=exp.content)
     assert imp.status_code == 200 and imp.json()["template"]["id"] == "eigene-ida-2" and imp.json()["warnings"] == []
     assert c.put("/api/templates/alex", json={"profile": person("X")["profile"], "personality": person("X")["personality"]}).status_code == 403
@@ -56,7 +56,7 @@ def test_vorlagen_liste_eigene_export_import(c):
 
 
 def test_import_meldet_alle_fehler(c):
-    bad = {"format": "simulacra-vorlage", "version": 1, "profile": {"name": "Ida", "gender": "x", "age": 200}, "personality": {}}
+    bad = {"format": "on-their-own-vorlage", "version": 1, "profile": {"name": "Ida", "gender": "x", "age": 200}, "personality": {}}
     r = c.post("/api/templates/import", content=json.dumps(bad).encode())
     assert r.status_code == 422 and "Geschlecht: männlich, weiblich oder divers." in r.json()["detail"] and "Alter:" in r.json()["detail"] and "Geselligkeit" in r.json()["detail"]
     assert c.post("/api/templates/import", content=b"{kaputt").status_code == 422
@@ -201,7 +201,7 @@ def test_bewohner_erfahren_nichts_von_einer_hoeheren_instanz(c):
     sim = c.sim
     for aid in ("ida", "jo", "kai", "lea"):
         p = perception.build(sim.engine, sim.store, sim.convs, aid)
-        text = prompts.system_prompt(sim.store.get(aid)) + "\n" + prompts.user_prompt(p, opt_mod.build_options(sim.engine, sim.store, p, __import__("simulacra.agents.scoring", fromlist=["Tuning"]).Tuning()))
+        text = prompts.system_prompt(sim.store.get(aid)) + "\n" + prompts.user_prompt(p, opt_mod.build_options(sim.engine, sim.store, p, __import__("on_their_own.agents.scoring", fromlist=["Tuning"]).Tuning()))
         text += "\n".join(m.text for m in sim.memory.memories(aid))
         assert META_RE.findall(text) == [], (aid, META_RE.findall(text))
     ev = sim.engine.state.conn.execute("SELECT agents, type FROM events").fetchall()

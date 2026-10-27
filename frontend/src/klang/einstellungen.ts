@@ -14,7 +14,7 @@ export interface TonStand {
   vol: Record<Regler, number>;
   quelle: Record<"music" | "amb" | "fig", Quelle>;
 }
-const KEY = "simulacra.ton";
+const KEY = "on-their-own.ton";
 const quellen = (q: Partial<TonStand["quelle"]> | undefined): TonStand["quelle"] => {
   const m = { ...TON_STANDARD.quelle, ...q };
   return CC0_AKTIV ? m : { music: "code", amb: "code", fig: "code" };            // gespeichertes „cc0“ gilt solange nicht

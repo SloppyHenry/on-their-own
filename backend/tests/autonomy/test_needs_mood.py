@@ -1,8 +1,8 @@
 import pytest
 
 from agents.conftest import make_sim, needs, put
-from simulacra.agents import mood as mood_mod
-from simulacra.agents.needs import NeedParams
+from on_their_own.agents import mood as mood_mod
+from on_their_own.agents.needs import NeedParams
 
 
 @pytest.fixture

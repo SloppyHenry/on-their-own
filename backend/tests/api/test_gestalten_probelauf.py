@@ -5,11 +5,11 @@ import json
 
 import pytest
 
-from simulacra.config import Settings
-from simulacra.generator.generate import new_world
-from simulacra.llm.providers import FakeProvider, first_option_fn
-from simulacra.simulation.builder import Simulation
-from simulacra.world import loader
+from on_their_own.config import Settings
+from on_their_own.generator.generate import new_world
+from on_their_own.llm.providers import FakeProvider, first_option_fn
+from on_their_own.simulation.builder import Simulation
+from on_their_own.world import loader
 from tests.conftest import START_WORLD
 from agents.conftest import with_goals
 
@@ -104,8 +104,8 @@ def test_leistung_vieler_aktionen():
     import random
     import time
 
-    from simulacra.generator.blank import blank_world
-    from simulacra.generator.edit import entwurf
+    from on_their_own.generator.blank import blank_world
+    from on_their_own.generator.edit import entwurf
     w = blank_world("W", "gross", "wald")
     rnd = random.Random(3)
     breite, hoehe = len(w["tiles"][0]), len(w["tiles"])

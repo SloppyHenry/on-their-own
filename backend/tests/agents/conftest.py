@@ -3,10 +3,10 @@ import re
 
 import pytest
 
-from simulacra.agents.model import AgentProfile, Personality
-from simulacra.config import Settings
-from simulacra.llm.providers import FakeProvider, first_option_fn
-from simulacra.simulation.builder import Simulation
+from on_their_own.agents.model import AgentProfile, Personality
+from on_their_own.config import Settings
+from on_their_own.llm.providers import FakeProvider, first_option_fn
+from on_their_own.simulation.builder import Simulation
 
 
 GOAL_ANSWER = json.dumps({"text": "Den Garten besuchen", "condition": {"type": "location_visited", "location": "garden"},

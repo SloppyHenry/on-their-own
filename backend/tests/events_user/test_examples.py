@@ -2,8 +2,8 @@
 
 import pytest
 
-from simulacra.events_user.lexicon import Lexicon
-from simulacra.events_user.rules import Ctx, parse
+from on_their_own.events_user.lexicon import Lexicon
+from on_their_own.events_user.rules import Ctx, parse
 
 from .conftest import memories, objects, say
 
@@ -142,7 +142,7 @@ async def test_only_mira_learns_what_happened_at_the_lake(sim):
     _, done = await say(sim, "Mira erfährt, dass Alex gestern allein am See war.")
     assert done["status"] == "executed"
     assert any("allein am See" in t for t in memories(sim, "mira")) and memories(sim, "alex") == []
-    from simulacra.memory.retrieval import Situation
+    from on_their_own.memory.retrieval import Situation
     for who, expect in (("mira", True), ("alex", False)):                                              # auch der Abruf findet bei Alex nichts
         rec = sim.memory.retriever.recall(who, Situation(minute=500, location_id="lake", location_name="See", persons=["alex"], person_names=["Alex"]), log=False)
         assert any("allein am See" in s.memory.text for s in rec.items) is expect

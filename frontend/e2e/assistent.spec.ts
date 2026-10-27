@@ -13,7 +13,7 @@ test.beforeEach(async ({ request }) => {
 
 async function openAssistant(page: Page) {
   await openApp(page);
-  await page.evaluate(() => localStorage.removeItem("simulacra.entwurf"));
+  await page.evaluate(() => localStorage.removeItem("on-their-own.entwurf"));
   await page.reload();
   await expect(page.getByTestId("conn")).toContainText("Verbunden");
   await page.getByTestId("open-menu").click();
@@ -260,8 +260,8 @@ test("Export als Datei und Import: Fehler kommen alle auf einmal, eine gute Date
   const [download] = await Promise.all([page.waitForEvent("download"), page.getByTestId("vorlage-export").click()]);
   expect(download.suggestedFilename()).toBe("vorlage-kim.json");
   const file = JSON.parse(await readFile((await download.path())!, "utf8"));
-  expect(file).toMatchObject({ format: "simulacra-vorlage", version: 1, profile: { name: "Kim" } });
-  await page.getByTestId("vorlage-datei").setInputFiles({ name: "kaputt.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify({ format: "simulacra-vorlage", version: 2, profile: { name: "Ida", gender: "x", age: 200 }, personality: {} })) });
+  expect(file).toMatchObject({ format: "on-their-own-vorlage", version: 1, profile: { name: "Kim" } });
+  await page.getByTestId("vorlage-datei").setInputFiles({ name: "kaputt.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify({ format: "on-their-own-vorlage", version: 2, profile: { name: "Ida", gender: "x", age: 200 }, personality: {} })) });
   await expect(page.getByTestId("vorlage-fehler")).toContainText("kaputt.json: nicht importiert");
   await expect(page.getByTestId("vorlage-fehler")).toContainText("Version 2");
   await expect(page.getByTestId("vorlage-fehler")).toContainText("Geschlecht: männlich, weiblich oder divers.");

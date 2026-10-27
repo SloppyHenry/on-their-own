@@ -89,7 +89,7 @@ async def test_visibility_boundary_event_only_for_mira():
     sim = make_sim(fn=intent_chooser())
     put(sim, "alex", 7, 7)
     put(sim, "mira", 50, 30)                       # weit weg: Alex hört und sieht nichts von dem, was Mira im Verborgenen tut
-    from simulacra.memory.models import Observed
+    from on_their_own.memory.models import Observed
     sim.memory.writer.process([Observed(agent_id="mira", kind="discovery", text="Du entdeckst etwas: Karte.", importance=7, minute=500, location_id="lake")])
     assert sim.memory.store.count("mira") == 1 and sim.memory.store.count("alex") == 0
     sim.close()
@@ -111,9 +111,9 @@ async def test_a_third_agent_who_was_not_there_remembers_nothing_of_the_conversa
 
 
 async def test_restart_keeps_everything_and_the_prompt_uses_it_again(tmp_path):
-    from simulacra.config import Settings
-    from simulacra.llm.providers import FakeProvider
-    from simulacra.simulation.builder import Simulation
+    from on_their_own.config import Settings
+    from on_their_own.llm.providers import FakeProvider
+    from on_their_own.simulation.builder import Simulation
     s = Settings(llm_api_key_file="/nonexistent", llm_backoff_s=0.0)
     a = Simulation.create(s, tmp_path / "w.db", FakeProvider(fn=with_goals(intent_chooser())))
     put(a, "alex", 7, 7)

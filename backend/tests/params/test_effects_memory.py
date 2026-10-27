@@ -1,6 +1,6 @@
 """Wirkungstests: Die Gedächtnis-Regler verändern Abruf, Reflexion und Pflege tatsächlich."""
 
-from simulacra.memory.retrieval import Situation
+from on_their_own.memory.retrieval import Situation
 
 from .conftest import patch
 

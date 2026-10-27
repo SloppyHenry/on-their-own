@@ -5,9 +5,9 @@ import json
 
 import pytest
 
-from simulacra.db.connection import Database
-from simulacra.world import loader
-from simulacra.world.engine import WorldEngine
+from on_their_own.db.connection import Database
+from on_their_own.world import loader
+from on_their_own.world.engine import WorldEngine
 
 from .conftest import ok, put, reject, stock
 from .test_startwelt import START_WORLD

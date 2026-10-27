@@ -5,11 +5,11 @@ choose_model() {
   step "5/7" "Modell"
   MODEL_FILE=""; MODEL_ALIAS=""
   if [ "$NO_MODEL" = 1 ]; then ok "übersprungen ($([ "$NO_LLM" = 1 ] && echo '--no-llm' || echo '--no-model'))"; return; fi
-  # Auswahl und Passung rechnet das Backend (python -m simulacra.models), dieselbe Rechnung wie das Tool; hier nur die erkannten Werte übergeben
+  # Auswahl und Passung rechnet das Backend (python -m on_their_own.models), dieselbe Rechnung wie das Tool; hier nur die erkannten Werte übergeben
   local sel args
   args=(recommend --shell --kind "$GPU_KIND" --name "$GPU_NAME" --ram-mb "$MEM_MB" --vram-mb "$VRAM_MB" --vram-free-mb "$VRAM_FREE_MB")
   if [ -n "$MODEL_KEY" ]; then args+=(--model "$MODEL_KEY"); fi
-  sel="$(PYTHONPATH="$ROOT/backend" py -m simulacra.models "${args[@]}")" || die "Die Modellauswahl ist fehlgeschlagen (python -m simulacra.models)."
+  sel="$(PYTHONPATH="$ROOT/backend" py -m on_their_own.models "${args[@]}")" || die "Die Modellauswahl ist fehlgeschlagen (python -m on_their_own.models)."
   case "$sel" in FEHLER*) die "${sel#FEHLER|}";; esac
   local name repo file size fit secs quant level
   IFS='|' read -r _ name repo file size fit secs quant level <<EOF

@@ -2,8 +2,8 @@
 
 import json
 
-from simulacra.simulation import mitleben
-from simulacra.world import spielart
+from on_their_own.simulation import mitleben
+from on_their_own.world import spielart
 
 from agents.conftest import make_sim, put
 

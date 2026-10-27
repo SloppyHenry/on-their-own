@@ -1,5 +1,5 @@
-from simulacra.world.models import RejectCode
-from simulacra.world.rules import WorldRules
+from on_their_own.world.models import RejectCode
+from on_their_own.world.rules import WorldRules
 
 from .conftest import failed, ok, put, reject, run, types
 

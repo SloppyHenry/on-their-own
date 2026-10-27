@@ -2,7 +2,7 @@
 
 import os
 
-from simulacra.simulation.runner import SimState
+from on_their_own.simulation.runner import SimState
 
 from .fakes import put_model
 from .llmapi import DATA, FILE, MID, REPO, call, download, hub_with_model, llm_api, status, wait_for

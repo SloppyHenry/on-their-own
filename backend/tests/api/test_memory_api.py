@@ -53,7 +53,7 @@ def test_detail_has_sources_retrievals_and_source_event():
     base = w.remember("alex", "episode", "Ich bin am See angekommen.", 6, 520, location_id="lake", source_event_id=ev.event_id)
     other = sim.memory.store.list("alex")[0][-1]
     refl = w.remember("alex", "reflection", "Ich mag den See.", 6, 530, source_memory_ids=[base.id, other.id], force=True)
-    from simulacra.memory.retrieval import Situation
+    from on_their_own.memory.retrieval import Situation
     sim.memory.retriever.recall("alex", Situation(minute=600, location_id="lake", location_name="See", persons=["mira"], person_names=["Mira"]))
     with api(sim) as c:
         d = c.get(f"/api/agents/alex/memories/{base.id}").json()
@@ -67,7 +67,7 @@ def test_knowledge_retrievals_and_stats():
     sim = sim_with_memories()
     sim.memory.know.note_object("alex", "bench_square", "Bank am Platz", "bench", "", "square", 100)
     sim.memory.know.note_location("alex", "lake", 200, visit=True)
-    from simulacra.memory.retrieval import Situation
+    from on_their_own.memory.retrieval import Situation
     sim.memory.retriever.recall("alex", Situation(minute=600, location_id="lake", location_name="See", persons=["mira"], person_names=["Mira"]))
     with api(sim) as c:
         k = c.get("/api/agents/alex/knowledge").json()

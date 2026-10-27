@@ -2,7 +2,7 @@ import json
 import re
 
 from agents.conftest import make_sim, put
-from simulacra.agents.explain import NEG, PHRASE, clean_label, explain, group_factors
+from on_their_own.agents.explain import NEG, PHRASE, clean_label, explain, group_factors
 
 
 def opts():

@@ -5,12 +5,12 @@ import time
 
 import pytest
 
-from simulacra.config import Settings
-from simulacra.llm.providers import FakeProvider
-from simulacra.generator.blank import blank_world
-from simulacra.generator.generate import new_world
-from simulacra.simulation.builder import Simulation
-from simulacra.world import loader
+from on_their_own.config import Settings
+from on_their_own.llm.providers import FakeProvider
+from on_their_own.generator.blank import blank_world
+from on_their_own.generator.generate import new_world
+from on_their_own.simulation.builder import Simulation
+from on_their_own.world import loader
 from tests.conftest import START_WORLD
 from agents.conftest import with_goals
 from tests.saves.conftest import wait_one_minute

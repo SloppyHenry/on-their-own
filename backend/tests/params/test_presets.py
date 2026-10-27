@@ -6,7 +6,7 @@ import uuid
 import pytest
 from api.conftest import api, post
 
-from simulacra.params.presets import DIR
+from on_their_own.params.presets import DIR
 
 BUILTIN = ["freie-exploration", "soziale-entwicklung", "kooperative-gemeinschaft", "ressourcenknappheit", "hohe-autonomie", "experimentelle-konfiguration"]
 
@@ -86,8 +86,8 @@ def test_saving_only_selected_groups():
 
 
 def test_custom_presets_survive_a_restart_and_unknown_keys_are_skipped(tmp_path):
-    from simulacra.config import Settings
-    from simulacra.simulation.builder import Simulation
+    from on_their_own.config import Settings
+    from on_their_own.simulation.builder import Simulation
     s = Settings(llm_api_key_file="/nonexistent")
     sim = Simulation.create(s, tmp_path / "x.db")
     sim.store.ensure_all()

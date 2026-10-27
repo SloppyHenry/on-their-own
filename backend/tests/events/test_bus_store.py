@@ -4,14 +4,14 @@ import threading
 
 import pytest
 
-from simulacra.db.connection import Database
-from simulacra.events import types as et
-from simulacra.events.bus import OVERFLOW, EventBus
-from simulacra.events.schema import to_out
-from simulacra.events.store import EventStore
-from simulacra.events.ulid import new_event_id
-from simulacra.world.engine import WorldEngine
-from simulacra.world.models import Event
+from on_their_own.db.connection import Database
+from on_their_own.events import types as et
+from on_their_own.events.bus import OVERFLOW, EventBus
+from on_their_own.events.schema import to_out
+from on_their_own.events.store import EventStore
+from on_their_own.events.ulid import new_event_id
+from on_their_own.world.engine import WorldEngine
+from on_their_own.world.models import Event
 
 
 @pytest.fixture

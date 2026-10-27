@@ -2,9 +2,9 @@
 
 import pytest
 
-from simulacra.generator.edit.ableiten import ableiten
-from simulacra.generator.generate import new_world
-from simulacra.generator.stil import Stil
+from on_their_own.generator.edit.ableiten import ableiten
+from on_their_own.generator.generate import new_world
+from on_their_own.generator.stil import Stil
 
 FAELLE = [(7, {}), (12, {}), (31, {}), (58, {}), (5, {"stil": Stil.of({"form": "anger"})}), (6, {"stil": Stil.of({"form": "fluss"})}), (9, {"stil": Stil.of({"form": "streu"})})]
 

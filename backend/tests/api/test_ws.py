@@ -7,10 +7,10 @@ import pytest
 from starlette.websockets import WebSocketDisconnect
 
 from agents.conftest import make_sim
-from simulacra.api import ws as ws_module
-from simulacra.api.ws import _live
-from simulacra.events.bus import EventBus
-from simulacra.events.store import EventStore
+from on_their_own.api import ws as ws_module
+from on_their_own.api.ws import _live
+from on_their_own.events.bus import EventBus
+from on_their_own.events.store import EventStore
 
 from .conftest import api, event_seqs, hello, minute, post, recv_until, wait_one_minute
 
@@ -170,7 +170,7 @@ def test_reconnect_after_reset_with_old_seq_gets_a_snapshot():
 
 
 def test_messages_follow_the_documented_schema():
-    from simulacra.api.models import WsEvent, WsEvents, WsSnapshot
+    from on_their_own.api.models import WsEvent, WsEvents, WsSnapshot
     with api() as c:
         post(c, "/api/sim/step", {"n": 1})
         with c.websocket_connect("/ws") as ws:

@@ -10,7 +10,7 @@ import tarfile
 import pytest
 from saves.conftest import dump, file_sim
 
-from simulacra.saves import cli
+from on_their_own.saves import cli
 
 
 def tar_of(members: dict[str, bytes]) -> io.BytesIO:
@@ -110,7 +110,7 @@ def test_restore_rejects_tampered_or_foreign_archives_and_changes_nothing(runnin
 def test_command_line_roundtrip_via_stdout_and_stdin(running, tmp_path):
     data, sim = running
     sim.close()
-    py = [sys.executable, "-m", "simulacra.saves.cli", "--data-dir", str(data)]
+    py = [sys.executable, "-m", "on_their_own.saves.cli", "--data-dir", str(data)]
     out = subprocess.run([*py[:3], "backup", "-", *py[3:]], capture_output=True, check=True)
     assert out.stdout[:2] == b"\x1f\x8b" and b"Backup:" in out.stderr
     want = dump(data / "live.db")

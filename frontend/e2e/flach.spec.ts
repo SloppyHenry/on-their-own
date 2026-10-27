@@ -13,7 +13,7 @@ type Sim = { getState(): { world: { weather: object; clock: object; look: unknow
 type Welt = { kam: { x: number; y: number; zo: number; zoom: number; focusAt(x: number, y: number): void; level: number }; interior: number };
 
 async function prepare(page: Page, minute: number) {
-  await page.addInitScript(() => { try { localStorage.setItem("simulacra.ansicht", JSON.stringify("flach")); } catch { /* ohne Speicher bleibt der Standard */ } });
+  await page.addInitScript(() => { try { localStorage.setItem("on-their-own.ansicht", JSON.stringify("flach")); } catch { /* ohne Speicher bleibt der Standard */ } });
   await page.addInitScript(() => { (window as unknown as { __freezeT: number }).__freezeT = 12.5; });
   await page.goto("/?messen");
   await expect(page.getByTestId("world-pixels")).toBeVisible();

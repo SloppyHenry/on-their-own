@@ -1,7 +1,7 @@
 """Verdichtete Bewegung: ein Fahrplan (`agent.walking`) je Weg muss in jeder Minute die echte Position ergeben."""
 
-from simulacra.api.state import agent_info
-from simulacra.world.actions.movement import schedule
+from on_their_own.api.state import agent_info
+from on_their_own.world.actions.movement import schedule
 
 from .conftest import put
 

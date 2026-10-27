@@ -1,6 +1,6 @@
 import json
 
-from simulacra.world.models import Event
+from on_their_own.world.models import Event
 
 from .conftest import add_ai_agent, make_sim, put
 
@@ -100,7 +100,7 @@ def test_arrival_failure_and_world_news_are_recorded():
 def test_hidden_discovery_is_private():
     sim = make_sim(); sim.store.ensure_all()
     put(sim, "alex", 8, 25)
-    from simulacra.world.models import WorldObject
+    from on_their_own.world.models import WorldObject
     with sim.db.transaction():
         sim.engine.state.save_object(WorldObject(id="stein_1", kind="item", name="Stein", location_id="forest", x=8, y=25), new=True)
     sim.engine.propose("alex", "inspect", {"object_id": "stein_1"})

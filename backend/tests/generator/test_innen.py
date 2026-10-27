@@ -2,8 +2,8 @@
 
 import pytest
 
-from simulacra.generator.edit import entwurf
-from simulacra.generator.edit.innen import MOEBEL
+from on_their_own.generator.edit import entwurf
+from on_their_own.generator.edit.innen import MOEBEL
 from tests.generator.test_gestalten import an_engine_gleich, ein, leer
 
 
@@ -74,8 +74,8 @@ def test_wege_im_haus_bleiben_zusammenhaengend():
             break
         aktionen = [{"art": "moebel", "kind": "crate", "tile": list(t)} for t in frei[:6]]
         w = ein(w, *aktionen).welt
-    from simulacra.generator.edit.innen import _zusammenhang
-    from simulacra.generator.edit.modell import Welt
+    from on_their_own.generator.edit.innen import _zusammenhang
+    from on_their_own.generator.edit.modell import Welt
     m = Welt(w)
     haus = m.look["regions"][0]["houses"][-1]
     assert _zusammenhang(m, haus["interior"]["rect"]) == 1
@@ -103,7 +103,7 @@ def test_wandschmuck_teppich_farben():
 
 
 def test_katalog_moebel_sind_bekannte_arten():
-    from simulacra.generator.edit.katalog import katalog
+    from on_their_own.generator.edit.katalog import katalog
     k = katalog()["innen"]
     assert [m["kind"] for m in k["moebel"]] == MOEBEL
     assert all(m["name"] for m in k["moebel"])

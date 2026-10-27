@@ -4,8 +4,8 @@ import uuid
 
 from api.conftest import api, post
 
-from simulacra.config import Settings
-from simulacra.simulation.builder import Simulation
+from on_their_own.config import Settings
+from on_their_own.simulation.builder import Simulation
 
 
 def patch(c, changes, key=None):

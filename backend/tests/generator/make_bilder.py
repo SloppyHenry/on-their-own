@@ -3,8 +3,8 @@
 import json
 from pathlib import Path
 
-from simulacra.generator.generate import WorldInfo, dumps, extension_patch, new_world
-from simulacra.world import look as lk
+from on_their_own.generator.generate import WorldInfo, dumps, extension_patch, new_world
+from on_their_own.world import look as lk
 
 OUT = Path(__file__).parents[3] / "frontend/e2e/fixtures/generiert"
 

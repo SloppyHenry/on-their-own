@@ -10428,6 +10428,6 @@
    "$ref": "#/$defs/WsSnapshot"
   }
  },
- "title": "SimulacraApi",
+ "title": "OnTheirOwnApi",
  "type": "object"
 }

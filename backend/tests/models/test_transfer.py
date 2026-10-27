@@ -6,7 +6,7 @@ import os
 import httpx
 import pytest
 
-from simulacra.models.transfer import HF_HOSTS, Cancelled, TransferError, host_ok, sha256_of, stream_to
+from on_their_own.models.transfer import HF_HOSTS, Cancelled, TransferError, host_ok, sha256_of, stream_to
 
 from .fakes import FakeHub
 

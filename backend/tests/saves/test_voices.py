@@ -2,8 +2,8 @@
 
 from fastapi.testclient import TestClient
 
-from simulacra.api.app import create_app
-from simulacra.world.voices import set_voice, voices
+from on_their_own.api.app import create_app
+from on_their_own.world.voices import set_voice, voices
 
 ALEX = {"base": 250, "timbre": "rau", "speed": 1.1, "size": 1.05, "lively": 0.7, "breath": 0.1, "vib": 5, "style": "plappern"}
 

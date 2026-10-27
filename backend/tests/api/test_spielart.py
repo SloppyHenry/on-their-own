@@ -5,10 +5,10 @@ import uuid
 
 import pytest
 
-from simulacra.agents import options as opt_mod
-from simulacra.agents import perception, prompts
-from simulacra.agents.schema import META_RE
-from simulacra.world import loader, spielart
+from on_their_own.agents import options as opt_mod
+from on_their_own.agents import perception, prompts
+from on_their_own.agents.schema import META_RE
+from on_their_own.world import loader, spielart
 from tests.conftest import START_WORLD
 from tests.saves.conftest import file_sim
 
@@ -102,7 +102,7 @@ def test_kein_prompt_und_keine_erinnerung_kennt_die_spielart(c):
     sim = c.sim
     for aid in ("ida", "jo", "kai"):
         p = perception.build(sim.engine, sim.store, sim.convs, aid)
-        text = prompts.system_prompt(sim.store.get(aid)) + "\n" + prompts.user_prompt(p, opt_mod.build_options(sim.engine, sim.store, p, __import__("simulacra.agents.scoring", fromlist=["Tuning"]).Tuning()))
+        text = prompts.system_prompt(sim.store.get(aid)) + "\n" + prompts.user_prompt(p, opt_mod.build_options(sim.engine, sim.store, p, __import__("on_their_own.agents.scoring", fromlist=["Tuning"]).Tuning()))
         text += "\n".join(m.text for m in sim.memory.memories(aid))
         assert META_RE.findall(text) == [] and "play_mode" not in text.lower() and "gott" not in text.lower().split(), aid
     rows = sim.engine.state.conn.execute("SELECT agents FROM events WHERE type='simulation.play_mode_changed'").fetchall()

@@ -2,7 +2,7 @@ import asyncio
 
 import pytest
 
-from simulacra.db.connection import Database
+from on_their_own.db.connection import Database
 
 
 def test_migration_applies_once_and_sets_version(tmp_path):

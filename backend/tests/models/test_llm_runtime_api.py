@@ -4,8 +4,8 @@ import os
 
 from fastapi.testclient import TestClient
 
-from simulacra.api.app import create_app
-from simulacra.simulation.runner import SimState
+from on_their_own.api.app import create_app
+from on_their_own.simulation.runner import SimState
 
 from .fakes import FakeHub, asset, install_fake_runtime, put_model, tar_with_server
 from .llmapi import FILE, MID, REPO, call, llm_api, machine, status, wait_for
@@ -211,9 +211,9 @@ def test_websocket_meldet_den_fortschritt(tmp_path):
 # ---------- Endpunkt des Clients ----------
 
 def test_client_der_simulation_bekommt_die_neue_adresse_und_ohne_schluessel(tmp_path):
-    from simulacra.config import Settings
-    from simulacra.llm.providers import OpenAICompatProvider
-    from simulacra.simulation.builder import Simulation
+    from on_their_own.config import Settings
+    from on_their_own.llm.providers import OpenAICompatProvider
+    from on_their_own.simulation.builder import Simulation
     install_fake_runtime(tmp_path)
     put_model(tmp_path, "m1")
     s = Settings(data_dir=tmp_path, llm_api_key_value="alter-schluessel", llm_api_key_file="/nonexistent")
@@ -234,5 +234,5 @@ def test_client_der_simulation_bekommt_die_neue_adresse_und_ohne_schluessel(tmp_
 
 
 def LLMClientFromSettings(s):
-    from simulacra.llm.client import LLMClient
+    from on_their_own.llm.client import LLMClient
     return LLMClient.from_settings(s)

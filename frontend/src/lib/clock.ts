@@ -1,4 +1,4 @@
-// Uhr der Simulation, spiegelt backend/simulacra/world/clock.py (1 Tick = 1 Minute, Tag 1 beginnt bei 00:00).
+// Uhr der Simulation, spiegelt backend/on_their_own/world/clock.py (1 Tick = 1 Minute, Tag 1 beginnt bei 00:00).
 import type { ClockInfo } from "../types/generated";
 
 export const MINUTES_PER_DAY = 1440;

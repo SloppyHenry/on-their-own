@@ -3,8 +3,8 @@
 import json
 from collections import deque
 
-from simulacra.world import object_kinds
-from simulacra.world.loader import DEFAULT_WORLD, grid_from_world, load_blueprints, load_world_file
+from on_their_own.world import object_kinds
+from on_their_own.world.loader import DEFAULT_WORLD, grid_from_world, load_blueprints, load_world_file
 
 
 def test_size_and_legend():

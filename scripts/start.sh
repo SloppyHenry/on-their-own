@@ -31,4 +31,4 @@ fi
 cd "$ROOT/backend"
 export SIM_DATA_DIR="$DATA" SIM_STATIC_DIR="$ROOT/frontend/dist"
 echo "Oberfläche: http://127.0.0.1:$APP_PORT"
-.venv/bin/python -m simulacra
+.venv/bin/python -m on_their_own

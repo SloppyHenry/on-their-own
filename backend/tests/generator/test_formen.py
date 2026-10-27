@@ -4,8 +4,8 @@ import math
 
 import pytest
 
-from simulacra.generator.generate import dumps, new_world
-from simulacra.generator.stil import ECHTE_FORMEN, Stil, echte_form
+from on_their_own.generator.generate import dumps, new_world
+from on_their_own.generator.stil import ECHTE_FORMEN, Stil, echte_form
 
 NEU = ("anger", "fluss", "streu")
 
@@ -101,7 +101,7 @@ def test_vorgaben_aendern_sich_nicht():
 
 def test_anger_mit_wenigen_gebaeuden_liegt_im_kartenrand_und_zu_wenige_haeuser_werden_erklaert():
     """Regression: Mit zwei Gebäuden rückte der Platz über den rechten Rand hinaus (IndexError); zu wenig Betten stehen in der Fehlermeldung."""
-    from simulacra.generator.generate import GenerationError
+    from on_their_own.generator.generate import GenerationError
     w, rep = new_world(53857 + 3 * 1000003, mix={"house": 1, "shop": 1}, residents=people(1), stil=Stil(form="anger"))
     assert rep.ok
     with pytest.raises(GenerationError, match="Betten"):

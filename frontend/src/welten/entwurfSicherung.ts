@@ -4,7 +4,7 @@ import { useGestalten } from "../gestalten/gestaltenStore";
 import type { Aktion } from "../gestalten/typen";
 import { betreteWerkstatt, ungespeichert, useWerkstatt, type Weltdatei } from "./werkstattStore";
 
-export const SCHLUESSEL = "simulacra.werkstatt-entwurf";
+export const SCHLUESSEL = "on-their-own.werkstatt-entwurf";
 export interface Sicherung { id: string; welt: Weltdatei; aktionen: Aktion[] }
 
 export function sichere(s: Sicherung | null): void {

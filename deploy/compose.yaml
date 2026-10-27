@@ -1,12 +1,12 @@
 # On Their Own auf maintux (oder einem anderen Rechner mit Docker und Router). Aufruf immer über scripts/deploy_maintux.sh, backup.sh, restore.sh oder:
 #   docker compose -f deploy/compose.yaml up -d
 # Einstellungen stehen in deploy/.env (Vorlage: deploy/env.example).
-name: simulacra
+name: on-their-own
 services:
-  simulacra:
+  on-their-own:
     build: { context: .., dockerfile: deploy/Dockerfile }
-    image: simulacra:latest
-    container_name: simulacra
+    image: on-their-own:latest
+    container_name: on-their-own
     restart: unless-stopped
     ports: ["${SIM_PUBLISH:-8090}:8090"]
     environment:
@@ -17,11 +17,11 @@ services:
       SIM_AUTOSTART: ${SIM_AUTOSTART:-false}
     secrets: [llm_api_key]
     extra_hosts: ["host.docker.internal:host-gateway"]
-    volumes: ["simulacra-data:/data"]
+    volumes: ["on-their-own-data:/data"]
     mem_limit: 2g
     cpus: 4
     logging: { driver: json-file, options: { max-size: "10m", max-file: "5" } }
 secrets:
-  llm_api_key: { file: "${SIM_KEY_FILE:-${HOME}/simulacra-secrets/llm_api_key}" }
+  llm_api_key: { file: "${SIM_KEY_FILE:-${HOME}/on-their-own-secrets/llm_api_key}" }
 volumes:
-  simulacra-data: { name: simulacra-data }          # feste Namen, unabhängig vom Ordner, in dem compose aufgerufen wird
+  on-their-own-data: { name: on-their-own-data }          # feste Namen, unabhängig vom Ordner, in dem compose aufgerufen wird

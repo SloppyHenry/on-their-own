@@ -3,9 +3,9 @@ import re
 import pytest
 
 from agents.conftest import make_sim
-from simulacra.config import Settings
-from simulacra.llm.providers import FakeProvider
-from simulacra.simulation.builder import Simulation
+from on_their_own.config import Settings
+from on_their_own.llm.providers import FakeProvider
+from on_their_own.simulation.builder import Simulation
 
 from .conftest import api, minute, post, wait_one_minute
 
@@ -146,5 +146,5 @@ def test_reset_needs_confirmation_and_keeps_a_backup(tmp_path):
         s = c.get("/api/state").json()
         assert s["clock"]["minute"] == 420 and s["seq"] == 1                            # neue Welt, Protokoll beginnt neu (erstes: simulation.reset)
         assert c.get("/api/events").json()["items"][0]["type"] == "simulation.reset"
-        from simulacra.db.connection import Database
+        from on_their_own.db.connection import Database
         assert Database(ok["backup"]).conn.execute("SELECT minute FROM clock").fetchone()[0] == 425

@@ -8,7 +8,7 @@ import zipfile
 
 import pytest
 
-from simulacra.saves.service import SaveError
+from on_their_own.saves.service import SaveError
 
 from .conftest import dump
 
@@ -54,7 +54,7 @@ async def exported(sim):
 async def test_export_contains_state_and_manifest(exported):
     entry, data, filename = exported
     z = zipfile.ZipFile(io.BytesIO(data))
-    assert sorted(z.namelist()) == ["manifest.json", "state.db"] and filename == "simulacra-Export-Test.zip"
+    assert sorted(z.namelist()) == ["manifest.json", "state.db"] and filename == "on-their-own-Export-Test.zip"
     m = json.loads(z.read("manifest.json"))
     assert m["format"] == 1 and m["name"] == "Export-Test" and m["sim_minute"] == entry["sim_minute"] and m["sha256"] == hashlib.sha256(z.read("state.db")).hexdigest()
     assert m["schema_version"] == entry["schema_version"] and m["contents"]["events"] > 0 and m["app_version"]

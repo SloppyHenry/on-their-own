@@ -6,8 +6,8 @@ Der Wächter am Ende sorgt dafür, dass jede neue Aktion im Katalog hier einen N
 import pytest
 from world.conftest import ok, put, stock
 
-from simulacra.world.actions import REGISTRY
-from simulacra.world.models import WorldObject
+from on_their_own.world.actions import REGISTRY
+from on_their_own.world.models import WorldObject
 
 COVERED: set[str] = set()
 

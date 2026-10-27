@@ -6,8 +6,8 @@ import re
 
 import pytest
 
-from simulacra.generator.generate import WorldInfo, extension_patch, new_world
-from simulacra.world import loader
+from on_their_own.generator.generate import WorldInfo, extension_patch, new_world
+from on_their_own.world import loader
 
 from tests.agents.conftest import make_sim, put
 from tests.conftest import START_WORLD

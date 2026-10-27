@@ -4,7 +4,7 @@ import re
 import pytest
 
 from agents.conftest import chooser, make_sim, put, with_goals
-from simulacra.agents.scoring import Option
+from on_their_own.agents.scoring import Option
 
 from .helpers import opt
 

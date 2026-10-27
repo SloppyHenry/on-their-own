@@ -5,8 +5,8 @@ import shutil
 
 import pytest
 
-from simulacra.saves.service import SaveError
-from simulacra.simulation.builder import Simulation
+from on_their_own.saves.service import SaveError
+from on_their_own.simulation.builder import Simulation
 
 from .conftest import dump, file_sim
 

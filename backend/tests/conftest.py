@@ -8,8 +8,8 @@ from pathlib import Path
 
 import pytest
 
-from simulacra.events import types as event_types
-from simulacra.world import loader
+from on_their_own.events import types as event_types
+from on_their_own.world import loader
 
 event_types.STRICT = True
 MECHANIK_WORLD = Path(__file__).parent / "fixtures" / "world_mechanik.json"

@@ -29,7 +29,7 @@ from websockets.asyncio.client import connect
 ROOT = Path(__file__).resolve().parents[1]
 PY = ROOT / "backend" / ".venv" / "bin" / "python"
 LIMITS = {"rss_mb": 1024, "db_mb_per_sim_day": 50, "error_streak": 5, "action_streak": 5}
-UNGUARDED = ("wait", "speak")        # wie simulacra.agents.guards.UNGUARDED_ACTIONS: Warten und Gesprächszüge sperrt der Wiederholungsschutz nicht
+UNGUARDED = ("wait", "speak")        # wie on_their_own.agents.guards.UNGUARDED_ACTIONS: Warten und Gesprächszüge sperrt der Wiederholungsschutz nicht
 
 
 def start_server(mode: str, out: Path, port: int) -> subprocess.Popen:
@@ -39,7 +39,7 @@ def start_server(mode: str, out: Path, port: int) -> subprocess.Popen:
         cmd = [str(PY), str(ROOT / "scripts" / "e2e_server.py"), "--port", str(port), "--data-dir", str(out)]
         env = os.environ.copy()
     else:
-        cmd = [str(PY), "-m", "simulacra"]
+        cmd = [str(PY), "-m", "on_their_own"]
         env = {**os.environ, "SIM_DATA_DIR": str(out), "SIM_PORT": str(port), "SIM_HOST": "127.0.0.1"}
     return subprocess.Popen(cmd, cwd=ROOT / "backend", env=env, stdout=log, stderr=subprocess.STDOUT, start_new_session=True)
 

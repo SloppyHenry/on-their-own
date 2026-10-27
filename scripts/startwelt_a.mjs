@@ -1,4 +1,4 @@
-// Erzeugt die Startwelt nach Mockup A (backend/simulacra/data/world_default.json) aus docs/mockups/welt-optik/world.js.
+// Erzeugt die Startwelt nach Mockup A (backend/on_their_own/data/world_default.json) aus docs/mockups/welt-optik/world.js.
 // Draußen: Kachelarten aus den Bodenregeln von A (wTexel), Bäume aus A als Hindernisse, Haus aus A mit Tür als Übergang.
 // Drinnen: die fünf Räume der bisherigen Startwelt als eigener Innenbereich rechts neben dem Dorf.
 // Formen, Bäume und Deko kommen als `look` in die Weltdatei; die App zeichnet daraus Bild A.
@@ -173,6 +173,6 @@ const world = {
   ...old, name: "Dorf am See", size: [W, H], home: door, tile_types: types, tiles: grid.map((r) => r.join("")),
   links: [[door, inDoor]], locations, objects, resource_nodes, agents, look: look2,
 };
-writeFileSync(ROOT + "backend/simulacra/data/world_default.json", JSON.stringify(world, null, 1) + "\n");
+writeFileSync(ROOT + "backend/on_their_own/data/world_default.json", JSON.stringify(world, null, 1) + "\n");
 console.log(world.tiles.join("\n"));
 console.log({ door, inDoor, garden: locations.find((l) => l.id === "garden").rect, square, lake, alex: agents[0].tile, mira: agents[1].tile, gardenGate });

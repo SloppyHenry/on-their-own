@@ -3,7 +3,7 @@ import json
 import pytest
 from agents.conftest import make_sim
 
-from simulacra.simulation.builder import Simulation
+from on_their_own.simulation.builder import Simulation
 
 
 def wait_one_minute(messages, schema, params):

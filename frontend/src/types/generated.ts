@@ -1,6 +1,6 @@
 /* GENERIERT von scripts/gen_types.sh aus den Pydantic-Modellen – nicht von Hand ändern. */
 
-export interface SimulacraApi {
+export interface OnTheirOwnApi {
   ActionCompleted?: ActionCompleted;
   ActionInterrupted?: ActionInterrupted;
   ActionProblem?: ActionProblem;
@@ -181,7 +181,7 @@ export interface SimulacraApi {
   WsSnapshot?: WsSnapshot;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "ActionCompleted".
  */
 export interface ActionCompleted {
@@ -191,7 +191,7 @@ export interface ActionCompleted {
   };
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "ActionInterrupted".
  */
 export interface ActionInterrupted {
@@ -202,7 +202,7 @@ export interface ActionInterrupted {
 /**
  * action_failed und action_rejected.
  *
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "ActionProblem".
  */
 export interface ActionProblem {
@@ -215,7 +215,7 @@ export interface ActionProblem {
   text: string;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "ActionStarted".
  */
 export interface ActionStarted {
@@ -226,7 +226,7 @@ export interface ActionStarted {
   };
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "AddAreaOut".
  */
 export interface AddAreaOut {
@@ -243,7 +243,7 @@ export interface AddAreaOut {
 /**
  * Gebiet erzeugen in der Werkstatt: ein weiteres Dorf an die Welt anfügen (der Generator als Werkzeug).
  *
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "AddAreaRequest".
  */
 export interface AddAreaRequest {
@@ -258,7 +258,7 @@ export interface AddAreaRequest {
   };
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "AgentAdded".
  */
 export interface AgentAdded {
@@ -268,7 +268,7 @@ export interface AgentAdded {
   tile: number[];
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "AgentDetail".
  */
 export interface AgentDetail {
@@ -311,7 +311,7 @@ export interface AgentDetail {
   y: number;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "ActionInfo".
  */
 export interface ActionInfo {
@@ -323,7 +323,7 @@ export interface ActionInfo {
   type: string;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "DecisionBrief".
  */
 export interface DecisionBrief {
@@ -340,7 +340,7 @@ export interface DecisionBrief {
   status: string;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "ObservationBrief".
  */
 export interface ObservationBrief {
@@ -350,7 +350,7 @@ export interface ObservationBrief {
   text: string;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "ProfileBrief".
  */
 export interface ProfileBrief {
@@ -362,7 +362,7 @@ export interface ProfileBrief {
 /**
  * Restlicher Weg mit Fahrplan (wie `agent.walking`), damit ein Refresh mitten im Weg weiterlaufen kann.
  *
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "WalkInfo".
  */
 export interface WalkInfo {
@@ -370,7 +370,7 @@ export interface WalkInfo {
   path: number[][];
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "AgentNeeds".
  */
 export interface AgentNeeds {
@@ -378,7 +378,7 @@ export interface AgentNeeds {
   needs: NeedOut[];
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "MoodOut".
  */
 export interface MoodOut {
@@ -387,7 +387,7 @@ export interface MoodOut {
   word: string;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "NeedOut".
  */
 export interface NeedOut {
@@ -397,7 +397,7 @@ export interface NeedOut {
   value: number;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "AgentOverview".
  */
 export interface AgentOverview {
@@ -409,7 +409,7 @@ export interface AgentOverview {
   resting: boolean;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "GoalOut".
  */
 export interface GoalOut {
@@ -433,7 +433,7 @@ export interface GoalOut {
   updated: number;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "Arrived".
  */
 export interface Arrived {
@@ -442,14 +442,14 @@ export interface Arrived {
   target?: string | null;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "Ate".
  */
 export interface Ate {
   hunger: number;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "AuthStatus".
  */
 export interface AuthStatus {
@@ -457,7 +457,7 @@ export interface AuthStatus {
   required: boolean;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "BlankRequest".
  */
 export interface BlankRequest {
@@ -466,7 +466,7 @@ export interface BlankRequest {
   size?: "klein" | "mittel" | "gross";
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "CatalogOut".
  */
 export interface CatalogOut {
@@ -482,7 +482,7 @@ export interface CatalogOut {
   total: number;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "HardwareOut".
  */
 export interface HardwareOut {
@@ -503,7 +503,7 @@ export interface HardwareOut {
   vram_mb: number;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "CatalogItemOut".
  */
 export interface CatalogItemOut {
@@ -528,7 +528,7 @@ export interface CatalogItemOut {
   variants: VariantOut[];
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "VariantOut".
  */
 export interface VariantOut {
@@ -540,7 +540,7 @@ export interface VariantOut {
   size_mb: number;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "EstimateOut".
  */
 export interface EstimateOut {
@@ -549,7 +549,7 @@ export interface EstimateOut {
   tokens_per_s: number;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "FitOut".
  */
 export interface FitOut {
@@ -559,7 +559,7 @@ export interface FitOut {
   ratio: number;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "ConversationEnded".
  */
 export interface ConversationEnded {
@@ -570,7 +570,7 @@ export interface ConversationEnded {
   turns: number;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "ConversationStarted".
  */
 export interface ConversationStarted {
@@ -580,7 +580,7 @@ export interface ConversationStarted {
 /**
  * Speichern als: eine Weltdatei unter neuem Namen als eigene Welt ablegen (Herkunft Kopie).
  *
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "CreateWorldRequest".
  */
 export interface CreateWorldRequest {
@@ -590,7 +590,7 @@ export interface CreateWorldRequest {
   };
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "DayStarted".
  */
 export interface DayStarted {
@@ -598,7 +598,7 @@ export interface DayStarted {
   weekday: string;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "Decision".
  */
 export interface Decision {
@@ -621,7 +621,7 @@ export interface Decision {
   why?: string;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "OptionSummary".
  */
 export interface OptionSummary {
@@ -631,7 +631,7 @@ export interface OptionSummary {
   score: number;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "DecisionFailed".
  */
 export interface DecisionFailed {
@@ -639,7 +639,7 @@ export interface DecisionFailed {
   reason?: string | null;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "DecisionOut".
  */
 export interface DecisionOut {
@@ -678,7 +678,7 @@ export interface DecisionOut {
   why: string;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "OptionOut".
  */
 export interface OptionOut {
@@ -694,7 +694,7 @@ export interface OptionOut {
   score: number;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "Dialogue".
  */
 export interface Dialogue {
@@ -703,7 +703,7 @@ export interface Dialogue {
   to: string;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "DownloadRequest".
  */
 export interface DownloadRequest {
@@ -712,7 +712,7 @@ export interface DownloadRequest {
   repo: string;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "Drank".
  */
 export interface Drank {
@@ -721,7 +721,7 @@ export interface Drank {
 /**
  * Der Entwurf aus dem Editor (Gestalten) wurde in einem Zug übernommen; steht nur im Protokoll der Leitstelle, die Bewohner erfahren davon nichts.
  *
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "Edited".
  */
 export interface Edited {
@@ -732,7 +732,7 @@ export interface Edited {
   };
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "EffectEnded".
  */
 export interface EffectEnded {
@@ -740,7 +740,7 @@ export interface EffectEnded {
   what: string;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "EventDetail".
  */
 export interface EventDetail {
@@ -749,7 +749,7 @@ export interface EventDetail {
   event: EventOut;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "EventOut".
  */
 export interface EventOut {
@@ -768,7 +768,7 @@ export interface EventOut {
   visibility: string;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "SimTime".
  */
 export interface SimTime {
@@ -777,7 +777,7 @@ export interface SimTime {
   total: number;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "EventFired".
  */
 export interface EventFired {
@@ -786,7 +786,7 @@ export interface EventFired {
   text: string;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "EventInjected".
  */
 export interface EventInjected {
@@ -801,7 +801,7 @@ export interface EventInjected {
   text: string;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "EventScheduled".
  */
 export interface EventScheduled {
@@ -811,7 +811,7 @@ export interface EventScheduled {
   text: string;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "EventsPage".
  */
 export interface EventsPage {
@@ -819,7 +819,7 @@ export interface EventsPage {
   last_seq: number;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "ExternalTest".
  */
 export interface ExternalTest {
@@ -827,7 +827,7 @@ export interface ExternalTest {
   url?: string | null;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "ExternalTestOut".
  */
 export interface ExternalTestOut {
@@ -837,7 +837,7 @@ export interface ExternalTestOut {
   url: string;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "FactorRegistry".
  */
 export interface FactorRegistry {
@@ -847,7 +847,7 @@ export interface FactorRegistry {
   };
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "FactorInfo".
  */
 export interface FactorInfo {
@@ -855,7 +855,7 @@ export interface FactorInfo {
   label: string;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "FailureOut".
  */
 export interface FailureOut {
@@ -873,21 +873,21 @@ export interface FailureOut {
   text: string;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "Fished".
  */
 export interface Fished {
   caught: boolean;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "FromSimRequest".
  */
 export interface FromSimRequest {
   name: string;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "GenerateApplied".
  */
 export interface GenerateApplied {
@@ -902,7 +902,7 @@ export interface GenerateApplied {
   village: string;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "GenerateApplyRequest".
  */
 export interface GenerateApplyRequest {
@@ -920,7 +920,7 @@ export interface GenerateApplyRequest {
 /**
  * Stellgrößen des Generators (AP18f); jede ist optional, ohne Angabe gilt die Vorgabe (das Dorf wie bisher).
  *
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "Stellgroessen".
  */
 export interface Stellgroessen {
@@ -935,7 +935,7 @@ export interface Stellgroessen {
   wege?: "gerade" | "geschwungen";
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "GeneratePreview".
  */
 export interface GeneratePreview {
@@ -954,7 +954,7 @@ export interface GeneratePreview {
   village: string | null;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "ReportOut".
  */
 export interface ReportOut {
@@ -963,7 +963,7 @@ export interface ReportOut {
   ok: boolean;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "CheckOut".
  */
 export interface CheckOut {
@@ -972,7 +972,7 @@ export interface CheckOut {
   ok: boolean;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "StateSnapshot".
  */
 export interface StateSnapshot {
@@ -1008,7 +1008,7 @@ export interface StateSnapshot {
   world_name: string;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "AgentInfo".
  */
 export interface AgentInfo {
@@ -1036,7 +1036,7 @@ export interface AgentInfo {
   y: number;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "ClockInfo".
  */
 export interface ClockInfo {
@@ -1048,7 +1048,7 @@ export interface ClockInfo {
   weekday: string;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "LocationInfo".
  */
 export interface LocationInfo {
@@ -1062,7 +1062,7 @@ export interface LocationInfo {
   rect: number[];
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "MapData".
  */
 export interface MapData {
@@ -1074,7 +1074,7 @@ export interface MapData {
   width: number;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "ObjectInfo".
  */
 export interface ObjectInfo {
@@ -1094,7 +1094,7 @@ export interface ObjectInfo {
   y: number | null;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "ResourceInfo".
  */
 export interface ResourceInfo {
@@ -1109,7 +1109,7 @@ export interface ResourceInfo {
   y: number;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "SimStatus".
  */
 export interface SimStatus {
@@ -1124,7 +1124,7 @@ export interface SimStatus {
   tick_delay_s: number;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "TileTypeInfo".
  */
 export interface TileTypeInfo {
@@ -1137,7 +1137,7 @@ export interface TileTypeInfo {
 /**
  * Stimme einer Figur fürs Plappern im Browser (AP17d). Reine Darstellung; die Bewohner erfahren nichts davon.
  *
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "Voice".
  */
 export interface Voice {
@@ -1151,7 +1151,7 @@ export interface Voice {
   vib?: number;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "WeatherInfo".
  */
 export interface WeatherInfo {
@@ -1162,7 +1162,7 @@ export interface WeatherInfo {
 /**
  * Was erzeugt werden soll. `extend`: ein weiteres Dorf an die laufende Welt, `new`: eine neue Simulation mit einem Dorf.
  *
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "GenerateRequest".
  */
 export interface GenerateRequest {
@@ -1177,7 +1177,7 @@ export interface GenerateRequest {
 /**
  * Welt erzeugen (der Generator, nur beim Erschaffen): Seed, Seeufer, Gebäudemix.
  *
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "GenerateWorldRequest".
  */
 export interface GenerateWorldRequest {
@@ -1192,7 +1192,7 @@ export interface GenerateWorldRequest {
 /**
  * Ein Dorf wurde mit dem Weltgenerator erzeugt (Erweiterung oder neue Simulation); `seed` ist der Seed, der die Prüfung bestanden hat.
  *
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "Generated".
  */
 export interface Generated {
@@ -1206,7 +1206,7 @@ export interface Generated {
   village: string;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "GoalChanged".
  */
 export interface GoalChanged {
@@ -1220,7 +1220,7 @@ export interface GoalChanged {
   text: string;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "GuardTriggered".
  */
 export interface GuardTriggered {
@@ -1232,7 +1232,7 @@ export interface GuardTriggered {
 /**
  * Eine Information, Nachricht, Einladung oder Situation erreicht genau die Empfänger in `agents`.
  *
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "Informed".
  */
 export interface Informed {
@@ -1246,14 +1246,14 @@ export interface Informed {
   where?: string | null;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "InjectConfirmRequest".
  */
 export interface InjectConfirmRequest {
   proposal_id: string;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "InjectParseRequest".
  */
 export interface InjectParseRequest {
@@ -1264,7 +1264,7 @@ export interface InjectParseRequest {
   text?: string;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "InjectProposal".
  */
 export interface InjectProposal {
@@ -1287,7 +1287,7 @@ export interface InjectProposal {
   text: string;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "Clarification".
  */
 export interface Clarification {
@@ -1298,7 +1298,7 @@ export interface Clarification {
   question: string;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "ClarifyOption".
  */
 export interface ClarifyOption {
@@ -1306,7 +1306,7 @@ export interface ClarifyOption {
   value: string | number;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "Inspected".
  */
 export interface Inspected {
@@ -1317,7 +1317,7 @@ export interface Inspected {
   resource?: string | null;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "ObjectData".
  */
 export interface ObjectData {
@@ -1333,7 +1333,7 @@ export interface ObjectData {
   y?: number | null;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "InventoryChanged".
  */
 export interface InventoryChanged {
@@ -1342,7 +1342,7 @@ export interface InventoryChanged {
   resource: string;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "ItemGiven".
  */
 export interface ItemGiven {
@@ -1355,14 +1355,14 @@ export interface ItemGiven {
 /**
  * item_taken und item_dropped.
  *
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "ItemMoved".
  */
 export interface ItemMoved {
   object: ObjectData;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "Knowledge".
  */
 export interface Knowledge {
@@ -1371,7 +1371,7 @@ export interface Knowledge {
   persons: KnownPerson[];
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "KnownLocation".
  */
 export interface KnownLocation {
@@ -1382,7 +1382,7 @@ export interface KnownLocation {
   visits: number;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "KnownObject".
  */
 export interface KnownObject {
@@ -1395,7 +1395,7 @@ export interface KnownObject {
   seen_at: number;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "KnownPerson".
  */
 export interface KnownPerson {
@@ -1406,21 +1406,21 @@ export interface KnownPerson {
   name: string;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "LinksAdded".
  */
 export interface LinksAdded {
   links: number[][][];
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "LinksRemoved".
  */
 export interface LinksRemoved {
   links: number[][][];
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "LlmStatusOut".
  */
 export interface LlmStatusOut {
@@ -1438,7 +1438,7 @@ export interface LlmStatusOut {
   transfer: TransferOut | null;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "InstalledOut".
  */
 export interface InstalledOut {
@@ -1457,7 +1457,7 @@ export interface InstalledOut {
   source: "tool" | "extern";
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "ProbeOut".
  */
 export interface ProbeOut {
@@ -1474,7 +1474,7 @@ export interface ProbeOut {
   valid_pct: number;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "ProbeJobOut".
  */
 export interface ProbeJobOut {
@@ -1486,7 +1486,7 @@ export interface ProbeJobOut {
   step: number;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "RuntimeOut".
  */
 export interface RuntimeOut {
@@ -1500,7 +1500,7 @@ export interface RuntimeOut {
   version: string | null;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "TransferOut".
  */
 export interface TransferOut {
@@ -1518,7 +1518,7 @@ export interface TransferOut {
   total: number;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "LocationChanged".
  */
 export interface LocationChanged {
@@ -1527,7 +1527,7 @@ export interface LocationChanged {
   to_location: string;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "LocationDetail".
  */
 export interface LocationDetail {
@@ -1538,7 +1538,7 @@ export interface LocationDetail {
   resources: ResourceInfo[];
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "LocationDiscovered".
  */
 export interface LocationDiscovered {
@@ -1547,7 +1547,7 @@ export interface LocationDiscovered {
 /**
  * location_added und location_updated.
  *
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "LocationEvent".
  */
 export interface LocationEvent {
@@ -1560,7 +1560,7 @@ export interface LocationEvent {
   } | null;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "LocationRemoved".
  */
 export interface LocationRemoved {
@@ -1571,7 +1571,7 @@ export interface LocationRemoved {
   };
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "LoginRequest".
  */
 export interface LoginRequest {
@@ -1580,7 +1580,7 @@ export interface LoginRequest {
 /**
  * Ein Bewohner hat etwas gebaut, das die Darstellung braucht (Weg, Beet, Baum, Laterne, Brunnen): das Stück wird an das Gebiet gehängt.
  *
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "LookAdded".
  */
 export interface LookAdded {
@@ -1601,7 +1601,7 @@ export interface LookAdded {
 /**
  * Gebiete und Landstraßen, die an die Gestaltung der Welt angehängt wurden (siehe docs/welt-erweitern.md).
  *
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "LookChanged".
  */
 export interface LookChanged {
@@ -1614,7 +1614,7 @@ export interface LookChanged {
 /**
  * Die Gestaltung wurde im Editor geändert (AP16a): Formen und Deko eingetragen oder entfernt, Bildstellen gesetzt, Gebiete vergrößert (Operationen siehe `world/look_ops.py`).
  *
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "LookEdited".
  */
 export interface LookEdited {
@@ -1624,7 +1624,7 @@ export interface LookEdited {
   upgraded?: boolean;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "MapExtended".
  */
 export interface MapExtended {
@@ -1633,7 +1633,7 @@ export interface MapExtended {
   to: number[];
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "MemoriesPage".
  */
 export interface MemoriesPage {
@@ -1642,7 +1642,7 @@ export interface MemoriesPage {
   total: number;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "MemoryOut".
  */
 export interface MemoryOut {
@@ -1665,7 +1665,7 @@ export interface MemoryOut {
   text: string;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "MemoryArchived".
  */
 export interface MemoryArchived {
@@ -1674,7 +1674,7 @@ export interface MemoryArchived {
   reason: string;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "MemoryCreated".
  */
 export interface MemoryCreated {
@@ -1689,7 +1689,7 @@ export interface MemoryCreated {
   text: string;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "MemoryDetail".
  */
 export interface MemoryDetail {
@@ -1700,7 +1700,7 @@ export interface MemoryDetail {
   sources: MemoryOut[];
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "RetrievalRef".
  */
 export interface RetrievalRef {
@@ -1710,7 +1710,7 @@ export interface RetrievalRef {
   sim_minute: number;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "MemoryRetrieved".
  */
 export interface MemoryRetrieved {
@@ -1720,7 +1720,7 @@ export interface MemoryRetrieved {
   tokens: number;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "RetrievedItem".
  */
 export interface RetrievedItem {
@@ -1730,7 +1730,7 @@ export interface RetrievedItem {
   text: string;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "MemorySkipped".
  */
 export interface MemorySkipped {
@@ -1739,7 +1739,7 @@ export interface MemorySkipped {
   text: string;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "MemoryStats".
  */
 export interface MemoryStats {
@@ -1752,7 +1752,7 @@ export interface MemoryStats {
   last_reflection_minute: number | null;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "ModeSet".
  */
 export interface ModeSet {
@@ -1761,7 +1761,7 @@ export interface ModeSet {
   mode: "builtin" | "external";
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "ModelRef".
  */
 export interface ModelRef {
@@ -1770,7 +1770,7 @@ export interface ModelRef {
 /**
  * Veraltet (bis AP10): ein Schritt je Ereignis. Steht nur noch in älteren Ereignisprotokollen.
  *
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "Moved".
  */
 export interface Moved {
@@ -1780,7 +1780,7 @@ export interface Moved {
   to: number[];
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "NatureEvent".
  */
 export interface NatureEvent {
@@ -1790,7 +1790,7 @@ export interface NatureEvent {
   text?: string;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "NewSimApplied".
  */
 export interface NewSimApplied {
@@ -1805,7 +1805,7 @@ export interface NewSimApplied {
   warnings: string[];
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "ResidentOut".
  */
 export interface ResidentOut {
@@ -1814,7 +1814,7 @@ export interface ResidentOut {
   name: string;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "NewSimApplyRequest".
  */
 export interface NewSimApplyRequest {
@@ -1833,7 +1833,7 @@ export interface NewSimApplyRequest {
 /**
  * Startwerte der Beziehung von Bewohner `a` zu Bewohner `b` (Nummern in `residents`, ab 0).
  *
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "RelationIn".
  */
 export interface RelationIn {
@@ -1847,7 +1847,7 @@ export interface RelationIn {
 /**
  * Die Profilmaske eines Bewohners: dieselbe wie im Charaktereditor und in Vorlagen. Kein Feld für Steuerungsart oder Sonderstatus.
  *
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "ResidentIn".
  */
 export interface ResidentIn {
@@ -1877,7 +1877,7 @@ export interface RulesSpec {
 /**
  * Ein Weltereignis zum Start (aus dem Textfeld „Weltregeln“): der geprüfte Vorschlag der Ereigniseingabe (AP08), nach der Vorschau bestätigt. Für die Bewohner ein natürlicher Vorgang.
  *
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "StartEvent".
  */
 export interface StartEvent {
@@ -1890,7 +1890,7 @@ export interface StartEvent {
 /**
  * Vorgeschichte eines Paares: wird bei beiden zu einer gewöhnlichen Erinnerung (Art Fakt).
  *
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "StoryIn".
  */
 export interface StoryIn {
@@ -1913,7 +1913,7 @@ export interface WorldSpec {
   style?: Stellgroessen | null;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "NewSimLimits".
  */
 export interface NewSimLimits {
@@ -1922,7 +1922,7 @@ export interface NewSimLimits {
   seconds_per_decision: number;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "NewSimPreview".
  */
 export interface NewSimPreview {
@@ -1941,7 +1941,7 @@ export interface NewSimPreview {
   warnings: string[];
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "HouseOut".
  */
 export interface HouseOut {
@@ -1950,7 +1950,7 @@ export interface HouseOut {
   name: string;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "NewSimRequest".
  */
 export interface NewSimRequest {
@@ -1991,7 +1991,7 @@ export interface WorldSpec1 {
   style?: Stellgroessen | null;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "NpcAction".
  */
 export interface NpcAction {
@@ -1999,7 +1999,7 @@ export interface NpcAction {
   what: string;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "ObjectChanged".
  */
 export interface ObjectChanged {
@@ -2016,7 +2016,7 @@ export interface ObjectChanged {
   y?: number | null;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "ObjectCreated".
  */
 export interface ObjectCreated {
@@ -2024,14 +2024,14 @@ export interface ObjectCreated {
   object: ObjectData;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "ObjectDiscovered".
  */
 export interface ObjectDiscovered {
   object: ObjectData;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "ObjectRemoved".
  */
 export interface ObjectRemoved {
@@ -2039,7 +2039,7 @@ export interface ObjectRemoved {
   object: ObjectData;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "ParamPatch".
  */
 export interface ParamPatch {
@@ -2050,7 +2050,7 @@ export interface ParamPatch {
   changes: [ParamChange, ...ParamChange[]];
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "ParamChange".
  */
 export interface ParamChange {
@@ -2061,7 +2061,7 @@ export interface ParamChange {
   };
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "ParamPatchOut".
  */
 export interface ParamPatchOut {
@@ -2069,7 +2069,7 @@ export interface ParamPatchOut {
   values: ParamValues;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "ParamResult".
  */
 export interface ParamResult {
@@ -2085,7 +2085,7 @@ export interface ParamResult {
   status: string;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "ParamValues".
  */
 export interface ParamValues {
@@ -2099,7 +2099,7 @@ export interface ParamValues {
   };
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "ParamResetRequest".
  */
 export interface ParamResetRequest {
@@ -2108,7 +2108,7 @@ export interface ParamResetRequest {
   keys?: string[] | null;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "ParamSchema".
  */
 export interface ParamSchema {
@@ -2116,7 +2116,7 @@ export interface ParamSchema {
   specs: ParamSpecOut[];
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "ParamGroup".
  */
 export interface ParamGroup {
@@ -2124,7 +2124,7 @@ export interface ParamGroup {
   label: string;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "ParamSpecOut".
  */
 export interface ParamSpecOut {
@@ -2149,7 +2149,7 @@ export interface ParamSpecOut {
   warn: string | null;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "ParameterChanged".
  */
 export interface ParameterChanged {
@@ -2168,7 +2168,7 @@ export interface ParameterChanged {
   status?: string | null;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "PatchApplied".
  */
 export interface PatchApplied {
@@ -2179,7 +2179,7 @@ export interface PatchApplied {
   id: string;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "PatchPreview".
  */
 export interface PatchPreview {
@@ -2193,7 +2193,7 @@ export interface PatchPreview {
 /**
  * Beliebiger Welt-Patch (Format: docs/welt-erweitern.md) für einen Trockenlauf, z. B. eine Einzeländerung des Editors.
  *
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "PatchPreviewRequest".
  */
 export interface PatchPreviewRequest {
@@ -2202,7 +2202,7 @@ export interface PatchPreviewRequest {
   };
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "Petted".
  */
 export interface Petted {
@@ -2210,7 +2210,7 @@ export interface Petted {
   object: string;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "PhaseChanged".
  */
 export interface PhaseChanged {
@@ -2218,14 +2218,14 @@ export interface PhaseChanged {
   time: string;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "PlayModeChanged".
  */
 export interface PlayModeChanged {
   play_mode: string;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "PlayModeRequest".
  */
 export interface PlayModeRequest {
@@ -2235,7 +2235,7 @@ export interface PlayModeRequest {
 /**
  * Takt der eigenen Figur (AP18h): wer sie steuert, ob die Zeit auf sie wartet, Autopilot und die Schalter. Nur Leitstelle, nie in einem Prompt.
  *
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "PlayerTakt".
  */
 export interface PlayerTakt {
@@ -2247,7 +2247,7 @@ export interface PlayerTakt {
   waiting?: boolean;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "PresetBrief".
  */
 export interface PresetBrief {
@@ -2258,14 +2258,14 @@ export interface PresetBrief {
   name: string;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "PresetDuplicate".
  */
 export interface PresetDuplicate {
   name?: string | null;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "PresetLoadOut".
  */
 export interface PresetLoadOut {
@@ -2274,14 +2274,14 @@ export interface PresetLoadOut {
   values: ParamValues;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "PresetLoadRequest".
  */
 export interface PresetLoadRequest {
   confirm?: boolean;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "PresetOut".
  */
 export interface PresetOut {
@@ -2294,7 +2294,7 @@ export interface PresetOut {
   name: string;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "PresetPreview".
  */
 export interface PresetPreview {
@@ -2302,7 +2302,7 @@ export interface PresetPreview {
   preset: PresetBrief;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "PresetDiffItem".
  */
 export interface PresetDiffItem {
@@ -2317,7 +2317,7 @@ export interface PresetDiffItem {
   };
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "PresetRename".
  */
 export interface PresetRename {
@@ -2325,7 +2325,7 @@ export interface PresetRename {
   name: string;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "PresetSave".
  */
 export interface PresetSave {
@@ -2334,7 +2334,7 @@ export interface PresetSave {
   name: string;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "PreviewWorldRequest".
  */
 export interface PreviewWorldRequest {
@@ -2343,7 +2343,7 @@ export interface PreviewWorldRequest {
   };
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "ProposalAnswered".
  */
 export interface ProposalAnswered {
@@ -2353,7 +2353,7 @@ export interface ProposalAnswered {
   proposal: string;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "Read".
  */
 export interface Read {
@@ -2362,7 +2362,7 @@ export interface Read {
   object: string;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "RelationChanged".
  */
 export interface RelationChanged {
@@ -2377,7 +2377,7 @@ export interface RelationChanged {
   };
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "RelationOut".
  */
 export interface RelationOut {
@@ -2391,7 +2391,7 @@ export interface RelationOut {
   };
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "RelationLogItem".
  */
 export interface RelationLogItem {
@@ -2404,14 +2404,14 @@ export interface RelationLogItem {
   source: string;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "RenameRequest".
  */
 export interface RenameRequest {
   name: string;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "ResetRequest".
  */
 export interface ResetRequest {
@@ -2421,7 +2421,7 @@ export interface ResetRequest {
   play_mode?: ("leben" | "gott") | null;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "ResourceAdded".
  */
 export interface ResourceAdded {
@@ -2435,7 +2435,7 @@ export interface ResourceAdded {
   tile: number[];
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "ResourceChanged".
  */
 export interface ResourceChanged {
@@ -2445,21 +2445,21 @@ export interface ResourceChanged {
   resource: string;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "ResourceRemoved".
  */
 export interface ResourceRemoved {
   node: string;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "Rested".
  */
 export interface Rested {
   energy: number;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "RetrievalOut".
  */
 export interface RetrievalOut {
@@ -2471,7 +2471,7 @@ export interface RetrievalOut {
   tokens: number;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "RetrievedMemory".
  */
 export interface RetrievedMemory {
@@ -2484,7 +2484,7 @@ export interface RetrievedMemory {
   text: string;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "Rowed".
  */
 export interface Rowed {
@@ -2494,7 +2494,7 @@ export interface Rowed {
 /**
  * Ein Satz der Weltregeln wie in der Ereigniseingabe: Text oder Antwort auf eine Rückfrage, im Entwurf (die Welt, auf die er sich bezieht).
  *
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "RulesPreviewRequest".
  */
 export interface RulesPreviewRequest {
@@ -2504,14 +2504,14 @@ export interface RulesPreviewRequest {
   text?: string;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "RuntimeInstallRequest".
  */
 export interface RuntimeInstallRequest {
   confirm?: boolean;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "SaveCreate".
  */
 export interface SaveCreate {
@@ -2520,14 +2520,14 @@ export interface SaveCreate {
   overwrite?: boolean;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "SaveLoadRequest".
  */
 export interface SaveLoadRequest {
   confirm?: boolean;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "SaveOut".
  */
 export interface SaveOut {
@@ -2545,7 +2545,7 @@ export interface SaveOut {
   size: number;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "SaveWorldRequest".
  */
 export interface SaveWorldRequest {
@@ -2554,7 +2554,7 @@ export interface SaveWorldRequest {
   };
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "ScheduledOut".
  */
 export interface ScheduledOut {
@@ -2564,7 +2564,7 @@ export interface ScheduledOut {
   text: string;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "SimCommandResult".
  */
 export interface SimCommandResult {
@@ -2576,14 +2576,14 @@ export interface SimCommandResult {
   tick_delay_s: number | null;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "SimControl".
  */
 export interface SimControl {
   minute: number;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "SimLoaded".
  */
 export interface SimLoaded {
@@ -2593,14 +2593,14 @@ export interface SimLoaded {
   save_id?: string | null;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "SimReset".
  */
 export interface SimReset {
   backup?: string | null;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "SimSaved".
  */
 export interface SimSaved {
@@ -2610,7 +2610,7 @@ export interface SimSaved {
   save_id: string;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "SimStepped".
  */
 export interface SimStepped {
@@ -2618,7 +2618,7 @@ export interface SimStepped {
   n: number;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "Slept".
  */
 export interface Slept {
@@ -2626,7 +2626,7 @@ export interface Slept {
   minutes: number;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "SpeedChanged".
  */
 export interface SpeedChanged {
@@ -2634,7 +2634,7 @@ export interface SpeedChanged {
   tick_delay_s: number;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "SpeedRequest".
  */
 export interface SpeedRequest {
@@ -2642,14 +2642,14 @@ export interface SpeedRequest {
   tick_delay_s?: number | null;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "StartRequest".
  */
 export interface StartRequest {
   ticks?: number | null;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "StatsOut".
  */
 export interface StatsOut {
@@ -2660,7 +2660,7 @@ export interface StatsOut {
   total: AgentStats | null;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "AgentStats".
  */
 export interface AgentStats {
@@ -2674,7 +2674,7 @@ export interface AgentStats {
   series: SeriesOut;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "ActionsOut".
  */
 export interface ActionsOut {
@@ -2685,7 +2685,7 @@ export interface ActionsOut {
   top_rejections: Rejection[];
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "ActionStat".
  */
 export interface ActionStat {
@@ -2696,7 +2696,7 @@ export interface ActionStat {
   success_rate: number | null;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "Rejection".
  */
 export interface Rejection {
@@ -2705,7 +2705,7 @@ export interface Rejection {
   text: string;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "ConversationsOut".
  */
 export interface ConversationsOut {
@@ -2716,7 +2716,7 @@ export interface ConversationsOut {
   proposals_declined: number;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "Keyword".
  */
 export interface Keyword {
@@ -2724,7 +2724,7 @@ export interface Keyword {
   word: string;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "LlmStats".
  */
 export interface LlmStats {
@@ -2737,7 +2737,7 @@ export interface LlmStats {
   valid: number;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "DayCount".
  */
 export interface DayCount {
@@ -2746,7 +2746,7 @@ export interface DayCount {
   reflections: number;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "PlacesOut".
  */
 export interface PlacesOut {
@@ -2755,7 +2755,7 @@ export interface PlacesOut {
   time_by_location: PlaceTime[];
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "PlaceTime".
  */
 export interface PlaceTime {
@@ -2764,7 +2764,7 @@ export interface PlaceTime {
   name: string;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "SeriesOut".
  */
 export interface SeriesOut {
@@ -2778,7 +2778,7 @@ export interface SeriesOut {
   };
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "StatusChanged".
  */
 export interface StatusChanged {
@@ -2786,7 +2786,7 @@ export interface StatusChanged {
   old: string;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "StatusOut".
  */
 export interface StatusOut {
@@ -2794,7 +2794,7 @@ export interface StatusOut {
   model: ModelStatus;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "SystemLoad".
  */
 export interface SystemLoad {
@@ -2808,7 +2808,7 @@ export interface SystemLoad {
   state: string;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "ModelStatus".
  */
 export interface ModelStatus {
@@ -2822,7 +2822,7 @@ export interface ModelStatus {
   reachable: boolean | null;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "StepRequest".
  */
 export interface StepRequest {
@@ -2831,7 +2831,7 @@ export interface StepRequest {
 /**
  * Etwas in eine Ablage gelegt (`into`) oder herausgenommen.
  *
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "Stored".
  */
 export interface Stored {
@@ -2843,7 +2843,7 @@ export interface Stored {
   what: string;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "TemplateImported".
  */
 export interface TemplateImported {
@@ -2851,7 +2851,7 @@ export interface TemplateImported {
   warnings: string[];
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "TemplateOut".
  */
 export interface TemplateOut {
@@ -2865,7 +2865,7 @@ export interface TemplateOut {
   };
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "TemplateIn".
  */
 export interface TemplateIn {
@@ -2877,7 +2877,7 @@ export interface TemplateIn {
   };
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "TileChanged".
  */
 export interface TileChanged {
@@ -2886,7 +2886,7 @@ export interface TileChanged {
   y: number;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "TileTypeAdded".
  */
 export interface TileTypeAdded {
@@ -2898,7 +2898,7 @@ export interface TileTypeAdded {
   walkable: boolean;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "TilesChanged".
  */
 export interface TilesChanged {
@@ -2908,7 +2908,7 @@ export interface TilesChanged {
   truncated?: boolean;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "TileChange".
  */
 export interface TileChange {
@@ -2918,7 +2918,7 @@ export interface TileChange {
   y: number;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "VoiceChanged".
  */
 export interface VoiceChanged {
@@ -2928,7 +2928,7 @@ export interface VoiceChanged {
   } | null;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "VoiceOut".
  */
 export interface VoiceOut {
@@ -2936,14 +2936,14 @@ export interface VoiceOut {
   voice: Voice | null;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "VoiceSet".
  */
 export interface VoiceSet {
   voice?: Voice | null;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "Walking".
  */
 export interface Walking {
@@ -2954,7 +2954,7 @@ export interface Walking {
   reason?: string;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "WeatherChanged".
  */
 export interface WeatherChanged {
@@ -2964,7 +2964,7 @@ export interface WeatherChanged {
   until: number;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "WorldDoc".
  */
 export interface WorldDoc {
@@ -2976,7 +2976,7 @@ export interface WorldDoc {
 /**
  * Karteikarte einer Welt (`info.json`).
  *
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "WorldInfoOut".
  */
 export interface WorldInfoOut {
@@ -2996,7 +2996,7 @@ export interface WorldInfoOut {
   startplatz: boolean;
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "WorldTime".
  */
 export interface WorldTime {
@@ -3008,7 +3008,7 @@ export interface WorldTime {
 /**
  * Uhrtakt ohne Speicherung und ohne Nummer, gedrosselt: hält Uhr und laufende Wege in der Oberfläche synchron.
  *
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "WsClock".
  */
 export interface WsClock {
@@ -3016,7 +3016,7 @@ export interface WsClock {
   type: "clock";
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "WsEvent".
  */
 export interface WsEvent {
@@ -3024,7 +3024,7 @@ export interface WsEvent {
   type: "event";
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "WsEvents".
  */
 export interface WsEvents {
@@ -3032,7 +3032,7 @@ export interface WsEvents {
   type: "events";
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "WsHello".
  */
 export interface WsHello {
@@ -3040,7 +3040,7 @@ export interface WsHello {
   type: "hello";
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "WsModels".
  */
 export interface WsModels {
@@ -3048,21 +3048,21 @@ export interface WsModels {
   type: "models";
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "WsPing".
  */
 export interface WsPing {
   type: "ping";
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "WsPong".
  */
 export interface WsPong {
   type: "pong";
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "WsResync".
  */
 export interface WsResync {
@@ -3070,7 +3070,7 @@ export interface WsResync {
   type: "resync";
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "WsResyncRequired".
  */
 export interface WsResyncRequired {
@@ -3078,7 +3078,7 @@ export interface WsResyncRequired {
   type: "resync_required";
 }
 /**
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "WsSnapshot".
  */
 export interface WsSnapshot {
@@ -3089,7 +3089,7 @@ export interface WsSnapshot {
 /**
  * Regeln der neuen Simulation. Alles ist optional: ohne Angabe gelten die Einstellungen, wie sie sind (sie bleiben über eine neue Simulation erhalten).
  *
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "RulesSpec".
  */
 export interface RulesSpec2 {
@@ -3104,7 +3104,7 @@ export interface RulesSpec2 {
 /**
  * `start`: die handgemachte Startwelt (nur Alex und Mira), `generated`: ein Dorf für genau diese Bewohner, `library`: eine Welt aus der Weltenbibliothek.
  *
- * This interface was referenced by `SimulacraApi`'s JSON-Schema
+ * This interface was referenced by `OnTheirOwnApi`'s JSON-Schema
  * via the `definition` "WorldSpec".
  */
 export interface WorldSpec2 {

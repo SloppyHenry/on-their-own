@@ -5,7 +5,7 @@ import asyncio
 import httpx
 import pytest
 
-from simulacra.models.runtime import LlamaRuntime, RuntimeFail
+from on_their_own.models.runtime import LlamaRuntime, RuntimeFail
 
 from .fakes import make_fake_llama, put_model
 

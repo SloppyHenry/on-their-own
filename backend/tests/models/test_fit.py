@@ -2,9 +2,9 @@
 
 import pytest
 
-from simulacra.models import fit as f
-from simulacra.models.hardware import Hardware
-from simulacra.models.rank import Item, Variant, make_variant, pick_variant, rank_key, recommend
+from on_their_own.models import fit as f
+from on_their_own.models.hardware import Hardware
+from on_their_own.models.rank import Item, Variant, make_variant, pick_variant, rank_key, recommend
 
 from .conftest import machine
 

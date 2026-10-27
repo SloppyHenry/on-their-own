@@ -3,7 +3,7 @@ import json
 import pytest
 
 from agents.conftest import make_sim
-from simulacra.agents.relations import DAILY_CAP, describe
+from on_their_own.agents.relations import DAILY_CAP, describe
 
 AI = ["alex", "mira"]
 
@@ -95,7 +95,7 @@ def test_reflection_can_only_nudge_in_small_steps_and_needs_sources(sim):
 
 
 async def test_reflection_with_relation_field_updates_the_relation_with_a_reason():
-    from simulacra.memory.reflection import Reflector                                      # noqa: F401
+    from on_their_own.memory.reflection import Reflector                                      # noqa: F401
     answer = {"reflections": [{"text": "Mira hilft mir oft, ich vertraue ihr mehr.", "importance": 6, "sources": [1, 2],
                                "relation": {"person": "mira", "trust": 3, "sympathy": 1}}]}
     s = make_sim(fn=lambda m, sch, p: json.dumps(answer))

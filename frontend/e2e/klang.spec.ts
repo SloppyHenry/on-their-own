@@ -5,7 +5,7 @@ import { freshWorld, openApp, openHouse, state, openSettingsMenu } from "./helpe
 test.use({ launchOptions: { args: ["--autoplay-policy=no-user-gesture-required"] } });
 test.beforeEach(async ({ request, page }) => {
   await freshWorld(request);
-  await page.addInitScript(() => { if (!localStorage.getItem("simulacra.ton")) localStorage.setItem("simulacra.ton", JSON.stringify({ an: true })); });
+  await page.addInitScript(() => { if (!localStorage.getItem("on-their-own.ton")) localStorage.setItem("on-their-own.ton", JSON.stringify({ an: true })); });
 });
 
 type Klang = { zustand(): string; laeuft: { musik: string; umgebung: string }; kanalPegel(c: string, ms?: number): Promise<number>; zaehler: Record<string, number> };
@@ -52,7 +52,7 @@ test("Einstellungen Ton: Lautstärke je Gerät, keine Einzelklänge und keine Qu
   await page.getByRole("tab", { name: "Ton", exact: true }).click();
   await expect(page.getByTestId("ton-stimme-alex").getByText("250 Hz", { exact: true })).toBeVisible();       // aus der Welt
   await expect(page.getByTestId("ton-gesamt")).toHaveValue("50");                              // Mischpult: je Gerät
-  await page.evaluate(() => localStorage.removeItem("simulacra.ton"));                        // auch ein anderer Browser hört dieselbe Stimme
+  await page.evaluate(() => localStorage.removeItem("on-their-own.ton"));                        // auch ein anderer Browser hört dieselbe Stimme
   await page.reload();
   await openSettingsMenu(page);
   await page.getByRole("tab", { name: "Ton", exact: true }).click();

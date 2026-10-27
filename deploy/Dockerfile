@@ -30,7 +30,7 @@ RUN pip install --no-deps -r requirements.lock
 RUN useradd --uid 10001 --user-group --no-create-home --shell /usr/sbin/nologin sim \
  && mkdir /data && chown sim:sim /data
 
-COPY backend/simulacra ./simulacra
+COPY backend/on_their_own ./on_their_own
 COPY --from=frontend /build/dist ./static
 
 USER sim
@@ -41,4 +41,4 @@ EXPOSE 8090
 HEALTHCHECK --interval=15s --timeout=5s --start-period=20s --retries=3 \
   CMD python -c "import os,sys,urllib.request as u; sys.exit(0 if u.urlopen('http://127.0.0.1:%s/api/health' % os.environ['SIM_PORT'], timeout=4).status == 200 else 1)"
 
-CMD ["python", "-m", "simulacra"]
+CMD ["python", "-m", "on_their_own"]

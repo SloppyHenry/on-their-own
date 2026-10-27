@@ -4,9 +4,9 @@ import sqlite3
 
 import pytest
 
-from simulacra.db.connection import Database
-from simulacra.world.engine import WorldEngine
-from simulacra.world.extend import WorldEditError
+from on_their_own.db.connection import Database
+from on_their_own.world.engine import WorldEngine
+from on_their_own.world.extend import WorldEditError
 
 from .conftest import ok, put, reject, stock, types
 
@@ -210,7 +210,7 @@ def test_spawn_object_rejections_leave_no_trace(eng):
 
 
 def test_spawn_respects_limits(eng):
-    from simulacra.world.rules import WorldRules
+    from on_their_own.world.rules import WorldRules
     eng.set_rules(WorldRules(max_objects=eng.state.object_count()))
     assert code_of(eng.edit.spawn_object, "map", "Karte", tile=[20, 19]) == "limit"
     stock(eng, "alex", wood=10)

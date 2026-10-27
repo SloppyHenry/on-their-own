@@ -4,7 +4,7 @@ import json
 
 from api.conftest import api, post
 
-from simulacra.stats.queries import compute
+from on_their_own.stats.queries import compute
 
 from .conftest import file_sim
 

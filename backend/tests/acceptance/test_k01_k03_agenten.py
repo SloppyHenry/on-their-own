@@ -38,7 +38,7 @@ async def test_k02_getrennte_gedaechtnisse():
 
 def test_k02_jede_gedaechtnisabfrage_filtert_nach_agent():
     """Code-Scan: jede Funktion mit SQL auf `memories` (außer der Beobachter-Statistik) bindet die Abfrage an `agent_id`."""
-    pkg = ROOT / "backend" / "simulacra"
+    pkg = ROOT / "backend" / "on_their_own"
     observer_only = {pkg / "stats" / "queries.py"}                                        # Statistik für den Beobachter, nie im Prompt
     sql = re.compile(r"(FROM|UPDATE|JOIN|INTO) memories\b")
     found = 0

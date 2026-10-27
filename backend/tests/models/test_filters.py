@@ -2,7 +2,7 @@
 
 import pytest
 
-from simulacra.models import curated, filters as flt
+from on_their_own.models import curated, filters as flt
 
 from .conftest import load
 

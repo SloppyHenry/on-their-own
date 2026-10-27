@@ -9,12 +9,12 @@ import itertools
 import json
 from pathlib import Path
 
-from simulacra.events.store import EventStore
-from simulacra.llm.providers import LLMError
+from on_their_own.events.store import EventStore
+from on_their_own.llm.providers import LLMError
 
 from agents.conftest import make_sim
 
-SENTINEL = Path("/tmp/simulacra_k15_darf_nicht_entstehen")
+SENTINEL = Path("/tmp/on_their_own_k15_darf_nicht_entstehen")
 
 
 def garbage():

@@ -1,4 +1,4 @@
-// Stellgrößen des Generators (AP18f) im Browser: Namen, Wertebereiche und die Anfrage daraus. Dieselben Werte wie `backend/simulacra/generator/stil.py`.
+// Stellgrößen des Generators (AP18f) im Browser: Namen, Wertebereiche und die Anfrage daraus. Dieselben Werte wie `backend/on_their_own/generator/stil.py`.
 import type { Stellgroessen } from "../types/generated";
 
 export type Stil = Required<Stellgroessen>;

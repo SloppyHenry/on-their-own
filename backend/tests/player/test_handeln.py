@@ -5,8 +5,8 @@ import json
 import pytest
 from agents.conftest import make_sim, put
 
-from simulacra.simulation import mitleben
-from simulacra.world import spielart
+from on_their_own.simulation import mitleben
+from on_their_own.world import spielart
 from tests.api.conftest import api, post
 
 

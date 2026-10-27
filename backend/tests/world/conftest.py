@@ -1,7 +1,7 @@
 import pytest
 
-from simulacra.db.connection import Database
-from simulacra.world.engine import WorldEngine
+from on_their_own.db.connection import Database
+from on_their_own.world.engine import WorldEngine
 
 
 @pytest.fixture

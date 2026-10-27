@@ -7,8 +7,8 @@ from pathlib import Path
 import pytest
 from agents.conftest import make_sim
 
-from simulacra.params.registry import REGISTRY, SPEC_LIST, schema
-from simulacra.params.spec import EFFECTS, GROUPS, validate
+from on_their_own.params.registry import REGISTRY, SPEC_LIST, schema
+from on_their_own.params.spec import EFFECTS, GROUPS, validate
 
 ROOT = Path(__file__).resolve().parents[2]
 IDS = [s.key for s in SPEC_LIST]

@@ -4,10 +4,10 @@ Alle anderen Welt-Tests laufen auf der festen Testwelt (siehe tests/conftest.py)
 
 import pytest
 
-from simulacra.db.connection import Database
-from simulacra.world import loader
-from simulacra.world.engine import WorldEngine
-from simulacra.world.pathfinding import Pathfinder
+from on_their_own.db.connection import Database
+from on_their_own.world import loader
+from on_their_own.world.engine import WorldEngine
+from on_their_own.world.pathfinding import Pathfinder
 
 START_WORLD = loader.DATA_DIR / "world_default.json"
 

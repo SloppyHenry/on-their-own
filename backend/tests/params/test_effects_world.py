@@ -3,7 +3,7 @@
 import pytest
 from world.conftest import ok, put, reject, stock
 
-from simulacra.agents.needs import need_words
+from on_their_own.agents.needs import need_words
 
 from .conftest import patch
 

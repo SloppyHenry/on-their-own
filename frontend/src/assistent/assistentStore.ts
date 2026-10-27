@@ -11,7 +11,7 @@ import { FALLBACK_LIMITS } from "./begrenzung";
 import { blankResident, fromTemplate, newDraft, pairKey, START_IDS, toRequest, type Draft, type ResidentDraft, type WorldDraft } from "./entwurf";
 import { wuerfelBeziehung, wuerfelFigur, type Rel } from "./wuerfeln";
 
-const STORAGE = "simulacra.entwurf";
+const STORAGE = "on-their-own.entwurf";
 
 export interface PreviewState {
   /** Für welchen Entwurf die Vorschau gilt (Anfragekörper als Text). */

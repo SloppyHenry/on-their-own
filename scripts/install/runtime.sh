@@ -3,7 +3,7 @@
 # ---------- 4: Laufzeit llama.cpp ----------
 # Wählt aus den GitHub-Releases (ggml-org/llama.cpp) die passende Datei; Kandidaten nach Vorliebe, mit Prüfsumme (digest der Release-API).
 llama_candidates() {
-  local rel; rel="$(curl -fsSL "${SIMULACRA_RELEASES_URL:-https://api.github.com/repos/ggml-org/llama.cpp/releases?per_page=12}")" || die "GitHub-Releases nicht erreichbar."
+  local rel; rel="$(curl -fsSL "${OTO_RELEASES_URL:-https://api.github.com/repos/ggml-org/llama.cpp/releases?per_page=12}")" || die "GitHub-Releases nicht erreichbar."
   printf '%s' "$rel" | py -c '
 import json, re, sys
 os_, arch, gpu, cuda_major = sys.argv[1:5]

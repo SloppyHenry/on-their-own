@@ -5,9 +5,9 @@ import json
 import pytest
 from agents.conftest import make_sim
 
-from simulacra.agents.schema import META_RE
-from simulacra.events_user.welt import CATALOG, FREQUENCIES, Weltereignisse
-from simulacra.world import loader
+from on_their_own.agents.schema import META_RE
+from on_their_own.events_user.welt import CATALOG, FREQUENCIES, Weltereignisse
+from on_their_own.world import loader
 from tests.conftest import START_WORLD
 
 DAY = 1440
@@ -47,7 +47,7 @@ def test_same_seed_same_events_and_other_seed_differs(sim):
 
 def test_conditions_are_respected(sim):
     cat = {e["id"]: e for e in json.loads(CATALOG.read_text(encoding="utf-8"))["ereignisse"]}
-    from simulacra.world import clock
+    from on_their_own.world import clock
     for weather in ("clear", "storm", "rain", "fog"):
         for minute, eid in scan(sim, "oft", days=12, weather=weather):
             cond = cat[eid].get("wenn", {})

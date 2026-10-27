@@ -1,6 +1,6 @@
 """Bestand der installierten Modelle (AP17c-3)."""
 
-from simulacra.models.store import Installed, ModelStore
+from on_their_own.models.store import Installed, ModelStore
 
 from .fakes import put_model
 

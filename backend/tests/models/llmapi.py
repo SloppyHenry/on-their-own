@@ -10,7 +10,7 @@ from fastapi.testclient import TestClient
 from agents.conftest import make_sim
 from api.conftest import wait_one_minute
 
-from simulacra.api.app import create_app
+from on_their_own.api.app import create_app
 
 from .conftest import machine
 from .fakes import FakeHub

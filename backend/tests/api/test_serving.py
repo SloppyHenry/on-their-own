@@ -8,7 +8,7 @@ from api.conftest import api
 @pytest.fixture
 def dist(tmp_path):
     (tmp_path / "assets").mkdir()
-    (tmp_path / "index.html").write_text("<!doctype html><title>Simulacra</title><div id=root></div>")
+    (tmp_path / "index.html").write_text("<!doctype html><title>On Their Own</title><div id=root></div>")
     (tmp_path / "assets" / "app-abc123.js").write_text("console.log(1)")
     (tmp_path / "favicon.svg").write_text("<svg/>")
     (tmp_path.parent / "geheim.txt").write_text("nicht ausliefern")
@@ -97,7 +97,7 @@ def test_bearer_header_works_for_scripts(dist):
 
 
 def test_repeated_wrong_tokens_are_throttled(monkeypatch):
-    monkeypatch.setattr("simulacra.api.auth.FAIL_DELAY_S", 0.0)
+    monkeypatch.setattr("on_their_own.api.auth.FAIL_DELAY_S", 0.0)
     with api(access_token=TOKEN) as c:
         codes = [c.post("/api/auth/login", json={"token": f"x{i}"}).status_code for i in range(12)]
         assert codes[:10] == [401] * 10 and codes[10:] == [429, 429]

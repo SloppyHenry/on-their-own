@@ -15,7 +15,7 @@ export const EXAMPLES = [
   "Am zentralen Platz findet morgen ein Markt statt.",
 ];
 
-const KEY = "simulacra.composer.recent";
+const KEY = "on-their-own.composer.recent";
 const prep = (name: string) => (/^(Wald|See|Garten|Platz|Zentraler Platz)/.test(name) ? (name.startsWith("See") ? "am" : "im") : "in");
 
 export function recent(): string[] {

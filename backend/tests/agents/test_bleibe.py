@@ -2,11 +2,11 @@
 
 import pytest
 
-from simulacra.agents.model import AgentProfile, Personality
-from simulacra.config import Settings
-from simulacra.generator.generate import new_world
-from simulacra.llm.providers import FakeProvider
-from simulacra.simulation.builder import Simulation
+from on_their_own.agents.model import AgentProfile, Personality
+from on_their_own.config import Settings
+from on_their_own.generator.generate import new_world
+from on_their_own.llm.providers import FakeProvider
+from on_their_own.simulation.builder import Simulation
 
 from tests.agents.conftest import chooser, needs, put, with_goals
 from tests.agents.test_perception_options import all_opts, percept

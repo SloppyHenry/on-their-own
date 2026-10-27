@@ -4,8 +4,8 @@ import random
 
 import pytest
 
-from simulacra.generator.generate import GenerationError, dumps, new_world
-from simulacra.generator.stil import CHOICES, RANGES, Stil, StilError
+from on_their_own.generator.generate import GenerationError, dumps, new_world
+from on_their_own.generator.stil import CHOICES, RANGES, Stil, StilError
 
 
 def people(n):

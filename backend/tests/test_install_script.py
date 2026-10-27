@@ -44,7 +44,7 @@ esac""")
     meminfo = tmp_path / "meminfo"
     meminfo.write_text(f"MemTotal:       {mem_gb * 1024 * 1024} kB\n")
     env = dict(os.environ)
-    env.update({"PATH": f"{bin_dir}:{env['PATH']}", "SIMULACRA_MEMINFO": str(meminfo), "SIMULACRA_NO_VULKAN": "1", "SIM_DATA_DIR": str(tmp_path / "data"), "HOME": str(tmp_path / "home")})
+    env.update({"PATH": f"{bin_dir}:{env['PATH']}", "OTO_MEMINFO": str(meminfo), "OTO_NO_VULKAN": "1", "SIM_DATA_DIR": str(tmp_path / "data"), "HOME": str(tmp_path / "home")})
     return env
 
 
@@ -152,11 +152,11 @@ def test_belegte_grafikkarte_zaehlt_nur_den_freien_speicher(tmp_path):
 
 def test_zweiter_lauf_behaelt_das_token(tmp_path):
     """Echter Lauf (ohne Netz, ohne Dienst): `--headless --token` schreibt den Block; ein zweiter Lauf darf das Token nicht verlieren."""
-    root = tmp_path / "simulacra"
-    (root / "backend" / "simulacra" / "data").mkdir(parents=True)
+    root = tmp_path / "on_their_own"
+    (root / "backend" / "on_their_own" / "data").mkdir(parents=True)
     shutil.copy(SCRIPT, root / "install.sh")
     shutil.copytree(ROOT / "scripts" / "install", root / "scripts" / "install")
-    shutil.copy(ROOT / "backend" / "simulacra" / "data" / "models.json", root / "backend" / "simulacra" / "data" / "models.json")
+    shutil.copy(ROOT / "backend" / "on_their_own" / "data" / "models.json", root / "backend" / "on_their_own" / "data" / "models.json")
     env_dir = tmp_path / "m"
     env_dir.mkdir()
     env = machine(env_dir)
@@ -173,18 +173,18 @@ def test_zweiter_lauf_behaelt_das_token(tmp_path):
     second = run_once()
     assert second.returncode == 0, second.stderr
     assert [ln for ln in envf.read_text().splitlines() if ln.startswith("SIM_ACCESS_TOKEN=")] == t1
-    assert envf.read_text().count("# --- simulacra install") == 1
+    assert envf.read_text().count("# --- on-their-own install") == 1
     assert oct(envf.stat().st_mode & 0o777) == "0o600"
 
 
 def test_ohne_token_schalter_steht_kein_token_in_der_env(tmp_path):
-    root = tmp_path / "simulacra"
+    root = tmp_path / "on_their_own"
     (root / "backend").mkdir(parents=True)
     harness = tmp_path / "harness.sh"
     harness.write_text('set -euo pipefail\nsource <(sed -n "/^write_env()/,/^}/p; /^py()/,/^}/p; /^have()/p; /^ok()/p; /^warn()/p; /^plan()/p; /^MARK/p" "$1" "$(dirname "$1")/scripts/install/model.sh")\nROOT="$2"; DRY=0; HEADLESS=1; TOKEN=0; NO_LLM=1; MODEL_ALIAS=""; LLM_PORT=8081; C_W=""; C_0=""; C_OK=""; C_D=""\nwrite_env\n')
     envf = root / "backend" / ".env"
     # ein früher geschriebener Block mit Token (alter Lauf) verschwindet, wenn --token fehlt; eigene Einträge bleiben
-    envf.write_text("EIGEN=1\n# --- simulacra install (verwaltet von install.sh) ---\nSIM_ACCESS_TOKEN=altes\n# --- ende simulacra install ---\n")
+    envf.write_text("EIGEN=1\n# --- on-their-own install (verwaltet von install.sh) ---\nSIM_ACCESS_TOKEN=altes\n# --- ende on-their-own install ---\n")
     env_dir = tmp_path / "m"
     env_dir.mkdir()
     r = subprocess.run(["bash", str(harness), str(SCRIPT), str(root)], env=machine(env_dir), capture_output=True, text=True, timeout=30)

@@ -1,6 +1,6 @@
 """Backend für Browser-Tests: echte API und Welt, aber ein deterministisches Fake-LLM statt des Modells auf maintux.
 
-Start: backend/.venv/bin/python scripts/e2e_server.py --port 8191 --data-dir /tmp/simulacra-e2e
+Start: backend/.venv/bin/python scripts/e2e_server.py --port 8191 --data-dir /tmp/on-their-own-e2e
 Beide Agenten beginnen im selben Zimmer, wählen bevorzugt Gespräche und wandern sonst reihum durch die angebotenen Optionen.
 """
 import argparse
@@ -16,10 +16,10 @@ import uvicorn  # noqa: E402
 
 import e2e_models  # noqa: E402
 
-from simulacra.api.app import create_app  # noqa: E402
-from simulacra.config import Settings  # noqa: E402
-from simulacra.llm.providers import FakeProvider  # noqa: E402
-from simulacra.simulation.builder import Simulation  # noqa: E402
+from on_their_own.api.app import create_app  # noqa: E402
+from on_their_own.config import Settings  # noqa: E402
+from on_their_own.llm.providers import FakeProvider  # noqa: E402
+from on_their_own.simulation.builder import Simulation  # noqa: E402
 
 LINES = ["Hallo, schön dich zu sehen!", "Wie war dein Morgen?", "Ich habe noch viel vor heute.", "Hast du Holz für mich übrig?", "Das Wetter ist angenehm."]
 
@@ -81,12 +81,12 @@ def build(data_dir: Path) -> Simulation:
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--port", type=int, default=8191)
-    ap.add_argument("--data-dir", type=Path, default=Path("/tmp/simulacra-e2e"))
+    ap.add_argument("--data-dir", type=Path, default=Path("/tmp/on-their-own-e2e"))
     ap.add_argument("--world", type=Path, default=None, help="Weltdatei statt der Startwelt (z. B. von `cli world new`)")
     ap.add_argument("--inject-rate", type=int, default=None, help="Eingaben je Minute (nur Tests; Standard wie im Betrieb)")
     args = ap.parse_args()
     if args.world:
-        from simulacra.world import loader
+        from on_their_own.world import loader
         loader.DEFAULT_WORLD = args.world
     sim = build(args.data_dir)
     if args.inject_rate:
@@ -114,8 +114,8 @@ if __name__ == "__main__":
     @app.post("/api/e2e/player")
     async def e2e_player(body: dict):
         """Nur Testserver: eigene Figur wählen (Spielart Leben), bis der Assistent sie kann (AP18h-c1). Ohne `agent` wird die Wahl aufgehoben."""
-        from simulacra.simulation import mitleben
-        from simulacra.world import spielart
+        from on_their_own.simulation import mitleben
+        from on_their_own.world import spielart
 
         def work():
             with sim.engine.db.transaction():

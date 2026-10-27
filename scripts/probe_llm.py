@@ -20,9 +20,9 @@ import httpx
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "backend"))
-from simulacra.config import Settings  # noqa: E402
-from simulacra.models.probe_data import SCENARIOS, build_messages  # noqa: E402
-from simulacra.models.probe import validate  # noqa: E402
+from on_their_own.config import Settings  # noqa: E402
+from on_their_own.models.probe_data import SCENARIOS, build_messages  # noqa: E402
+from on_their_own.models.probe import validate  # noqa: E402
 
 THINK = {"default": {}, "off": {"chat_template_kwargs": {"enable_thinking": False}},
          "low": {"reasoning_effort": "low"}}

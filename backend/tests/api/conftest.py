@@ -6,7 +6,7 @@ from contextlib import contextmanager
 from fastapi.testclient import TestClient
 
 from agents.conftest import make_sim
-from simulacra.api.app import create_app
+from on_their_own.api.app import create_app
 
 
 def wait_one_minute(messages, schema, params):

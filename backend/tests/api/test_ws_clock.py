@@ -6,8 +6,8 @@ from types import SimpleNamespace
 
 import pytest
 
-from simulacra.api import ws as ws_module
-from simulacra.events.bus import EventBus
+from on_their_own.api import ws as ws_module
+from on_their_own.events.bus import EventBus
 
 
 class FakeSocket:

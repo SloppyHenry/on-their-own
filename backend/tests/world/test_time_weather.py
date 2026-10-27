@@ -1,6 +1,6 @@
 import pytest
 
-from simulacra.world import clock, weather
+from on_their_own.world import clock, weather
 
 from .conftest import ok, reject, types
 
@@ -39,8 +39,8 @@ def test_natural_weather_changes_deterministically(eng):
     ev = [e for e in eng.advance(3000) if e.type == "world.weather_changed"]
     assert ev and all(e.data["cause"] == "nature" for e in ev)
     kinds1 = [e.data["to"] for e in ev]
-    from simulacra.db.connection import Database
-    from simulacra.world.engine import WorldEngine
+    from on_their_own.db.connection import Database
+    from on_their_own.world.engine import WorldEngine
     eng2 = WorldEngine.create(Database(":memory:"))
     kinds2 = [e.data["to"] for e in eng2.advance(3000) if e.type == "world.weather_changed"]
     assert kinds1 == kinds2
@@ -69,8 +69,8 @@ def test_every_weather_has_effects_defined():
 async def test_committed_minute_is_readable_from_other_threads_while_ticking(tmp_path):
     """`committed_minute` braucht keine Datenbankverbindung: der Test-Thread liest, während der DB-Thread tickt."""
     import threading
-    from simulacra.db.connection import Database
-    from simulacra.world.engine import WorldEngine
+    from on_their_own.db.connection import Database
+    from on_their_own.world.engine import WorldEngine
     eng = WorldEngine.create(Database(tmp_path / "t.db"))
     start, seen, failures, stop = eng.committed_minute, [], [], threading.Event()
 
