@@ -54,6 +54,8 @@ check_machine() {
     if [ "$nm" -ge 22 ] 2>/dev/null; then NODE_OK=1; ok "node $(node --version) ✓"; else warn "node $(node --version) ist zu alt (22 oder neuer nötig)"; fi
   else warn "node fehlt (wird in Schritt 2 geholt)"; fi
   [ "$FREE_MB" -ge 3000 ] || warn "Wenig Platz frei (unter 3 GB); Modelle brauchen mehr."
+  if port_busy "$APP_PORT"; then warn "Port $APP_PORT (Oberfläche) ist schon belegt. Läuft dort eine frühere Installation, ist das in Ordnung; sonst einen anderen Port wählen: SIMULACRA_PORT=$((APP_PORT + 1)) ./install.sh"; fi
+  if port_busy "$LLM_PORT"; then warn "Port $LLM_PORT (Modell) ist schon belegt. Läuft dort eine frühere Installation, ist das in Ordnung; sonst: SIMULACRA_LLM_PORT=$((LLM_PORT + 1)) ./install.sh"; fi
 }
 
 # ---------- 2: Voraussetzungen ----------

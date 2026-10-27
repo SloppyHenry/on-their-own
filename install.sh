@@ -46,6 +46,8 @@ warn() { printf '  %s%s%s\n' "$C_W" "$*" "$C_0"; }
 plan() { printf '  %s→ würde %s%s\n' "$C_D" "$*" "$C_0"; }
 die()  { printf '%sFehler: %s%s\n' "$C_W" "$*" "$C_0" >&2; exit 1; }
 have() { command -v "$1" >/dev/null 2>&1; }
+# port_busy PORT: lauscht auf 127.0.0.1 schon jemand? (reines bash, ohne lsof/nc)
+port_busy() { (exec 3<>"/dev/tcp/127.0.0.1/$1") 2>/dev/null; }
 
 # ask "Frage" j|n  → 0 = ja. Mit --yes, --dry-run oder ohne Terminal gilt die Standardantwort.
 ask() {
