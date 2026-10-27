@@ -33,7 +33,7 @@ Was On Their Own bewusst vereinfacht, was gemessen nicht ideal ist und was als N
 - **Zugangsschutz** ist ein gemeinsames Token über HTTP ohne TLS, gedacht fürs Heimnetz, keine Benutzerverwaltung. Die Rate-Grenze für freie Eingaben (10/min) und für Anmeldungen gilt im Speicher und beginnt nach einem Neustart neu.
 - **Kein Rückspulen** (optional laut Auftrag): Laden eines Spielstands oder Autosaves ist das Zurückspringen.
 - **Kein nächtliches Backup** ohne Freigabe; Backup und Wiederherstellung von Hand ([betrieb.md](betrieb.md)).
-- **Neustart von maintux** als Teil der AP10-Abnahme ausgesetzt (Entscheidung Henry); der Container hat `restart: unless-stopped`, Docker startet beim Hochfahren.
+- **Neustart von maintux** als Teil der AP10-Abnahme ausgesetzt (Entscheidung); der Container hat `restart: unless-stopped`, Docker startet beim Hochfahren.
 
 ## Oberfläche
 
@@ -55,5 +55,5 @@ Was On Their Own bewusst vereinfacht, was gemessen nicht ideal ist und was als N
 2. **Mitspieler** (offene Frage 11): Menschen steuern eigene Figuren, die KIs sehen sie als gleichwertige Bewohner.
 3. **Weltgenerator** (AP12) und Hochskalieren auf mehr Figuren (Ereignisse sind dafür bereits verdichtet).
 4. **Semantische Erinnerungssuche** mit kleinem Embedding-Modell.
-5. **Selbst gestalten, eigene Figuren, Epochen, Baustein-Editor mit Funktionen für die KI** (Wunsch Henry, 14.10.2026): [ausblick.md](ausblick.md).
+5. **Selbst gestalten, eigene Figuren, Epochen, Baustein-Editor mit Funktionen für die KI** (Wunsch, 14.10.2026): [ausblick.md](ausblick.md).
 6. **Zweiter Modell-Slot** oder Batch-Entscheidungen, wenn mehr Agenten dazukommen.

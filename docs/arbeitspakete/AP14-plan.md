@@ -1,6 +1,6 @@
 # AP14 – Plan: Welt genau wie Mockup A
 
-**Auftrag:** Henry, 13.10.2026 (Frage 22): Die Welt soll **genau** aussehen wie Bild A (`docs/mockups/welt-optik/A-mischung-abend.png`, Code `world.js`): gleicher Bildausschnitt, gleiche Skalierung, gleiche Bäume, See mit Boot, Effekte. Klick aufs Haus zeigt es von innen. Kamera „wie A, aber beweglich“, Startwelt „ja, Welt wie A“. Branch `ap/14-startwelt-a` (baut auf `ap/13-weltoptik` auf).
+**Auftrag:** 13.10.2026 (Frage 22): Die Welt soll **genau** aussehen wie Bild A (`docs/mockups/welt-optik/A-mischung-abend.png`, Code `world.js`): gleicher Bildausschnitt, gleiche Skalierung, gleiche Bäume, See mit Boot, Effekte. Klick aufs Haus zeigt es von innen. Kamera „wie A, aber beweglich“, Startwelt „ja, Welt wie A“. Branch `ap/14-startwelt-a` (baut auf `ap/13-weltoptik` auf).
 
 ## Entscheidungen
 - **Bild:** `createWorld` aus `world.js` wird 1:1 übernommen (Puffer 320 × 200, Projektion `wProject`, Bodenregeln `wTexel`, Himmel, Wolken, Hügel, Dunst, Wasserglitzern, Rauch, Farbstimmung, Lichtschein, Tilt-Shift, Teilchen, Vignette). Nur die Figuren, Dinge und Pflanzen kommen aus dem Weltzustand statt fest aus dem Mockup.
@@ -17,4 +17,4 @@
 4. Browser-Tests, Leistungsmessung, Bilder, Doku, Statusbericht.
 5. Innenräume nach Mockup innen2: Tapeten, Böden, Einrichtung, Licht, Raum groß (Frage 23).
 
-Ausrollen nur nach Henrys Freigabe.
+Ausrollen nur nach Freigabe.

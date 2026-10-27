@@ -75,7 +75,7 @@ Datei: [`docs/mockups/gestalten-neu.html`](../mockups/gestalten-neu.html) (Stil 
 
 ## 4. Zerlegung in Teilschritte
 
-Reihenfolge wie im Rework-Plan nach AP18e und vor AP18f/g. Jeder Teil hat seinen Branch, nie `git add -A`, Dateien höchstens 400 Zeilen, Abnahme durch dich vor dem nächsten.
+Reihenfolge wie im Rework-Plan nach AP18e und vor AP18f/g. Jeder Teil hat seinen Branch, nie `git add -A`, Dateien höchstens 400 Zeilen, Abnahme vor dem nächsten.
 
 ### AP16a – Aktionen, Ableiten, Prüfen, API (Backend, L)
 1. **Spike zuerst (klein):** Kacheln aus gespeicherten Formen ableiten. `tiles.py` bekommt eine Eingabe aus `look.regions[*].shapes` statt aus `Layout`; Abgleichstest: die Formen der Seeds 7, 12, 31, 58 (Fixtures) ergeben dieselben Kacheln wie der Generator. Ohne das fällt der Rest. Ergebnis des Spikes entscheidet Frage 80 (Legacy-Maske).
@@ -127,7 +127,7 @@ Dieser Schritt hat **keinen Produktivcode** geändert. Neu sind nur das Mockup (
 
 ## Anhang: der Bericht vom 15.10.2026 (altes Mockup, abgenommen)
 
-Plan: [AP16-plan.md](../arbeitspakete/AP16-plan.md). Entscheidungen zu Frage 27 bis 30: **Entwurf** statt Sofortbau, Umfang wie vorgeschlagen, **Mockup zuerst** (Empfehlungen angenommen); zu Frage 28 hat Henry am 15.10.2026 anders entschieden: **Gestalten nur vor Beginn einer Runde**, die Agenten dürfen nicht merken, dass es eine höhere Instanz gibt ([AP17-plan.md](../arbeitspakete/AP17-plan.md)). Das Mockup zeigt das Werkzeug deshalb als Schritt „Neue Simulation › Welt gestalten“. Dieses Dokument zeigt das Mockup; im Spiel ist noch nichts davon gebaut.
+Plan: [AP16-plan.md](../arbeitspakete/AP16-plan.md). Entscheidungen zu Frage 27 bis 30: **Entwurf** statt Sofortbau, Umfang wie vorgeschlagen, **Mockup zuerst** (Empfehlungen angenommen); zu Frage 28 hat die Projektleitung am 15.10.2026 anders entschieden: **Gestalten nur vor Beginn einer Runde**, die Agenten dürfen nicht merken, dass es eine höhere Instanz gibt ([AP17-plan.md](../arbeitspakete/AP17-plan.md)). Das Mockup zeigt das Werkzeug deshalb als Schritt „Neue Simulation › Welt gestalten“. Dieses Dokument zeigt das Mockup; im Spiel ist noch nichts davon gebaut.
 
 **Ansehen:** `docs/mockups/welt-optik/gestalten.html` im Browser öffnen (Doppelklick genügt, kein Server nötig). Mit `?demo=1` ist ein Entwurf vorbefüllt, mit `?view=in&room=kueche` startet die Innenansicht.
 

@@ -17,17 +17,17 @@ Jedes Paket hat eine eigene Datei unter [arbeitspakete/](arbeitspakete/) mit Zie
 | AP09 | [AP09-spielstaende.md](arbeitspakete/AP09-spielstaende.md) | Speichern, Laden, Export, Statistik | §14 | AP07 | M |
 | AP10 | [AP10-container.md](arbeitspakete/AP10-container.md) | Docker-Container, Betrieb auf maintux | §2, §19 | AP04 (Probe), AP09 (final) | M |
 | AP11 | [AP11-abnahme.md](arbeitspakete/AP11-abnahme.md) | Stabilisierung, Abnahme, Dokumentation | §15, §17, §19 | alle | M |
-| AP12 | [AP12-weltgenerator.md](arbeitspakete/AP12-weltgenerator.md) | Weltgenerator: Straßen, Gebäude, Vegetation im Stil der Startwelt (Zusatz, nach AP11; neu geplant 14.10.2026 in [AP12-plan.md](arbeitspakete/AP12-plan.md), Teilpakete AP12a–c) | Zusatz Henry | AP04, AP08, AP09, AP13–AP15 | XL |
-| AP13 | [AP13-weltoptik.md](arbeitspakete/AP13-weltoptik.md) | Weltoptik „Mischung“ (Pixelwelt mit Tiefe) und Vorbereitung der Mitspieler-Steuerung (Point-and-Click, Spracheingabe) | Zusatz Henry | AP04, AP11 | L |
-| AP14 | [AP14-startwelt-innenbereiche.md](arbeitspakete/AP14-startwelt-innenbereiche.md) · [Plan](arbeitspakete/AP14-plan.md) | Welt genau wie Mockup A: Startwelt nach dem Bild, Haus innen hinter der Tür als Übergang, Dorfansicht mit Zoom in ganzen Stufen | Zusatz Henry | AP13 | L |
-| AP15 | [AP15-dinge.md](arbeitspakete/AP15-dinge.md) | Dinge im Dorf: Deko aus Mockup A und innen2 wird benutzbar (Boot, Laternen, Briefkasten, Ernte, Katze, Ablagen …) | Zusatz Henry | AP14 | L |
-| AP16 | [AP16-plan.md](arbeitspakete/AP16-plan.md) | Gestalten: Wege, Seen, Gärten, Häuser, Bäume und Deko selbst setzen, Häuser von innen einrichten (Entwurf, Vorschau, Übernehmen); Plan vom 14.10.2026, Fragen 27–30 beantwortet; Schritt 0 neu (21.10.2026, [Bericht](status/AP16-schritt0.md), Mockup `mockups/gestalten-neu.html`) wartet auf Abnahme, Fragen 77–82 | Zusatz Henry (Ausblick) | AP12c | L |
-| AP18 | [AP18-plan.md](arbeitspakete/AP18-plan.md) · [AP18h-plan.md](arbeitspakete/AP18h-plan.md) · [Startprompts](arbeitspakete/AP18-start-prompts.md) | Rework „ein Spiel aus einem Guss“: Esc-Rückweg (a), HUD und Formensprache des Menüs (b), Sprech- und Denkblasen (c), Spielarten Leben/Gott (d), Weltenbibliothek und Welt-Werkstatt mit leerer Welt (e), Generator mit Dorfformen und Stellgrößen (f), mehr Bauvorlagen für Bewohner (g), Mitleben mit eigener Figur (h), Ereignisse von allein (i); Mockup `docs/mockups/rework.html`, Schritt 0 vom 19.10.2026 **Stand 20.10.2026:** a–g und i gebaut, von Henry getestet und am 21.10.2026 nach `main` gemergt (nicht ausgerollt), [Bericht](status/AP18.md); h: Schritt 0 vorbereitet (Mockup `mitleben.html`, Fragen 83–86, [Bericht](status/AP18h-schritt0.md)), wartet auf Abnahme | Zusatz Henry | AP17, AP16 (Werkzeuge zwischen e und f) | XL |
-| AP19 | [AP19-plan.md](arbeitspakete/AP19-plan.md) · [Startprompts](arbeitspakete/AP19-24-start-prompts.md) | Aussehen der Figuren als Daten und Avatar-Editor (Haut, Frisur, Kleidung, Zubehör), Alex und Mira pixelgleich | Zusatz Henry (Ausblick 2) | AP18b, AP17b | L |
-| AP20 | [AP20-plan.md](arbeitspakete/AP20-plan.md) | Musik-Editor: Stücke als Daten, Bibliothek, Zuordnung „wann spielt was“, Motive zeichnen | Zusatz Henry (18.10.2026) | AP18b | L |
-| AP21 | [AP21-plan.md](arbeitspakete/AP21-plan.md) | Gegenstände als Daten: Katalog je Paket, Baukasten für Bedingungen und Wirkungen, Gleichlauf-Test (keine sichtbare Änderung) | Zusatz Henry (Ausblick 4) | AP18g | L |
-| AP22 | [AP22-plan.md](arbeitspakete/AP22-plan.md) | Epochen: Rahmen (Mittelalter als Paket), dann Industrialisierung, Gegenwart, Zukunft je mit Mockup | Zusatz Henry (Ausblick 3) | AP21, AP18f, AP20a | XL |
-| AP23 | [AP23-plan.md](arbeitspakete/AP23-plan.md) | Baustein-Editor: eigene Dinge, Möbel, Häuser und Figurenteile zeichnen, Funktionen aus dem Baukasten, Prüfung und Probelauf | Zusatz Henry (Ausblick 4, 17.10.2026) | AP21, AP18e, AP16, AP22a | XL |
+| AP12 | [AP12-weltgenerator.md](arbeitspakete/AP12-weltgenerator.md) | Weltgenerator: Straßen, Gebäude, Vegetation im Stil der Startwelt (Zusatz, nach AP11; neu geplant 14.10.2026 in [AP12-plan.md](arbeitspakete/AP12-plan.md), Teilpakete AP12a–c) | Zusatz | AP04, AP08, AP09, AP13–AP15 | XL |
+| AP13 | [AP13-weltoptik.md](arbeitspakete/AP13-weltoptik.md) | Weltoptik „Mischung“ (Pixelwelt mit Tiefe) und Vorbereitung der Mitspieler-Steuerung (Point-and-Click, Spracheingabe) | Zusatz | AP04, AP11 | L |
+| AP14 | [AP14-startwelt-innenbereiche.md](arbeitspakete/AP14-startwelt-innenbereiche.md) · [Plan](arbeitspakete/AP14-plan.md) | Welt genau wie Mockup A: Startwelt nach dem Bild, Haus innen hinter der Tür als Übergang, Dorfansicht mit Zoom in ganzen Stufen | Zusatz | AP13 | L |
+| AP15 | [AP15-dinge.md](arbeitspakete/AP15-dinge.md) | Dinge im Dorf: Deko aus Mockup A und innen2 wird benutzbar (Boot, Laternen, Briefkasten, Ernte, Katze, Ablagen …) | Zusatz | AP14 | L |
+| AP16 | [AP16-plan.md](arbeitspakete/AP16-plan.md) | Gestalten: Wege, Seen, Gärten, Häuser, Bäume und Deko selbst setzen, Häuser von innen einrichten (Entwurf, Vorschau, Übernehmen); Plan vom 14.10.2026, Fragen 27–30 beantwortet; Schritt 0 neu (21.10.2026, [Bericht](status/AP16-schritt0.md), Mockup `mockups/gestalten-neu.html`) wartet auf Abnahme, Fragen 77–82 | Zusatz (Ausblick) | AP12c | L |
+| AP18 | [AP18-plan.md](arbeitspakete/AP18-plan.md) · [AP18h-plan.md](arbeitspakete/AP18h-plan.md) · [Startprompts](arbeitspakete/AP18-start-prompts.md) | Rework „ein Spiel aus einem Guss“: Esc-Rückweg (a), HUD und Formensprache des Menüs (b), Sprech- und Denkblasen (c), Spielarten Leben/Gott (d), Weltenbibliothek und Welt-Werkstatt mit leerer Welt (e), Generator mit Dorfformen und Stellgrößen (f), mehr Bauvorlagen für Bewohner (g), Mitleben mit eigener Figur (h), Ereignisse von allein (i); Mockup `docs/mockups/rework.html`, Schritt 0 vom 19.10.2026 **Stand 20.10.2026:** a–g und i gebaut, getestet und am 21.10.2026 nach `main` gemergt (nicht ausgerollt), [Bericht](status/AP18.md); h: Schritt 0 vorbereitet (Mockup `mitleben.html`, Fragen 83–86, [Bericht](status/AP18h-schritt0.md)), wartet auf Abnahme | Zusatz | AP17, AP16 (Werkzeuge zwischen e und f) | XL |
+| AP19 | [AP19-plan.md](arbeitspakete/AP19-plan.md) · [Startprompts](arbeitspakete/AP19-24-start-prompts.md) | Aussehen der Figuren als Daten und Avatar-Editor (Haut, Frisur, Kleidung, Zubehör), Alex und Mira pixelgleich | Zusatz (Ausblick 2) | AP18b, AP17b | L |
+| AP20 | [AP20-plan.md](arbeitspakete/AP20-plan.md) | Musik-Editor: Stücke als Daten, Bibliothek, Zuordnung „wann spielt was“, Motive zeichnen | Zusatz (18.10.2026) | AP18b | L |
+| AP21 | [AP21-plan.md](arbeitspakete/AP21-plan.md) | Gegenstände als Daten: Katalog je Paket, Baukasten für Bedingungen und Wirkungen, Gleichlauf-Test (keine sichtbare Änderung) | Zusatz (Ausblick 4) | AP18g | L |
+| AP22 | [AP22-plan.md](arbeitspakete/AP22-plan.md) | Epochen: Rahmen (Mittelalter als Paket), dann Industrialisierung, Gegenwart, Zukunft je mit Mockup | Zusatz (Ausblick 3) | AP21, AP18f, AP20a | XL |
+| AP23 | [AP23-plan.md](arbeitspakete/AP23-plan.md) | Baustein-Editor: eigene Dinge, Möbel, Häuser und Figurenteile zeichnen, Funktionen aus dem Baukasten, Prüfung und Probelauf | Zusatz (Ausblick 4, 17.10.2026) | AP21, AP18e, AP16, AP22a | XL |
 | AP24 | [AP24-plan.md](arbeitspakete/AP24-plan.md) | Szenen: sichtbare Naturereignisse (Gewitter, Baum, Hochwasser, Sternschnuppen, später Feuer, Tornado, Meteor) | Frage 38 | AP18i | L |
 
 Umfang: S = etwa eine Sitzung, M = zwei bis drei, L = drei bis fünf.
@@ -83,7 +83,7 @@ simulacra/
 - Alle Tests laufen grün; die echte Ausgabe steht im Statusbericht. Nicht ausgeführte Tests werden als solche genannt.
 - Keine Datei über 400 Zeilen; `wc -l` wird im Statusbericht aufgeführt.
 - Neue Parameter sind in `docs/konfiguration.md`, neue Schnittstellen in `docs/schnittstellen.md` dokumentiert.
-- Commit auf einem Paket-Branch, Zusammenführung erst nach deiner Freigabe.
+- Commit auf einem Paket-Branch, Zusammenführung erst nach Freigabe.
 
 ### Abnahmekriterien §17 → Paket
 | Nr. | Kriterium | Umgesetzt in | Geprüft in |
@@ -108,8 +108,8 @@ simulacra/
 ### Arbeitsweise
 1. Vor jedem Paket: kurzer Plan im Chat, offene Fragen aus `docs/offene-fragen.md` klären.
 2. Umsetzung auf Branch `ap/xx-name`, Tests, Statusbericht `docs/status/APxx.md` mit echten Ausgaben.
-3. Vorführung (Screenshots oder Konsolenlauf), dann deine Freigabe zum Zusammenführen.
-4. Auf maintux wird nur mit deiner ausdrücklichen Freigabe etwas installiert, gestartet oder neu gestartet.
+3. Vorführung (Screenshots oder Konsolenlauf), dann die Freigabe zum Zusammenführen.
+4. Auf maintux wird nur mit ausdrücklicher Freigabe etwas installiert, gestartet oder neu gestartet.
 
 ## Vorgemerkt: Mitspieler-Charaktere
 Anforderung vom 11.10.2026 (siehe `offene-fragen.md`, Nr. 11): Menschen steuern eigene Charaktere, die für die KI-Agenten gleichwertige Bewohner sind. Wird nach AP08 als eigenes Paket geschnitten. Schon jetzt beachten: Agenten haben in der Engine keinen Sonderstatus der KI (`add_agent`, `propose` gelten für jeden Körper), und die Wahrnehmung in AP02 darf nichts über die Steuerungsart eines Agenten verraten.

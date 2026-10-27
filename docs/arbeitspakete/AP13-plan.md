@@ -1,8 +1,8 @@
-# AP13 – Plan (13.10.2026, von Henry freigegeben)
+# AP13 – Plan (13.10.2026, freigegeben)
 
 Auftrag: [AP13-weltoptik.md](AP13-weltoptik.md). Offene Fragen dazu: Nr. 18–21 in [offene-fragen.md](../offene-fragen.md). Mockups: `docs/mockups/welt-optik/echt.html` (**Maßstab: Darstellung 1:1 wie Mockup A**, Bilder `echt-*.png`), `haus-innen.html` (Haus draußen und innen: `haus-A-draussen.png`, `haus-B-innen.png`). Den Grundriss der Startwelt passt das Folgepaket [AP14](AP14-startwelt-innenbereiche.md) an.
 
-**Leitsatz (Henry):** Es soll 1:1 aussehen wie im Mockup. Darum werden Sprites, Bodenmuster, Farben, Tageszeiten und Effekte aus `world.js` nicht nachgezeichnet, sondern nach TypeScript übertragen (gleiche Pixel), und das Ergebnis wird gegen die Mockup-Bilder verglichen.
+**Leitsatz:** Es soll 1:1 aussehen wie im Mockup. Darum werden Sprites, Bodenmuster, Farben, Tageszeiten und Effekte aus `world.js` nicht nachgezeichnet, sondern nach TypeScript übertragen (gleiche Pixel), und das Ergebnis wird gegen die Mockup-Bilder verglichen.
 
 ## Technik in Kürze
 - **Eine Projektion** (`world/view/projection.ts`): Kamera = Fokuspunkt (Weltpixel) + Zoom, Ansicht „Tiefe“ oder „Flach“. `project(wx, wy, höhe)` und `unproject(sx, sy)` aus denselben Formeln wie im Mockup A (Wölbung `GAMMA`, Horizontkurve), nur mit beweglicher Kamera. Beide Richtungen sind geschlossen lösbar; im Mockup `haus.js` schon erprobt. Alles (Sprites, Schilder, Blasen, Licht, Klicks, Wegvorschau) geht hierüber.
@@ -29,7 +29,7 @@ Auftrag: [AP13-weltoptik.md](AP13-weltoptik.md). Offene Fragen dazu: Nr. 18–21
 7. Zeigen und Treffen, Hervorhebung, Mauszeiger; Klick auf Figur, Haus (→ innen) und Raum in beiden Ansichten; `world.spec.ts`, K06, K13 angepasst.
 8. Mitspieler-Vorschau hinter dem Schalter: Wegvorschau mit Dauer, Kontextmenü, „Sagen …“ (Enter öffnet, Esc bricht ab, höchstens 500 Zeichen, keine Kürzel solange es Fokus hat), Vitest und Playwright.
 9. Leistungsmessung, falls nötig nachbessern.
-10. Doku (`frontend.md`, `assets.md`, `grenzen.md`), Statusbericht `docs/status/AP13.md` mit Bildschirmfotos. Danach Vorlage bei Henry; ausgerollt wird erst nach Freigabe.
+10. Doku (`frontend.md`, `assets.md`, `grenzen.md`), Statusbericht `docs/status/AP13.md` mit Bildschirmfotos. Danach Vorlage bei der Projektleitung; ausgerollt wird erst nach Freigabe.
 
 ## Bewusst festgelegt (ohne Frage)
 - Die Kamera dreht sich nicht, Norden ist immer hinten. Jenseits des Kartenrands zeigt die Tiefe Wald und Wiese bis zum Horizont (wie im Mockup), ohne Weltdaten.

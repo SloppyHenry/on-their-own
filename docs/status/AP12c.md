@@ -29,7 +29,7 @@ Alle Bilder sind echte Bildschirmfotos der Oberfläche gegen das Backend mit der
 ## Nicht umgesetzt / offen
 - **Regler** für Siedlungsdichte, Waldanteil, Wasseranteil, Wegedichte und eine **Palette**: Der Generator (AP12b) hat dafür keine Stellgrößen; umgesetzt sind Seed, Ufer des Sees und Gebäudemix. **Frage 26** in [offene-fragen.md](../offene-fragen.md).
 - **Probelauf mit dem echten Modell** (besuchen die Agenten neue Orte?): maintux ist von hier nicht erreichbar. Mit dem Fake-Modell laufen 100 Schritte auf der erweiterten Welt und neue Orte und Dinge werden benutzt (`tests/generator/test_simulation.py`, AP12b). Zum Ausprobieren im echten Spiel siehe unten.
-- **Ausrollen auf maintux** bleibt offen und nur nach deiner Freigabe.
+- **Ausrollen auf maintux** bleibt offen und nur nach Freigabe.
 
 ## Tests
 - Backend (pytest): **1075 bestanden**, 3 abgewählt (wie bisher). Neu `tests/api/test_world_generate.py` (6): Vorschau ändert nichts (Karte, Orte, Ereignisnummer, Patch-Liste) und ist bei gleichem Wunsch gleich, Wunsch wird geprüft (422), Übernehmen braucht Bestätigung, Idempotency-Key und passende Prüfsumme (409), Sicherung und `world.generated`, Wiederholung mit demselben Schlüssel tut nichts doppelt, neue Simulation (Vorschau, Anlegen, Sicherung), Trockenlauf beliebiger Patches. Dateigrößenregel eingehalten (`DorfView.ts` 395 Zeilen, Umriss ausgelagert in `dorf/umriss.ts`).
@@ -37,8 +37,8 @@ Alle Bilder sind echte Bildschirmfotos der Oberfläche gegen das Backend mit der
 - Browser (Playwright): **76 bestanden**, 8 übersprungen (Messläufe und Bilderläufe, darunter `bilder-editor.spec.ts` mit `SIM_BILDER=1`). Neu `editor.spec.ts` (6). Alle Goldbilder (Startwelt, zwei Dörfer, Flach) unverändert, auch nach dem Umbau von `DorfView`.
 - Typen aktuell (`scripts/gen_types.sh --check`).
 
-## Abnahme durch dich
-1. **Ansehen** (lokal, mit Fake-Modell oder deinem Modell):
+## Abnahme
+1. **Ansehen** (lokal, mit Fake-Modell oder eigenem Modell):
    ```bash
    backend/.venv/bin/python scripts/e2e_server.py --port 8195 --data-dir /tmp/simdorf
    cd frontend && SIM_BACKEND=http://127.0.0.1:8195 npm run dev

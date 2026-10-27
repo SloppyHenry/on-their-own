@@ -1,8 +1,8 @@
-# Ausblick (Henry, 14.10.2026): selbst gestalten, Epochen, eigene Bausteine
+# Ausblick (14.10.2026): selbst gestalten, Epochen, eigene Bausteine
 
-**Seit 20.10.2026 beauftragt und geplant** (Henry: „baue direkt alle APs“): Figuren-Editor = [AP19](arbeitspakete/AP19-plan.md), Musik-Editor = [AP20](arbeitspakete/AP20-plan.md), Objektarten als Daten = [AP21](arbeitspakete/AP21-plan.md), Epochen = [AP22](arbeitspakete/AP22-plan.md), Baustein-Editor = [AP23](arbeitspakete/AP23-plan.md); dazu Szenen = [AP24](arbeitspakete/AP24-plan.md). Startprompts: [AP19-24-start-prompts.md](arbeitspakete/AP19-24-start-prompts.md). Der Text unten ist der ursprüngliche Ausblick.
+**Seit 20.10.2026 beauftragt und geplant** (Vorgabe: „baue direkt alle APs“): Figuren-Editor = [AP19](arbeitspakete/AP19-plan.md), Musik-Editor = [AP20](arbeitspakete/AP20-plan.md), Objektarten als Daten = [AP21](arbeitspakete/AP21-plan.md), Epochen = [AP22](arbeitspakete/AP22-plan.md), Baustein-Editor = [AP23](arbeitspakete/AP23-plan.md); dazu Szenen = [AP24](arbeitspakete/AP24-plan.md). Startprompts: [AP19-24-start-prompts.md](arbeitspakete/AP19-24-start-prompts.md). Der Text unten ist der ursprüngliche Ausblick.
 
-Ursprünglich nicht beauftragt, nur vorgemerkt. Reihenfolge nach Henry: erst Gestalten und Figuren, später Epochen, später der Baustein-Editor. Jeder Schritt wird, wie bisher, vor dem Bau geplant und mit Mockups abgenommen.
+Ursprünglich nicht beauftragt, nur vorgemerkt. Reihenfolge: erst Gestalten und Figuren, später Epochen, später der Baustein-Editor. Jeder Schritt wird, wie bisher, vor dem Bau geplant und mit Mockups abgenommen.
 
 ## 1. Dörfer selbst gestalten
 - **Werkzeuge:** Wege ziehen, Seen ausheben, Gärten setzen, Häuser setzen, Häuser **von innen ausschmücken und dekorieren** (Möbel, Wandschmuck, Teppiche, Farben), Bäume und Deko setzen, Gebiete verschieben oder löschen.
@@ -19,7 +19,7 @@ Ursprünglich nicht beauftragt, nur vorgemerkt. Reihenfolge nach Henry: erst Ges
 ## 3. Epochen
 - **Ziel:** Neben dem jetzigen Mittelalter-Dorf: **Beginn der Industrialisierung**, **Gegenwart („wie es heute ist“)** und **Zukunft (Sci-Fi)**.
 - **Was schon trägt:** Bild, Regeln und Texte hängen an Daten: Palette und Sprites (`art/`), Gebäudearten (`data/gebaeude/`), Objektarten (`object_kinds.py`), Bauvorlagen (`data/blueprints.json`), Orte und Namen, Wetter und Tageszeit.
-- **Dazu nötig:** Ein **Epochenpaket** als Einheit: Palette und Sprite-Satz, Gebäude- und Objektkatalog, Bauvorlagen, Rohstoffe, Namenslisten, Texte für die Agenten (Prompt, Wortwahl), eigene Weltgeneratorregeln (Fabrik, Bahnhof, Straße, Hochhaus, Raumstation …), Ereignisse und Bedürfnisse, die sich verändern (Strom, Geld, Arbeit). Der Generator wird dafür **regelbasiert nach Paket**: Layout, Bausteine und Pläne kommen aus dem Paket statt fest im Code. Jedes Paket braucht Mockups und Henrys Abnahme der Optik, wie bei Bild A.
+- **Dazu nötig:** Ein **Epochenpaket** als Einheit: Palette und Sprite-Satz, Gebäude- und Objektkatalog, Bauvorlagen, Rohstoffe, Namenslisten, Texte für die Agenten (Prompt, Wortwahl), eigene Weltgeneratorregeln (Fabrik, Bahnhof, Straße, Hochhaus, Raumstation …), Ereignisse und Bedürfnisse, die sich verändern (Strom, Geld, Arbeit). Der Generator wird dafür **regelbasiert nach Paket**: Layout, Bausteine und Pläne kommen aus dem Paket statt fest im Code. Jedes Paket braucht Mockups und Abnahme der Optik, wie bei Bild A.
 - **Offen:** Mischen von Epochen in einer Welt oder ein Paket je Simulation; Übergänge (Epochenwechsel im Spiel).
 
 ## 4. Eigene Bausteine entwerfen, mit Funktionen für die KI
@@ -36,10 +36,10 @@ Ursprünglich nicht beauftragt, nur vorgemerkt. Reihenfolge nach Henry: erst Ges
 5. **Epochen** (je Epoche ein Paket mit Mockups).
 6. **Baustein-Editor mit Funktionen.**
 
-## Nachtrag 17.10.2026 (Henry)
+## Nachtrag 17.10.2026
 Auch **Assets und Häuser sollen selbst entworfen werden können** (gehört zu Nr. 4, Baustein-Editor, ergänzt um eigene Gebäudeformen und Räume). Alle Editoren (Welt, Figuren, später Häuser und Gebäude, Dinge und Assets, Epochen) sind im Startmenü unter dem Obermenüpunkt **Editoren** zusammengefasst.
 
-## Nachtrag 18.10.2026 (Henry): Musik-Editor
+## Nachtrag 18.10.2026: Musik-Editor
 Später soll es einen **Musik-Editor** geben, in dem man aus Elementen eigene Hintergrundmusik baut. Er gehört zu den Editoren im Startmenü.
 - **Was schon trägt (AP17d):** Die Musik aus Code ist bereits aus Elementen zusammengesetzt (`frontend/src/klang/musik.ts`): Tonart und Tonleiter, Tempo, Akkordfolge, Melodie-Instrument (Pulswelle, Dreieck, Spieluhr, gezupft), Bass (liegend, laufend, gezupft), Fläche, gebrochene Akkorde, Gegenstimme, Schlagwerk (leicht, voll, Besen), Swing, Form A A′ B A″. Jedes Stück ist ein kleiner Datensatz (`MUS`).
 - **Dazu nötig:** Stücke als Daten statt im Code (wie bei den Objektarten), ein Editor mit diesen Bausteinen und Vorhören (z. B. Spuren mit Takten, Motive zum Ziehen oder Zeichnen), Zuordnung „wann spielt was“ (Tageszeit, Wetter, drinnen, Ort, Epoche), Speichern im Spielstand oder als Datei zum Austausch.

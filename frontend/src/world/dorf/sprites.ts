@@ -52,7 +52,7 @@ function lying(src: HTMLCanvasElement): HTMLCanvasElement {
   return c;
 }
 
-/** Bausteine von AP12 (von Henry freigegeben): `bh:Breite:Dach:Wand` Wohnhaus, `bw` Werkstatt, `bs` Laden, `bb` Scheune, `bt` Stall, `bm:N` Marktstand,
+/** Bausteine von AP12 (freigegeben): `bh:Breite:Dach:Wand` Wohnhaus, `bw` Werkstatt, `bs` Laden, `bb` Scheune, `bt` Stall, `bm:N` Marktstand,
  *  `bhay`, `blog`, `bcr` Heu, Holz, Kiste. Unbekanntes bleibt null (wird nicht gezeichnet). */
 function neu(kind: string, lit: boolean): HTMLCanvasElement | null {
   const [k, a, b, c] = kind.split(":");

@@ -1,9 +1,9 @@
 # AP19–AP24 – Startprompts (20.10.2026)
 
-Für jedes Teilpaket eine frische Claude-Code-Sitzung im Ordner `/Users/henryroth/Projekte/simulacra` starten. Als erste Nachricht kommt der **gemeinsame Teil** und danach der Abschnitt des Pakets (beides zusammen kopieren). Die Pläne sind so geschrieben, dass auch ein kleineres Modell sie Schritt für Schritt abarbeiten kann.
+Für jedes Teilpaket eine frische Claude-Code-Sitzung im Ordner `<projekt>` starten. Als erste Nachricht kommt der **gemeinsame Teil** und danach der Abschnitt des Pakets (beides zusammen kopieren). Die Pläne sind so geschrieben, dass auch ein kleineres Modell sie Schritt für Schritt abarbeiten kann.
 
 ## Gesamtreihenfolge nach AP18 (Vorschlag)
-1. AP18a–g, AP18i und AP16a–d wie in [AP18-plan.md](AP18-plan.md#reihenfolge-frage-61-henry-20102026-wie-vorgeschlagen)
+1. AP18a–g, AP18i und AP16a–d wie in [AP18-plan.md](AP18-plan.md#reihenfolge-frage-61-wie-vorgeschlagen)
 2. **AP19** Aussehen der Figuren (Schritt 0, a, b, c)
 3. **AP18h** Mitleben mit eigener Figur (a, b, c)
 4. **AP24** Szenen (Schritt 0, a, b, c)
@@ -16,29 +16,29 @@ Für jedes Teilpaket eine frische Claude-Code-Sitzung im Ordner `/Users/henryrot
 
 ## Gemeinsamer Teil (immer mitkopieren)
 
-Du arbeitest an **Simulacra** (`/Users/henryroth/Projekte/simulacra`), einer Simulation, in der KI-Bewohner (Alex, Mira …) in einem Pixeldorf leben. Antworte Henry auf Deutsch. Er startet für jedes Paket eine neue Sitzung und entscheidet im Chat.
+Du arbeitest an **Simulacra** (`<projekt>`), einer Simulation, in der KI-Bewohner (Alex, Mira …) in einem Pixeldorf leben. Antworte auf Deutsch. Für jedes Paket gibt es eine neue Sitzung, entschieden wird im Chat.
 
 **Zuerst lesen, bevor du etwas baust:**
 1. Dein Gedächtnis (`MEMORY.md`), besonders: Stand, Keine höhere Instanz, Mitspieler-Charaktere, Mockup-Treue, Geteiltes Arbeitsverzeichnis, Skalierung.
 2. Den **Plan deines Pakets ganz** (`docs/arbeitspakete/AP<nr>-plan.md`). Er nennt Dateien, Datenformate, Schritte, Tests und Fallen. Halte dich an die Reihenfolge der Schritte.
-3. `docs/offene-fragen.md`: die Fragen, die dein Paket nennt. Steht dort „Vorschlag gilt als Arbeitsannahme“, baust du nach dem Vorschlag. Ist etwas wirklich offen, frag Henry zu Beginn gebündelt mit `AskUserQuestion` (Empfehlung als erste Option).
+3. `docs/offene-fragen.md`: die Fragen, die dein Paket nennt. Steht dort „Vorschlag gilt als Arbeitsannahme“, baust du nach dem Vorschlag. Ist etwas wirklich offen, frag die Projektleitung zu Beginn gebündelt mit `AskUserQuestion` (Empfehlung als erste Option).
 4. `git status`, `git branch --show-current`, `git log --oneline -15`, `git worktree list`. Lege einen eigenen Branch (`ap/<nr>-name`) in einem eigenen Worktree an (`.claude/worktrees/<nr>`, `backend/.venv` und `frontend/node_modules` verlinken), ausgehend von `main`.
 
 **Leitplanken (nicht verhandelbar):**
 - **Keine höhere Instanz:** Die Bewohner merken nie, dass es Spieler, Leitstelle, Editor, Spielart, Epoche oder „Simulation“ gibt. Kein Prompt-Text, keine Erinnerung, kein Ereignis für Bewohner über Eingriffe. Bestehende Tests dafür bleiben grün und werden erweitert.
 - **Mitspieler sind Gleiche:** Eine menschlich gesteuerte Figur hat in der Engine keinen Sonderstatus.
 - **Das Modell führt nie Code aus.** Neue Funktionen für Dinge gibt es nur als Daten aus dem Baukasten (AP21).
-- **Mockup-Treue:** Neue Bilder und Bildschirme erst nach Mockup und Henrys Abnahme, dann **1:1** (ganzes Bild, gleiche Abstände, Farben und Texte). Abweichungen legst du offen vor.
+- **Mockup-Treue:** Neue Bilder und Bildschirme erst nach Mockup und Abnahme, dann **1:1** (ganzes Bild, gleiche Abstände, Farben und Texte). Abweichungen legst du offen vor.
 - **Die Weltfläche bleibt:** Goldbilder (`e2e/golden.spec.ts`, `e2e/flach.spec.ts`) ändern sich nur, wenn der Plan es ausdrücklich sagt.
 - **Geteiltes Arbeitsverzeichnis:** Nie `git add -A` oder `git add .`, nur eigene Dateien einzeln. Den Branch einer anderen Sitzung nicht wechseln. Playwright nutzt `/tmp/simulacra-e2e-run`, also nicht gleichzeitig mit einer anderen Sitzung laufen lassen.
-- Dateien unter ca. 400 Zeilen, Oberfläche und Texte auf Deutsch, Umlaute richtig. **Nichts ausrollen** ohne Henrys ausdrückliche Freigabe.
+- Dateien unter ca. 400 Zeilen, Oberfläche und Texte auf Deutsch, Umlaute richtig. **Nichts ausrollen** ohne ausdrückliche Freigabe.
 
 **Arbeitsweise für jeden Schritt:**
 1. Lies die Dateien, die der Schritt nennt, bevor du sie änderst. Stimmt etwas im Plan nicht mehr mit dem Code überein (Datei umbenannt, Funktion anders), **rate nicht**: Suche die neue Stelle (`grep -rn`), und schreib die Abweichung in den Bericht.
 2. Wo der Plan sagt „zuerst sichern“ (Gleichlauf-Test, Pixel-Basis, Noten-Schnappschuss), machst du genau das **vor** jeder anderen Änderung und committest es allein.
 3. Nach jedem Schritt die Prüfungen aus dem Plan laufen lassen: `cd backend && .venv/bin/pytest -q`, `cd frontend && npx vitest run`, `npx tsc --noEmit`, die genannten Playwright-Tests (`npx playwright test e2e/<datei>`). Erst wenn alles grün ist, kommt der nächste Schritt.
 4. Kleine Commits je Schritt mit Nachricht `AP<nr><teil>: <was>`.
-5. Am Ende: Doku pflegen (`docs/frontend.md`, `docs/schnittstellen.md` und was das Paket nennt), Statusbericht `docs/status/AP<nr><teil>.md` mit Bildern, echten Testzahlen und dem Weg, wie Henry es ansieht; Fragen mit Datum in `docs/offene-fragen.md`; Gedächtnis (Stand) aktualisieren. Danach Henrys Abnahme abwarten, **nicht** selbst nach `main` zusammenführen.
+5. Am Ende: Doku pflegen (`docs/frontend.md`, `docs/schnittstellen.md` und was das Paket nennt), Statusbericht `docs/status/AP<nr><teil>.md` mit Bildern, echten Testzahlen und dem Weg, es anzusehen; Fragen mit Datum in `docs/offene-fragen.md`; Gedächtnis (Stand) aktualisieren. Danach Abnahme abwarten, **nicht** selbst nach `main` zusammenführen.
 
 ---
 
@@ -65,7 +65,7 @@ Du arbeitest an **Simulacra** (`/Users/henryroth/Projekte/simulacra`), einer Sim
 ## AP23 – Baustein-Editor
 **Plan:** [AP23-plan.md](AP23-plan.md). **Fragen:** 70, 71. **Voraussetzung:** AP21, AP18e, AP16, AP22a.
 **Je Sitzung:** Schritt 0 (Mockup `docs/mockups/bausteine.html`) → a (Format, Bibliothek, Zeichnen im Spiel) → b (Pixel-Editor) → c (Funktionen, Prüfung, Probelauf, Werkstatt, Bauvorlage) → d (Gebäude und Räume) → e (Figurenteile, braucht AP19).
-**Fertig, wenn:** Henry eine Schaukel zeichnet, ihr „schaukeln“ gibt, Prüfung und Probelauf bestehen, sie in der Werkstatt setzt und ein Bewohner im Spiel darauf schaukelt.
+**Fertig, wenn:** jemand eine Schaukel zeichnet, ihr „schaukeln“ gibt, Prüfung und Probelauf bestehen, sie in der Werkstatt setzt und ein Bewohner im Spiel darauf schaukelt.
 
 ## AP24 – Szenen
 **Plan:** [AP24-plan.md](AP24-plan.md). **Frage:** 72. **Voraussetzung:** AP18i.

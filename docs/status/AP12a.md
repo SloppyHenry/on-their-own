@@ -46,7 +46,7 @@ Siehe [grenzen.md](../grenzen.md) („Kamera durch die Welt“):
 - Das zweite Dorf in den Bildern kommt aus einer Fixture (aus dem Mockup-Generator); den echten Generator liefert AP12b. Die Häuser dort haben noch keinen Innenbereich (leer).
 - Die Karte (Kacheln) kennt das zweite Dorf noch nicht: Es ist nur zu sehen, nicht begehbar. Das setzt AP12b um (Patch-Format mit `links` und `look`, Kacheln aus denselben Formen).
 
-## Abnahme durch dich
+## Abnahme
 1. **Im Browser ansehen:** `scripts/dev.sh`, dann http://localhost:5173. Mit WASD und Maus fahren, Rad, `+` `−` und `0` zum Zoomen. Das Startdorf muss aussehen wie vorher.
 2. Das zweite Dorf (nur zum Ansehen) liegt nicht in der Startwelt; die Bilder oben zeigen es.
 3. Freigabe für AP12b (Generator im Backend).

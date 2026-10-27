@@ -69,4 +69,4 @@ Der Plan hat drei Pakete (a–c). Für Sitzungen und Abnahmen ist das zu grob; V
 Abhängigkeiten: a1 → a2 → a3, b1 braucht a2, b2 und b3 brauchen b1 und a2, c1 braucht a1 (und b1 für das HUD), c2 zuletzt. **Parallel möglich:** nach a1 laufen a2 und c1-Backend, nach a2 laufen b1 und a3 (verschiedene Dateien). Reihenfolge ohne Parallelität: a1, a2, b1, b2, a3, b3, c1, c2. Neue Dateien bleiben unter 400 Zeilen; Takt-Logik also in `simulation/mitleben.py`, Frontend in `hud/Handlungsleiste.tsx`, `world/player/` und `hud/Antwortzeile.tsx`.
 
 ## Nicht getan, bewusst
-Kein Produktivcode, keine Änderung an Tests und Daten, nicht nach `main` gemergt, nichts ausgerollt. `AP18h-plan.md` hat einen kurzen Abschnitt „Korrekturen aus Schritt 0“ bekommen, die Pläne selbst sonst unverändert. Wartet auf Henrys Abnahme des Mockups (Frage 86) und die Antworten zu 77–79.
+Kein Produktivcode, keine Änderung an Tests und Daten, nicht nach `main` gemergt, nichts ausgerollt. `AP18h-plan.md` hat einen kurzen Abschnitt „Korrekturen aus Schritt 0“ bekommen, die Pläne selbst sonst unverändert. Wartet auf Abnahme des Mockups (Frage 86) und die Antworten zu 77–79.

@@ -1,6 +1,6 @@
 # AP12 – Weltgenerator (Zusatzpaket, nach AP11)
 
-**Auftrag:** Zusatz von Henry (11.10.2026) · **Abhängig von:** AP04 (Darstellung), AP08 (Welt zur Laufzeit ändern), AP09 (Sicherung vor dem Eingriff) · **Umfang:** L · **Meilenstein:** nach M6
+**Auftrag:** Zusatz (11.10.2026) · **Abhängig von:** AP04 (Darstellung), AP08 (Welt zur Laufzeit ändern), AP09 (Sicherung vor dem Eingriff) · **Umfang:** L · **Meilenstein:** nach M6
 
 **Neu geplant am 14.10.2026 nach AP13–AP15: siehe [AP12-plan.md](AP12-plan.md)** (Entscheidungen zu Frage 14, drei Teilpakete, Darstellung mit scrollender Kamera). Die Abschnitte „Vorgaben für AP04“ und „Offene Fragen“ unten sind überholt; Ziel, Grundsätze, Validierung und Tests gelten weiter.
 
@@ -88,6 +88,6 @@ Ein Generator, der die Welt **im Stil des Mockups** (gemütliches Farmdorf, Top-
 | Erweiterung zerstört Bestand | Bestand wird nie überschrieben, Trockenlauf, Sicherung vor dem Anwenden |
 | Große Karten werden langsam | Erzeugung auf das Zielgebiet begrenzen; Rendern abschnittsweise (Phaser-Chunks) |
 
-## Offene Fragen an dich (vor Beginn)
+## Offene Fragen (vor Beginn)
 - Soll der Generator auch eine **komplett neue Startwelt** erzeugen können (andere Dörfer), oder nur die bestehende erweitern?
 - Soll der **Mensch als Mitspieler** später selbst bauen dürfen (Bauplan platzieren), oder bleibt Bauen den Agenten und dem Generator vorbehalten?

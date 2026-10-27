@@ -1,6 +1,6 @@
 # AP16b – Gestalten, Außenwerkzeuge im Browser (Bericht, 22.10.2026)
 
-**Plan:** [AP16-plan.md](../arbeitspakete/AP16-plan.md), [AP16-schritt0.md](AP16-schritt0.md); Backend: [AP16a.md](AP16a.md). **Branch:** `claude/ap16b-aussenwerkzeuge-1ac889`, nicht gemergt, nicht ausgerollt, wartet auf deine Abnahme. Nur Außenbereich, kein Innenausbau (AP16c).
+**Plan:** [AP16-plan.md](../arbeitspakete/AP16-plan.md), [AP16-schritt0.md](AP16-schritt0.md); Backend: [AP16a.md](AP16a.md). **Branch:** `claude/ap16b-aussenwerkzeuge-1ac889`, nicht gemergt, nicht ausgerollt, wartet auf Abnahme. Nur Außenbereich, kein Innenausbau (AP16c).
 
 ## Was fertig ist
 - **Ein Werkzeugkasten, zwei Orte** (`frontend/src/gestalten/`), als schwebendes Glas über der Welt wie im Mockup: obere Leiste, Werkzeugleiste links (Gruppen Ansehen, Zeichnen, Setzen, Ändern, Welt; Tasten 1–9, 0; W-Zeichen für „nur Werkstatt“), rechts Katalog, Entwurfsliste mit ✕ und Prüfung (✓ ! ✗). Rückgängig/Wiederholen (Strg+Z, Strg+Umschalt+Z), Raster-Schalter, Tiefe/Flach.

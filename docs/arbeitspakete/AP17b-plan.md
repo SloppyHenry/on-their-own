@@ -1,8 +1,8 @@
 # AP17b – Simulation selbst definieren (Plan, 19.10.2026)
 
-**Auftrag:** Henry, AP17-Plan (Rückmeldung 8) und Fragen 32, 36. **Status:** gebaut (19.10.2026), Abnahme steht aus. Mockup [assistent.html](../mockups/assistent.html) abgenommen („ok leg los“). Berichte: [AP17b-schritt0.md](../status/AP17b-schritt0.md), [AP17b.md](../status/AP17b.md).
+**Auftrag:** AP17-Plan (Rückmeldung 8) und Fragen 32, 36. **Status:** gebaut (19.10.2026), Abnahme steht aus. Mockup [assistent.html](../mockups/assistent.html) abgenommen („ok leg los“). Berichte: [AP17b-schritt0.md](../status/AP17b-schritt0.md), [AP17b.md](../status/AP17b.md).
 
-## Entscheidungen (Henry)
+## Entscheidungen
 | Wann | Entscheidung |
 |---|---|
 | 17.10. | **Bis 8 Bewohner**, sichtbarer Hinweis auf das Tempo (Frage 32). Weltregeln als Text werden über die Ereigniseingabe zu **Startereignissen**. |

@@ -1,6 +1,6 @@
 # AP17c – Modelle im Tool und Install-Skript (Plan, 17.10.2026)
 
-**Auftrag (Henry, 17.10.2026):** Simulacra soll sich mit **einem Install-Skript** auf Linux und macOS einrichten lassen, unabhängig vom Rechner. Im Tool wählt man das Sprachmodell und lädt es herunter, mit **Vorschlägen nach Hardware und immer aktuell** (es erscheinen ständig neue lokale Modelle). Es soll auf maintux (derzeit offline) und thirdtux laufen; Downloads und Installation dort sind freigegeben. **Umfang:** L. **Voraussetzung:** AP17a (Menü, Bereich „Einstellungen“) ist gebaut. Mockup: [modelle.html](../mockups/modelle.html).
+**Auftrag (17.10.2026):** Simulacra soll sich mit **einem Install-Skript** auf Linux und macOS einrichten lassen, unabhängig vom Rechner. Im Tool wählt man das Sprachmodell und lädt es herunter, mit **Vorschlägen nach Hardware und immer aktuell** (es erscheinen ständig neue lokale Modelle). Es soll auf maintux (derzeit offline) und thirdtux laufen; Downloads und Installation dort sind freigegeben. **Umfang:** L. **Voraussetzung:** AP17a (Menü, Bereich „Einstellungen“) ist gebaut. Mockup: [modelle.html](../mockups/modelle.html).
 
 ## Ist-Stand
 - Die Anbindung ist ein OpenAI-kompatibler Endpunkt (`llm/providers.py`, Einstellungen `SIM_LLM_BASE_URL`, `SIM_LLM_MODEL`, Schlüssel aus Datei oder Umgebung). Das Modell wird nur beim Anlegen einer Simulation gewählt (Entscheidung 10.10., `ResetDialog`). Gemessen ist `qwen3.8-9b-uncensored` auf maintux (`docs/llm-anbindung.md`); Standardvariante: `json_schema` ohne Denken, Ø 5,5 s je Entscheidung.
@@ -26,7 +26,7 @@ Zwei Quellen, zusammengeführt:
 
 ### 4. Download (`models/download.py`)
 Nur über HTTPS von `huggingface.co` und dessen CDN (feste Liste erlaubter Hosts), **nach Bestätigung** mit Dateiname, Quelle und Größe (Regel „Downloads nur nach Bestätigung“). Fortsetzen mit `Range`, Fortschritt über WebSocket (`models.download` Ereignisse), Prüfung der **SHA-256** gegen die Angabe der Hugging-Face-API, erst danach Umbenennen in `data/models/<name>.gguf`; Abbruch räumt `.part` weg. Vorab Plattenplatz prüfen (Größe plus 10 %). Ein Download zugleich. Löschen mit Rückfrage.
-- Einschränkung: Für gesperrte Modelle (Anmeldung nötig) fehlt ein Token; Henry hat dafür bisher nichts vorgesehen: sie werden gekennzeichnet („Anmeldung nötig, nicht unterstützt“).
+- Einschränkung: Für gesperrte Modelle (Anmeldung nötig) fehlt ein Token; die Projektleitung hat dafür bisher nichts vorgesehen: sie werden gekennzeichnet („Anmeldung nötig, nicht unterstützt“).
 
 ### 5. Messung (`models/probe.py`)
 Nach dem Download ein **Probelauf** mit dem Messprompt aus AP00 (`scripts/probe_llm.py` wird zum Modul): 10 Anfragen mit `json_schema`, Ergebnis **gültig in %**, **Ø Sekunden je Entscheidung**, **Token/s**. Das Ergebnis steht als Siegel am Modell (**geprüft**, **mit Einschränkung**, **ungeeignet**) und in `data/models/probes.json`. Ein Modell unter 90 % gültig wird als ungeeignet gekennzeichnet, lässt sich aber weiter wählen. So bleibt „aktuell“ ehrlich: Die Live-Liste schlägt vor, die Messung sagt, ob es hier taugt.
@@ -46,7 +46,7 @@ Für Linux und macOS, idempotent, mit `--yes` (ohne Rückfragen), `--dry-run` (z
 - Der Container (`deploy/`) bleibt der Weg für Server mit externem Modell; für maintux und thirdtux läuft das Skript per `ssh … install.sh --yes --headless`.
 - Prüfung: `shellcheck`, ein Trockenlauf je Plattform-Beispiel (aufgezeichnete Ausgaben von `nvidia-smi`, `sysctl` als Testdaten), ein Lauf in einem sauberen Container (Linux, CPU, kleines Prüfmodell).
 
-## Reihenfolge der Teilpakete (geändert am 17.10.2026 auf Henrys Wunsch: zuerst das Install-Skript)
+## Reihenfolge der Teilpakete (geändert am 17.10.2026 auf Wunsch: zuerst das Install-Skript)
 - **17c-1: Install-Skript** (`install.sh`, `scripts/start.sh`, kuratierte Liste `models.json`, Tests mit nachgestellten Rechnern). **Gebaut**, siehe [status/AP17c.md](../status/AP17c.md).
 - **17c-2: Hardware und Katalog im Backend** (`backend/simulacra/models/`, `GET /api/hardware`, `GET /api/models/catalog`, `python -m simulacra.models`). **Gebaut** am 18.10.2026, siehe [status/AP17c.md](../status/AP17c.md). Das Skript nutzt für die Modellwahl dieselbe Rechnung. Abweichungen vom Plan: Stufen 70/90/100 % (statt 70/90 %/„knapp“ ohne Grenze), Datei-Liste über `/tree/main` (nicht `?blobs=true`), Zeit je Entscheidung mit Wirkungsgrad 0,7, Positivliste der Herausgeber in `models.json`.
 - **17c-3: Download, Laufzeit, Probelauf im Backend.** **Gebaut** am 19.10.2026 (Branch `ap/17c-modelle`), siehe [status/AP17c.md](../status/AP17c.md) und [schnittstellen.md](../schnittstellen.md#modellverwaltung-ap17c-3--4). Abweichungen vom Plan: die Laufzeit folgt der Simulation (Modellwechsel von Hand nur bei angehaltener Simulation); „Laufzeit installieren“ ist im Tool (Python-Fassung der Auswahl aus `scripts/install/runtime.sh`); ein Modell wird bei Absturz nicht von selbst neu gestartet.

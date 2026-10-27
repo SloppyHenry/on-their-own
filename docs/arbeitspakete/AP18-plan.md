@@ -1,8 +1,8 @@
 # AP18 – Rework: ein Spiel aus einem Guss (Plan, 19.10.2026)
 
-**Auftrag:** Henry, 19.10.2026: „Unser Tool wirkt zusammengewürfelt und unübersichtlich … ein wirkliches Rework – das Einzige, was Bestand hat, ist das Menü.“ Dazu: Spielmodi (nur Bewohner verändern die Welt oder man ist Gott), Welt individuell weitergestalten statt nur Seeds, Generator nur beim Erschaffen und viel abwechslungsreicher mit Stellgrößen, keine Hinweisschrift über der Welt, neue Denkblasen, Esc führt immer zum vorherigen Menü, Editor › Welt öffnet eine leere Welt mit Werkzeugen, Welten einzeln speichern.
+**Auftrag:** 19.10.2026: „Unser Tool wirkt zusammengewürfelt und unübersichtlich … ein wirkliches Rework – das Einzige, was Bestand hat, ist das Menü.“ Dazu: Spielmodi (nur Bewohner verändern die Welt oder man ist Gott), Welt individuell weitergestalten statt nur Seeds, Generator nur beim Erschaffen und viel abwechslungsreicher mit Stellgrößen, keine Hinweisschrift über der Welt, neue Denkblasen, Esc führt immer zum vorherigen Menü, Editor › Welt öffnet eine leere Welt mit Werkzeugen, Welten einzeln speichern.
 **Mockup:** [`docs/mockups/rework.html`](../mockups/rework.html) (zehn Bildschirme, Blasen-Varianten A/B/C, Erklärung je Bild). **Befund und Bilder:** [`docs/status/AP18-schritt0.md`](../status/AP18-schritt0.md). **Startprompts je Teilpaket:** [`AP18-start-prompts.md`](AP18-start-prompts.md).
-**Umfang:** XL, neun Teilpakete (je eine Sitzung oder mehr) plus das schon geplante AP16. **Status:** Schritt 0 abgenommen (Henry, 20.10.2026, Fragen 52–63 entschieden). AP18a gebaut, wartet aufs Zusammenführen. AP18h hat einen eigenen ausführlichen Plan: [AP18h-plan.md](AP18h-plan.md).
+**Umfang:** XL, neun Teilpakete (je eine Sitzung oder mehr) plus das schon geplante AP16. **Status:** Schritt 0 abgenommen (20.10.2026, Fragen 52–63 entschieden). AP18a gebaut, wartet aufs Zusammenführen. AP18h hat einen eigenen ausführlichen Plan: [AP18h-plan.md](AP18h-plan.md).
 
 ## Befund (kurz, Einzelheiten im Bericht)
 1. **Zwei Formensprachen.** Das Menü (warmes Glas, Gold, große Kacheln) passt nicht zur Spieloberfläche (graue Werkzeugleisten, kleine Knöpfe).
@@ -21,7 +21,7 @@
 - **Alles Beobachtbare bleibt mit einem Klick erreichbar** (Leitgedanke aus AP17): Bewohnerleiste, Ticker, Tagebuch, Bewohner-Karte, Einblicke. Nichts davon ist dauerhaft offen.
 - **Ein Weg je Sache.** Einstellungen nur im Menü, Neue Simulation nur im Menü, Gestalten nur als Werkzeug der Spielart Gott oder in der Welt-Werkstatt.
 - **Esc nimmt immer genau eine Ebene zurück.** Oben stehen Brotkrumen, und nie landet man aus Versehen woanders.
-- **Keine höhere Instanz** ([Grundsatz](AP16-plan.md#grundsatz-henry-15102026)): Spielart Gott, Gestalten und die Werkstatt bleiben für die Bewohner unsichtbar.
+- **Keine höhere Instanz** ([Grundsatz](AP16-plan.md#grundsatz-15102026)): Spielart Gott, Gestalten und die Werkstatt bleiben für die Bewohner unsichtbar.
 
 ## Die Spielarten (neu)
 | Spielart | Wer verändert die Welt | Bedienung im Spiel |
@@ -30,14 +30,14 @@
 | **Leben mit eigener Figur** | die Bewohner und du als Bewohner unter Bewohnern | dazu Handlungsleiste: Sagen, Benutzen, Bauen, Gehen (Mitspieler, [Frage 11](../offene-fragen.md)) |
 | **Gott** | du von außen, jederzeit | dazu Werkzeugleiste: Ereignis, Gestalten (Zeit steht still), Bewohner, Weltregeln |
 
-**In beiden Spielarten lebt die Welt selbst** (Henry, Frage 54): Das Wetter wechselt von selbst (gibt es schon), und die Welt bringt Ereignisse von sich aus, die niemand beeinflusst (neu, AP18i).
+**In beiden Spielarten lebt die Welt selbst** (Frage 54): Das Wetter wechselt von selbst (gibt es schon), und die Welt bringt Ereignisse von sich aus, die niemand beeinflusst (neu, AP18i).
 
 Die Spielart gehört zum Spielstand und wird beim Anlegen gewählt. Der bisherige „Beobachtungsmodus“ (`mode`: Beobachter, Schöpfer, Eingriff) regelt etwas anderes, nämlich **was die Bewohner wissen**, und wandert unter „Erweitert“ (Frage 57).
 
 ## Teilpakete
 
 ### Schritt 0 – Plan, Mockup, Fragen (diese Sitzung)
-Mockup `docs/mockups/rework.html` mit `rework/` (Stil, Spiel, Menü, Editor, Generator-Skizze), Befund mit Bildern, Fragen 52–61. **Ergebnis:** Henrys Abnahme oder Änderungswünsche. Vorher entsteht kein Anwendungscode, ausgenommen AP18a.
+Mockup `docs/mockups/rework.html` mit `rework/` (Stil, Spiel, Menü, Editor, Generator-Skizze), Befund mit Bildern, Fragen 52–61. **Ergebnis:** Abnahme oder Änderungswünsche. Vorher entsteht kein Anwendungscode, ausgenommen AP18a.
 
 ### AP18a – Rückweg mit Esc und Brotkrumen (S, hängt vom Mockup nicht ab)
 1. Zentraler Rückweg `frontend/src/ui/zurueck.ts`: Jede offene Ebene (Menübereich, Assistentenschritt, Dialog, Schublade, Detail, Innenansicht, Editor) meldet einen Rückweg an. Esc ruft den obersten auf. Die verstreuten Esc-Behandler in `StartMenu`, `WorldCanvas`, `InsightsMenu`, `Drawer`, `ResetDialog`, `SaveLoadDialog`, `Assistent`, `Charaktereditor` und `editor/` ziehen dorthin um.
@@ -66,7 +66,7 @@ Mockup `docs/mockups/rework.html` mit `rework/` (Stil, Spiel, Menü, Editor, Gen
 1. `world/Overlays.tsx` neu nach **Variante A** (Wolke, kleiner Name am Fuß, Rede als Sprechblase). Dazu kommt **Variante B** als Einstellung „wenig Text in der Welt“ (Einstellungen › Darstellung). Blasen brechen um (höchstens etwa 210 px breit, Gedanken höchstens 3 Zeilen). Rede und Gedanke sehen verschieden aus. Gemerktes und Erinnertes erscheint als kleines Zeichen, das verblasst, statt angehängtem Text.
 2. **Kein Überlappen:** Schilder und Blasen weichen einander je Bild aus (gierig nach oben stapeln) und bleiben am Bildrand, mit Zeiger zur Figur.
 3. **Im Haus:** Auf dem Dach stehen kleine Bildnisse statt gestapelter Textschilder. In der Innenansicht bekommt jede Figur ihr eigenes Schild, ohne Überdeckung.
-4. **Fehler beheben:** Folgt die Kamera einer Figur im Haus, zeigt sie **das Haus** (Henry, Frage 53b) mit dem Bildnis auf dem Dach, nicht die Lage des Innenraums auf der Karte.
+4. **Fehler beheben:** Folgt die Kamera einer Figur im Haus, zeigt sie **das Haus** (Frage 53b) mit dem Bildnis auf dem Dach, nicht die Lage des Innenraums auf der Karte.
 5. Tests: Vitest für das Ausweichen (reine Funktion), Playwright prüft, dass lange Gedanken umbrechen (Breite höchstens das Maximum, mehrere Zeilen), dass sich zwei Figuren auf einer Kachel nicht überdecken und dass „Kamera folgt“ im Haus aufs Haus zeigt.
 
 ### AP18d – Spielarten Leben und Gott (M)
@@ -104,10 +104,10 @@ Reihenfolge der Teilpakete wie geplant: AP16a (Backend), AP16b (Außenwerkzeuge)
 7. Tests: Eigenschaftstest über zufällige Stellgrößen und Seeds (immer bespielbar: alle Türen, Quellen und Startplatz erreichbar; Bild und Kacheln stimmen überein), gleicher Seed und gleiche Stellgrößen ergeben dasselbe Dorf, die Startwelt bleibt Pixel für Pixel gleich. Gespeicherte Welten und Spielstände sind Daten und ändern sich nicht. Die Fixtures (`dorf-seed-12.json`) werden bewusst neu erzeugt.
 
 ### AP18g – Bauen im Spiel: mehr Bauvorlagen (M bis L, Frage 59 entschieden)
-In der Spielart Leben verändern nur die Bewohner die Welt, also brauchen sie mehr Möglichkeiten. Heute gibt es sechs Bauvorlagen (Bank, Vogelhaus, Feuerstelle, Gartenzaun, Steg-Verlängerung, Korb). Neu sind (Henry, 19.10.2026) zuerst **Weg anlegen** (Stein je Feld), **Beet anlegen** (Saatgut), **Baum pflanzen** (Saatgut), **Laterne** (Holz, Stein) und **Brunnen** (Stein). Die **Hütte**, ein Haus mit Innenraum, folgt danach als eigenes Stück. Jede Vorlage ändert Kacheln **und** `look`, damit DorfView sie zeichnet; dafür gilt derselbe Patch-Weg wie in AP16a. Die Optionen und Prompts der Bewohner kennen die neuen Vorlagen. Tests laufen mit dem Fake-Modell: Ein Bewohner legt einen Weg an, und Bild und Kacheln stimmen danach überein.
+In der Spielart Leben verändern nur die Bewohner die Welt, also brauchen sie mehr Möglichkeiten. Heute gibt es sechs Bauvorlagen (Bank, Vogelhaus, Feuerstelle, Gartenzaun, Steg-Verlängerung, Korb). Neu sind (19.10.2026) zuerst **Weg anlegen** (Stein je Feld), **Beet anlegen** (Saatgut), **Baum pflanzen** (Saatgut), **Laterne** (Holz, Stein) und **Brunnen** (Stein). Die **Hütte**, ein Haus mit Innenraum, folgt danach als eigenes Stück. Jede Vorlage ändert Kacheln **und** `look`, damit DorfView sie zeichnet; dafür gilt derselbe Patch-Weg wie in AP16a. Die Optionen und Prompts der Bewohner kennen die neuen Vorlagen. Tests laufen mit dem Fake-Modell: Ein Bewohner legt einen Weg an, und Bild und Kacheln stimmen danach überein.
 
 ### AP18i – Die Welt lebt selbst: Ereignisse von allein (M, Frage 62)
-Henry (Frage 54): „Es sollte schon Wetter und Ereignisse geben, die wir nicht beeinflussen können.“ Das Wetter wechselt heute schon von selbst (`world/weather.py`, Folgewetter aus Seed und Zeit). Ereignisse von selbst gibt es noch nicht.
+Antwort zu Frage 54: „Es sollte schon Wetter und Ereignisse geben, die wir nicht beeinflussen können.“ Das Wetter wechselt heute schon von selbst (`world/weather.py`, Folgewetter aus Seed und Zeit). Ereignisse von selbst gibt es noch nicht.
 1. **Katalog als Daten** (`data/ereignisse_welt.json`): je Ereignis Bedingungen (Wetter, Jahreszeit, Tageszeit, Ort, z. B. „nur wenn es einen Garten gibt“), Gewicht und Wirkung als **Operationen der Ereigniseingabe** aus AP08. Damit laufen sie durch dieselbe Prüfung und Wissensverteilung: Wer es sieht, erfährt es. Für den Anfang: Gewitter oder Sturm, ein Baum stürzt um (Weg versperrt, Holz liegt da), Fuchs im Garten, reiche Ernte oder Pilze im Wald, Hochwasser am See, Nachtfrost, Sternschnuppennacht.
 2. **Takt im Backend** wie beim Wetter: deterministisch aus Seed und Zeit, damit ein Spielstand gleich weiterläuft. Die Häufigkeit ist aus, selten, manchmal (Standard) oder oft und wird beim Anlegen (Schritt Regeln) und in den Einstellungen gewählt.
 3. **In beiden Spielarten.** Für die Bewohner sind es natürliche Vorgänge ohne Urheber („keine höhere Instanz“). Im Tagebuch stehen sie mit eigenem Zeichen (🌩), damit du siehst, was die Welt selbst gebracht hat.
@@ -117,9 +117,9 @@ Henry (Frage 54): „Es sollte schon Wetter und Ereignisse geben, die wir nicht 
 ### AP18h – Mitleben mit eigener Figur (L, eigener Plan)
 Ausführlicher Plan mit Teilpaketen a–c und den Festlegungen zu Takt, Autopilot, Gedächtnis und Sicht (Fragen 73–75): **[AP18h-plan.md](AP18h-plan.md)**. Kurz: Die menschliche Figur ist ein Bewohner wie die anderen ([Mitspieler-Charaktere](../ARBEITSPAKETE.md#vorgemerkt-mitspieler-charaktere), Frage 11), derselbe Körper, dieselbe `propose`-Schnittstelle, keine Kennzeichnung im Prompt der anderen; dazu die Handlungsleiste aus Mockup Bild 4.
 
-## Reihenfolge (Frage 61, Henry 20.10.2026: wie vorgeschlagen)
+## Reihenfolge (Frage 61: wie vorgeschlagen)
 1. **AP18a** Esc (klein, sofort möglich), 2. **AP18b** HUD und Formensprache, 3. **AP18c** Blasen, 4. **AP18d** Spielarten, 5. **AP18i** Ereignisse von allein, 6. **AP18e** Weltenbibliothek und Werkstatt, 7. **AP16a–d** Gestalten-Werkzeuge, 8. **AP18f** Generator, 9. **AP18g** Bauen im Spiel, 10. **AP18h** Mitleben.
-AP18f hängt nur an AP18e (Speichern der erzeugten Welt) und kann auch vor AP16 kommen, wenn dir die Vielfalt wichtiger ist als die Werkzeuge. AP17b und AP17c-3/-4 hat Henry am 19.10.2026 zum Zusammenführen freigegeben; die AP18-Pakete beginnen auf dem Stand von `main` danach.
+AP18f hängt nur an AP18e (Speichern der erzeugten Welt) und kann auch vor AP16 kommen, wenn die Vielfalt wichtiger ist als die Werkzeuge. AP17b und AP17c-3/-4 hat die Projektleitung am 19.10.2026 zum Zusammenführen freigegeben; die AP18-Pakete beginnen auf dem Stand von `main` danach.
 
 ## Risiken
 | Risiko | Gegenmaßnahme |
@@ -135,5 +135,5 @@ AP18f hängt nur an AP18e (Speichern der erzeugten Welt) und kann auch vor AP16 
 ## Bewusst festgelegt (ohne Frage)
 - Das **Menü** (Liste links, Inhalt rechts, Titelbild, Fortsetzen-Karte) bleibt in Aussehen und Bedienung. Nur die Inhalte der Bereiche sind neu.
 - Die **Weltfläche** (DorfView, Tiefe und Flach, Bild A, Innenräume nach innen2) bleibt unverändert. Das Rework betrifft alles darüber und darum herum.
-- Beide Ansichten **Tiefe und Flach** bleiben wählbar (Henry, AP12b).
-- Ausrollen nur nach Henrys Freigabe, immer aus einem sauberen Checkout.
+- Beide Ansichten **Tiefe und Flach** bleiben wählbar (AP12b).
+- Ausrollen nur nach Freigabe, immer aus einem sauberen Checkout.

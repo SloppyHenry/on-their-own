@@ -7,7 +7,7 @@ Die Simulation ist im Browser beobachtbar und steuerbar: eine atmosphärische 2D
 
 ## Vorgehen: Mockup zuerst
 1. HTML-Mockup der Leitstelle (statische Datei `docs/mockups/leitstelle.html`) mit Layout, Farben, Typografie, Beispielinhalten. Zeigt auch Detailpanel für Agent und Ort, Ereignisdetail und eingeklappte Parameterleiste (Platz für AP07) sowie Ereignisleiste (Platz für AP08).
-2. **Freigabe durch dich.**
+2. **Freigabe.**
 3. Umsetzung in React.
 
 ## Gestaltung

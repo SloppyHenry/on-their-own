@@ -7,7 +7,7 @@ Erzeugt mit `scripts/langlauf_report.py` aus den Messreihen von `scripts/langlau
 ## Lauf `real` (echtes Modell)
 
 - Start 2026-10-12 22:13:33, Dauer 2.00 h Echtzeit, Tempo `max`, Standard-Preset
-- Modell `qwen3.8-9b` über `http://192.168.178.160:8080/v1`
+- Modell `qwen3.8-9b` über `http://192.168.1.20:8080/v1`
 - Simulierte Zeit: 7.4 Sim-Tage (Minute 420 bis 11057)
 - Entscheidungen 1190 (gültig 1183, Rückfall 7), LLM-Aufrufe 1472, LLM-Fehler 6
 - Ereignisse 14994, Objekte 39, Schutz-Eingriffe 41, Gespräche 96, fehlgeschlagene Aktionen 21

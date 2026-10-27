@@ -1,8 +1,8 @@
 # AP17 – Bedienung, Startmenü, Modelle im Tool, Klang (Plan, 15.10.2026)
 
-**Auftrag:** Henry, Rückmeldungen aus dem Spiel vom 15.10.2026. **Umfang:** L, fünf Teilpakete. **Status:** Sofortkorrekturen umgesetzt (unten), der Rest ist Plan; vor dem Bau brauchen die Fragen 31 bis 36 in [offene-fragen.md](../offene-fragen.md) deine Antwort.
+**Auftrag:** Rückmeldungen aus dem Spiel vom 15.10.2026. **Umfang:** L, fünf Teilpakete. **Status:** Sofortkorrekturen umgesetzt (unten), der Rest ist Plan; vor dem Bau brauchen die Fragen 31 bis 36 in [offene-fragen.md](../offene-fragen.md) deine Antwort.
 
-## Grundsatz (Henry, 15.10.2026)
+## Grundsatz (15.10.2026)
 **Die Agenten dürfen nicht merken, dass es eine höhere Instanz gibt.** Gestaltet wird trotzdem auch im laufenden Spiel, und zwar **wie der Baumodus bei Sims**: ein eigener Editor-Modus, in dem die Zeit stillsteht.
 - **Betreten hält die Simulation an** (die Uhr steht, keine Entscheidungen), **Verlassen setzt sie fort**, wenn sie vorher lief. Änderungen werden beim Übernehmen in einem Zug angewendet, mit Sicherung davor (wie AP12c).
 - **Für die Agenten ist die Welt danach einfach so**, wie sie ist: kein Ereignis, keine Erinnerung und kein Prompt-Text, der einen Eingriff verrät („die Welt wurde verändert“, „ein Haus erschien“). Das Protokoll der Leitstelle zeichnet die Änderung auf, die Agenten sehen sie nicht.
@@ -54,7 +54,7 @@
 - **Oberfläche:** Einstellungen → Modelle (installiert, verfügbar, Download mit Fortschritt, Löschen, Test-Anfrage), Status in der Kopfzeile.
 - **Verpackung (Frage 33, 17.10.2026):** ein **Install-Skript für Linux und macOS**. Es erkennt die Hardware (NVIDIA-VRAM, Apple Silicon, nur CPU), holt passendes `llama.cpp`, startet den Dienst und schlägt Modelle nach Hardware vor. Die Modellliste kommt **live von Hugging Face** (GGUF, nach Beliebtheit und Datum, nach Speicher gefiltert); eine kleine kuratierte Liste im Repository ist die Rückfalloption offline und markiert geprüfte Empfehlungen. Zielrechner: maintux (derzeit offline) und thirdtux; Downloads sind freigegeben.
 
-## Leitgedanke (Henry, 17.10.2026)
+## Leitgedanke (17.10.2026)
 Auch wenn die Simulation mehr zum Spiel wird: **Im Mittelpunkt bleibt, das Verhalten und die Entwicklung der Agenten zu sehen.** Menü, Editoren, Klang und Szenen dienen dem. Folge für jede Entscheidung: Beobachtbarkeit (Einblicke, Protokoll, Gedächtnis) darf nie hinter Spielfunktionen zurücktreten.
 
 ## AP17d – Musik und Klänge

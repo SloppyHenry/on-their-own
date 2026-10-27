@@ -3,7 +3,7 @@
 **Auftrag:** §2, §19 (Start-/Stoppskripte) · **Abhängig von:** AP04 (erste Probe), AP09 (endgültig) · **Umfang:** M · **Meilenstein:** M6
 
 ## Ziel
-Die gesamte App läuft auf maintux in einem Docker-Container, startet mit einem Befehl, überlebt Neustarts von Container und Rechner ohne Datenverlust und spricht den llama.cpp-Router auf dem Host an. Ausrollen und Neustarts auf maintux nur mit deiner ausdrücklichen Freigabe.
+Die gesamte App läuft auf maintux in einem Docker-Container, startet mit einem Befehl, überlebt Neustarts von Container und Rechner ohne Datenverlust und spricht den llama.cpp-Router auf dem Host an. Ausrollen und Neustarts auf maintux nur mit ausdrücklicher Freigabe.
 
 ## Aufbau
 ```
@@ -55,7 +55,7 @@ services:
     cpus: 4
     logging: { driver: json-file, options: { max-size: "10m", max-file: "5" } }
 secrets:
-  llm_api_key: { file: /home/henry/llm/api-key }
+  llm_api_key: { file: /home/<benutzer>/llm/api-key }
 volumes:
   simulacra-data: {}
 ```
@@ -63,13 +63,13 @@ Der Key bleibt in der bestehenden Datei auf maintux und wird nur als Secret eing
 
 ## Zu prüfen auf maintux (vor dem ersten Ausrollen, nur lesend)
 - Port 8090 frei (8080 Router, 8081 webconfig belegt).
-- Docker-Version, Compose-Plugin vorhanden, Benutzer `henry` in der Gruppe `docker`.
+- Docker-Version, Compose-Plugin vorhanden, Benutzer in der Gruppe `docker`.
 - Erreichbarkeit `host.docker.internal:8080` aus einem Testcontainer: Der Router lauscht auf `0.0.0.0`; eine Firewall (ufw/nftables) könnte die Docker-Bridge blockieren – Status war im Setup „nicht geprüft“. Falls blockiert, schlage ich die Regel vor; Ausführung durch dich (sudo).
 - Freier Speicher (Stand: ca. 125 GB frei auf `/`).
 
 ## Zugang im Netz
 - Standard: erreichbar im Heimnetz unter `http://maintux:8090`.
-- Optional: einfacher Zugangsschutz per Token (`SIM_ACCESS_TOKEN`), im Browser einmal eingeben, als Cookie gespeichert. Entscheidung von dir.
+- Optional: einfacher Zugangsschutz per Token (`SIM_ACCESS_TOKEN`), im Browser einmal eingeben, als Cookie gespeichert. Offen zur Entscheidung.
 - Kein Zugriff aus dem Internet vorgesehen.
 
 ## Ausrollen (`scripts/deploy_maintux.sh`)
@@ -77,7 +77,7 @@ Der Key bleibt in der bestehenden Datei auf maintux und wird nur als Secret eing
 2. Quellcode per `rsync` nach `~/simulacra` auf maintux (ohne `data/`, `.env`).
 3. Vorher automatisches Backup des Volumes (`backup.sh`).
 4. `docker compose build`, `docker compose up -d`.
-5. Warten auf Healthcheck, danach `/api/health` und ein kurzer Rauchtest (Snapshot abrufen, ein Einzelschritt im pausierten Zustand – nur mit deiner Zustimmung, da er den Live-Stand verändert).
+5. Warten auf Healthcheck, danach `/api/health` und ein kurzer Rauchtest (Snapshot abrufen, ein Einzelschritt im pausierten Zustand – nur mit Zustimmung, da er den Live-Stand verändert).
 6. Bei Fehler: alter Image-Tag wird wieder gestartet (`simulacra:previous`).
 
 ## Backup und Wiederherstellung
@@ -101,7 +101,7 @@ Der Key bleibt in der bestehenden Datei auf maintux und wird nur als Secret eing
 - [ ] Backup und Restore vorgeführt.
 - [ ] `docs/betrieb.md` vollständig.
 
-## Offene Fragen an dich
+## Offene Fragen
 - Port 8090 in Ordnung?
 - Zugangsschutz per Token gewünscht?
 - Soll ich Docker auf dem Mac nachinstallieren, um den Container vorab lokal zu testen, oder direkt auf maintux testen?

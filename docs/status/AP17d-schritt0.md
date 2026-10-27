@@ -1,6 +1,6 @@
 # AP17d – Schritt 0: Mockup Musik und Klänge
 
-Plan: [AP17-plan.md](../arbeitspakete/AP17-plan.md) (AP17d), Frage 34: Henry wollte **beide Varianten vorher hören**, Klänge aus Code und CC0. Gebaut ist nur das Mockup, im Spiel ist nichts davon.
+Plan: [AP17-plan.md](../arbeitspakete/AP17-plan.md) (AP17d), Frage 34: gewünscht war, **beide Varianten vorher hören**, Klänge aus Code und CC0. Gebaut ist nur das Mockup, im Spiel ist nichts davon.
 
 **Ansehen:** `docs/mockups/klang.html` im Browser öffnen (per Doppelklick, braucht kein Netz; seit der zweiten Fassung liegen Skripte und eingebettete Aufnahmen in `docs/mockups/klang/`, damit keine Datei über 400 Zeilen hat). Erst „Ton einschalten“ klicken (Browser erlauben Ton nur nach einem Klick), Lautstärke am Rechner moderat.
 
@@ -25,7 +25,7 @@ Kenney „Impact Sounds“ und „RPG Audio“, Juhani Junkala „JRPG Pack 4 Ca
 Frage 34 (Code oder CC0 oder gemischt) kann nach dem Anhören beantwortet werden. Mein Vorschlag nach dem Plan: Stimmen und Geräusche aus Code, Musik und Umgebung je nach Gefallen.
 
 ## Zweite Fassung (18.10.2026)
-Henry: Code-Klänge „ganz okay, da geht noch mehr“, Stimmen-Tests „funktionieren noch nicht sauber“.
+Rückmeldung: Code-Klänge „ganz okay, da geht noch mehr“, Stimmen-Tests „funktionieren noch nicht sauber“.
 
 **Was an den Stimmen-Tests nicht stimmte (gemessen):**
 - Im Reiter „Stimmen“ lief das Dorf weiter: Musik, Umgebung und zufällige Gespräche übertönten den Test. Jetzt schweigt das Dorf, sobald ein anderer Reiter offen ist (gemessen: −57 dB).

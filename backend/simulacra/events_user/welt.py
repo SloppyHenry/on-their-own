@@ -1,4 +1,4 @@
-"""Ereignisse von allein (AP18i): Die Welt bringt von sich aus Ereignisse, die niemand beeinflusst (Henry: „Es sollte schon Wetter und Ereignisse geben, die wir nicht beeinflussen können.“).
+"""Ereignisse von allein (AP18i): Die Welt bringt von sich aus Ereignisse, die niemand beeinflusst (Vorgabe: „Es sollte schon Wetter und Ereignisse geben, die wir nicht beeinflussen können.“).
 
 Der Katalog liegt als Daten in `data/ereignisse_welt.json`. Jedes Ereignis hat Bedingungen (Wetter, Tageszeit, vorhandene Orte), ein Gewicht, einen Mindestabstand und Wirkungen
 als **Operationen der Ereigniseingabe** (AP08): dieselbe Ausführung, dieselbe Wissensverteilung, wer es erlebt, erfährt es. Der Takt ist deterministisch aus Seed und Zeit, wie das Wetter

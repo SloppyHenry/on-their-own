@@ -17,7 +17,7 @@ from .probe_data import SCENARIOS, build_messages
 
 RUNS = 10
 VALID_MIN_PCT = 90.0            # darunter „ungeeignet“ (Frage 42)
-SLOW_S = 20.0                   # ab dieser mittleren Dauer je Entscheidung „mit Einschränkung“ (Annahme, nicht von Henry vorgegeben)
+SLOW_S = 20.0                   # ab dieser mittleren Dauer je Entscheidung „mit Einschränkung“ (Annahme, nicht vorgegeben)
 SEALS = {"checked": "geprüft", "limited": "mit Einschränkung", "unfit": "ungeeignet"}
 
 

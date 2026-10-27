@@ -1,6 +1,6 @@
 # AP18 Schritt 0 – Befund, Mockup, Fragen (19.10.2026)
 
-**Auftrag:** Henry, 19.10.2026 (Wortlaut im [Plan](../arbeitspakete/AP18-plan.md)). **Gebaut:** Plan `docs/arbeitspakete/AP18-plan.md`, Startprompts `docs/arbeitspakete/AP18-start-prompts.md`, Mockup `docs/mockups/rework.html` mit `docs/mockups/rework/`, Fragen 52–62 in `docs/offene-fragen.md`. **Kein Anwendungscode** wurde geändert.
+**Auftrag:** 19.10.2026 (Wortlaut im [Plan](../arbeitspakete/AP18-plan.md)). **Gebaut:** Plan `docs/arbeitspakete/AP18-plan.md`, Startprompts `docs/arbeitspakete/AP18-start-prompts.md`, Mockup `docs/mockups/rework.html` mit `docs/mockups/rework/`, Fragen 52–62 in `docs/offene-fragen.md`. **Kein Anwendungscode** wurde geändert.
 
 ## So siehst du es an
 `docs/mockups/rework.html` im Browser öffnen (Doppelklick genügt, alles liegt lokal). Oben in der Mitte öffnet der Reiter **„Mockup ▾“** (oder die Taste `M`) die **Mockup-Leiste** mit zehn Bildschirmen, den Blasen-Varianten **A · B · C** und der Taste **Erklärung** (der Kasten links, je Bild ein kurzer Text). Bedienbar sind:
@@ -52,6 +52,6 @@ Weitere Befunde aus dem Code:
 - Die Hanne-Figur ist eine der Vorlagen aus AP17b und dient nur dem Beispiel „jemand ist im Haus“.
 
 ## Arbeitsweise
-- Jedes Teilpaket bekommt eine eigene Sitzung mit dem Startprompt aus `AP18-start-prompts.md`, einen eigenen Branch und, wenn nötig, einen Worktree. Es wird nie `git add -A` verwendet, denn Henry arbeitet oft parallel im selben Ordner. Bei Schritt 0 lagen fremde, nicht eingecheckte Änderungen im Ordner (`ParameterPanel.tsx`, `uiStore.ts`, `people.ts`, `menue.spec.ts`, ein Goldbild).
-- **AP18a** (Esc) hängt nicht vom Mockup ab und kann sofort beginnen. Alles andere wartet auf Henrys Abnahme (Frage 52).
+- Jedes Teilpaket bekommt eine eigene Sitzung mit dem Startprompt aus `AP18-start-prompts.md`, einen eigenen Branch und, wenn nötig, einen Worktree. Es wird nie `git add -A` verwendet, denn oft wird parallel im selben Ordner. Bei Schritt 0 lagen fremde, nicht eingecheckte Änderungen im Ordner (`ParameterPanel.tsx`, `uiStore.ts`, `people.ts`, `menue.spec.ts`, ein Goldbild).
+- **AP18a** (Esc) hängt nicht vom Mockup ab und kann sofort beginnen. Alles andere wartet auf Abnahme (Frage 52).
 - Für die Aufnahmen lief ein eigenes Backend mit Fake-Modell auf Port 8391 und Vite auf 5391, mit eigenem Datenordner im Sitzungsverzeichnis. Die Skripte liegen nicht im Repo.

@@ -4,7 +4,7 @@ Stand: 2026-10-13 02:40
 > tsc -b
 
 
- RUN  v5.0.3 /Users/henryroth/Projekte/simulacra/frontend
+ RUN  v5.0.3 <projekt>/frontend
 
  ✓ src/timeline/describeEvent.test.ts > describeEvent > liefert für jeden Ereignistyp einen nicht leeren Satz, auch bei fehlenden Feldern 3ms
  ✓ src/timeline/describeEvent.test.ts > describeEvent > Beispielsätze 0ms

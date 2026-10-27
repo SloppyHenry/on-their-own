@@ -1,6 +1,6 @@
 # AP17d – Musik und Klänge im Spiel
 
-Plan: [AP17-plan.md](../arbeitspakete/AP17-plan.md) (AP17d), Mockup: [AP17d-schritt0.md](AP17d-schritt0.md). Henry am 18.10.2026: „So umsetzen, beides einbauen (Code und CC0), in den Einstellungen selbst entscheiden; Stimmen der Personen wie im Mockup einstellbar.“ Dazu Nachschärfen: Gras-Schritte (Code und CC0), Tür schließen (Code), Gießkanne, Bach (Code und CC0), Musik im Haus.
+Plan: [AP17-plan.md](../arbeitspakete/AP17-plan.md) (AP17d), Mockup: [AP17d-schritt0.md](AP17d-schritt0.md). Vorgabe vom 18.10.2026: „So umsetzen, beides einbauen (Code und CC0), in den Einstellungen selbst entscheiden; Stimmen der Personen wie im Mockup einstellbar.“ Dazu Nachschärfen: Gras-Schritte (Code und CC0), Tür schließen (Code), Gießkanne, Bach (Code und CC0), Musik im Haus.
 
 ## Was gebaut ist
 **Klang-Modul `frontend/src/klang/`** (aus dem Mockup nach TypeScript übertragen, alle Dateien unter 400 Zeilen):
@@ -22,7 +22,7 @@ Plan: [AP17-plan.md](../arbeitspakete/AP17-plan.md) (AP17d), Mockup: [AP17d-schr
 - Mischpult: Musik, Umgebung, Figuren und Stimmen, je mit Lautstärke und Quelle **Code | CC0** (Stimmen nur aus Code).
 - „Musik anhören“: alle fünf Stücke in der gewählten Quelle.
 - „Klänge anhören“: 22 Einzelklänge und 9 Dauerklänge, je in Code und CC0.
-- **Stimmen der Bewohner** wie im Mockup, **gespeichert in der Welt** (Nachtrag 19.10.2026, Henry: „Stimmen müssen in den Spielstand wandern“):
+- **Stimmen der Bewohner** wie im Mockup, **gespeichert in der Welt** (Nachtrag 19.10.2026: „Stimmen müssen in den Spielstand wandern“):
   - Regler je Person: Tonhöhe, Tempo, Größe, Lebhaft, Hauch.
   - Auswahl je Person: Klang (weich, klar, rau, hohl, piepsig) und Art (Plappern, Summen, Piepsen).
   - „anhören“ mit eigenem Probesatz; nach dem Loslassen eines Reglers ist die Stimme sofort zu hören.
@@ -30,7 +30,7 @@ Plan: [AP17-plan.md](../arbeitspakete/AP17-plan.md) (AP17d), Mockup: [AP17d-schr
 - In der Kopfzeile schaltet 🔊/🔇 den Ton aus und ein (Rechtsklick öffnet die Einstellungen „Ton“).
 - Standard: Musik aus CC0, Umgebung und Figuren aus Code. Im automatisierten Browser bleibt der Ton aus, bis etwas gespeichert ist.
 
-## Nachgeschärft (Henrys Rückmeldung zum Mockup)
+## Nachgeschärft (Rückmeldung zum Mockup)
 | Klang | Befund | Jetzt |
 |---|---|---|
 | Gras, Code | Viele scharfe Körner ohne Nachklang: klang nach Kies | weiches Auftreten ohne Klick, Rascheln der Halme als unruhige Kurve über 0,2–0,3 s (Ferse, dann Abrollen), selten ein trockener Stängel. Das alte Knirschen ist jetzt der Boden „Weg“ |
@@ -50,7 +50,7 @@ Neu aus Code: Hämmern, Graben, Anzünden, Ausblasen, Geschirr, Paddel und Angel
 - **Nicht geprüft: wie es klingt.** Ich kann nicht hören. Bitte besonders anhören: Gras (Code und CC0), Tür schließen, Gießkanne, Bach (Code und CC0), die Stube drinnen.
 
 ## Nachtrag 19.10.2026: Stimmen im Spielstand
-Henry: „Stimmen müssen in den Spielstand wandern.“
+Vorgabe: „Stimmen müssen in den Spielstand wandern.“
 - **Backend:** Die Stimmen liegen in der Welt-Datenbank (`meta.voices`, Modul `world/voices.py`). Damit stecken sie in jedem Spielstand, in Export und Import.
 - **API:** `PUT /api/agents/{id}/voice` mit Prüfung der Grenzen und Idempotency-Key. Der Zustandsabzug liefert `voices`, jede Änderung meldet das Systemereignis `simulation.voice_changed`, sodass alle offenen Browser die neue Stimme sofort hören. Im Protokoll steht „Stimme von … eingestellt“, unter „System“.
 - **Zurücksetzen:** Mit „Bewohner behalten“ bleiben die Stimmen wie die Profile, sonst beginnen die Figuren mit dem Vorschlag.
@@ -67,5 +67,5 @@ Henry: „Stimmen müssen in den Spielstand wandern.“
 ## Ansehen
 `./install.sh` oder wie gewohnt starten, einmal in die Seite klicken (Browserregel), dann Einstellungen → Ton. Ins Haus schauen: Klick aufs Haus, Esc führt zurück.
 
-## Änderung 19.10.2026 (Henry)
+## Änderung 19.10.2026
 In den Einstellungen „Ton“ gibt es **keine Einzelklänge zum Anhören** mehr (später im Sound-Generator; `probe.ts` bleibt dafür), und **CC0 ist ausgeschaltet** (`CC0_AKTIV = false`, Code und Aufnahmen bleiben). Musik und Umgebung kommen aus dem Code; „Musik anhören“ und die Stimmen bleiben.

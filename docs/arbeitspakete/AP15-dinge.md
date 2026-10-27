@@ -1,11 +1,11 @@
 # AP15 – Dinge im Dorf: Deko wird benutzbar
 
-**Auftrag:** Henry, 14.10.2026 („erst Deko, dann Weltgenerator“; Auswahl siehe unten) · **Abhängig von:** AP14 · **Vor:** AP12 · **Umfang:** L · Branch `ap/15-dinge` (baut auf `ap/14-startwelt-a` auf)
+**Auftrag:** 14.10.2026 („erst Deko, dann Weltgenerator“; Auswahl siehe unten) · **Abhängig von:** AP14 · **Vor:** AP12 · **Umfang:** L · Branch `ap/15-dinge` (baut auf `ap/14-startwelt-a` auf)
 
 ## Ziel
 Was im Dorf und im Haus nach Mockup A und innen2 zu sehen ist, soll zum großen Teil echte Dinge werden: Die Agenten nehmen sie wahr, bekommen Handlungen dafür angeboten, und ihr Zustand ist im Bild zu sehen (Laterne brennt, Vogelscheuche liegt, Katze schläft auf dem Sofa). Das Aussehen bleibt das abgenommene: Dieselben Sprites stehen an denselben Stellen, nur kommen sie jetzt aus dem Weltzustand statt aus `look.decor`.
 
-## Entscheidungen (Henry, 14.10.2026)
+## Entscheidungen (14.10.2026)
 Ausgewählt wurde alles aus dem Vorschlag:
 
 | Ding | Handlungen | Wirkung |
@@ -40,4 +40,4 @@ Reine Deko bleiben: Bäume ohne Früchte, Büsche, Zaun, Pfähle, Bilder, Fenste
 3. Frontend: Dinge aus dem Zustand zeichnen (draußen und drinnen), Zustand im Bild, Licht nur von brennenden Laternen und Lampen, Namensblase und Kontextmenü.
 4. Probelauf mit Fake-Modell (werden die Dinge benutzt?), Browser-Tests, Bilder, Doku, Statusbericht.
 
-Ausrollen nur nach Henrys Freigabe.
+Ausrollen nur nach Freigabe.

@@ -1,5 +1,5 @@
 // Mockup AP17b: Daten und Prüfungen. Alex und Mira stehen wörtlich wie in backend/simulacra/agents/defaults/*.json;
-// Hanne, Jonas, Rosa und Kim sind die vier vorgeschlagenen neuen Vorlagen (Henry liest und ändert die Texte).
+// Hanne, Jonas, Rosa und Kim sind die vier vorgeschlagenen neuen Vorlagen (zum Lesen und Ändern die Texte).
 const LABELS = {
   sociability: 'Geselligkeit', curiosity: 'Neugier', helpfulness: 'Hilfsbereitschaft', risk_taking: 'Risikobereitschaft',
   conflict_readiness: 'Konfliktbereitschaft', cooperation: 'Kooperationsneigung', calm_need: 'Bedürfnis nach Ruhe',
