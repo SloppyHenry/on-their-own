@@ -41,7 +41,7 @@ export interface Frame {
   interiorRooms: string[];
   /** Innenansicht: ein Raum groß (Ort) statt des ganzen Hauses. */
   room?: string | null;
-  /** Ziel der Wegvorschau (Mitspieler-Vorschau) in Bildschirmpixeln. */
+  /** Ziel des Weges deiner Figur in Bildschirmpixeln. */
   goal: { x: number; y: number } | null;
   /** Umriss des Gebiets, das nur als Vorschau gezeigt wird (Welteditor), in Bildschirmpixeln; sonst null. */
   ghost?: [number, number][] | null;
@@ -58,7 +58,8 @@ export interface WorldBridge {
   follow(): string | null;
   select(s: Selection): void;
   mode(): ViewMode;
-  playerPreview(): boolean;
+  /** Gibt es eine eigene Figur (AP18h)? Dann geht ein Klick auf eine Kachel dorthin. */
+  playerActive(): boolean;
   /** Klick auf eine Kachel für ein Werkzeug der Welt-Werkstatt (AP18e); liefert, ob der Klick verbraucht wurde. */
   /** Markierte Kachel der Werkstatt (Startplatz oder gewählte Ecke) für das Zeichen über der Welt; sonst null. */
   markierung?(): [number, number] | null;
@@ -90,7 +91,7 @@ export function createBridge(): WorldBridge {
     follow: () => ui.getState().follow,
     select: (s) => ui.getState().select(s),
     mode: () => ui.getState().worldMode,
-    playerPreview: () => ui.getState().playerPreview,
+    playerActive: () => !!sim.getState().world?.player,
     markierung: () => { const s = wk.getState(), g = ge.getState(); return s.offen ? (g.werkzeug === "startplatz" ? ((g.rechnung?.welt?.startplatz as [number, number] | null | undefined) ?? s.welt?.startplatz ?? null) : g.werkzeug === "gebiet" ? s.gewaehlt : null) : null; },
     tileClick: (t) => {
       const g = ge.getState();

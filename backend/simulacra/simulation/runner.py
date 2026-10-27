@@ -20,6 +20,7 @@ from ..stats.sampler import sample_stats
 from ..agents.store import AgentStore
 from ..world.engine import WorldEngine
 from ..world.models import Event, ProposeResult
+from . import mitleben
 from .limits import DecisionLimiter
 
 
@@ -75,6 +76,7 @@ class SimulationRunner:
         self.power_save = False                         # Energiesparen: Pause ohne verbundenen Browser, begrenzte Entscheidungen, keine Reflexion am Tag
         self._bg: asyncio.Task | None = None
         self.owner = None                               # die Simulation, zu der dieser Läufer gehört (für Autosave und Statistik)
+        self.takt = mitleben.Takt()                     # echte Zeit der eigenen Figur: Autopilot, Antwortfrist (AP18h)
         self.inject = None                              # Ereignis-Controller (AP08): geplante Ereignisse, Rücknahmen, Nebenfiguren
 
     # --- Steuerbefehle ----------------------------------------------------------------------------
@@ -83,6 +85,8 @@ class SimulationRunner:
         if self.state in (SimState.RUNNING, SimState.STEPPING):
             return
         await self.engine.db.run(self.store.ensure_all)
+        self.takt.waiting = False                      # Weiter per Hand beendet das Warten auf die Figur
+        await self.engine.db.run(self._clear_waiting)
         self._stop_req = False
         self._gate.set()
         was_paused = self.state == SimState.PAUSED
@@ -90,6 +94,10 @@ class SimulationRunner:
         await self._announce("simulation.resumed" if was_paused else "simulation.started")
         if self._task is None or self._task.done():
             self._task = asyncio.create_task(self._loop(ticks))
+
+    def _clear_waiting(self) -> None:
+        with self.engine.db.transaction():
+            self.engine.state.set_meta(mitleben.WAIT_KEY, False)
 
     async def pause(self) -> None:
         if self.state != SimState.RUNNING:
@@ -154,6 +162,11 @@ class SimulationRunner:
                     continue
                 async with self._step_lock:
                     done += await self._step(force=False)
+                if self.takt.waiting:                                  # die Zeit steht, bis du etwas tust
+                    self._gate.clear()
+                    self.state = SimState.PAUSED
+                    await self._announce("simulation.paused")
+                    continue
                 if self.tick_delay_s:
                     await asyncio.sleep(self.tick_delay_s)
         finally:
@@ -313,7 +326,8 @@ class SimulationRunner:
         for ev in events:
             if ev.type == "agent.dialogue":
                 extra += self.convs.on_dialogue(ev)
-        extra += self.convs.expire(self.engine.minute)
+        extra += self.convs.expire(self.engine.minute, lambda c: self.takt.protects(c, self.engine.state))
+        extra += self._takt(events)
         if self.inject is not None:
             extra += self.inject.on_tick(self.engine.minute)
         self._remember(events + extra)
@@ -325,6 +339,17 @@ class SimulationRunner:
         for aid in self.store.profile_ids():
             self._set_status(aid, self._status_of(aid))
         return extra
+
+    def _takt(self, events: list[Event]) -> list[Event]:
+        """Autopilot nach der Frist ohne Eingabe, „Anhalten, wenn ich dran bin“ (AP18h-a3): Zustand im Spielstand, ein Systemereignis ohne Agenten."""
+        st = self.engine.state
+        with self.engine.db.transaction():
+            changed = self.takt.autopilot_due(st)
+            if self.takt.should_wait(st, events):
+                st.set_meta(mitleben.WAIT_KEY, True)
+                self.takt.waiting = True
+                changed = True
+            return [self.engine.emit_event("simulation.player_takt", data=mitleben.settings(st))] if changed else []
 
     def _status_of(self, aid: str) -> str:
         body = self.engine.state.agent(aid)

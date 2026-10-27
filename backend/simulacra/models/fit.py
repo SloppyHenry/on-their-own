@@ -5,7 +5,7 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
-CONTEXT = 8192                  # Kontext, mit dem Simulacra das Modell startet
+CONTEXT = 8192                  # Kontext, mit dem das Spiel das Modell startet
 OVERHEAD_MB = 300               # Rechenpuffer der Laufzeit
 # Stufen: Anteil des nötigen am nutzbaren Speicher
 LEVELS = [("good", 0.70, "passt gut"), ("ok", 0.90, "passt"), ("tight", 1.00, "knapp")]

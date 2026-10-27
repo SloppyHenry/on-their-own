@@ -1,4 +1,4 @@
-// Betriebsart (Mockup docs/mockups/modelle.html): „Eingebaut“ (Simulacra startet llama-server selbst) oder „Externer Server“ (OpenAI-kompatibel, z. B. der Router auf maintux).
+// Betriebsart (Mockup docs/mockups/modelle.html): „Eingebaut“ (On Their Own startet llama-server selbst) oder „Externer Server“ (OpenAI-kompatibel, z. B. der Router auf maintux).
 import { useEffect, useState } from "react";
 import { api } from "../net/api";
 import type { ExternalTestOut, LlmStatusOut } from "../types/generated";
@@ -31,7 +31,7 @@ export function BetriebsartKarte({ status }: { status: LlmStatusOut }) {
           <button type="button" aria-pressed={builtin} data-testid="mode-builtin" disabled={status.locked || !!blocked} onClick={() => setMode("builtin")} title={blocked}
             className="block w-full cursor-pointer bg-transparent p-0 text-left text-text disabled:cursor-default">
             <b className="block">Eingebaut</b>
-            <small className="text-dim">Simulacra startet <span className="font-mono text-xs">llama-server</span> selbst und lädt das gewählte Modell.</small>
+            <small className="text-dim">On Their Own startet <span className="font-mono text-xs">llama-server</span> selbst und lädt das gewählte Modell.</small>
           </button>
           <div className="mt-1.5 text-[12px] text-dim" data-testid="runtime-info">
             {rt.installed ? <>Laufzeit llama.cpp {rt.version ?? ""}{rt.kind ? ` (${rt.kind})` : ""} installiert</> : "Laufzeit llama.cpp noch nicht installiert"}

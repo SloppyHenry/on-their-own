@@ -134,8 +134,8 @@ class ConversationManager:
                                       {"conversation": c.id, "reason": reason, "reason_text": REASONS[reason], "turns": len(c.turns),
                                        "participants": c.participants})
 
-    def expire(self, minute: int) -> list[Event]:
-        """Beendet Gespräche nach Stille oder wenn sich die Teilnehmer entfernt haben."""
+    def expire(self, minute: int, protect: Any = None) -> list[Event]:
+        """Beendet Gespräche nach Stille oder wenn sich die Teilnehmer entfernt haben. `protect(c)`: Stille allein beendet dieses Gespräch noch nicht (der Mensch hat noch Zeit zu antworten, AP18h)."""
         out = []
         for r in self.conn.execute("SELECT * FROM conversations WHERE status IN ('opening','active')").fetchall():
             c = self._row(r)
@@ -147,7 +147,7 @@ class ConversationManager:
             apart = a.location_id != b.location_id and math.dist(a.pos, b.pos) > HEARING
             if apart and c.status == "active":
                 out.append(self._end(c, "left"))
-            elif minute - c.last_minute > SILENCE_MINUTES:
+            elif minute - c.last_minute > SILENCE_MINUTES and not (protect and protect(c)):
                 if c.status == "opening":              # nie ein Wort gewechselt: still verwerfen
                     c.status, c.end_reason = "ended", "timeout"
                     self._save(c)

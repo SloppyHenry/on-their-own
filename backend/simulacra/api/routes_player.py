@@ -14,6 +14,8 @@ from ..agents import options as options_mod
 from ..agents import perception
 from ..agents.prompts import ALLOWED_OTHER
 from ..simulation import mitleben
+from ..world import spielart
+from ..simulation.runner import SimState
 from ..world.models import Accepted
 
 router = APIRouter(prefix="/api/player")
@@ -65,12 +67,29 @@ def _result(res) -> ActResult:
     return ActResult(ok=False, code=str(getattr(res.rejected.code, "value", res.rejected.code)), text=res.rejected.text)
 
 
-async def _run(request: Request, payload, work):
+async def _run(request: Request, payload, work, *, input_: bool = True):
+    """Handlung des Menschen: Autopilot aus, Warten beendet (die Zeit läuft weiter), dann die eigentliche Arbeit auf dem DB-Thread."""
     sim = request.app.state.sim
 
     async def handler():
-        return await sim.engine.db.run(lambda: work(sim))
+        waited = sim.runner.takt.waiting
+
+        def job():
+            if input_:
+                _touch(sim)
+            return work(sim)
+        out = await sim.engine.db.run(job)
+        if waited and sim.runner.state == SimState.PAUSED:
+            await sim.runner.resume()
+        return out
     return await request.app.state.idempotency.run(sim, request, payload, handler)
+
+
+def _touch(sim) -> None:
+    """Eingabe des Menschen vermerken; ändert sich der Takt (Autopilot aus, Warten vorbei), meldet das ein Systemereignis."""
+    with sim.engine.db.transaction():
+        if sim.runner.takt.touch(sim.engine.state):
+            sim.engine.emit_event("simulation.player_takt", data=mitleben.settings(sim.engine.state))
 
 
 def _propose(sim, pid: str, action: str, params: dict[str, Any]) -> ActResult:
@@ -135,3 +154,78 @@ async def choices(request: Request):
                 out.append(ChoiceOut(kind=o.kind, label=o.label, action=o.action, params=o.params, utterance_key=o.utterance_key, ok=False, reason=res.text))
         return out
     return await sim.engine.db.run(work)
+
+
+class TaktPatch(BaseModel):
+    hold: bool | None = None                    # „Anhalten, wenn ich dran bin“
+    auto: bool | None = None                    # „Autopilot, wenn ich nichts tue“
+    auto_minutes: int | None = Field(default=None, ge=1, le=240)      # echte Minuten ohne Eingabe
+
+
+class TaktOut(BaseModel):
+    player: str | None = None
+    hold: bool = False
+    auto: bool = False
+    auto_minutes: int = mitleben.AUTO_MINUTES
+    autopilot: bool = False
+    waiting: bool = False
+
+
+@router.get("/takt", response_model=TaktOut)
+async def get_takt(request: Request):
+    sim = request.app.state.sim
+    return await sim.engine.db.run(lambda: mitleben.settings(sim.engine.state))
+
+
+@router.put("/takt", response_model=TaktOut)
+async def put_takt(request: Request, body: TaktPatch):
+    """Schalter des Taktes (Einstellungen › Spielart). Nur mit eigener Figur."""
+    def work(sim):
+        _player(sim)
+        st = sim.engine.state
+        with sim.engine.db.transaction():
+            for key, val in ((mitleben.HOLD_KEY, body.hold), (mitleben.AUTO_KEY, body.auto), (mitleben.AUTO_MIN_KEY, body.auto_minutes)):
+                if val is not None:
+                    st.set_meta(key, val)
+            if body.auto is False:
+                mitleben.set_autopilot(st, False)
+            out = mitleben.settings(st)
+            sim.engine.emit_event("simulation.player_takt", data=out)
+        return TaktOut(**out)
+    return await _run(request, body, work, input_=False)
+
+
+@router.post("/takeover", response_model=TaktOut)
+async def takeover(request: Request):
+    """„Übernehmen“: der Autopilot gibt die Figur zurück; die Zeit läuft weiter."""
+    def work(sim):
+        _player(sim)
+        return TaktOut(**mitleben.settings(sim.engine.state))
+    return await _run(request, None, work)
+
+
+class FigureRequest(BaseModel):
+    agent: str
+    confirm: bool = False
+
+
+@router.put("/figure", response_model=TaktOut)
+async def change_figure(request: Request, body: FigureRequest):
+    """Eigene Figur wechseln oder nachträglich wählen (Einstellungen › Spielart, mit Bestätigung; nur in der Spielart Leben). Die bisherige Figur wird ein normaler Bewohner:
+    das Modell entscheidet für sie wie für jeden anderen. Ein Mensch je Simulation."""
+    if not body.confirm:
+        raise HTTPException(400, "Das Wechseln der eigenen Figur braucht die ausdrückliche Bestätigung {\"confirm\": true}.")
+
+    def work(sim):
+        st = sim.engine.state
+        if spielart.get(st) != "leben":
+            raise HTTPException(409, "Eine eigene Figur gibt es nur in der Spielart Leben.")
+        if st.agent(body.agent) is None or body.agent not in sim.store.profile_ids():
+            raise HTTPException(404, f"Einen Bewohner '{body.agent}' gibt es nicht.")
+        with sim.engine.db.transaction():
+            mitleben.set_player(st, body.agent)
+            sim.runner.takt.touch(st)
+            out = mitleben.settings(st)
+            sim.engine.emit_event("simulation.player_takt", data=out)
+        return TaktOut(**out)
+    return await _run(request, body, work, input_=False)

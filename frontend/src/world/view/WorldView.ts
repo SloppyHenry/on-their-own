@@ -194,8 +194,8 @@ export class WorldView {
     this.hover = this.last ? hitTest(this.last.drawn, p.x, p.y) : null;
     const tile = this.tileAt(p.x, p.y), yard = !this.hover && this.interior < 0 && tile && this.data ? buildingAt(this.data.buildings, tile.x, tile.y) : null;
     if (yard) this.hover = { kind: "house", id: String(this.data!.buildings.indexOf(yard)) };
-    this.player?.hover(this.bridge.playerPreview() ? tile : null);
-    this.els.host.style.cursor = this.hover ? "pointer" : this.bridge.playerPreview() && tile ? "crosshair" : "default";
+    this.player?.hover(this.bridge.playerActive() ? tile : null);
+    this.els.host.style.cursor = this.hover ? "pointer" : this.bridge.playerActive() && tile ? "crosshair" : "default";
   }
 
   private up(e: PointerEvent) {
@@ -212,7 +212,7 @@ export class WorldView {
     if (!w || !data) return;
     const hit = this.last ? hitTest(this.last.drawn, p.x, p.y) : null, tile = this.tileAt(p.x, p.y);
     if (!selectOnly && tile && this.bridge.tileClick?.(tile)) return;
-    if (!selectOnly && this.bridge.playerPreview() && this.player?.click(hit, tile, p.x * this.pf, p.y * this.pf)) return;
+    if (!selectOnly && this.bridge.playerActive() && this.player?.click(hit, tile, p.x * this.pf, p.y * this.pf)) return;
     if (hit?.kind === "agent") {
       const now = performance.now();
       this.bridge.select({ kind: "agent", id: hit.id });
@@ -260,7 +260,7 @@ export class WorldView {
     }
     this.cam = clampToMap(this.cam, data.w * T, data.h * T);
     const sel = this.bridge.selection(), budget = this.frames++ < 3 ? 400 : 10, t0 = performance.now();
-    this.last = this.renderer!.render({ w, cam: this.cam, vp: this.vp, t, interior: this.interior, selected: sel?.kind === "agent" ? sel.id : null, follow: this.bridge.follow(), hover: this.hover, budgetMs: budget, preview: this.bridge.playerPreview() && this.player ? this.player.preview() : null });
+    this.last = this.renderer!.render({ w, cam: this.cam, vp: this.vp, t, interior: this.interior, selected: sel?.kind === "agent" ? sel.id : null, follow: this.bridge.follow(), hover: this.hover, budgetMs: budget, preview: this.bridge.playerActive() && this.player ? this.player.preview() : null });
     this.post(w, t, dt);
     this.emit();
     this.perf.push(performance.now() - t0);

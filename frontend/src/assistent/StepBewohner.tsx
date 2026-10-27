@@ -7,7 +7,7 @@ import { StimmeFeld } from "./StimmeFeld";
 
 export function StepBewohner() {
   const { draft, sel, templates, limits, preview } = useAssistent();
-  const { setN, select, patchResident, takeTemplate, roll, setDiceSeed } = useAssistent.getState();
+  const { setN, select, patchResident, takeTemplate, roll, setDiceSeed, patchDraft: patch } = useAssistent.getState();
   const rs = draft.residents, n = rs.length, r = rs[sel] ?? rs[0], start = draft.world.kind === "start";
   if (!r) return <p className="text-dim" data-testid="step-bewohner">Vorlagen werden geladen …</p>;
   const sec = n * limits.secondsPerDecision, max = start ? 2 : limits.maxResidents;
@@ -35,6 +35,13 @@ export function StepBewohner() {
       <div className="mb-2 flex flex-wrap gap-1.5" role="tablist" aria-label="Bewohner">
         {rs.map((x, i) => <button key={i} type="button" role="tab" aria-selected={i === sel} data-testid={`bew-tab-${i}`} onClick={() => select(i)} className={`btn ${i === sel ? "on" : ""}`}>{x.profile.name || "Neu"}</button>)}
       </div>
+      {draft.playMode === "leben" && draft.player !== null && (
+        <div className="mb-2 flex flex-wrap items-center gap-2 rounded-xl border border-world bg-world/10 px-3 py-2 text-[13px]" role="radiogroup" aria-label="Das bist du" data-testid="bew-das-bist-du">
+          <b className="text-world">Das bist du:</b>
+          {rs.map((x, i) => <label key={i} className="flex cursor-pointer items-center gap-1.5"><input type="radio" name="das-bist-du" checked={draft.player === i} onChange={() => patch({ player: i })} data-testid={`bew-ich-${i}`} />{x.profile.name || "Neu"}</label>)}
+          <small className="text-dim">Für die anderen bist du ein Bewohner wie jeder andere: gleicher Körper, gleiche Regeln. Schreibe nichts über „Spieler“ in das Profil.</small>
+        </div>
+      )}
       <section className="mb-3 rounded-xl border border-line bg-black/15 p-3" data-testid={`bew-${sel}`}>
         <div className="mb-3 flex flex-wrap items-center gap-2 text-[13px]">
           <label className="flex items-center gap-2 text-dim">Vorlage

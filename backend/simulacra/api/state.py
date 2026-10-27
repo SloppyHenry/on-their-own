@@ -6,6 +6,7 @@ from typing import Any
 from ..agents.perception import needs_words
 from ..events.schema import to_out
 from ..events.store import EventStore
+from ..simulation import mitleben
 from ..simulation.builder import Simulation
 from ..world import spielart
 from ..world import clock
@@ -64,7 +65,8 @@ def snapshot(sim: Simulation) -> StateSnapshot:
         resources=[ResourceInfo(**n.model_dump(include={"id", "location_id", "x", "y", "resource", "amount", "cap", "requires_tool", "label"})) for n in st.all_nodes()],
         agents=[agent_info(sim, a) for a in st.agents()], clock=ClockInfo(**clock.snapshot(st.minute)),
         weather=WeatherInfo(**w), simulation=sim_status(sim), rules=st.rules.model_dump(),
-        links=st.get_meta("links") or [], look=st.get_meta("look"), voices=voices(st), play_mode=spielart.get(st))
+        links=st.get_meta("links") or [], look=st.get_meta("look"), voices=voices(st), play_mode=spielart.get(st),
+        player=mitleben.player_id(st), player_autopilot=mitleben.autopilot_on(st), **{f"player_{k}": v for k, v in mitleben.settings(st).items() if k in ("hold", "auto", "auto_minutes", "waiting")})
 
 
 def agent_detail(sim: Simulation, agent_id: str) -> AgentDetail | None:

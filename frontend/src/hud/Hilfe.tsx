@@ -4,7 +4,7 @@ import { EBENE, useRueckweg } from "../ui/zurueck";
 
 const KEYS: [string, string][] = [
   ["Klick auf Bewohner", "Karte öffnen"], ["Doppelklick", "folgen"], ["Klick auf ein Haus", "hineinschauen"], ["Esc", "eine Ebene zurück"], ["Mausrad, + −", "Zoom ¼× bis 3×"], ["Ziehen, WASD", "Kamera fahren"],
-  ["F", "folgen an/aus"], ["0", "Gesamtansicht"], ["Leertaste", "Pause oder weiter"], [".", "ein Schritt"], ["T · G", "Tagebuch · Gedächtnis"], ["V", "Tiefe ↔ Flach"], ["?", "diese Hilfe"],
+  ["F", "folgen an/aus"], ["0", "Gesamtansicht"], ["Leertaste", "Pause oder weiter"], [".", "ein Schritt"], ["T · G", "Tagebuch · Gedächtnis"], ["V", "Tiefe ↔ Flach"], ["?", "diese Hilfe"], ["Klick auf den Boden", "eigene Figur geht hin"], ["T · U · B · I", "Sagen · Benutzen · Bauen · Gepäck (eigene Figur)"],
 ];
 
 export function Hilfe() {

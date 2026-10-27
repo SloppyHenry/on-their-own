@@ -108,6 +108,7 @@ const TEXT: Table = {
   "world.resource_removed": (d) => `Quelle entfernt (${d.node}).`,
   "world.links_removed": (d) => `${d.links.length} Tür${d.links.length === 1 ? "" : "en"} entfernt.`,
   "world.look_added": () => "Das Gebaute ist jetzt auch im Bild zu sehen.",
+  "simulation.player_takt": (d) => (d.waiting ? "Die Zeit steht: deine Figur ist dran." : d.autopilot ? "Autopilot übernimmt deine Figur." : "Takt deiner Figur geändert."),
   "simulation.play_mode_changed": (d) => `Spielart gewechselt: ${d.play_mode === "leben" ? "Leben" : "Gott"}.`,
 };
 
@@ -125,7 +126,7 @@ function informed(d: EventDataMap["agent.informed"], who: string): string {
 const ICON_BY_TYPE: Partial<Record<EventType, string>> = {
   "agent.dialogue": "chat", "agent.conversation_started": "chat", "agent.conversation_ended": "chat", "agent.proposal_accepted": "chat",
   "agent.proposal_declined": "chat", "agent.decision": "plan", "agent.status_changed": "plan",
-  "agent.informed": "chat", "simulation.event_injected": "hammer", "simulation.event_scheduled": "plan", "simulation.event_fired": "hammer", "simulation.effect_ended": "ok", "world.npc_acted": "go", "world.nature_event": "rain", "world.look_added": "hammer", "simulation.play_mode_changed": "ok",
+  "agent.informed": "chat", "simulation.event_injected": "hammer", "simulation.event_scheduled": "plan", "simulation.event_fired": "hammer", "simulation.effect_ended": "ok", "world.npc_acted": "go", "world.nature_event": "rain", "world.look_added": "hammer", "simulation.play_mode_changed": "ok", "simulation.player_takt": "ok",
   "agent.decision_failed": "warn", "agent.guard_triggered": "warn", "agent.goal_changed": "plan", "agent.relation_changed": "chat", "agent.action_failed": "no", "agent.action_rejected": "no", "agent.action_interrupted": "warn",
   "agent.action_completed": "ok", "world.weather_changed": "rain", "world.day_started": "sun", "world.phase_changed": "sun",
   "agent.slept": "zzz", "agent.rested": "zzz", "agent.rowed": "rain", "agent.petted": "leaf", "agent.stored": "hammer", "agent.memory_created": "think", "agent.memory_retrieved": "think", "agent.memory_skipped": "think", "agent.memory_archived": "think",

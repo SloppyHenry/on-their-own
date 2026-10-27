@@ -73,7 +73,7 @@ export function StartMenu() {
       <div>
         {menu === "title" && (
           <div className="mb-5">
-            <div className="flex items-center gap-3.5 text-[38px] font-bold tracking-[0.24em] [text-shadow:0_3px_0_#0007]"><Logo />SIMULACRA</div>
+            <div className="flex items-center gap-3.5 text-[clamp(22px,6.5vw,38px)] font-bold tracking-[0.12em] whitespace-nowrap [text-shadow:0_3px_0_#0007]"><Logo />ON THEIR OWN</div>
             <div className="mt-1 text-[13px] tracking-[0.04em] text-dim">Ein Dorf, in dem sich Menschen von selbst entwickeln.</div>
           </div>
         )}

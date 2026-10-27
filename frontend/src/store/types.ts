@@ -48,6 +48,14 @@ export interface World {
   voices: StateSnapshot["voices"];
   /** Spielart (AP18d): „leben“ = nur die Bewohner verändern die Welt, „gott“ = auch du von außen. Alte Spielstände gelten als „gott“. */
   playMode: "leben" | "gott";
+  /** Deine eigene Figur (AP18h), nur in der Spielart Leben; sonst null. Der Autopilot übernimmt sie vorübergehend. */
+  player: string | null;
+  playerAutopilot: boolean;
+  /** Takt der eigenen Figur (a3): Schalter, Frist in echten Minuten, und ob die Zeit gerade auf dich wartet. */
+  playerHold: boolean;
+  playerAuto: boolean;
+  playerAutoMinutes: number;
+  playerWaiting: boolean;
   /** Ein Ereignis war unvollständig (z. B. abgeschnittene Kachelliste): Zustand neu laden. */
   stale: boolean;
 }

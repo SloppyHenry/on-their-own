@@ -13,7 +13,7 @@ import { drawPose, drawSmoke, silhouette, wallPiece, type WallPiece } from "./pi
 import { project, visibleWorld, type Camera, type Viewport } from "./projection";
 import type { Item, Target } from "./scene";
 import { Sky } from "./sky";
-import { drawGhost, drawPreviewGround, type PreviewIn } from "./previewDraw";
+import { drawPreviewGround, type PreviewIn } from "./previewDraw";
 
 export interface Drawn { x: number; y: number; w: number; h: number; spr: HTMLCanvasElement; target?: Target }
 export interface AgentSpot { id: string; x: number; y: number; sc: number; visible: boolean; house: number }
@@ -93,8 +93,6 @@ export class Renderer {
       agents.push({ id: a.id, x: sp.x, y: sp.y, sc: sp.sc, visible: shown && sp.x > -20 && sp.x < vp.w + 20 && sp.y > 0 && sp.y < vp.h + 30, house: shown ? -1 : hb });
       if (shown) list.push({ y: p.y + (p.inBed ? 0.3 : 0), pose: p });
     }
-    const gh = f.preview?.ghost, ghIn = gh ? bs.findIndex((b) => contains(b, gh[0], gh[1])) : -1;
-    if (gh && ghIn === interior) list.push({ y: gh[1] * 16 + 14, ghost: gh });
     list.sort((a, b) => a.y - b.y);
 
     // Halb durchsichtig, was vor der gewählten oder verfolgten Figur steht
@@ -104,8 +102,7 @@ export class Renderer {
     const drawn: Drawn[] = [], lights: FrameOut["lights"] = [];
     for (const e of list) {
       if (e.wall) { wallPiece(g, cam, vp, e.wall); continue; }
-      if (e.ghost) { drawGhost(g, (x, y) => project(cam, vp, x, y), e.ghost); continue; }
-      if (e.pose) { drawPose(g, cam, vp, e.pose, f.t, e.pose.id === f.selected, drawn); continue; }
+      if (e.pose) { drawPose(g, cam, vp, e.pose, f.t, e.pose.id === f.selected || e.pose.id === w.player, drawn); continue; }
       const it = e.item!, lit = it.lit === "house" ? occupants[Number(it.target?.id)]?.length > 0 : it.lit === "lamp" ? lampsOn : false;
       const spr = it.lit === "house" ? HOUSE[lit ? 1 : 0] : it.spr(lit), p = project(cam, vp, it.x, it.y);
       if (p.t > 1.02) continue;                                                  // hinter dem Horizont

@@ -226,7 +226,7 @@ export class Dorfbild {
         const rx = t.spr.width * 0.42 * pr.sc, ry = Math.max(2, t.spr.width * 0.16) * pr.sc;
         g.beginPath(); g.ellipse(snap(pr.x + rx * 0.3), snap(pr.y), rx, ry, 0, 0, 7); g.fill();
         g.globalCompositeOperation = "source-over";
-        if (fig.ring) { g.strokeStyle = fig.ring; g.lineWidth = 1; g.globalAlpha = 0.55 + Math.sin(tm * 3) * 0.25; g.beginPath(); g.ellipse(snap(pr.x) + 0.5, snap(pr.y) + 0.5, 9 * pr.sc, 3.5 * pr.sc, 0, 0, 7); g.stroke(); g.globalAlpha = 1; }
+        if (fig.ring) { g.strokeStyle = fig.ring; g.lineWidth = fig.ring === "#74aadc" ? 2 : 1; g.globalAlpha = 0.55 + Math.sin(tm * 3) * 0.25; g.beginPath(); g.ellipse(snap(pr.x) + 0.5, snap(pr.y) + 0.5, 9 * pr.sc, 3.5 * pr.sc, 0, 0, 7); g.stroke(); g.globalAlpha = 1; }
       }
       const sw = t.spr.width * pr.sc, sh = t.spr.height * pr.sc, bob = t.bob ? Math.sin(tm * 1.8) * 0.8 * pr.sc : 0, lift = (fig?.lift ?? 0) * pr.sc;
       const w = Math.round(sw), h = Math.round(sh), dx = snap(pr.x - sw / 2), dy = snap(pr.y - sh + bob - lift);

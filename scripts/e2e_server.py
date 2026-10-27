@@ -111,4 +111,17 @@ if __name__ == "__main__":
         await sim.engine.db.run(work)
         return {"ok": True}
 
+    @app.post("/api/e2e/player")
+    async def e2e_player(body: dict):
+        """Nur Testserver: eigene Figur wählen (Spielart Leben), bis der Assistent sie kann (AP18h-c1). Ohne `agent` wird die Wahl aufgehoben."""
+        from simulacra.simulation import mitleben
+        from simulacra.world import spielart
+
+        def work():
+            with sim.engine.db.transaction():
+                spielart.set_mode(sim.engine.state, "leben")
+                mitleben.set_player(sim.engine.state, body.get("agent"))
+        await sim.engine.db.run(work)
+        return {"ok": True}
+
     uvicorn.run(app, host="127.0.0.1", port=args.port, log_level="warning")

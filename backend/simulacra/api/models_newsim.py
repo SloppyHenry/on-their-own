@@ -76,6 +76,7 @@ class NewSimRequest(BaseModel):
     model: str | None = Field(None, max_length=200)                        # Modell der neuen Simulation (gilt fest, Frage 10); ohne Angabe das bisherige
     run: Literal["paused", "running"] = "paused"
     play_mode: Literal["leben", "gott"] = "leben"                          # Spielart (AP18d): Leben ist der Standard für neue Simulationen
+    player: int | None = Field(None, ge=0)                                  # eigene Figur (AP18h): Nummer in `residents`, nur in der Spielart Leben; höchstens eine
 
 
 class RulesPreviewRequest(BaseModel):

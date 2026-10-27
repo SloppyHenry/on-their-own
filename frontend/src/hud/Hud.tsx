@@ -10,9 +10,14 @@ import { MemoryInspector } from "../memory/MemoryInspector";
 import { StatsView } from "../stats/StatsView";
 import { Bewohnerleiste } from "./Bewohnerleiste";
 import { Einblicke } from "./Einblicke";
+import { Benutzen } from "./Benutzen";
+import { Gepaeck } from "./Gepaeck";
+import { Handlungsleiste } from "./Handlungsleiste";
+import { Sagenzeile } from "./Sagenzeile";
 import { Hilfe } from "./Hilfe";
 import { ObenLinks } from "./ObenLinks";
 import { ObenRechts } from "./ObenRechts";
+import { Plakette } from "./Plakette";
 import { Seite } from "./Seite";
 import { Tagebuch } from "./Tagebuch";
 import { useHudTasten } from "./tasten";
@@ -21,6 +26,7 @@ import { Werkzeuge } from "./Werkzeuge";
 export function Hud() {
   const ready = useSimStore((s) => s.world !== null);
   const view = useUiStore((s) => s.view), selection = useUiStore((s) => s.selection), menu = useUiStore((s) => s.menu), appMode = useUiStore((s) => s.appMode);
+  const pop = useUiStore((s) => s.pop);
   const aktiv = ready && menu !== "title" && appMode === "game";
   useHudTasten(aktiv);
   if (!aktiv) return null;
@@ -31,6 +37,12 @@ export function Hud() {
       <Bewohnerleiste />
       <Einblicke />
       <Werkzeuge />
+      <Handlungsleiste />
+      <Plakette />
+      {pop === "benutzen" && ready && <Benutzen />}
+      {pop === "bauen" && ready && <Benutzen nur={["build", "resume"]} titel="🔨 Bauen" sub="Bauvorlagen, die hier gerade gehen" testid="bauen" />}
+      {pop === "gepaeck" && ready && <Gepaeck />}
+      <Sagenzeile />
       <Tagebuch />
       {view === "memory" && <Seite titel="Gedächtnis"><MemoryInspector /></Seite>}
       {view === "stats" && <Seite titel="Statistik"><StatsView /></Seite>}

@@ -71,6 +71,7 @@ function stored(): { draft: Draft; step: number; sel: number } | null {
     if (!j || !j.draft || !Array.isArray(j.draft.residents)) return null;
     j.draft.world = { libraryId: null, ...j.draft.world, stil: { ...START, ...(j.draft.world?.stil ?? {}) } };
     j.draft.playMode = j.draft.playMode === "gott" ? "gott" : "leben";
+    j.draft.player = typeof j.draft.player === "number" && j.draft.playMode === "leben" ? j.draft.player : null;
     j.draft.rules = { ...newDraft().rules, ...j.draft.rules };                          // Entwürfe aus älteren Fassungen bekommen die neuen Felder
     return j;
   } catch { return null; }

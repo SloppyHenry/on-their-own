@@ -37,6 +37,9 @@ export type MenuPane = "newsim" | "load" | "editors" | "settings";
 /** Eine Stelle im Menü (Bereich und Unterebene): dorthin kehrt Esc zurück, wenn man das Menü für einen Editor verlassen hat (AP18a). */
 export interface MenuStelle { menu: Exclude<MenuMode, null>; sel: string | null; sub: string | null }
 
+/** Offenes Popover über der Leiste: Ereignis (Gott), bei eigener Figur Benutzen, Sagen, Bauen, Gepäck (AP18h). */
+export type Pop = "ereignis" | "benutzen" | "sagen" | "bauen" | "gepaeck" | null;
+
 interface UiStore {
   view: View;
   /** Agent, dessen Gedächtnis der Inspektor zeigt. */
@@ -61,8 +64,8 @@ interface UiStore {
   wenigText: boolean;
   setWenigText: (on: boolean) => void;
   /** Offenes Popover über den Werkzeugen unten in der Mitte (Ereignis). */
-  pop: "ereignis" | null;
-  setPop: (p: "ereignis" | null) => void;
+  pop: Pop;
+  setPop: (p: Pop) => void;
   /** Hilfe auf „?“ (blendet sich beim ersten Start einmal ein). */
   help: boolean;
   setHelp: (on: boolean) => void;
@@ -95,9 +98,6 @@ interface UiStore {
   /** Titelbild beim Öffnen (je Gerät gemerkt, Standard an). */
   titleOnStart: boolean;
   setTitleOnStart: (on: boolean) => void;
-  /** Mitspieler-Steuerung als Vorschau (AP13): Klick geht/handelt, schickt aber nichts an die Simulation. */
-  playerPreview: boolean;
-  setPlayerPreview: (on: boolean) => void;
 }
 
 export const useUiStore = create<UiStore>((set) => ({
@@ -142,6 +142,4 @@ export const useUiStore = create<UiStore>((set) => ({
   openMenuAt: (s) => set({ menu: s.menu, menuSel: s.sel, menuSub: s.sub, returnTo: null }),
   titleOnStart: load<boolean>("simulacra.titelbild", true) !== false,
   setTitleOnStart: (titleOnStart) => { keep("simulacra.titelbild", titleOnStart); set({ titleOnStart }); },
-  playerPreview: load<boolean>("simulacra.mitspieler", false) === true,
-  setPlayerPreview: (playerPreview) => { keep("simulacra.mitspieler", playerPreview); set({ playerPreview }); },
 }));

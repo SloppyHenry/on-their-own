@@ -107,7 +107,8 @@ def test_choices_list_possible_and_impossible_without_side_effects(c):
 FORBIDDEN = ("Spieler", "Mensch", "gesteuert", "player", "Autopilot", "Leitstelle")
 
 
-async def test_conversation_runs_without_hint_until_expire():
+async def test_conversation_runs_without_hint_until_expire(monkeypatch):
+    monkeypatch.setattr(mitleben, "REPLY_SECONDS", 0)                     # die Frist in echten Sekunden gilt hier nicht (eigener Test in test_takt.py)
     sim = leben(make_sim())
     put(sim, "alex", 20, 13)
     put(sim, "mira", 21, 13)

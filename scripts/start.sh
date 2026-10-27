@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Startet Simulacra im Vordergrund (Strg+C beendet alles): das Modell (llama.cpp, wenn install.sh eines eingerichtet hat)
+# Startet On Their Own im Vordergrund (Strg+C beendet alles): das Modell (llama.cpp, wenn install.sh eines eingerichtet hat)
 # und das Backend mit der gebauten Oberfläche. Für den Betrieb ohne Bildschirm besser die Dienste von install.sh.
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"

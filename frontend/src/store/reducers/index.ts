@@ -34,6 +34,12 @@ export function applySnapshot(s: StateSnapshot): World {
     look: s.look ?? null,
     voices: s.voices ?? {},
     playMode: s.play_mode ?? "gott",
+    player: s.player ?? null,
+    playerAutopilot: s.player_autopilot ?? false,
+    playerHold: s.player_hold ?? false,
+    playerAuto: s.player_auto ?? false,
+    playerAutoMinutes: s.player_auto_minutes ?? 5,
+    playerWaiting: s.player_waiting ?? false,
     stale: false,
   };
 }

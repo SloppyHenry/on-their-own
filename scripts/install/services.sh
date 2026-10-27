@@ -7,7 +7,7 @@ install_services() {
   step "6/7" "Dienst"
   SERVICE=0
   local def=n; [ "$HEADLESS" = 1 ] && def=j
-  local what="Simulacra"; [ -n "$LLAMA_BIN" ] && [ -n "$MODEL_FILE" ] && what="Simulacra und das Modell"
+  local what="On Their Own"; [ -n "$LLAMA_BIN" ] && [ -n "$MODEL_FILE" ] && what="On Their Own und das Modell"
   local mgr; if [ "$OS" = macos ]; then mgr="launchd (~/Library/LaunchAgents)"; else mgr="systemd --user"; fi
   if ! ask "$what beim Anmelden automatisch starten ($mgr)?" "$def"; then
     say "  Ohne Dienst: ${C_Q}scripts/start.sh${C_0} startet alles im Vordergrund."
@@ -24,7 +24,7 @@ install_services() {
     if [ "$withllm" = 1 ]; then
       cat >"$d/simulacra-llm.service" <<EOF
 [Unit]
-Description=Simulacra: Sprachmodell (llama.cpp)
+Description=On Their Own: Sprachmodell (llama.cpp)
 [Service]
 Environment=LD_LIBRARY_PATH=$LLAMA_LIB
 ExecStart=$(unit_llm_cmd)
@@ -35,7 +35,7 @@ EOF
     fi
     cat >"$d/simulacra.service" <<EOF
 [Unit]
-Description=Simulacra
+Description=On Their Own
 $([ "$withllm" = 1 ] && echo "After=simulacra-llm.service")
 [Service]
 WorkingDirectory=$ROOT/backend
@@ -95,7 +95,7 @@ finish() {
   local url="http://127.0.0.1:$APP_PORT"
   if [ "$DRY" != 1 ] && [ "$SERVICE" = 1 ]; then
     for _ in $(seq 1 60); do curl -fsS "$url/api/health" >/dev/null 2>&1 && break; sleep 2; done
-    if curl -fsS "$url/api/health" >/dev/null 2>&1; then ok "Selbsttest: Simulacra antwortet ✓"; else warn "Simulacra antwortet noch nicht; Logs: $LOGS"; fi
+    if curl -fsS "$url/api/health" >/dev/null 2>&1; then ok "Selbsttest: On Their Own antwortet ✓"; else warn "On Their Own antwortet noch nicht; Logs: $LOGS"; fi
     if [ -n "$MODEL_FILE" ] && [ -n "$LLAMA_BIN" ]; then
       for _ in $(seq 1 90); do curl -fsS "http://127.0.0.1:$LLM_PORT/health" >/dev/null 2>&1 && break; sleep 2; done
       if curl -fsS "http://127.0.0.1:$LLM_PORT/health" >/dev/null 2>&1; then ok "Selbsttest: das Modell ist geladen ✓"; else warn "Das Modell antwortet noch nicht (langer Ladevorgang möglich); Log: $LOGS/llm.log"; fi
@@ -108,7 +108,7 @@ finish() {
 }
 
 uninstall() {
-  step "–" "Simulacra entfernen"
+  step "–" "On Their Own entfernen"
   if [ "$OS" = linux ]; then
     local u; for u in simulacra simulacra-llm; do run systemctl --user disable --now "$u.service" 2>/dev/null || true; run rm -f "$HOME/.config/systemd/user/$u.service"; done
     run systemctl --user daemon-reload 2>/dev/null || true

@@ -65,6 +65,10 @@ export function casters(w: World, L: Look): Caster[] {
   return out;
 }
 
+/** Ring unter den Füßen: Himmelblau bei deiner eigenen Figur (AP18h, nur in deinem Browser), sonst die Farbe der gewählten Figur. */
+export const PLAYER_RING = "#74aadc";
+const ringOf = (c: Ctx, id: string) => (c.w.player === id ? PLAYER_RING : id === c.selected ? accentOf(id) : null);
+
 export interface Ctx { w: World; L: Look; figures: Figures; t: number; lit: boolean; selected: string | null; hover: Target | null }
 
 const kindAt = (w: World) => (x: number, y: number) => Object.values(w.objects).filter((o) => o.x === x && o.y === y && !o.holder).map((o) => o.kind);
@@ -108,7 +112,7 @@ export function outdoor(c: Ctx): Thing[] {
     if (!p) continue;
     const target: Target = { kind: "agent", id: a.id };
     out.push({ vx: boat ? boat[0] : p.x, vy: boat ? boat[1] + 2.5 : p.y, spr: p.spr, target, hover: hov(p.spr, target), bob: !!boat,   // im Boot: hinter dem Rumpf
-      figure: { lift: boat ? 6 : p.lift, tool: p.toolSpr, toolAngle: p.toolAngle, ring: a.id === c.selected ? accentOf(a.id) : null, zzz: p.sleeping } });
+      figure: { lift: boat ? 6 : p.lift, tool: p.toolSpr, toolAngle: p.toolAngle, ring: ringOf(c, a.id), zzz: p.sleeping } });
   }
   return out;
 }
@@ -139,7 +143,7 @@ export function indoor(c: Ctx, H: HouseLook): HausThing[] {
     if (!pos || !here(Math.floor(pos.x / T), Math.floor(pos.y / T))) continue;
     const p = c.figures.pose(a, c.t, kindAt(w));
     if (!p) continue;
-    const target: Target = { kind: "agent", id: a.id }, ring = a.id === c.selected ? accentOf(a.id) : null, seat = seatOf(w, a);
+    const target: Target = { kind: "agent", id: a.id }, ring = ringOf(c, a.id), seat = seatOf(w, a);
     if (seat?.kind === "armchair") { const f = foot(seat.x!, seat.y!); const q = c.figures.pose(a, c.t, kindAt(w), true)!; out.push({ x: f.x, y: f.y + 0.5, hoch: 4, spr: q.spr, target, hover: hov(q.spr, target), ring }); continue; }
     if (p.inBed) out.push({ x: p.x, y: p.y + 0.5, spr: p.spr, target, hover: hov(p.spr, target), ring });
     else if (p.sitting) out.push({ x: p.x, y: (a.y + 1) * T - 0.5, hoch: 5, spr: p.spr, target, hover: hov(p.spr, target), ring });   // vor dem Sofa einsortiert, angehoben

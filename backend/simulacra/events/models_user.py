@@ -61,6 +61,16 @@ class PlayModeChanged(D):
     play_mode: str
 
 
+class PlayerTakt(D):
+    """Takt der eigenen Figur (AP18h): wer sie steuert, ob die Zeit auf sie wartet, Autopilot und die Schalter. Nur Leitstelle, nie in einem Prompt."""
+    player: str | None = None
+    waiting: bool = False
+    autopilot: bool = False
+    hold: bool = False
+    auto: bool = False
+    auto_minutes: int = 5
+
+
 class VoiceChanged(D):
     agent: str
     voice: dict[str, Any] | None = None   # None: zurück zum Vorschlag aus Geschlecht und Alter
