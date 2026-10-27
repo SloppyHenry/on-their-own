@@ -20,3 +20,7 @@ Vitest 36 neue Tests (Werkzeuglogik, Entwurf, Szene, Store mit Zeit anhalten/for
 - Der Rahmen für „Gebiet“ hat feste Größe 68 × 46 (echte Größe je Seed 58–77 × 40–51).
 - Nicht gebaut: Entwurf der Werkstatt im `sessionStorage` sichern; Bilder für den Bericht (AP16d); „Von innen einrichten“ (AP16c).
 - `backend/.venv` und `frontend/node_modules` sind Symlinke im Worktree (nicht eingecheckt).
+
+## Bilder
+![Fehler am Cursor](img/ap16b-1-werkstatt-fehler.png) ![Haus setzen](img/ap16b-2-werkstatt-haus.png)
+![Gott: Entwurf](img/ap16b-3-gott-entwurf.png) ![Übernehmen](img/ap16b-4-uebernehmen.png)
