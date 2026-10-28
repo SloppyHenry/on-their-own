@@ -17,3 +17,5 @@ frontend/playwright-report/
 .DS_Store
 *.log
 *.tsbuildinfo
+/docs/
+/.claude/
